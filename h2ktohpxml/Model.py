@@ -26,7 +26,10 @@ class ModelData:
         self.is_dhw_translated = False
         self.heating_distribution_type = None
         self.ac_hp_distribution_type = None
+        self.suppl_heating_distribution_types = []
         self.system_ids = {"primary_heating": "HeatingSystem1"}
+
+        self.flue_diameters = []
 
         # Results
         self.results = {
@@ -179,6 +182,19 @@ class ModelData:
 
     def get_ac_hp_distribution_type(self):
         return self.ac_hp_distribution_type
+
+    def set_suppl_heating_distribution_types(self, val):
+        # Note that val gets passed here as a list already
+        self.suppl_heating_distribution_types = val
+
+    def get_suppl_heating_distribution_types(self):
+        return self.suppl_heating_distribution_types
+
+    def set_flue_diameters(self, val):
+        self.flue_diameters = [*self.flue_diameters, val]
+
+    def get_flue_diameters(self):
+        return self.flue_diameters
 
     # tracking hvac system ids
 

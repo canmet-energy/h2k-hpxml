@@ -325,42 +325,27 @@ def h2ktohpxml(h2k_string="", config={}):
     dhw_dict = systems_results["dhw_dict"]
     mech_vent_dict = systems_results["mech_vent_dict"]
     solar_dhw_dict = systems_results["solar_dhw_dict"]
-
-    # only update the heating system from the template if we've translated the h2k into a valid object
-    # if model_data.get_is_hvac_translated():
-    #     hpxml_dict["HPXML"]["Building"]["BuildingDetails"]["Systems"][
-    #         "HVAC"
-    #     ] = hvac_dict
-    # else:
-    #     # Add warning/error
-    #     model_data.add_warning_message(
-    #         {
-    #             "message": "The h2k file contains an HVAC system that is not supported by the translation process. The default HVAC section from the template was used in the output HPXML file."
-    #         }
-    #     )
-
-    # if mech_vent_dict != {}:
-    #     hpxml_dict["HPXML"]["Building"]["BuildingDetails"]["Systems"][
-    #         "MechanicalVentilation"
-    #     ] = mech_vent_dict
-
-    # if model_data.get_is_dhw_translated():
-    #     hpxml_dict["HPXML"]["Building"]["BuildingDetails"]["Systems"][
-    #         "WaterHeating"
-    #     ] = dhw_dict
-    # else:
-    #     # Add warning/error
-    #     model_data.add_warning_message(
-    #         {
-    #             "message": "The h2k file contains a DHW system that is not supported by the translation process. The default DHW section from the template was used in the output HPXML file."
-    #         }
-    #     )
+    generation_dict = systems_results["generation_dict"]
 
     hpxml_dict["HPXML"]["Building"]["BuildingDetails"]["Systems"] = {
         **({"HVAC": hvac_dict} if model_data.get_is_hvac_translated() else {}),
         **({"MechanicalVentilation": mech_vent_dict} if mech_vent_dict != {} else {}),
         **({"WaterHeating": dhw_dict} if dhw_dict != {} else {}),
         **({"SolarThermal": solar_dhw_dict} if solar_dhw_dict != {} else {}),
+        **({"Photovoltaics": generation_dict} if generation_dict != {} else {}),
+    }
+
+    # Specify presence of flues if any have been detected while processing systems
+    hpxml_dict["HPXML"]["Building"]["BuildingDetails"]["Enclosure"][
+        "AirInfiltration"
+    ] = {
+        **hpxml_dict["HPXML"]["Building"]["BuildingDetails"]["Enclosure"][
+            "AirInfiltration"
+        ],
+        "extension": {
+            "HasFlueOrChimneyInConditionedSpace": len(model_data.get_flue_diameters())
+            > 0
+        },
     }
 
     # ================ 9. HPXML Section: Appliances ================

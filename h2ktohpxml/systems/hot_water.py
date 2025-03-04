@@ -64,6 +64,9 @@ def get_single_dhw_system(system_dict, sys_id, model_data):
     if system_dict == {}:
         return {}
 
+    # H2k does not allow a secondary DHW system when a combo is defined
+    combi_related_hvac_id = model_data.get_system_id("combi_related_hvac_id")
+
     tank_type = h2k.get_selection_field(system_dict, "hot_water_tank_type")
     fuel_type = h2k.get_selection_field(system_dict, "hot_water_fuel_type")
     tank_location = h2k.get_selection_field(system_dict, "hot_water_tank_location")
@@ -79,7 +82,11 @@ def get_single_dhw_system(system_dict, sys_id, model_data):
     heating_capacity = h2k.get_number_field(system_dict, "hot_water_heating_capacity")
     energy_factor = h2k.get_number_field(system_dict, "hot_water_energy_factor")
     heat_pump_cop = h2k.get_number_field(system_dict, "hot_water_heat_pump_cop")
+    flue_diameter = h2k.get_number_field(system_dict, "hot_water_flue_diameter")
     hot_water_temperature = model_data.get_building_detail("hot_water_temperature")
+
+    if flue_diameter > 0:
+        model_data.set_flue_diameters(flue_diameter)
 
     # likely very rare, but if the tank is in a crawlspace we need to match the type used
     if tank_location == "CRAWLSPACE":
@@ -104,7 +111,24 @@ def get_single_dhw_system(system_dict, sys_id, model_data):
 
     hpxml_water_heating = {}
 
-    if tank_type == "storage water heater":
+    if combi_related_hvac_id != None:
+        # H2k does not allow a secondary DHW system when a combo is defined
+        model_data.set_is_dhw_translated(True)
+        hpxml_water_heating = {
+            "SystemIdentifier": {"@id": sys_id},
+            "WaterHeaterType": (
+                "space-heating boiler with tankless coil"
+                if tank_volume == 0
+                else "space-heating boiler with storage tank"
+            ),
+            "Location": tank_location,
+            **({"TankVolume": tank_volume} if tank_volume != 0 else {}),
+            "FractionDHWLoadServed": load_fraction,
+            "HotWaterTemperature": hot_water_temperature,
+            "RelatedHVACSystem": {"@idref": combi_related_hvac_id},
+        }
+
+    elif tank_type == "storage water heater":
         model_data.set_is_dhw_translated(True)
         hpxml_water_heating = {
             "SystemIdentifier": {"@id": sys_id},

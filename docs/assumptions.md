@@ -26,8 +26,20 @@
 - Electric auxiliary energy (330 kWh/y for oil and 170 kWh/y for gas) overwritten with 0 kWh/year for boilers because no discernible difference in consumption is observed between homes with furnaces vs boilers in h2k. 
 - Hot water heating capcity will use the "input capacity" field in the hot water section if it's present. However, this field isn't always present. It's also within a section of the hot water screen called "Standby", so it's unclear if this field has the same interpretation as HPXML
 - Using HPXML's built-in assumptions about hot water distribution pipe length
-- HPXML requires the fraction of hot water heating load provided by solar thermal (if present). This information is only available in the results section of the h2k file. As such, files that include solar thermal systems must include results, otherwise a warning will be flagged. The fraction is calculated as the primary DHW system consumption (always solar) divided by the primary + secondary consumption.
 - Unrestricted GSHP/WSHP cutoffs are enforced by applying a switchover temp of -40C
+- When a supplementary heating system's equipment type is "Other (describe)" in h2k, the "Space Heater" HPXML system is used
+
+### Results-dependent translations
+#### Boiler Electric Auxiliary Energy
+- The amount of auxiliary electricity used by boiler primary heating systems is equal to the calculated electric space heating consumption for non-electric boilers, and the difference between the "primary" heating system consumption and the "total" space heating electricity consumption for electric boilers. These metrics are present in the results section of the HOT2000 file, and if a file does not have results then the auxiliary electric energy will be 0. This method does not work when an electric boiler is paired with a heat pump, as the results are not aggregated to the degree required. When a non-electric boiler is paired with a heat pump, the auxiliary electricity is equal to the "total" space heating electricity consumption minus the "heatPump" 
+
+#### Solar DHW
+- HPXML requires the fraction of hot water heating load provided by solar thermal (if present). This information is only available in the results section of the h2k file. As such, files that include solar thermal systems must include results, otherwise a warning will be flagged. The fraction is calculated as the primary DHW system consumption (always solar) divided by the primary + secondary consumption.
+
+#### Supplementary Heating Systems
+- The translation looks at the total energy consumption of each supplementary heating system and compares it to the primary heating system to determine fraction of heating loads served
+
+
 
 
 ### Field Assumptions:

@@ -539,6 +539,113 @@
             "mini-split"
         ],
         "default": "air-to-air"
+    },
+    "p9_fuel_type": {
+        "address": {
+            "h2k": "P9,TestData,EnergySource,English",
+            "hpxml": "HPXML,Building,BuildingDetails,Systems,HVAC,HVACPlant,HeatingSystem,HeatingSystemFuel"
+        },
+        "map": {
+            "Natural gas": "natural gas",
+            "Oil": "fuel oil",
+            "Propane": "propane"
+        },
+        "hpxml_opts": [
+            "electricity", 
+            "natural gas", 
+            "fuel oil", 
+            "fuel oil 1", 
+            "fuel oil 2", 
+            "fuel oil 4", 
+            "fuel oil 5/6", 
+            "diesel", 
+            "propane", 
+            "kerosene", 
+            "coal", 
+            "coke", 
+            "bituminous coal", 
+            "wood", 
+            "wood pellets"
+        ],
+        "default": "natural gas"
+    },
+    "suppl_heating_equip_type": {
+        "address": {
+            "h2k": "Equipment,Type,English",
+            "hpxml": "HPXML,Building,BuildingDetails,Systems,HVAC,HVACPlant,HeatingSystem,HeatingSystemType"
+        },
+        "map": {
+            "Baseboard/Hydronic/Plenum(duct) htrs": "baseboard",
+            "Forced air furnace": "furnace",
+            "Radiant floor panels": "radiant floor",
+            "Radiant ceiling panels": "radiant ceiling",
+            "Fan heater units": "space heater",
+            "Toe-space heaters": "space heater",
+            "Other (describe)": "space heater",
+            "Same as Type 1 heating system": "primary",
+            "Furnace/Boiler w/ spark ignition": "furnace",
+            "Fireplace with spark ignit. (unsealed)": "fireplace",
+            "Fireplace with spark ignit. (sealed)": "fireplace",
+            "Portable heater": "space heater",
+            "Fireplace with pilot (unsealed)": "fireplace",
+            "Fireplace with pilot (sealed)": "fireplace",
+            "Space heater": "space heater",
+            "Advanced airtight wood stove": "stove",
+            "Adv. airtight wood stove + cat. conv.": "stove",
+            "Wood furnace": "furnace",
+            "Wood fireplace": "fireplace",
+            "Wood fireplace insert": "fireplace"
+        },
+        "hpxml_opts": [
+            "baseboard",
+            "stove",
+            "fireplace",
+            "furnace",
+            "space heater",
+            "primary",
+            "radiant floor",
+            "radiant ceiling"
+        ],
+        "default": "furnace"
+    },
+    "base_ventilator_type": {
+        "address": {
+            "h2k": "VentilatorType,English",
+            "hpxml": "HPXML,Building,BuildingDetails,Systems,MechanicalVentilation,VentilationFans,VentilationFan,FanLocation"
+        },
+        "map": {
+            "HRV": "hrv",
+            "Range hood": "kitchen",
+            "Bathroom": "bath",
+            "Utility": "utility",
+            "Dryer": null
+        },
+        "hpxml_opts": [
+            "kitchen",
+            "bath"
+        ],
+        "default": "bath"
+    },
+    "pv_module_type": {
+        "address": {
+            "h2k": "Module,Type,English",
+            "hpxml": "HPXML,Building,BuildingDetails,Systems,Photovoltaics,PVSystem,ModuleType"
+        },
+        "map": {
+            "Mono-Si": "standard",
+            "Poly-Si": "standard",
+            "a-Si": "thin film",
+            "CdTe": "thin film",
+            "ClS": "thin film",
+            "User Specified": "standard"
+
+        },
+        "hpxml_opts": [
+            "standard",
+            "premium",
+            "thin film"
+        ],
+        "default": "standard"
     }
 }
 

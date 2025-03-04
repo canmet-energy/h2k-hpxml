@@ -28,3 +28,7 @@ HPXML has an input for the heat pump capacity at 17F (-8.33C), but h2k files don
 
 #### DHW System Requirement
 HPXML requires that a DHW system be present, you can have a valid h2k simulation (general mode only) without one. At the moment, files without DHW systems will not be able to produce results in HPXML
+
+
+#### Supplementary Heating System FractionHeatLoadServed
+This parameter does not have a straightforward means of computation. For now, it is set to 0 for all supplementary heating systems

@@ -12,6 +12,9 @@ def get_hvac_distribution(h2k_dict, model_data):
 
     heating_dist_type = model_data.get_heating_distribution_type()
     ac_hp_dist_type = model_data.get_ac_hp_distribution_type()
+    supplemental_heating_dist_types = (
+        model_data.get_suppl_heating_distribution_types()
+    )  # A list
     primary_heating_id = model_data.get_system_id("primary_heating")
     air_conditioning_id = model_data.get_system_id("air_conditioning")
     air_heat_pump_id = model_data.get_system_id("air_heat_pump")
@@ -29,7 +32,9 @@ def get_hvac_distribution(h2k_dict, model_data):
     # type of distribution they will use the same one.
     # This behaviour is supported by the pre-defined distribution system ids set up at the beginning of the get_systems() function
     for hvac_dist_type in list(
-        OrderedDict.fromkeys([heating_dist_type, ac_hp_dist_type])
+        OrderedDict.fromkeys(
+            [heating_dist_type, ac_hp_dist_type, *supplemental_heating_dist_types]
+        )
     ):
         if "air_" in str(hvac_dist_type):
             # “regular velocity”, “gravity”, or “fan coil” are the supported types
@@ -87,14 +92,18 @@ def get_hvac_distribution(h2k_dict, model_data):
 
             [base_type, sub_type] = hvac_dist_type.split("_")
 
-            # Currently only handling regular velocity with default duct inputs
+            # If the file has radiant heating specified then use that instead of the default sub_type ("radiator")
+            radiant_type = get_radiant_heating_type(h2k_dict, model_data)
+
             hvac_dist_dict = {
                 "SystemIdentifier": {
                     "@id": model_data.get_system_id("hvac_hydronic_distribution")
                 },
                 "DistributionSystemType": {
                     "HydronicDistribution": {
-                        "HydronicDistributionType": sub_type,
+                        "HydronicDistributionType": (
+                            radiant_type if radiant_type != None else sub_type
+                        ),
                     }
                 },
                 "ConditionedFloorAreaServed": ag_heated_floor_area
@@ -104,3 +113,38 @@ def get_hvac_distribution(h2k_dict, model_data):
             hvac_dist_systems = [*hvac_dist_systems, hvac_dist_dict]
 
     return hvac_dist_systems
+
+
+radiant_map = [
+    {"AtticCeiling": "radiant ceiling"},
+    {"FlatRoof": "radiant ceiling"},
+    {"AboveCrawlspace": "radiant floor"},
+    {"SlabOnGrade": "radiant floor"},
+    {"AboveBasement": "radiant floor"},
+    {"Basement": "radiant floor"},
+]
+
+
+def get_radiant_heating_type(h2k_dict, model_data):
+    if (
+        "RadiantHeating"
+        not in obj.get_val(h2k_dict, "HouseFile,House,HeatingCooling").keys()
+    ):
+        return None
+
+    radiant_heating = obj.get_val(
+        h2k_dict, "HouseFile,House,HeatingCooling,RadiantHeating"
+    )
+
+    fraction_area_list = []
+    for location in radiant_map:
+        fraction_area_list = [
+            *fraction_area_list,
+            float(radiant_heating[list(location.keys())[0]]["@fractionOfArea"]),
+        ]
+
+    largest_type_index = fraction_area_list.index(max(fraction_area_list))
+
+    radiant_type = list(radiant_map[largest_type_index].values())[0]
+
+    return radiant_type
