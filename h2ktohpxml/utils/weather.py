@@ -6,6 +6,7 @@ import requests
 import zipfile
 import configparser
 import csv
+from filelock import FileLock
 
 # Load configuration file and get the hpxml_os_path, weather_vintage, and weather_library
 config = configparser.ConfigParser()
@@ -89,21 +90,25 @@ def get_cwec_file(
     file_url = f"{github_url}{zip_file}"
     local_filename = os.path.join(os.path.dirname(__file__), f"{zip_file}")
 
-    response = requests.get(file_url, verify=False)
-    if response.status_code == 200:
-        with open(local_filename, "wb") as f:
-            f.write(response.content)
-    else:
-        raise Exception(
-            f"Failed to download file from {file_url}, status code: {response.status_code}"
-        )
+    # Define a lock file for the zip file
+    lock_file = f"{local_filename}.lock"
+    with FileLock(lock_file):
+        # Download the file
+        response = requests.get(file_url, verify=False)
+        if response.status_code == 200:
+            with open(local_filename, "wb") as f:
+                f.write(response.content)
+        else:
+            raise Exception(
+                f"Failed to download file from {file_url}, status code: {response.status_code}"
+            )
 
-    # Unzip the downloaded file possible race condition here if done in parallel.
-    with zipfile.ZipFile(local_filename, "r") as zip_ref:
-        extract_path = os.path.join(os.path.join(weather_folder))
-        for file in zip_ref.namelist():
-            if file.endswith(".epw"):
-                zip_ref.extract(file, extract_path)
+        # Unzip the downloaded file
+        with zipfile.ZipFile(local_filename, "r") as zip_ref:
+            extract_path = os.path.join(weather_folder)
+            for file in zip_ref.namelist():
+                if file.endswith(".epw"):
+                    zip_ref.extract(file, extract_path)
     return os.path.join(extract_path, f"{zip_file[:-4]}")
 
 
