@@ -28,5 +28,16 @@
 		}
 	},
   "remoteUser": "vscode",
-  "postCreateCommand": "/venv/bin/python -m venv /workspaces/h2k_hpxml/venv && /workspaces/h2k_hpxml/venv/bin/pip install -r /workspaces/h2k_hpxml/requirements.txt"
+  "postCreateCommand": "/venv/bin/python -m venv /workspaces/h2k_hpxml/venv && /workspaces/h2k_hpxml/venv/bin/pip install -r /workspaces/h2k_hpxml/requirements.txt && energyplus -v && echo \"OpenStudio $(openstudio -v)\" && python --version",
+  "runArgs": [
+	// WSLg support for GUI applications
+	"--env=DISPLAY=:0",
+	"--env=WAYLAND_DISPLAY=wayland-0",
+	"--env=XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir",
+	"--env=PULSE_SERVER=/mnt/wslg/PulseServer",
+    "--volume=/run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix",
+    "--volume=/run/desktop/mnt/host/wslg:/mnt/wslg",
+    "--cap-add=SYS_PTRACE",
+    "--security-opt", "seccomp=unconfined"
+  ]
 }
