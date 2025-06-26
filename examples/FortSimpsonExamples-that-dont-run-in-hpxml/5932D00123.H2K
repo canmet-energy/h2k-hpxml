@@ -1,0 +1,2302 @@
+<?xml version='1.0' encoding='ISO-8859-1'?> 
+<HouseFile xml:lang='en' uiUnits='Imperial'>
+  <Version major='1' minor='3'>
+    <Labels>
+      <English>
+        1.3
+      </English>
+      <French>
+        1.3
+      </French>
+    </Labels>
+  </Version>
+  <Application>
+    <Name>
+      HOT2000
+    </Name>
+    <Version major='11' minor='11' build='35'>
+      <Labels>
+        <English>
+          11.11b35
+        </English>
+        <French>
+          11.11b35
+        </French>
+      </Labels>
+    </Version>
+  </Application>
+  <ProgramInformation mixed='false'>
+    <Weather depthOfFrost='1.2192' heatingDegreeDay='7284' library='Wth2020.dir'>
+      <Region code='12'>
+        <English>
+          NORTHWEST TERRITORIES
+        </English>
+        <French>
+          TERRITOIRES DU NORD-OUEST
+        </French>
+      </Region>
+      <Location code='181'>
+        <English>
+          HAY RIVER
+        </English>
+        <French>
+          HAY RIVER
+        </French>
+      </Location>
+    </Weather>
+    <File evaluationDate='2023-06-03'>
+      <Identification>
+        5932D00123
+      </Identification>
+      <PreviousFileId/>
+      <EnrollmentId/>
+      <Ownership code='1'>
+        <English>
+          Dwelling private
+        </English>
+        <French>
+          Logement privé
+        </French>
+      </Ownership>
+      <TaxNumber>
+        0163760
+      </TaxNumber>
+      <EnteredBy>
+        Matt Born
+      </EnteredBy>
+      <UserTelephone>
+        780-876-3607
+      </UserTelephone>
+      <UserExtension/>
+      <CompanyTelephone>
+        800-604-0234
+      </CompanyTelephone>
+      <CompanyExtension/>
+      <Company>
+        CoEfficient
+      </Company>
+      <BuilderName/>
+      <HomeownerAuthorizationId>
+        AP255837
+      </HomeownerAuthorizationId>
+    </File>
+    <Client>
+      <Name>
+        <First>
+          Timothy
+        </First>
+        <Last>
+          Dressel
+        </Last>
+      </Name>
+      <Telephone>
+        867-876-0624
+      </Telephone>
+      <StreetAddress>
+        <Street>
+          45 Miron Drive
+        </Street>
+        <City>
+          Hay River
+        </City>
+        <Province>
+          NORTHWEST TERRITORIES
+        </Province>
+        <PostalCode>
+          X0E 0R2
+        </PostalCode>
+      </StreetAddress>
+      <MailingAddress>
+        <Name/>
+        <Street>
+          45 Miron Drive
+        </Street>
+        <City>
+          Hay River
+        </City>
+        <Province>
+          NORTHWEST TERRITORIES
+        </Province>
+        <PostalCode>
+          X0E 0R2
+        </PostalCode>
+      </MailingAddress>
+    </Client>
+    <Justifications nameplateEfficiency='false' combustionTestEfficiency='false' heatingCorrection='false' achCorrection='false' twoBlowerDoors='false' over18Months='false'>
+      <PossessionDate selected='false'/>
+      <HeatingVolumeDecrease selected='false'/>
+      <CorrectedInsulation>
+        <Ceilings selected='false'/>
+        <Walls selected='false'/>
+        <Basement selected='false'/>
+      </CorrectedInsulation>
+      <Other selected='false'/>
+      <EnergyStar code='0'/>
+    </Justifications>
+    <Information>
+      <Info code='Info. 2'>
+        NPI
+      </Info>
+    </Information>
+  </ProgramInformation>
+  <House id='0'>
+    <Labels>
+      <English>
+        House
+      </English>
+      <French xml:lang='fr'>
+        Maison
+      </French>
+    </Labels>
+    <Specifications effectiveMassFraction='1' defaultRoofCavity='true' eligibleForNBC='false' buildingType='House'>
+      <HouseType code='1'>
+        <English>
+          Single Detached
+        </English>
+        <French>
+          Détaché
+        </French>
+      </HouseType>
+      <PlanShape code='1'>
+        <English>
+          Rectangular
+        </English>
+        <French>
+          Rectangulaire
+        </French>
+      </PlanShape>
+      <Storeys code='1'>
+        <English>
+          One storey
+        </English>
+        <French>
+          Un étage
+        </French>
+      </Storeys>
+      <FacingDirection code='1'>
+        <English>
+          South
+        </English>
+        <French>
+          Sud
+        </French>
+      </FacingDirection>
+      <ThermalMass code='1'>
+        <English>
+          Light, wood frame
+        </English>
+        <French>
+          Légère, ossature de bois
+        </French>
+      </ThermalMass>
+      <YearBuilt code='1' value='2014'>
+        <English>
+          User specified
+        </English>
+        <French>
+          Spécifié par l'util.
+        </French>
+      </YearBuilt>
+      <WallColour code='10' value='0.4'>
+        <English>
+          Default
+        </English>
+        <French>
+          par défaut
+        </French>
+      </WallColour>
+      <SoilCondition code='1'>
+        <English>
+          Normal conductivity (dry sand, loam, clay)
+        </English>
+        <French>
+          conductivité normale (sable sec, argile)
+        </French>
+      </SoilCondition>
+      <RoofColour code='10' value='0.4'>
+        <English>
+          Default
+        </English>
+        <French>
+          par défaut
+        </French>
+      </RoofColour>
+      <WaterLevel code='2'>
+        <English>
+          Normal (7-10m/23-33ft)
+        </English>
+        <French>
+          Normal (7-10m/23-33pi)
+        </French>
+      </WaterLevel>
+      <HeatedFloorArea aboveGrade='97.8' belowGrade='91.8'/>
+    </Specifications>
+    <WindowTightness code='1' value='1.86'>
+      <English>
+        CSA - A1
+      </English>
+      <French>
+        CSA - A1
+      </French>
+    </WindowTightness>
+    <Temperatures id='11'>
+      <Label>
+        Temperatures
+      </Label>
+      <MainFloors daytimeHeatingSetPoint='21' nighttimeHeatingSetPoint='18' nighttimeSetbackDuration='8' coolingSetPoint='25'>
+        <AllowableRise code='3'>
+          <English>
+            High (5.5 C = 9.9 F)
+          </English>
+          <French>
+            Haute (5.5 C = 9.9 F)
+          </French>
+        </AllowableRise>
+      </MainFloors>
+      <Basement heated='true' cooled='false' separateThermostat='true' heatingSetPoint='19' basementUnit='false'/>
+      <Equipment heatingSetPoint='22' coolingSetPoint='24'/>
+      <Crawlspace heated='false' heatingSetPoint='15'/>
+    </Temperatures>
+    <BaseLoads basementFractionOfInternalGains='0.15' commonSpaceElectricalConsumption='0' id='12'>
+      <Label>
+        Base Loads
+      </Label>
+      <Occupancy isOccupied='true'>
+        <Adults occupants='2' atHome='50'/>
+        <Children occupants='1' atHome='50'/>
+        <Infants occupants='0' atHome='0'/>
+      </Occupancy>
+      <Summary electricalAppliances='6.2997' lighting='2.6' otherElectric='9.7' exteriorUse='0.9' hotWaterLoad='195.3752'/>
+      <WaterUsage temperature='55' otherHotWaterUse='2.92' lowFlushToilets='0'>
+        <BathroomFaucets code='2' value='8.3' numberPerOccupantPerDay='1.33'>
+          <English>
+            Standard 8.3 L/min (2.2 US gpm)
+          </English>
+          <French>
+            Débit standard 8.3 L/min (2,2 gal/min)
+          </French>
+        </BathroomFaucets>
+        <Shower averageDuration='6.5' numberPerOccupantPerWeek='5.2' totalDurationPerDay='14.4857'>
+          <Temperature code='1' value='41'>
+            <English>
+              Warm 41°C (106°F)
+            </English>
+            <French>
+              Tempérée 41°C (106°F)
+            </French>
+          </Temperature>
+          <FlowRate code='2' value='9.5'>
+            <English>
+              Standard 9.5 L/min (2.5 US gpm)
+            </English>
+            <French>
+              Standard 9.5 L/min (2.5 ÉU gpm)
+            </French>
+          </FlowRate>
+        </Shower>
+        <ClothesWasher numberPerOccupantPerWeek='1.9'>
+          <RatedValues code='1' ratedWaterConsumptionPerCycle='54' ratedAnnualEnergyConsumption='197'>
+            <English>
+              Default
+            </English>
+            <French>
+              Par défaut
+            </French>
+          </RatedValues>
+          <Temperature code='0'>
+            <English>
+              Hot
+            </English>
+            <French>
+              Chaude
+            </French>
+          </Temperature>
+        </ClothesWasher>
+        <DishWasher numberPerOccupantPerWeek='1.37'>
+          <RatedValues code='1' ratedWaterConsumptionPerCycle='19' ratedAnnualEnergyConsumption='260'>
+            <English>
+              Default
+            </English>
+            <French>
+              Par défaut
+            </French>
+          </RatedValues>
+        </DishWasher>
+      </WaterUsage>
+      <ElectricalUsage otherLoad='9.7' averageExteriorUse='0.9'>
+        <ClothesDryer percentageOfWasherLoads='71.4'>
+          <EnergySource code='1'>
+            <English>
+              Electric
+            </English>
+            <French>
+              Électricité
+            </French>
+          </EnergySource>
+          <RatedValue code='1' value='916'>
+            <English>
+              Default
+            </English>
+            <French>
+              Défaut
+            </French>
+          </RatedValue>
+          <Location code='1'>
+            <English>
+              Main Floor
+            </English>
+            <French>
+              Plancher Principal
+            </French>
+          </Location>
+        </ClothesDryer>
+        <Stove>
+          <EnergySource code='1'>
+            <English>
+              Electric
+            </English>
+            <French>
+              Électricité
+            </French>
+          </EnergySource>
+          <RatedValue code='1' value='565'>
+            <English>
+              Default
+            </English>
+            <French>
+              Par défaut
+            </French>
+          </RatedValue>
+        </Stove>
+        <Refrigerator code='1' value='639'>
+          <English>
+            Default
+          </English>
+          <French>
+            Par défaut
+          </French>
+        </Refrigerator>
+        <InteriorLighting code='1' value='2.6'>
+          <English>
+            &lt; 25% CFL or LED
+          </English>
+          <French>
+            &lt; 25% LFC ou DEL 
+          </French>
+        </InteriorLighting>
+      </ElectricalUsage>
+    </BaseLoads>
+    <Generation solarReady='false' PhotovoltaicCapacity='0' batteryStorage='false' id='13'>
+      <Label>
+        Generation
+      </Label>
+    </Generation>
+    <NaturalAirInfiltration id='7'>
+      <Label>
+        Natural Air Infiltration
+      </Label>
+      <Specifications>
+        <House volume='533.6622'>
+          <AirTightnessTest code='x'>
+            <English>
+              Blower door test values
+            </English>
+            <French>
+              Valeurs d'essai de dépressurisation
+            </French>
+          </AirTightnessTest>
+        </House>
+        <BlowerTest airChangeRate='3.28' leakageArea='819.35' isCgsbTest='false' guarded='false' isCalculated='false'>
+          <Pressure code='1'>
+            <English>
+              10 Pa
+            </English>
+            <French>
+              10 Pa
+            </French>
+          </Pressure>
+        </BlowerTest>
+        <BuildingSite highestCeiling='2.987'>
+          <Terrain code='7'>
+            <English>
+              Suburban, forest
+            </English>
+            <French>
+              Banlieue, forêt
+            </French>
+          </Terrain>
+        </BuildingSite>
+        <LocalShielding>
+          <Walls code='3'>
+            <English>
+              Heavy
+            </English>
+            <French>
+              Assez d'abri
+            </French>
+          </Walls>
+          <Flue code='2'>
+            <English>
+              Light
+            </English>
+            <French>
+              Un peu d'abri
+            </French>
+          </Flue>
+        </LocalShielding>
+        <ExhaustDevicesTest result='2.1'>
+          <TestStatus code='3'>
+            <English>
+              Test result
+            </English>
+            <French>
+              Résultat du test
+            </French>
+          </TestStatus>
+        </ExhaustDevicesTest>
+        <CommonSurfaceFloor surfaceFloor='0'/>
+        <CommonSurfaceWall surfaceWall='0'/>
+        <CommonSurfaceCeiling surfaceCeiling='0'/>
+        <CommonSurfaceArea surfacearea='0'/>
+      </Specifications>
+      <OtherFactors>
+        <WeatherStation anemometerHeight='190.8048'>
+          <Terrain code='3'>
+            <English>
+              Open flat terrain, grass
+            </English>
+            <French>
+              Prairie à l'herbe
+            </French>
+          </Terrain>
+        </WeatherStation>
+        <LeakageFractions useDefaults='true' ceilings='0.3' walls='0.5' floors='0.2'/>
+      </OtherFactors>
+    </NaturalAirInfiltration>
+    <Ventilation id='8'>
+      <Label>
+        Ventilation
+      </Label>
+      <Rooms living='3' bedrooms='2' bathrooms='1' utility='1' otherHabitable='0'>
+        <VentilationRate code='3'>
+          <English>
+            10 L/s (21 cfm)
+          </English>
+          <French>
+            10 L/s (21 pi³/min)
+          </French>
+        </VentilationRate>
+        <DepressurizationLimit code='1' value='5'>
+          <English>
+            5 Pa
+          </English>
+          <French>
+            5 Pa
+          </French>
+        </DepressurizationLimit>
+      </Rooms>
+      <Requirements ach='0' supply='0' exhaust='0'>
+        <Use code='4'>
+          <English>
+            Not applicable
+          </English>
+          <French>
+            Sans objet
+          </French>
+        </Use>
+      </Requirements>
+      <WholeHouse temperatureControlLower='0' temperatureControlUpper='16'>
+        <AirDistributionType code='1'>
+          <English>
+            Forced air heating ductwork
+          </English>
+          <French>
+            Conduites à entraînement forcé pour l'air chauffé
+          </French>
+        </AirDistributionType>
+        <AirDistributionFanPower code='1'>
+          <English>
+            Default
+          </English>
+          <French>
+            Par défaut
+          </French>
+        </AirDistributionFanPower>
+        <OperationSchedule code='6' value='480'>
+          <English>
+            480 min/day
+          </English>
+          <French>
+            480 min/j
+          </French>
+        </OperationSchedule>
+      </WholeHouse>
+      <WholeHouseVentilatorList>
+        <Hrv supplyFlowrate='27.9865' exhaustFlowrate='27.9865' fanPower1='59.7334' isDefaultFanpower='true' isEnergyStar='true' isHomeVentilatingInstituteCertified='false' isSupplemental='false' temperatureCondition1='0' temperatureCondition2='-25' fanPower2='73.5133' efficiency1='55' efficiency2='45' preheaterCapacity='0' lowTempVentReduction='0' coolingEfficiency='25'>
+          <EquipmentInformation>
+            <Manufacturer>
+              VanEE
+            </Manufacturer>
+            <Model>
+              41600
+            </Model>
+          </EquipmentInformation>
+          <VentilatorType code='1'>
+            <English>
+              HRV
+            </English>
+            <French>
+              VRC
+            </French>
+          </VentilatorType>
+          <ColdAirDucts>
+            <Supply length='1.5' diameter='152.4' insulation='0.7'>
+              <Location code='4'>
+                <English>
+                  Main floor
+                </English>
+                <French>
+                  Rez-de-chaussée
+                </French>
+              </Location>
+              <Type code='1'>
+                <English>
+                  Flexible
+                </English>
+                <French>
+                  Flexible
+                </French>
+              </Type>
+              <Sealing code='2'>
+                <English>
+                  Sealed
+                </English>
+                <French>
+                  Scellé
+                </French>
+              </Sealing>
+            </Supply>
+            <Exhaust length='1.5' diameter='152.4' insulation='0.7'>
+              <Location code='4'>
+                <English>
+                  Main floor
+                </English>
+                <French>
+                  Rez-de-chaussée
+                </French>
+              </Location>
+              <Type code='1'>
+                <English>
+                  Flexible
+                </English>
+                <French>
+                  Flexible
+                </French>
+              </Type>
+              <Sealing code='2'>
+                <English>
+                  Sealed
+                </English>
+                <French>
+                  Scellé
+                </French>
+              </Sealing>
+            </Exhaust>
+          </ColdAirDucts>
+        </Hrv>
+      </WholeHouseVentilatorList>
+      <SupplementalVentilatorList>
+        <Dryer supplyFlowrate='0' exhaustFlowrate='38' fanPower1='0' isDefaultFanpower='true' isEnergyStar='false' isHomeVentilatingInstituteCertified='false' isSupplemental='true'>
+          <EquipmentInformation/>
+          <VentilatorType code='5'>
+            <English>
+              Dryer
+            </English>
+            <French>
+              Sécheuse
+            </French>
+          </VentilatorType>
+          <OperationSchedule code='0' value='56.53'>
+            <English>
+              User specified
+            </English>
+            <French>
+              Spécifié par l’utilisateur
+            </French>
+          </OperationSchedule>
+          <Exhaust code='1'>
+            <English>
+              Vented outdoors
+            </English>
+            <French>
+              Évacuation extérieure
+            </French>
+          </Exhaust>
+        </Dryer>
+        <BaseVentilator supplyFlowrate='0' exhaustFlowrate='32.9891' fanPower1='25.1' isDefaultFanpower='true' isEnergyStar='false' isHomeVentilatingInstituteCertified='false' isSupplemental='true'>
+          <EquipmentInformation/>
+          <VentilatorType code='3'>
+            <English>
+              Bathroom
+            </English>
+            <French>
+              Salle de bains
+            </French>
+          </VentilatorType>
+          <OperationSchedule code='3' value='45'>
+            <English>
+              45 min/day
+            </English>
+            <French>
+              45 min/j
+            </French>
+          </OperationSchedule>
+        </BaseVentilator>
+        <BaseVentilator supplyFlowrate='0' exhaustFlowrate='32.9891' fanPower1='25.1' isDefaultFanpower='true' isEnergyStar='false' isHomeVentilatingInstituteCertified='false' isSupplemental='true'>
+          <EquipmentInformation/>
+          <VentilatorType code='3'>
+            <English>
+              Bathroom
+            </English>
+            <French>
+              Salle de bains
+            </French>
+          </VentilatorType>
+          <OperationSchedule code='3' value='45'>
+            <English>
+              45 min/day
+            </English>
+            <French>
+              45 min/j
+            </French>
+          </OperationSchedule>
+        </BaseVentilator>
+        <BaseVentilator supplyFlowrate='0' exhaustFlowrate='74.9924' fanPower1='57' isDefaultFanpower='true' isEnergyStar='false' isHomeVentilatingInstituteCertified='false' isSupplemental='true'>
+          <EquipmentInformation/>
+          <VentilatorType code='2'>
+            <English>
+              Range hood
+            </English>
+            <French>
+              Hotte aspirante
+            </French>
+          </VentilatorType>
+          <OperationSchedule code='3' value='45'>
+            <English>
+              45 min/day
+            </English>
+            <French>
+              45 min/j
+            </French>
+          </OperationSchedule>
+        </BaseVentilator>
+      </SupplementalVentilatorList>
+    </Ventilation>
+    <HeatingCooling id='10'>
+      <Label>
+        Heating/Cooling System
+      </Label>
+      <CoolingSeason>
+        <Start code='1'>
+          January
+        </Start>
+        <End code='12'>
+          December
+        </End>
+        <Design code='7'>
+          July
+        </Design>
+      </CoolingSeason>
+      <Type1>
+        <FansAndPump hasEnergyEfficientMotor='false'>
+          <Mode code='1'>
+            <English>
+              Auto
+            </English>
+            <French>
+              Auto
+            </French>
+          </Mode>
+          <Power isCalculated='true' low='0' high='213.4'/>
+        </FansAndPump>
+        <Furnace>
+          <EquipmentInformation energystar='false'>
+            <Manufacturer>
+              Olsen
+            </Manufacturer>
+            <Model>
+              HML80C2
+            </Model>
+          </EquipmentInformation>
+          <Equipment isBiEnergy='false' switchoverTemperature='0'>
+            <EnergySource code='3'>
+              <English>
+                Oil
+              </English>
+              <French>
+                Mazout
+              </French>
+            </EnergySource>
+            <EquipmentType code='4'>
+              <English>
+                Mid-eff. furnace (no dil. air)
+              </English>
+              <French>
+                Fourn. à rend. moy. (sans air de dilution)
+              </French>
+            </EquipmentType>
+          </Equipment>
+          <Specifications sizingFactor='1' efficiency='85' isSteadyState='false' pilotLight='0' flueDiameter='0'>
+            <OutputCapacity code='2' value='11' uiUnits='btu/hr'>
+              <English>
+                Calculated
+              </English>
+              <French>
+                Calculé
+              </French>
+            </OutputCapacity>
+          </Specifications>
+        </Furnace>
+      </Type1>
+      <Type2 shadingInF280Cooling='AccountedFor'/>
+      <MultipleSystems>
+        <Summary energySaverHeatingSystems='0' energySaverAirSourceHeatPump='0' woodAppliances='0' epaCsaHeatingSystems='0'/>
+      </MultipleSystems>
+      <AdditionalOpenings>
+        <Opening code='1' rank='1'>
+          <English>
+            Not applicable
+          </English>
+          <French>
+            Sans objet
+          </French>
+        </Opening>
+        <Opening code='1' rank='2'>
+          <English>
+            Not applicable
+          </English>
+          <French>
+            Sans objet
+          </French>
+        </Opening>
+        <Opening code='2' rank='3' flueDiameter='152.4' damperClosed='false'>
+          <English>
+            Combustion air supply
+          </English>
+          <French>
+            Apport d’air de combustion
+          </French>
+        </Opening>
+      </AdditionalOpenings>
+      <SupplementaryHeatingSystems>
+        <System rank='1'>
+          <EquipmentInformation csaEpa='false'>
+            <Manufacturer>
+              Regency
+            </Manufacturer>
+            <Model>
+              F3500
+            </Model>
+          </EquipmentInformation>
+          <Equipment>
+            <EnergySource code='5'>
+              <English>
+                Mixed Wood
+              </English>
+              <French>
+                Bois mélangé
+              </French>
+            </EnergySource>
+            <Type code='1'>
+              <English>
+                Advanced airtight wood stove
+              </English>
+              <French>
+                Poêle à bois étanche avancé
+              </French>
+            </Type>
+          </Equipment>
+          <Specifications efficiency='30' damperClosed='false'>
+            <YearMade code='10'>
+              <English>
+                2000-
+              </English>
+              <French>
+                2000-
+              </French>
+            </YearMade>
+            <Usage code='1'>
+              <English>
+                Never
+              </English>
+              <French>
+                Jamais
+              </French>
+            </Usage>
+            <LocationHeated code='1' value='12.0031'>
+              <English>
+                Main Floors
+              </English>
+              <French>
+                Plancher Principaux
+              </French>
+            </LocationHeated>
+            <Flue isInterior='true' diameter='152.4'>
+              <Type code='1'>
+                <English>
+                  Brick
+                </English>
+                <French>
+                  Brique
+                </French>
+              </Type>
+            </Flue>
+            <OutputCapacity value='2' uiUnits='kW'/>
+          </Specifications>
+        </System>
+      </SupplementaryHeatingSystems>
+    </HeatingCooling>
+    <Components>
+      <Ceiling id='4'>
+        <Label>
+          Ceiling - 1 Flat
+        </Label>
+        <Construction>
+          <Type code='2'>
+            <English>
+              Attic/gable
+            </English>
+            <French>
+              Combles/pignon
+            </French>
+          </Type>
+          <CeilingType idref='Code 2' rValue='6.8217' nominalInsulation='7.1625'>
+            2403B91000
+          </CeilingType>
+        </Construction>
+        <Measurements length='23.7744' area='97.8269' heelHeight='0.1524'>
+          <Slope code='5' value='0.417'>
+            <English>
+              5 / 12
+            </English>
+            <French>
+              5 / 12
+            </French>
+          </Slope>
+        </Measurements>
+      </Ceiling>
+      <Wall adjacentEnclosedSpace='false' id='1'>
+        <Label>
+          Wall - 1
+        </Label>
+        <Construction corners='4' intersections='10'>
+          <Type idref='Code 1' rValue='2.9498' nominalInsulation='3.2421'>
+            2x6 R20 Dry 7/16 Siding 3 Stud
+          </Type>
+        </Construction>
+        <Measurements height='2.4384' perimeter='40.2336'/>
+        <FacingDirection code='1'>
+          <English>
+            N/A
+          </English>
+          <French>
+            S/O
+          </French>
+        </FacingDirection>
+        <Components>
+          <Door rValue='0.98' adjacentEnclosedSpace='false' id='3'>
+            <Label>
+              Door - 1 Main
+            </Label>
+            <Construction energyStar='false'>
+              <Type code='4' value='0.98'>
+                <English>
+                  Steel polystyrene core
+                </English>
+                <French>
+                  Acier / âme en polystyrène
+                </French>
+              </Type>
+            </Construction>
+            <Measurements height='2.0828' width='0.9652'/>
+            <Components>
+              <Window number='1' er='26.9746' shgc='0.3946' frameHeight='41' frameAreaFraction='0.2254' edgeOfGlassFraction='0.2957' centreOfGlassFraction='0.4788' adjacentEnclosedSpace='false' id='24'>
+                <Label>
+                  Window - 11 Insert
+                </Label>
+                <Construction energyStar='false'>
+                  <Type idref='Code 8' rValue='0.5742'>
+                    DLEA 13Arg In Pic Vinyl
+                  </Type>
+                </Construction>
+                <Measurements height='889' width='558.8' headerHeight='1.2192' overhangWidth='0.6096'>
+                  <Tilt code='1' value='90'>
+                    <English>
+                      Vertical
+                    </English>
+                    <French>
+                      Verticale
+                    </French>
+                  </Tilt>
+                </Measurements>
+                <Shading curtain='1' shutterRValue='0'/>
+                <FacingDirection code='1'>
+                  <English>
+                    South
+                  </English>
+                  <French>
+                    Sud
+                  </French>
+                </FacingDirection>
+              </Window>
+            </Components>
+          </Door>
+          <Door rValue='0.98' adjacentEnclosedSpace='false' id='25'>
+            <Label>
+              Door - 2 Side
+            </Label>
+            <Construction energyStar='false'>
+              <Type code='4' value='0.98'>
+                <English>
+                  Steel polystyrene core
+                </English>
+                <French>
+                  Acier / âme en polystyrène
+                </French>
+              </Type>
+            </Construction>
+            <Measurements height='2.0828' width='0.9652'/>
+            <Components>
+              <Window number='1' er='26.9746' shgc='0.3946' frameHeight='41' frameAreaFraction='0.2254' edgeOfGlassFraction='0.2957' centreOfGlassFraction='0.4788' adjacentEnclosedSpace='false' id='26'>
+                <Label>
+                  Window - 12 Insert
+                </Label>
+                <Construction energyStar='false'>
+                  <Type idref='Code 8' rValue='0.5742'>
+                    DLEA 13Arg In Pic Vinyl
+                  </Type>
+                </Construction>
+                <Measurements height='889' width='558.8' headerHeight='0.6096' overhangWidth='1.2192'>
+                  <Tilt code='1' value='90'>
+                    <English>
+                      Vertical
+                    </English>
+                    <French>
+                      Verticale
+                    </French>
+                  </Tilt>
+                </Measurements>
+                <Shading curtain='1' shutterRValue='0'/>
+                <FacingDirection code='3'>
+                  <English>
+                    East
+                  </English>
+                  <French>
+                    Est
+                  </French>
+                </FacingDirection>
+              </Window>
+            </Components>
+          </Door>
+          <Window number='1' er='23.0894' shgc='0.349' frameHeight='71' frameAreaFraction='0.258' edgeOfGlassFraction='0.1987' centreOfGlassFraction='0.5433' adjacentEnclosedSpace='false' id='2'>
+            <Label>
+              Window - 1 Left
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 5' rValue='0.7193'>
+                TLEA 13Arg In Hin Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='1168.4001' width='914.4001' headerHeight='0.3048' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='7'>
+              <English>
+                West
+              </English>
+              <French>
+                Ouest
+              </French>
+            </FacingDirection>
+          </Window>
+          <Window number='1' er='23.0894' shgc='0.3116' frameHeight='71' frameAreaFraction='0.3448' edgeOfGlassFraction='0.256' centreOfGlassFraction='0.3992' adjacentEnclosedSpace='false' id='15'>
+            <Label>
+              Window - 2 Left
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 5' rValue='0.6589'>
+                TLEA 13Arg In Hin Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='1168.4001' width='558.8' headerHeight='0.3048' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='7'>
+              <English>
+                West
+              </English>
+              <French>
+                Ouest
+              </French>
+            </FacingDirection>
+          </Window>
+          <Window number='1' er='23.0894' shgc='0.349' frameHeight='71' frameAreaFraction='0.258' edgeOfGlassFraction='0.1987' centreOfGlassFraction='0.5433' adjacentEnclosedSpace='false' id='16'>
+            <Label>
+              Window - 3 Left
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 5' rValue='0.7193'>
+                TLEA 13Arg In Hin Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='1168.4001' width='914.4001' headerHeight='0.3048' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='7'>
+              <English>
+                West
+              </English>
+              <French>
+                Ouest
+              </French>
+            </FacingDirection>
+          </Window>
+          <Window number='1' er='23.0894' shgc='0.349' frameHeight='71' frameAreaFraction='0.258' edgeOfGlassFraction='0.1987' centreOfGlassFraction='0.5433' adjacentEnclosedSpace='false' id='17'>
+            <Label>
+              Window - 4 Left
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 5' rValue='0.7193'>
+                TLEA 13Arg In Hin Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='1168.4001' width='914.4001' headerHeight='0.3048' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='1'>
+              <English>
+                South
+              </English>
+              <French>
+                Sud
+              </French>
+            </FacingDirection>
+          </Window>
+          <Window number='1' er='23.0894' shgc='0.3892' frameHeight='71' frameAreaFraction='0.1646' edgeOfGlassFraction='0.1348' centreOfGlassFraction='0.7007' adjacentEnclosedSpace='false' id='18'>
+            <Label>
+              Window - 5 Right
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 5' rValue='0.7986'>
+                TLEA 13Arg In Hin Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='1524.0002' width='1803.4' headerHeight='0.3048' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='3'>
+              <English>
+                East
+              </English>
+              <French>
+                Est
+              </French>
+            </FacingDirection>
+          </Window>
+          <Window number='1' er='23.0894' shgc='0.3674' frameHeight='71' frameAreaFraction='0.2152' edgeOfGlassFraction='0.1704' centreOfGlassFraction='0.6144' adjacentEnclosedSpace='false' id='19'>
+            <Label>
+              Window - 6 Right
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 5' rValue='0.7534'>
+                TLEA 13Arg In Hin Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='1244.6' width='1244.6' headerHeight='0.3048' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='3'>
+              <English>
+                East
+              </English>
+              <French>
+                Est
+              </French>
+            </FacingDirection>
+          </Window>
+          <Window number='1' er='23.0894' shgc='0.3367' frameHeight='71' frameAreaFraction='0.2865' edgeOfGlassFraction='0.2154' centreOfGlassFraction='0.4982' adjacentEnclosedSpace='false' id='20'>
+            <Label>
+              Window - 7 Right
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 5' rValue='0.6987'>
+                TLEA 13Arg In Hin Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='914.4001' width='914.4001' headerHeight='0.3048' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='3'>
+              <English>
+                East
+              </English>
+              <French>
+                Est
+              </French>
+            </FacingDirection>
+          </Window>
+        </Components>
+      </Wall>
+      <Basement isExposedSurface='true' exposedSurfacePerimeter='39.0144' id='5'>
+        <Label>
+          Foundation - 1
+        </Label>
+        <Configuration type='BCCB' subtype='8' overlap='0'>
+          BCCB_8
+        </Configuration>
+        <OpeningUpstairs code='1' value='1.56'>
+          <English>
+            Standard door - open
+          </English>
+          <French>
+            Porte standard - ouverte
+          </French>
+        </OpeningUpstairs>
+        <RoomType code='6'>
+          <English>
+            Utility Room
+          </English>
+          <French>
+            Pièce Utilitaire
+          </French>
+        </RoomType>
+        <Floor>
+          <Construction isBelowFrostline='true' hasIntegralFooting='false' heatedFloor='false'>
+            <AddedToSlab rValue='0' nominalInsulation='0'>
+              User specified
+            </AddedToSlab>
+            <FloorsAbove idref='Code 10' rValue='0.9026' nominalInsulation='0'>
+              4502001220
+            </FloorsAbove>
+          </Construction>
+          <Measurements isRectangular='false' area='91.7882' perimeter='39.0144'/>
+        </Floor>
+        <Wall hasPonyWall='false'>
+          <Construction corners='4'>
+            <InteriorAddedInsulation idref='Code 11' nominalInsulation='5.3242'>
+              <Description>
+                511L01
+              </Description>
+              <Composite>
+                <Section rank='1' percentage='100' rsi='4.44' nominalRsi='5.3242'/>
+              </Composite>
+            </InteriorAddedInsulation>
+            <ExteriorAddedInsulation nominalInsulation='0'>
+              <Description>
+                User specified
+              </Description>
+              <Composite>
+                <Section rank='1' percentage='100' rsi='0' nominalRsi='0'/>
+              </Composite>
+            </ExteriorAddedInsulation>
+          </Construction>
+          <Measurements height='2.987' depth='1.9202' ponyWallHeight='0'/>
+        </Wall>
+        <Components>
+          <Window number='2' er='19.5906' shgc='0.3488' frameHeight='71' frameAreaFraction='0.3252' edgeOfGlassFraction='0.2732' centreOfGlassFraction='0.4016' adjacentEnclosedSpace='false' id='23'>
+            <Label>
+              Window - 10 Right
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 7' rValue='0.5274'>
+                DLEA 13Arg Ins Slider Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='812.8' width='1168.4001' headerHeight='0.3048' overhangWidth='3.6576'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='3'>
+              <English>
+                East
+              </English>
+              <French>
+                Est
+              </French>
+            </FacingDirection>
+          </Window>
+          <Window number='2' er='19.5906' shgc='0.3633' frameHeight='71' frameAreaFraction='0.294' edgeOfGlassFraction='0.249' centreOfGlassFraction='0.457' adjacentEnclosedSpace='false' id='21'>
+            <Label>
+              Window - 8 Left
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 7' rValue='0.5399'>
+                DLEA 13Arg Ins Slider Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='812.8' width='1473.2' headerHeight='2.4384' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='7'>
+              <English>
+                West
+              </English>
+              <French>
+                Ouest
+              </French>
+            </FacingDirection>
+          </Window>
+          <Window number='1' er='19.5906' shgc='0.3488' frameHeight='71' frameAreaFraction='0.3252' edgeOfGlassFraction='0.2732' centreOfGlassFraction='0.4016' adjacentEnclosedSpace='false' id='22'>
+            <Label>
+              Window - 9 Rear
+            </Label>
+            <Construction energyStar='false'>
+              <Type idref='Code 7' rValue='0.5274'>
+                DLEA 13Arg Ins Slider Vinyl
+              </Type>
+            </Construction>
+            <Measurements height='812.8' width='1168.4001' headerHeight='3.048' overhangWidth='0.6096'>
+              <Tilt code='1' value='90'>
+                <English>
+                  Vertical
+                </English>
+                <French>
+                  Verticale
+                </French>
+              </Tilt>
+            </Measurements>
+            <Shading curtain='1' shutterRValue='0'/>
+            <FacingDirection code='5'>
+              <English>
+                North
+              </English>
+              <French>
+                Nord
+              </French>
+            </FacingDirection>
+          </Window>
+          <FloorHeader adjacentEnclosedSpace='false' id='14'>
+            <Label>
+              Floor Header - 1
+            </Label>
+            <Construction>
+              <Type idref='Code 12' rValue='3.8975' nominalInsulation='3.2004'>
+                18000G0220
+              </Type>
+            </Construction>
+            <Measurements height='0.2499' perimeter='39.0144'/>
+            <FacingDirection code='1'>
+              <English>
+                N/A
+              </English>
+              <French>
+                S/O
+              </French>
+            </FacingDirection>
+          </FloorHeader>
+        </Components>
+      </Basement>
+      <HotWater id='9'>
+        <Label>
+          Domestic Hot Water
+        </Label>
+        <Primary hasDrainWaterHeatRecovery='false' insulatingBlanket='0' combinedFlue='true' flueDiameter='0' energyStar='false' ecoEnergy='false' userDefinedPilot='false' connectedUnitsDwhr='0' pilotEnergy='0'>
+          <EquipmentInformation>
+            <Manufacturer>
+              JohnWood
+            </Manufacturer>
+            <Model>
+              JWF-307
+            </Model>
+          </EquipmentInformation>
+          <EnergySource code='3'>
+            <English>
+              Oil
+            </English>
+            <French>
+              Mazout
+            </French>
+          </EnergySource>
+          <TankType code='2'>
+            <English>
+              Conventional tank
+            </English>
+            <French>
+              Réservoir classique
+            </French>
+          </TankType>
+          <TankVolume code='3' value='151.4'>
+            <English>
+              151.4 L, 33.3 Imp, 40 US gal
+            </English>
+            <French>
+              151.4 L, 33.3 imp, 40 gal ÉU
+            </French>
+          </TankVolume>
+          <EnergyFactor code='1' value='0.5302' inputCapacity='0' isUniform='false'>
+            <English>
+              Use defaults
+            </English>
+            <French>
+              Valeurs par défaut
+            </French>
+          </EnergyFactor>
+          <TankLocation code='2'>
+            <English>
+              Basement
+            </English>
+            <French>
+              Sous-sol
+            </French>
+          </TankLocation>
+        </Primary>
+      </HotWater>
+    </Components>
+  </House>
+  <Codes>
+    <Wall>
+      <Favorite>
+        <Code id='Code 1' value='1211301221' nominalRValue='3.2421'>
+          <Label>
+            2x6 R20 Dry 7/16 Siding 3 Stud
+          </Label>
+          <Description/>
+          <Layers>
+            <StructureType code='2'>
+              <English>
+                Wood frame
+              </English>
+              <French>
+                Ossature de bois
+              </French>
+            </StructureType>
+            <ComponentTypeSize code='1'>
+              <English>
+                38x140 mm (2x6 in)
+              </English>
+              <French>
+                38x140 (2x6)
+              </French>
+            </ComponentTypeSize>
+            <Spacing code='1'>
+              <English>
+                400 mm (16 in)
+              </English>
+              <French>
+                400 mm (16 po)
+              </French>
+            </Spacing>
+            <InsulationLayer1 code='3'>
+              <English>
+                RSI 3.52 @ 152 mm (R 20 @ 6.0'') batt
+              </English>
+              <French>
+                RSI 3.52 @ 152 mm (R 20 @ 6.0'') natte
+              </French>
+            </InsulationLayer1>
+            <InsulationLayer2 code='0'>
+              <English>
+                None
+              </English>
+              <French>
+                Aucun
+              </French>
+            </InsulationLayer2>
+            <Interior code='1'>
+              <English>
+                12 mm (0.5 in) gypsum board
+              </English>
+              <French>
+                12 mm (0.5 po) Plaque de plâtre (P de p)
+              </French>
+            </Interior>
+            <Sheathing code='2'>
+              <English>
+                Waferboard/OSB 11.1 mm (7/16 in)
+              </English>
+              <French>
+                Panneau copeaux/OSB 11.1 mm (7/16 po)
+              </French>
+            </Sheathing>
+            <Exterior code='2'>
+              <English>
+                Hollow metal/vinyl cladding
+              </English>
+              <French>
+                Revêt. en métal creux/vinyle
+              </French>
+            </Exterior>
+            <StudsCornerIntersection code='1'>
+              <English>
+                3 studs
+              </English>
+              <French>
+                3 poteaux
+              </French>
+            </StudsCornerIntersection>
+          </Layers>
+        </Code>
+      </Favorite>
+    </Wall>
+    <Ceiling>
+      <Standard>
+        <Code id='Code 2' value='2403B91000' nominalRValue='7.1625'>
+          <Label>
+            2403B91000
+          </Label>
+          <Description>
+            2403B91000
+          </Description>
+          <Layers>
+            <StructureType code='4'>
+              <English>
+                Truss
+              </English>
+              <French>
+                Ferme
+              </French>
+            </StructureType>
+            <ComponentTypeSize code='0'>
+              <English>
+                38x89 mm (2x4 in) Attic truss
+              </English>
+              <French>
+                38x89 (2x4) Ferme de grenier
+              </French>
+            </ComponentTypeSize>
+            <Spacing code='3'>
+              <English>
+                600 mm (24 in)
+              </English>
+              <French>
+                600 mm (24 po)
+              </French>
+            </Spacing>
+            <InsulationLayer1 code='B'>
+              <English>
+                RSI 3.5 (R 20) Blown mineral fibre
+              </English>
+              <French>
+                RSI 3.5 (R 20) Fibre minér. inj.
+              </French>
+            </InsulationLayer1>
+            <InsulationLayer2 code='9'>
+              <English>
+                Same as Insulation Layer 1
+              </English>
+              <French>
+                Même que couche d'isolant 1
+              </French>
+            </InsulationLayer2>
+            <Interior code='1'>
+              <English>
+                12 mm (0.5 in) gypsum board
+              </English>
+              <French>
+                12 mm (0.5 po) Plaque de plâtre (P de p)
+              </French>
+            </Interior>
+          </Layers>
+        </Code>
+      </Standard>
+      <Favorite>
+        <Code id='Code 3' value='2403891000' nominalRValue='18.012'>
+          <Label>
+            True R60
+          </Label>
+          <Description/>
+          <Layers>
+            <StructureType code='4'>
+              <English>
+                Truss
+              </English>
+              <French>
+                Ferme
+              </French>
+            </StructureType>
+            <ComponentTypeSize code='0'>
+              <English>
+                38x89 mm (2x4 in) Attic truss
+              </English>
+              <French>
+                38x89 (2x4) Ferme de grenier
+              </French>
+            </ComponentTypeSize>
+            <Spacing code='3'>
+              <English>
+                600 mm (24 in)
+              </English>
+              <French>
+                600 mm (24 po)
+              </French>
+            </Spacing>
+            <InsulationLayer1 code='8'>
+              <English>
+                RSI 9.0 (R 51) Blown cellulose
+              </English>
+              <French>
+                RSI 9.0 (R 51) Cell. injecté
+              </French>
+            </InsulationLayer1>
+            <InsulationLayer2 code='9'>
+              <English>
+                Same as Insulation Layer 1
+              </English>
+              <French>
+                Même que couche d'isolant 1
+              </French>
+            </InsulationLayer2>
+            <Interior code='1'>
+              <English>
+                12 mm (0.5 in) gypsum board
+              </English>
+              <French>
+                12 mm (0.5 po) Plaque de plâtre (P de p)
+              </French>
+            </Interior>
+          </Layers>
+        </Code>
+      </Favorite>
+    </Ceiling>
+    <Window>
+      <Favorite>
+        <Code id='Code 4' value='413224' nominalRValue='0'>
+          <Label>
+            Triple LowE Argon Slider Vinyl
+          </Label>
+          <Description/>
+          <Layers>
+            <GlazingTypes code='4'>
+              <English>
+                TG with 2 coatings
+              </English>
+              <French>
+                Triple, 2 couches
+              </French>
+            </GlazingTypes>
+            <CoatingsTints code='1'>
+              <English>
+                Low-E .04 (soft)
+              </English>
+              <French>
+                Faible E .04 (Doux)
+              </French>
+            </CoatingsTints>
+            <FillType code='3'>
+              <English>
+                13 mm Argon
+              </English>
+              <French>
+                13 mm d'argon
+              </French>
+            </FillType>
+            <SpacerType code='2'>
+              <English>
+                Insulating
+              </English>
+              <French>
+                Isolant
+              </French>
+            </SpacerType>
+            <Type code='2'>
+              <English>
+                Slider with sash
+              </English>
+              <French>
+                Coulissant
+              </French>
+            </Type>
+            <FrameMaterial code='4'>
+              <English>
+                Vinyl
+              </English>
+              <French>
+                Vinyle
+              </French>
+            </FrameMaterial>
+          </Layers>
+        </Code>
+        <Code id='Code 5' value='313214' nominalRValue='0'>
+          <Label>
+            TLEA 13Arg In Hin Vinyl
+          </Label>
+          <Description/>
+          <Layers>
+            <GlazingTypes code='3'>
+              <English>
+                Triple/triple with 1 coat
+              </English>
+              <French>
+                Triple/triple, 1 couche
+              </French>
+            </GlazingTypes>
+            <CoatingsTints code='1'>
+              <English>
+                Low-E .04 (soft)
+              </English>
+              <French>
+                Faible E .04 (Doux)
+              </French>
+            </CoatingsTints>
+            <FillType code='3'>
+              <English>
+                13 mm Argon
+              </English>
+              <French>
+                13 mm d'argon
+              </French>
+            </FillType>
+            <SpacerType code='2'>
+              <English>
+                Insulating
+              </English>
+              <French>
+                Isolant
+              </French>
+            </SpacerType>
+            <Type code='1'>
+              <English>
+                Hinged
+              </English>
+              <French>
+                à battants
+              </French>
+            </Type>
+            <FrameMaterial code='4'>
+              <English>
+                Vinyl
+              </English>
+              <French>
+                Vinyle
+              </French>
+            </FrameMaterial>
+          </Layers>
+        </Code>
+        <Code id='Code 6' value='413214' nominalRValue='0'>
+          <Label>
+            Triple LowE Argon Hinged Vinyl
+          </Label>
+          <Description/>
+          <Layers>
+            <GlazingTypes code='4'>
+              <English>
+                TG with 2 coatings
+              </English>
+              <French>
+                Triple, 2 couches
+              </French>
+            </GlazingTypes>
+            <CoatingsTints code='1'>
+              <English>
+                Low-E .04 (soft)
+              </English>
+              <French>
+                Faible E .04 (Doux)
+              </French>
+            </CoatingsTints>
+            <FillType code='3'>
+              <English>
+                13 mm Argon
+              </English>
+              <French>
+                13 mm d'argon
+              </French>
+            </FillType>
+            <SpacerType code='2'>
+              <English>
+                Insulating
+              </English>
+              <French>
+                Isolant
+              </French>
+            </SpacerType>
+            <Type code='1'>
+              <English>
+                Hinged
+              </English>
+              <French>
+                à battants
+              </French>
+            </Type>
+            <FrameMaterial code='4'>
+              <English>
+                Vinyl
+              </English>
+              <French>
+                Vinyle
+              </French>
+            </FrameMaterial>
+          </Layers>
+        </Code>
+        <Code id='Code 7' value='213224' nominalRValue='0'>
+          <Label>
+            DLEA 13Arg Ins Slider Vinyl
+          </Label>
+          <Description/>
+          <Layers>
+            <GlazingTypes code='2'>
+              <English>
+                Double/double with 1 coat
+              </English>
+              <French>
+                Double/double, 1 couche
+              </French>
+            </GlazingTypes>
+            <CoatingsTints code='1'>
+              <English>
+                Low-E .04 (soft)
+              </English>
+              <French>
+                Faible E .04 (Doux)
+              </French>
+            </CoatingsTints>
+            <FillType code='3'>
+              <English>
+                13 mm Argon
+              </English>
+              <French>
+                13 mm d'argon
+              </French>
+            </FillType>
+            <SpacerType code='2'>
+              <English>
+                Insulating
+              </English>
+              <French>
+                Isolant
+              </French>
+            </SpacerType>
+            <Type code='2'>
+              <English>
+                Slider with sash
+              </English>
+              <French>
+                Coulissant
+              </French>
+            </Type>
+            <FrameMaterial code='4'>
+              <English>
+                Vinyl
+              </English>
+              <French>
+                Vinyle
+              </French>
+            </FrameMaterial>
+          </Layers>
+        </Code>
+        <Code id='Code 8' value='213204' nominalRValue='0'>
+          <Label>
+            DLEA 13Arg In Pic Vinyl
+          </Label>
+          <Description/>
+          <Layers>
+            <GlazingTypes code='2'>
+              <English>
+                Double/double with 1 coat
+              </English>
+              <French>
+                Double/double, 1 couche
+              </French>
+            </GlazingTypes>
+            <CoatingsTints code='1'>
+              <English>
+                Low-E .04 (soft)
+              </English>
+              <French>
+                Faible E .04 (Doux)
+              </French>
+            </CoatingsTints>
+            <FillType code='3'>
+              <English>
+                13 mm Argon
+              </English>
+              <French>
+                13 mm d'argon
+              </French>
+            </FillType>
+            <SpacerType code='2'>
+              <English>
+                Insulating
+              </English>
+              <French>
+                Isolant
+              </French>
+            </SpacerType>
+            <Type code='0'>
+              <English>
+                Picture
+              </English>
+              <French>
+                Fixe
+              </French>
+            </Type>
+            <FrameMaterial code='4'>
+              <English>
+                Vinyl
+              </English>
+              <French>
+                Vinyle
+              </French>
+            </FrameMaterial>
+          </Layers>
+        </Code>
+        <Code id='Code 9' value='413204' nominalRValue='0'>
+          <Label>
+            Triple LowE Argon Picture Vinyl
+          </Label>
+          <Description/>
+          <Layers>
+            <GlazingTypes code='4'>
+              <English>
+                TG with 2 coatings
+              </English>
+              <French>
+                Triple, 2 couches
+              </French>
+            </GlazingTypes>
+            <CoatingsTints code='1'>
+              <English>
+                Low-E .04 (soft)
+              </English>
+              <French>
+                Faible E .04 (Doux)
+              </French>
+            </CoatingsTints>
+            <FillType code='3'>
+              <English>
+                13 mm Argon
+              </English>
+              <French>
+                13 mm d'argon
+              </French>
+            </FillType>
+            <SpacerType code='2'>
+              <English>
+                Insulating
+              </English>
+              <French>
+                Isolant
+              </French>
+            </SpacerType>
+            <Type code='0'>
+              <English>
+                Picture
+              </English>
+              <French>
+                Fixe
+              </French>
+            </Type>
+            <FrameMaterial code='4'>
+              <English>
+                Vinyl
+              </English>
+              <French>
+                Vinyle
+              </French>
+            </FrameMaterial>
+          </Layers>
+        </Code>
+      </Favorite>
+    </Window>
+    <FloorsAbove>
+      <Standard>
+        <Code id='Code 10' value='4502001220' nominalRValue='0'>
+          <Label>
+            4502001220
+          </Label>
+          <Description>
+            4502001220
+          </Description>
+          <Layers>
+            <StructureType code='5'>
+              <English>
+                Composite wood joist
+              </English>
+              <French>
+                Solive, bois composite
+              </French>
+            </StructureType>
+            <ComponentTypeSize code='0'>
+              <English>
+                38x241 mm (2x9.5 in)
+              </English>
+              <French>
+                38x241 (2x9.5)
+              </French>
+            </ComponentTypeSize>
+            <Spacing code='2'>
+              <English>
+                487 mm (19 in)
+              </English>
+              <French>
+                487 mm (19 po)
+              </French>
+            </Spacing>
+            <InsulationLayer1 code='0'>
+              <English>
+                None
+              </English>
+              <French>
+                Aucun
+              </French>
+            </InsulationLayer1>
+            <InsulationLayer2 code='0'>
+              <English>
+                None
+              </English>
+              <French>
+                Aucun
+              </French>
+            </InsulationLayer2>
+            <Interior code='1'>
+              <English>
+                12 mm (0.5 in) gypsum board
+              </English>
+              <French>
+                12 mm (0.5 po) Plaque de plâtre (P de p)
+              </French>
+            </Interior>
+            <Sheathing code='2'>
+              <English>
+                Waferboard/OSB 11.1 mm (7/16 in)
+              </English>
+              <French>
+                Panneau copeaux/OSB 11.1 mm (7/16 po)
+              </French>
+            </Sheathing>
+            <Exterior code='2'>
+              <English>
+                Gypsum + Non insul. strapping
+              </English>
+              <French>
+                P de p + fond de clouage non isolé
+              </French>
+            </Exterior>
+            <DropFraming code='0'>
+              <English>
+                No
+              </English>
+              <French>
+                Non
+              </French>
+            </DropFraming>
+          </Layers>
+        </Code>
+      </Standard>
+    </FloorsAbove>
+    <BasementWall>
+      <Standard>
+        <Code id='Code 11' value='511L01' nominalRValue='5.3242'>
+          <Label>
+            511L01
+          </Label>
+          <Description>
+            511L01
+          </Description>
+          <Layers>
+            <Framing code='5'>
+              <English>
+                38x235 mm (2x10 in) wood
+              </English>
+              <French>
+                38x235 mm (2x10 po)bois
+              </French>
+            </Framing>
+            <Spacing code='1'>
+              <English>
+                400 mm (16 in)
+              </English>
+              <French>
+                400 mm (16 po)
+              </French>
+            </Spacing>
+            <StudsCornerIntersection code='1'>
+              <English>
+                3 studs
+              </English>
+              <French>
+                3 poteaux
+              </French>
+            </StudsCornerIntersection>
+            <InsulationInFramingLayer code='L'>
+              <English>
+                RSI 5.46 @ 241 mm (R 31 @ 9.5'') batt
+              </English>
+              <French>
+                RSI 5.46 @ 241 mm (R 31 @ 9.5'') natte
+              </French>
+            </InsulationInFramingLayer>
+            <ExtraInsulationLayer code='0'>
+              <English>
+                None
+              </English>
+              <French>
+                Aucun
+              </French>
+            </ExtraInsulationLayer>
+            <InteriorFinish code='1'>
+              <English>
+                12 mm (0.5 in) gypsum board
+              </English>
+              <French>
+                12 mm (0.5 po) Plaque de plâtre (P de p)
+              </French>
+            </InteriorFinish>
+          </Layers>
+        </Code>
+      </Standard>
+    </BasementWall>
+    <FloorHeader>
+      <Standard>
+        <Code id='Code 12' value='18000G0220' nominalRValue='3.2004'>
+          <Label>
+            18000G0220
+          </Label>
+          <Description>
+            18000G0220
+          </Description>
+          <Layers>
+            <StructureType code='8'>
+              <English>
+                Floor header
+              </English>
+              <French>
+                Solive de Rive
+              </French>
+            </StructureType>
+            <InsulationLayer1 code='0'>
+              <English>
+                None
+              </English>
+              <French>
+                Aucun
+              </French>
+            </InsulationLayer1>
+            <InsulationLayer2 code='G'>
+              <English>
+                89 mm (3.5 in) Medium density spray foam
+              </English>
+              <French>
+                89 mm (3.5 po) Mousse de densité moyenne à vaporiser
+              </French>
+            </InsulationLayer2>
+            <Sheathing code='2'>
+              <English>
+                Waferboard/OSB 11.1 mm (7/16 in)
+              </English>
+              <French>
+                Panneau copeaux/OSB 11.1 mm (7/16 po)
+              </French>
+            </Sheathing>
+            <Exterior code='2'>
+              <English>
+                Hollow metal/vinyl cladding
+              </English>
+              <French>
+                Revêt. en métal creux/vinyle
+              </French>
+            </Exterior>
+          </Layers>
+        </Code>
+      </Standard>
+    </FloorHeader>
+  </Codes>
+  <FuelCosts includeCostCalculations='true' library='FuelLib16.flc'>
+    <Electricity>
+      <Fuel id='1'>
+        <Label>
+          Ottawa97
+        </Label>
+        <Comment>
+          Hydro Rate Block
+        </Comment>
+        <Units code='1'>
+          <English>
+            kWhr
+          </English>
+          <French>
+            kWh
+          </French>
+        </Units>
+        <Minimum units='0' charge='10'/>
+        <RateBlocks>
+          <Block1 units='250' costPerUnit='0.0999'/>
+          <Block2 units='99999' costPerUnit='0.0702'/>
+          <Block3 units='0' costPerUnit='0'/>
+          <Block4 units='0' costPerUnit='0'/>
+        </RateBlocks>
+      </Fuel>
+    </Electricity>
+    <NaturalGas>
+      <Fuel id='17'>
+        <Label>
+          Ottawa08
+        </Label>
+        <Comment>
+          Gas Rate Block
+        </Comment>
+        <Units code='4'>
+          <English>
+            m³
+          </English>
+          <French>
+            m³
+          </French>
+        </Units>
+        <Minimum units='0' charge='14'/>
+        <RateBlocks>
+          <Block1 units='30' costPerUnit='0.5338'/>
+          <Block2 units='85' costPerUnit='0.5277'/>
+          <Block3 units='170' costPerUnit='0.5229'/>
+          <Block4 units='99999' costPerUnit='0.5194'/>
+        </RateBlocks>
+      </Fuel>
+    </NaturalGas>
+    <Oil>
+      <Fuel id='18'>
+        <Label>
+          Ottawa08
+        </Label>
+        <Comment>
+          Oil Rate Block
+        </Comment>
+        <Units code='2'>
+          <English>
+            Litre
+          </English>
+          <French>
+            Litre
+          </French>
+        </Units>
+        <Minimum units='0' charge='0'/>
+        <RateBlocks>
+          <Block1 units='99999' costPerUnit='1.175'/>
+          <Block2 units='0' costPerUnit='0'/>
+          <Block3 units='0' costPerUnit='0'/>
+          <Block4 units='0' costPerUnit='0'/>
+        </RateBlocks>
+      </Fuel>
+    </Oil>
+    <Propane>
+      <Fuel id='19'>
+        <Label>
+          Ottawa08
+        </Label>
+        <Comment>
+          Propane Rate Block
+        </Comment>
+        <Units code='2'>
+          <English>
+            Litre
+          </English>
+          <French>
+            Litre
+          </French>
+        </Units>
+        <Minimum units='0' charge='0'/>
+        <RateBlocks>
+          <Block1 units='99999' costPerUnit='0.72'/>
+          <Block2 units='0' costPerUnit='0'/>
+          <Block3 units='0' costPerUnit='0'/>
+          <Block4 units='0' costPerUnit='0'/>
+        </RateBlocks>
+      </Fuel>
+    </Propane>
+    <Wood>
+      <Fuel id='7'>
+        <Label>
+          Sth Ont
+        </Label>
+        <Comment>
+          Cord Rate
+        </Comment>
+        <Units code='4'>
+          <English>
+            Cords
+          </English>
+          <French>
+            Cordes
+          </French>
+        </Units>
+        <Minimum units='0' charge='0'/>
+        <RateBlocks>
+          <Block1 units='99999' costPerUnit='210'/>
+          <Block2 units='0' costPerUnit='0'/>
+          <Block3 units='0' costPerUnit='0'/>
+          <Block4 units='0' costPerUnit='0'/>
+        </RateBlocks>
+      </Fuel>
+    </Wood>
+  </FuelCosts>
+</HouseFile>
