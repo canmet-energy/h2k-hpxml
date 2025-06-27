@@ -12,6 +12,8 @@ from h2ktohpxml.h2ktohpxml import h2ktohpxml
 from colorama import Fore, Style
 import pyfiglet
 import random
+import traceback
+import re
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -135,14 +137,26 @@ def run(input_path,
     import concurrent.futures
     import time
 
+    def detect_xml_encoding(filepath):
+        with open(filepath, "rb") as f:
+            first_line = f.readline()
+            match = re.search(br'encoding=[\'"]([A-Za-z0-9_\-]+)[\'"]', first_line)
+            if match:
+                return match.group(1).decode("ascii")
+        return "utf-8"  # fallback
+
     # Define a function to process each file
     def process_file(filepath):
         try:
             print("================================================")
             print("Processing file:", filepath)
-            
-            # Read the content of the H2K file
-            with open(filepath, "r", encoding="utf-8") as f:
+
+            # Detect encoding from XML declaration
+            encoding = detect_xml_encoding(filepath)
+            print(f"Detected encoding for {filepath}: {encoding}")
+
+            # Read the content of the H2K file with detected encoding
+            with open(filepath, "r", encoding=encoding) as f:
                 h2k_string = f.read()
             
             # Convert the H2K content to HPXML format
@@ -190,11 +204,15 @@ def run(input_path,
                     return (filepath, "Success", "")
                 except subprocess.CalledProcessError as e:
                     print("Error during simulation:", e.stderr)
-                    return (filepath, "Failure", e.stderr)
+                    tb = traceback.format_exc()
+                    print(tb)
+                    return (filepath, "Failure", f"{e.stderr}\n{tb}")
             else:
                 return (filepath, "Success", "")
         except Exception as e:
-            return (filepath, "Failure", str(e))
+            tb = traceback.format_exc()
+            print("Exception during processing:", tb)
+            return (filepath, "Failure", f"{str(e)}\n{tb}")
 
     # Use ThreadPoolExecutor to process files concurrently with a limited number of threads
     max_workers = max(1, os.cpu_count() - 1)
