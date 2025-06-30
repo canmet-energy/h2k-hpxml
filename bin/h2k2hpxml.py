@@ -206,13 +206,39 @@ def run(input_path,
                     print("Error during simulation:", e.stderr)
                     tb = traceback.format_exc()
                     print(tb)
-                    return (filepath, "Failure", f"{e.stderr}\n{tb}")
+
+                    # Save traceback to a separate error.txt file
+                    error_dir = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem)
+                    os.makedirs(error_dir, exist_ok=True)
+                    error_file_path = os.path.join(error_dir, "error.txt")
+                    with open(error_file_path, "w") as error_file:
+                        error_file.write(f"{e.stderr}\n{tb}")
+
+                    # Check for specific exception text and handle run.log
+                    if "returned non-zero exit status 1." in str(e):
+                        run_log_path = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem,"run", "run.log")
+                        if os.path.exists(run_log_path):
+                            with open(run_log_path, "r") as run_log_file:
+                                run_log_content = "**OS-HPXML ERROR**: " + run_log_file.read()
+                                return (filepath, "Failure", run_log_content)
+
+                    # Default behavior for other exceptions
+                    return (filepath, "Failure", str(e))
             else:
                 return (filepath, "Success", "")
         except Exception as e:
             tb = traceback.format_exc()
             print("Exception during processing:", tb)
-            return (filepath, "Failure", f"{str(e)}\n{tb}")
+
+            # Save traceback to a separate error.txt file
+            error_dir = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem)
+            os.makedirs(error_dir, exist_ok=True)
+            error_file_path = os.path.join(error_dir, "error.txt")
+            with open(error_file_path, "w") as error_file:
+                error_file.write(f"{str(e)}\n{tb}")
+
+            # Return only the error summary for the CSV
+            return (filepath, "Failure", str(e))
 
     # Use ThreadPoolExecutor to process files concurrently with a limited number of threads
     max_workers = max(1, os.cpu_count() - 1)
@@ -220,13 +246,16 @@ def run(input_path,
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         results = list(executor.map(process_file, h2k_files))
 
-    # Write results to a CSV file
-    csv_path = os.path.join(dest_hpxml_path, "processing_results.csv")
-    with open(csv_path, "w", newline="") as csvfile:
-        csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(["Filepath", "Status", "Error"])
-        csvwriter.writerows(results)
+    # Filter results for failures only
+    failure_results = [result for result in results if result[1] == "Failure"]
 
+    # Write failure results to a Markdown file
+    markdown_path = os.path.join(dest_hpxml_path, "processing_results.md")
+    with open(markdown_path, "w") as mdfile:
+        mdfile.write("| Filepath | Status | Error |\n")
+        mdfile.write("|----------|--------|-------|\n")
+        for result in failure_results:
+            mdfile.write(f"| {result[0]} | {result[1]} | {result[2]} |\n")
         
 if __name__ == '__main__':
     cli()

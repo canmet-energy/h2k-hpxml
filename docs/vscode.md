@@ -127,7 +127,7 @@ python ./bin/h2k2hpxml.py run -h
  * **the hpxml file**: designated by the .xml extension, and all the conventional. 
  * **the energy plus files**: this includes the idf, and htm and msgpack files.  ***By default the oshpxml does not produce the sqlite files or the osm files, To enable this, add the --debug flag to the run command.***
 
- It will also create a file called 'processing_resutls.csv' which will show the files that succeeded or failed.
+ It will also create a file called 'processing_results.md' which will show the files that failed, and hopfully, a useful error message.
 
 
 

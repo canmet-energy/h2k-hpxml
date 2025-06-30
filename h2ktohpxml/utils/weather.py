@@ -42,6 +42,11 @@ def get_cwec_file(
     weather_library=config.get("weather", "weather_library"),
 ):
 
+    if not weather_region:
+        raise ValueError("Weather region is not defined in the h2k file")
+    if not weather_location:
+        raise ValueError("Weather location is not defined  in the h2k file")
+
     weather_region = unidecode(weather_region).upper()
     weather_location = unidecode(weather_location).upper()
     weather_vintage = unidecode(weather_vintage).upper()
