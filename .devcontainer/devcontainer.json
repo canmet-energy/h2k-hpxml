@@ -4,7 +4,7 @@
 	"name": "H2K_HPXML",
 	// use a pre-built image 
 	// see https://github.com/canmet-energy/h2k_hpxml_container/blob/main/Dockerfile
-	"image": "canmet/model_dev_container:3.9.0",
+	"image": "canmet/model_dev_container:3.10.0",
 	"containerUser": "vscode",
 	"customizations": {
 		"vscode": {
