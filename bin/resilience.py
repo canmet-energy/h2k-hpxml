@@ -109,23 +109,36 @@ class ResilienceProcessor:
     
     def __init__(self, h2k_path, output_path, outage_days, clothing_factor_summer, clothing_factor_winter, run_simulation=False):
         self.h2k_path = h2k_path
-        self.output_path = output_path
         self.outage_days = outage_days
         self.clothing_factor_summer = clothing_factor_summer
         self.clothing_factor_winter = clothing_factor_winter
         self.run_simulation = run_simulation
         
-        # Create output directory structure
-        os.makedirs(output_path, exist_ok=True)
-        self.baseline_path = os.path.join(output_path, "baseline")
-        os.makedirs(self.baseline_path, exist_ok=True)
+        # Create project folder structure based on H2K file basename
+        h2k_basename = os.path.splitext(os.path.basename(h2k_path))[0]
+        self.project_folder = os.path.join(output_path, h2k_basename)
         
-        # Scenario paths
+        # Create project directory structure
+        os.makedirs(self.project_folder, exist_ok=True)
+        self.original_folder = os.path.join(self.project_folder, "original")
+        os.makedirs(self.original_folder, exist_ok=True)
+        
+        # Copy original H2K file to project folder
+        original_h2k_path = os.path.join(self.project_folder, "original.h2k")
+        if not os.path.exists(original_h2k_path):
+            shutil.copy2(h2k_path, original_h2k_path)
+            click.echo(f"Copied original H2K file to: {original_h2k_path}")
+        
+        # Update paths to use new structure
+        self.output_path = self.project_folder
+        self.baseline_path = self.original_folder  # Use original folder instead of baseline
+        
+        # Scenario paths within project folder
         self.scenario_paths = {
-            'outage_typical_year': os.path.join(output_path, 'outage_typical_year'),
-            'outage_extreme_year': os.path.join(output_path, 'outage_extreme_year'),
-            'thermal_autonomy_typical_year': os.path.join(output_path, 'thermal_autonomy_typical_year'),
-            'thermal_autonomy_extreme_year': os.path.join(output_path, 'thermal_autonomy_extreme_year')
+            'outage_typical_year': os.path.join(self.project_folder, 'outage_typical_year'),
+            'outage_extreme_year': os.path.join(self.project_folder, 'outage_extreme_year'),
+            'thermal_autonomy_typical_year': os.path.join(self.project_folder, 'thermal_autonomy_typical_year'),
+            'thermal_autonomy_extreme_year': os.path.join(self.project_folder, 'thermal_autonomy_extreme_year')
         }
         
         for path in self.scenario_paths.values():
@@ -133,6 +146,9 @@ class ResilienceProcessor:
     
     def run(self):
         """Execute the complete resilience analysis workflow."""
+        # Check OpenStudio-HPXML availability before starting any workflow
+        self._validate_openstudio_hpxml()
+        
         click.echo("Step 1: Converting H2K to HPXML/OSM...")
         self.convert_h2k_to_osm()
         
@@ -189,7 +205,7 @@ class ResilienceProcessor:
             hpxml_string = h2ktohpxml(h2k_string)
             
             # Save HPXML file
-            hpxml_path = os.path.join(self.baseline_path, "baseline.xml")
+            hpxml_path = os.path.join(self.original_folder, "original.xml")
             with open(hpxml_path, "w", encoding="utf-8") as f:
                 f.write(hpxml_string)
             
@@ -227,17 +243,19 @@ class ResilienceProcessor:
             
             # Check if OpenStudio-HPXML is available
             if not os.path.exists(hpxml_os_path):
-                click.echo(f"Warning: OpenStudio-HPXML not found at {hpxml_os_path}")
-                click.echo("Falling back to simple model creation...")
-                return self._create_simple_model()
+                click.echo(f"ERROR: OpenStudio-HPXML not found at {hpxml_os_path}", err=True)
+                click.echo("OpenStudio-HPXML is required for resilience analysis.", err=True)
+                click.echo("Please install OpenStudio-HPXML and ensure it is properly configured.", err=True)
+                sys.exit(1)
             
             if not os.path.exists(ruby_hpxml_path):
-                click.echo(f"Warning: HPXML workflow not found at {ruby_hpxml_path}")
-                click.echo("Falling back to simple model creation...")
-                return self._create_simple_model()
+                click.echo(f"ERROR: HPXML workflow not found at {ruby_hpxml_path}", err=True)
+                click.echo("OpenStudio-HPXML workflow script is required for resilience analysis.", err=True)
+                click.echo("Please install OpenStudio-HPXML and ensure it is properly configured.", err=True)
+                sys.exit(1)
             
             # Run the HPXML to OSM conversion
-            output_dir = os.path.join(self.baseline_path, "hpxml_run")
+            output_dir = os.path.join(self.original_folder, "hpxml_run")
             os.makedirs(output_dir, exist_ok=True)
             
             command = [
@@ -259,9 +277,10 @@ class ResilienceProcessor:
             )
             
             if result.returncode != 0:
-                click.echo(f"Warning: HPXML conversion failed: {result.stderr}")
-                click.echo("Falling back to simple model creation...")
-                return self._create_simple_model()
+                click.echo(f"ERROR: HPXML conversion failed: {result.stderr}", err=True)
+                click.echo("OpenStudio-HPXML workflow execution failed.", err=True)
+                click.echo("Please check the HPXML file and OpenStudio-HPXML installation.", err=True)
+                sys.exit(1)
             
             # Look for the generated OSM file
             # The OpenStudio-HPXML workflow creates files in the specified output directory
@@ -279,20 +298,22 @@ class ResilienceProcessor:
                     break
             
             if source_osm_path is None:
-                click.echo("Warning: Could not find generated OSM file")
-                click.echo("Falling back to simple model creation...")
-                return self._create_simple_model()
+                click.echo("ERROR: Could not find generated OSM file from OpenStudio-HPXML workflow", err=True)
+                click.echo("The HPXML to OSM conversion did not produce the expected output files.", err=True)
+                click.echo("Please check the HPXML file and OpenStudio-HPXML installation.", err=True)
+                sys.exit(1)
             
-            # Copy the generated OSM to our baseline directory
-            osm_path = os.path.join(self.baseline_path, "baseline.osm")
+            # Copy the generated OSM to our original directory
+            osm_path = os.path.join(self.original_folder, "original.osm")
             shutil.copy2(source_osm_path, osm_path)
             
             # Load the model to get the OpenStudio model object
             optional_model = openstudio.model.Model.load(osm_path)
             if not optional_model.is_initialized():
-                click.echo("Warning: Could not load generated OSM file")
-                click.echo("Falling back to simple model creation...")
-                return self._create_simple_model()
+                click.echo("ERROR: Could not load generated OSM file from OpenStudio-HPXML workflow", err=True)
+                click.echo("The generated OSM file appears to be corrupted or invalid.", err=True)
+                click.echo("Please check the HPXML file and OpenStudio-HPXML installation.", err=True)
+                sys.exit(1)
             
             model = optional_model.get()
             
@@ -304,33 +325,18 @@ class ResilienceProcessor:
             self.baseline_model = model
             self.baseline_osm_path = osm_path
             
-            click.echo(f"Baseline OSM created from HPXML: {osm_path}")
+            click.echo(f"Original OSM created from HPXML: {osm_path}")
             
         except subprocess.TimeoutExpired:
-            click.echo("Warning: HPXML conversion timed out")
-            click.echo("Falling back to simple model creation...")
-            return self._create_simple_model()
+            click.echo("ERROR: HPXML conversion timed out after 5 minutes", err=True)
+            click.echo("The OpenStudio-HPXML workflow is taking too long to complete.", err=True)
+            click.echo("Please check the HPXML file size and complexity, or system resources.", err=True)
+            sys.exit(1)
         except Exception as e:
-            click.echo(f"Warning: HPXML conversion failed: {str(e)}")
-            click.echo("Falling back to simple model creation...")
-            return self._create_simple_model()
-    
-    def _create_simple_model(self):
-        """Create a simple baseline model as fallback."""
-        # Create a basic OpenStudio model
-        model = openstudio.model.Model()
-        
-        # Add output variables to baseline model
-        self.add_output_variables(model)
-        
-        # Save the model as baseline OSM
-        osm_path = os.path.join(self.baseline_path, "baseline.osm")
-        model.save(osm_path, True)
-        self.baseline_model = model
-        self.baseline_osm_path = osm_path
-        
-        click.echo(f"Simple baseline OSM created: {osm_path}")
-        click.echo("Note: This is a simplified model. For full building geometry and systems, ensure OpenStudio-HPXML is properly installed.")
+            click.echo(f"ERROR: HPXML conversion failed: {str(e)}", err=True)
+            click.echo("An unexpected error occurred during OpenStudio-HPXML workflow execution.", err=True)
+            click.echo("Please check the HPXML file and OpenStudio-HPXML installation.", err=True)
+            sys.exit(1)
     
     def process_weather_files(self):
         """Process weather files to find extreme periods."""
@@ -394,67 +400,131 @@ class ResilienceProcessor:
         raise Exception("Could not extract weather information from H2K file")
     
     def get_weather_file_paths(self, weather_info):
-        """Get CWEC and EWY weather file paths."""
+        """Get CWEC and EWY weather file paths using the weather utility."""
+        from h2ktohpxml.utils.weather import get_cwec_file
         import csv
         
-        # Read weather database
-        weather_csv_path = os.path.join(
-            PROJECT_ROOT, 'h2ktohpxml', 'resources', 'weather', 'h2k_weather_names.csv'
-        )
+        # Get the standard weather resources folder path
+        weather_folder = os.path.join(PROJECT_ROOT, 'h2ktohpxml', 'resources', 'weather')
         
-        with open(weather_csv_path, 'r') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if (row['cities_english'].upper() == weather_info['city'].upper() and 
-                    row['provinces_english'].upper() == weather_info['state'].upper()):
-                    
-                    cwec_filename = row['CWEC2020.zip']
-                    ewy_filename = row['EWY2020.zip']
-                    
-                    # Download weather files if needed
-                    cwec_path = self.download_weather_file(cwec_filename)
-                    ewy_path = self.download_weather_file(ewy_filename)
-                    
-                    return cwec_path, ewy_path
-        
-        raise Exception(f"Could not find weather files for {weather_info['city']}, {weather_info['state']}")
+        try:
+            # Use the get_cwec_file function to download/get CWEC file
+            cwec_path_base = get_cwec_file(
+                weather_region=weather_info['state'],
+                weather_location=weather_info['city'],
+                weather_folder=weather_folder
+            )
+            cwec_path = f"{cwec_path_base}.epw"
+            
+            # Validate that the CWEC file exists
+            if not os.path.exists(cwec_path):
+                raise Exception(f"CWEC weather file not found after download: {cwec_path}")
+            
+            click.echo(f"CWEC weather file located/downloaded: {cwec_path}")
+            
+            # For EWY files, we need to get the EWY filename from the CSV
+            weather_csv_path = os.path.join(
+                PROJECT_ROOT, 'h2ktohpxml', 'resources', 'weather', 'h2k_weather_names.csv'
+            )
+            
+            ewy_filename = None
+            with open(weather_csv_path, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if (row['cities_english'].upper() == weather_info['city'].upper() and 
+                        row['provinces_english'].upper() == weather_info['state'].upper()):
+                        ewy_filename = row['EWY2020.zip']
+                        break
+            
+            if ewy_filename is None:
+                click.echo(f"Warning: No EWY file found for {weather_info['city']}, {weather_info['state']}. Using CWEC file for both scenarios.")
+                return cwec_path, cwec_path
+            
+            # Try to get EWY file using modified get_cwec_file approach
+            ewy_path = self.get_ewy_file(
+                weather_region=weather_info['state'],
+                weather_location=weather_info['city'],
+                weather_folder=weather_folder,
+                ewy_filename=ewy_filename
+            )
+            
+            # Validate that the EWY file exists
+            if not os.path.exists(ewy_path):
+                click.echo(f"Warning: EWY weather file not found: {ewy_path}. Using CWEC file for extreme scenarios.")
+                return cwec_path, cwec_path
+            
+            click.echo(f"EWY weather file located/downloaded: {ewy_path}")
+            return cwec_path, ewy_path
+            
+        except Exception as e:
+            raise Exception(f"Failed to get weather files: {str(e)}")
     
-    def download_weather_file(self, filename):
-        """Download and extract weather file if it doesn't exist."""
+    def get_ewy_file(self, weather_region, weather_location, weather_folder, ewy_filename):
+        """Download and extract EWY weather file similar to get_cwec_file."""
         import zipfile
+        import requests
+        from filelock import FileLock
         
-        weather_folder = os.path.join(PROJECT_ROOT, 'h2ktohpxml', 'utils')
-        epw_filename = filename.replace('.zip', '.epw')
-        epw_path = os.path.join(weather_folder, epw_filename)
+        # Check if EPW file already exists
+        epw_file = os.path.join(weather_folder, f"{ewy_filename[:-4]}.epw")
+        if os.path.exists(epw_file):
+            click.echo(f"EWY weather file already exists: {epw_file}")
+            return epw_file
         
-        if os.path.exists(epw_path):
-            return epw_path
+        # For now, use CWEC file as EWY placeholder (as mentioned in requirements)
+        # This can be updated when real EWY files become available
+        cwec_filename = ewy_filename.replace('EWY2020', 'CWEC2020')
+        cwec_epw = os.path.join(weather_folder, f"{cwec_filename[:-4]}.epw")
         
-        # Check if zip file exists and extract it
-        zip_path = os.path.join(weather_folder, filename)
-        if os.path.exists(zip_path):
-            try:
-                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        if os.path.exists(cwec_epw):
+            # Copy CWEC file as EWY placeholder
+            import shutil
+            shutil.copy2(cwec_epw, epw_file)
+            click.echo(f"Using CWEC file as EWY placeholder: {epw_file}")
+            return epw_file
+        
+        # If no CWEC file either, try to download the EWY file directly
+        # (this would be updated when real EWY files are available)
+        github_url = "https://github.com/canmet-energy/btap_weather/raw/refs/heads/main/historic/"
+        file_url = f"{github_url}{ewy_filename}"
+        local_zip = os.path.join(os.path.dirname(__file__), ewy_filename)
+        
+        lock_file = f"{local_zip}.lock"
+        try:
+            with FileLock(lock_file):
+                # Try to download EWY file (will fail until real EWY files are available)
+                response = requests.get(file_url, verify=False)
+                if response.status_code == 200:
+                    with open(local_zip, "wb") as f:
+                        f.write(response.content)
+                    
                     # Extract EPW file
-                    for file_info in zip_ref.filelist:
-                        if file_info.filename.endswith('.epw'):
-                            zip_ref.extract(file_info, weather_folder)
-                            # Rename to expected filename
-                            extracted_path = os.path.join(weather_folder, file_info.filename)
-                            if extracted_path != epw_path:
-                                os.rename(extracted_path, epw_path)
-                            return epw_path
-                raise Exception(f"No EPW file found in {zip_path}")
-            except Exception as e:
-                raise Exception(f"Failed to extract weather file {zip_path}: {str(e)}")
-        
-        # If EWY file, use CWEC for now
-        if 'EWY2020' in filename:
-            cwec_filename = filename.replace('EWY2020', 'CWEC2020')
-            return self.download_weather_file(cwec_filename)
-        
-        # Weather file not found
-        raise Exception(f"Weather file not found: {epw_path}")
+                    with zipfile.ZipFile(local_zip, "r") as zip_ref:
+                        for file in zip_ref.namelist():
+                            if file.endswith(".epw"):
+                                zip_ref.extract(file, weather_folder)
+                                extracted_path = os.path.join(weather_folder, file)
+                                if extracted_path != epw_file:
+                                    os.rename(extracted_path, epw_file)
+                                return epw_file
+                else:
+                    # Fallback: use CWEC file with EWY name
+                    if os.path.exists(cwec_epw):
+                        import shutil
+                        shutil.copy2(cwec_epw, epw_file)
+                        click.echo(f"EWY download failed (status {response.status_code}). Using CWEC as fallback: {epw_file}")
+                        return epw_file
+                    else:
+                        raise Exception(f"Failed to download EWY file and no CWEC fallback available")
+        except Exception as e:
+            # Final fallback: try to find any CWEC file to copy
+            if os.path.exists(cwec_epw):
+                import shutil
+                shutil.copy2(cwec_epw, epw_file)
+                click.echo(f"EWY processing failed ({str(e)}). Using CWEC as fallback: {epw_file}")
+                return epw_file
+            else:
+                raise Exception(f"Failed to get EWY file: {str(e)}")
     
     def find_extreme_period(self, weather_file_path, days):
         """Find the hottest consecutive period in the weather file."""
@@ -842,10 +912,10 @@ class ResilienceProcessor:
         
         # Define scenarios and their associated weather files
         scenarios = {
-            'baseline': {
-                'path': self.baseline_path,
+            'original': {
+                'path': self.original_folder,
                 'weather_file': self.cwec_epw_path,
-                'name': 'baseline'
+                'name': 'original'
             },
             'outage_typical_year': {
                 'path': self.scenario_paths['outage_typical_year'],
@@ -1105,6 +1175,42 @@ class ResilienceProcessor:
         except Exception as e:
             log_file.write(f"✗ Error checking output variables in SQL file: {str(e)}\n")
             return False
+
+    def _validate_openstudio_hpxml(self):
+        """Validate that OpenStudio-HPXML is available before starting workflow."""
+        try:
+            # Read the conversion config to get paths
+            config_path = os.path.join(PROJECT_ROOT, 'conversionconfig.ini')
+            if not os.path.exists(config_path):
+                click.echo("ERROR: Configuration file not found: conversionconfig.ini", err=True)
+                click.echo("Please ensure the conversionconfig.ini file is present in the project root.", err=True)
+                sys.exit(1)
+            
+            config = configparser.ConfigParser()
+            config.read(config_path)
+            
+            hpxml_os_path = config.get("paths", "hpxml_os_path")
+            ruby_hpxml_path = os.path.join(hpxml_os_path, 'workflow', 'run_simulation.rb')
+            
+            # Check if OpenStudio-HPXML is available
+            if not os.path.exists(hpxml_os_path):
+                click.echo(f"ERROR: OpenStudio-HPXML not found at {hpxml_os_path}", err=True)
+                click.echo("OpenStudio-HPXML is required for resilience analysis.", err=True)
+                click.echo("Please install OpenStudio-HPXML and ensure it is properly configured in conversionconfig.ini.", err=True)
+                sys.exit(1)
+            
+            if not os.path.exists(ruby_hpxml_path):
+                click.echo(f"ERROR: HPXML workflow not found at {ruby_hpxml_path}", err=True)
+                click.echo("OpenStudio-HPXML workflow script is required for resilience analysis.", err=True)
+                click.echo("Please install OpenStudio-HPXML and ensure it is properly configured.", err=True)
+                sys.exit(1)
+                
+            click.echo(f"✓ OpenStudio-HPXML validated at: {hpxml_os_path}")
+        
+        except Exception as e:
+            click.echo(f"ERROR: Failed to validate OpenStudio-HPXML: {str(e)}", err=True)
+            click.echo("Please ensure OpenStudio-HPXML is properly installed and configured.", err=True)
+            sys.exit(1)
 
 
 if __name__ == '__main__':

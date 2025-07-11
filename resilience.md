@@ -21,16 +21,22 @@ The CLI should accept the following parameters:
 
 ## Processing Workflow
 
-### 1. File Setup and Conversion
-- Create a `original` folder within the output directory
+### 1. Files and Folders Setup
+- Create a project folder with the output directory with the same basename as the h2k_path.
+- Copy the file at the h2k_path into the project folder as original.h2k
+- Create a `original` folder within the project directory
+
+### 2. Convert and run original model.
 - Convert H2K file to OSM format using h2khpxml converter
 - Save as `original.osm` in the baseline folder
 - Run original simulation using OpenStudio with robust error handling.
 
-### 2. Weather File Processing
-- Locate matching  EWY weather files using `h2ktohpxml/resources/weather/h2k_weather_names.csv` from the osm. 
-- The EWY do not exist as yet.. however for the time being you can create a new EWY column and simply copy the CWEC2020.zip values to the new column. We will update the filenames with the actual EYW at a later date.
-- Download weather files if not present in `resources/weather/` folder
+### 2. Weather File Download
+- Using the weather file name, locate matching  EWY weather files using `h2ktohpxml/resources/weather/h2k_weather_names.csv`. 
+- Download weather files if not present in `resources/weather/` folder. See if you can use the get_cwec_file function in h2ktohpxml/utils/weather.py . The resources/weather/ folder is where we keep all the weather epw files.
+- Validate that the weather file exists or that it was downloaded correctly.  
+
+### 3. Determine hottest period for each weather file. 
 - For both weather files:
   - Scan hourly dry-bulb temperatures
   - Identify the hottest consecutive period matching `outage_days` length
@@ -109,32 +115,33 @@ If run_simulation is True, simulate the models in their folders.
 ## Output Structure
 ```
 output_path/
-├── baseline/
-│   ├── baseline.osm              # Full HPXML-derived OpenStudio model
-│   ├── baseline.xml              # Generated HPXML file  
-│   ├── hpxml_run/               # OpenStudio-HPXML workflow outputs
-│   ├── eplusout.sql             # Simulation results database (if --run-simulation)
-│   ├── eplusout.err             # Error log (if --run-simulation)
-│   ├── in.idf                   # EnergyPlus input file (if --run-simulation)
-│   └── log.txt                  # Simulation log with validation (if --run-simulation)
-├── extreme_periods.yml           # Outage start dates for CWEC/EWY
-├── summer_period.yml             # Summer season dates (MM-DD format)
-├── outage_typical_year/
-│   ├── outage_typical_year.osm   # Power outage + CWEC weather scenario
-│   ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
-│   └── [additional EnergyPlus output files]
-├── outage_extreme_year/
-│   ├── outage_extreme_year.osm   # Power outage + EWY weather scenario  
-│   ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
-│   └── [additional EnergyPlus output files]
-├── thermal_autonomy_typical_year/
-│   ├── thermal_autonomy_typical_year.osm  # No cooling + CWEC weather
-│   ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
-│   └── [additional EnergyPlus output files]
-└── thermal_autonomy_extreme_year/
-    ├── thermal_autonomy_extreme_year.osm  # No cooling + EWY weather
-    ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
-    └── [additional EnergyPlus output files]
+└── project_folder_name/
+    ├── original/
+    │   ├── original.osm              # Full HPXML-derived OpenStudio model
+    │   ├── original.xml              # Generated HPXML file  
+    │   ├── hpxml_run/               # OpenStudio-HPXML workflow outputs
+    │   ├── eplusout.sql             # Simulation results database (if --run-simulation)
+    │   ├── eplusout.err             # Error log (if --run-simulation)
+    │   ├── in.idf                   # EnergyPlus input file (if --run-simulation)
+    │   └── log.txt                  # Simulation log with validation (if --run-simulation)
+    ├── extreme_periods.yml           # Outage start dates for CWEC/EWY
+    ├── summer_period.yml             # Summer season dates (MM-DD format)
+    ├── outage_typical_year/
+    │   ├── outage_typical_year.osm   # Power outage + CWEC weather scenario
+    │   ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
+    │   └── [additional EnergyPlus output files]
+    ├── outage_extreme_year/
+    │   ├── outage_extreme_year.osm   # Power outage + EWY weather scenario  
+    │   ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
+    │   └── [additional EnergyPlus output files]
+    ├── thermal_autonomy_typical_year/
+    │   ├── thermal_autonomy_typical_year.osm  # No cooling + CWEC weather
+    │   ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
+    │   └── [additional EnergyPlus output files]
+    └── thermal_autonomy_extreme_year/
+        ├── thermal_autonomy_extreme_year.osm  # No cooling + EWY weather
+        ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
+        └── [additional EnergyPlus output files]
 ```
 
 ## Automated Testing Requirements
@@ -214,92 +221,110 @@ tests/
 - Validate that required dependencies (h2khpxml, OpenStudio) are available
 - Use pytest framework for test organization and execution
 - Implement proper test isolation to avoid side effects between tests
+- If OpenStudio-HPXML is unavailable inform user and exit with an error code, do not continue. 
 
 ## Implementation Notes
 
 ### Implementation Status: ✅ FULLY COMPLETED AND PRODUCTION READY
 
-The resilience CLI tool has been successfully implemented in `bin/resilience.py` and is fully functional with all requirements met.
+The resilience CLI tool has been successfully implemented in `bin/resilience.py` and is fully functional with all requirements met, including the updated project folder structure and file organization.
 
 ### Key Implementation Details
 
 #### 1. Complete HPXML-OSM Workflow ✅
 - **Primary Method**: Uses OpenStudio-HPXML workflow via `run_simulation.rb` to convert HPXML to OSM
-- **Robust Architecture**: Implemented with fallback to simple model creation if OpenStudio-HPXML unavailable
+- **Robust Architecture**: Validates OpenStudio-HPXML availability before starting workflow
+- **Error Handling**: Exits with error code if OpenStudio-HPXML is unavailable (no fallback)
 - **Real Building Models**: Generates actual building geometry and systems from H2K files
-- **Error Handling**: Comprehensive timeout and error handling for workflow execution
+- **Comprehensive Validation**: Checks both OpenStudio-HPXML path and workflow script availability
 
-#### 2. Full Simulation Execution ✅
+#### 2. Updated Project Structure ✅
+- **Project Folder Creation**: Creates dedicated project folder named after H2K file basename
+- **Original File Preservation**: Copies input H2K file to `original.h2k` in project folder
+- **Consistent Naming**: Uses `original/` folder with `original.osm` and `original.xml` files
+- **Organized Output**: All analysis outputs contained within the project folder
+
+#### 3. Full Simulation Execution ✅
 - **EnergyPlus Integration**: Complete simulation execution with `--run-simulation` flag
 - **Multi-Weather Support**: Correctly applies CWEC for typical year, EWY for extreme year scenarios
 - **Error Detection**: Monitors `eplusout.err` for fatal/severe errors and logs to `log.txt`
 - **Output Validation**: Verifies `eplusout.sql` creation and validates required output variables
 - **SQL Database Verification**: Confirms hourly output variables are present in simulation results
 
-#### 3. Advanced Weather Processing ✅
+#### 4. Advanced Weather Processing ✅
 - **Dual Weather Analysis**: Processes both CWEC and EWY weather files separately
 - **Enhanced Season Detection**: Robust algorithm finding longest consecutive period >15°C
 - **Extreme Period Analysis**: Identifies hottest consecutive periods for outage scenarios
-- **Weather File Management**: Automatic ZIP extraction and EPW file handling
-
-#### 4. OpenStudio Python API Implementation ✅
+- **Weather File Management**: Uses `get_cwec_file()` utility with proper resource folder storage
 - **Correct API Usage**: All OpenStudio calls use proper syntax (`.is_initialized()`, correct model methods)
 - **Model Manipulation**: Complete implementation of cooling system control, clothing schedules
 - **Schedule Management**: Creates seasonal clothing and power failure schedules correctly
 - **Output Variables**: Adds all required hourly output variables for thermal comfort analysis
 
-#### 5. Dependencies and Environment ✅
+#### 5. OpenStudio Python API Implementation ✅
+- **Correct API Usage**: All OpenStudio calls use proper syntax (`.is_initialized()`, correct model methods)
+- **Model Manipulation**: Complete implementation of cooling system control, clothing schedules
+- **Schedule Management**: Creates seasonal clothing and power failure schedules correctly
+- **Output Variables**: Adds all required hourly output variables for thermal comfort analysis
+
+#### 6. Dependencies and Environment ✅
 - **PyYAML**: Added `pyyaml==6.0.1` to requirements.txt for YAML file generation
 - **Pandas/NumPy**: Used for weather data analysis and CSV processing
 - **Weather Database**: Enhanced `h2k_weather_names.csv` with EWY2020.zip column
 - **OpenStudio Validation**: Checks for Python bindings availability before execution
+- **Weather Utility Integration**: Uses existing `get_cwec_file()` function for consistent weather processing
 
-#### 6. Complete File Structure Implementation ✅
+#### 7. Complete File Structure Implementation ✅
 ```
-examples/test_simulation/
-├── baseline/
-│   ├── baseline.osm              # Full HPXML-derived OpenStudio model
-│   ├── baseline.xml              # Generated HPXML file
-│   ├── hpxml_run/               # OpenStudio-HPXML workflow outputs
-│   ├── eplusout.sql             # Simulation results database
-│   ├── eplusout.err             # Error log
-│   ├── in.idf                   # EnergyPlus input file
-│   └── log.txt                  # Simulation log with validation
-├── extreme_periods.yml           # Outage start dates for CWEC/EWY
-├── summer_period.yml             # Summer season dates (MM-DD format)
+examples/WizardHouse/                    # Project folder (H2K basename)
+├── original.h2k                        # Copy of original H2K file
+├── original/                           # Original model folder
+│   ├── original.osm                    # Full HPXML-derived OpenStudio model
+│   ├── original.xml                    # Generated HPXML file
+│   ├── hpxml_run/                      # OpenStudio-HPXML workflow outputs
+│   ├── eplusout.sql                    # Simulation results database
+│   ├── eplusout.err                    # Error log
+│   ├── in.idf                          # EnergyPlus input file
+│   └── log.txt                         # Simulation log with validation
+├── extreme_periods.yml                 # Outage start dates for CWEC/EWY
+├── summer_period.yml                   # Summer season dates (MM-DD format)
 ├── outage_typical_year/
-│   ├── outage_typical_year.osm   # Power outage + CWEC weather
-│   ├── eplusout.sql             # Simulation results
-│   └── log.txt                  # Simulation log
+│   ├── outage_typical_year.osm         # Power outage + CWEC weather
+│   ├── eplusout.sql                    # Simulation results
+│   └── log.txt                         # Simulation log
 ├── outage_extreme_year/
-│   ├── outage_extreme_year.osm   # Power outage + EWY weather
-│   ├── eplusout.sql             # Simulation results
-│   └── log.txt                  # Simulation log
+│   ├── outage_extreme_year.osm         # Power outage + EWY weather
+│   ├── eplusout.sql                    # Simulation results
+│   └── log.txt                         # Simulation log
 ├── thermal_autonomy_typical_year/
 │   ├── thermal_autonomy_typical_year.osm  # No cooling + CWEC
-│   ├── eplusout.sql             # Simulation results
-│   └── log.txt                  # Simulation log
+│   ├── eplusout.sql                    # Simulation results
+│   └── log.txt                         # Simulation log
 └── thermal_autonomy_extreme_year/
     ├── thermal_autonomy_extreme_year.osm  # No cooling + EWY
-    ├── eplusout.sql             # Simulation results
-    └── log.txt                  # Simulation log
+    ├── eplusout.sql                    # Simulation results
+    └── log.txt                         # Simulation log
 ```
 
 ### Comprehensive Test Results ✅
 
 **Test Commands:**
 ```bash
-# Model generation only
-python bin/resilience.py examples/WizardHouse.h2k --output-path examples/test_final
+# Model generation with updated project structure
+python bin/resilience.py examples/WizardHouse.h2k --output-path examples
 
-# Full simulation execution
-python bin/resilience.py examples/WizardHouse.h2k --output-path examples/test_simulation --run-simulation
+# Full simulation execution with project folder organization
+python bin/resilience.py examples/WizardHouse.h2k --output-path examples --run-simulation
 ```
 
 **Verified Outputs:**
+- ✅ Project folder creation: `examples/WizardHouse/` (based on H2K basename)
+- ✅ Original H2K file copied to: `WizardHouse/original.h2k`
 - ✅ H2K to HPXML conversion successful using h2ktohpxml converter
 - ✅ HPXML to OSM conversion using OpenStudio-HPXML workflow
-- ✅ Weather file extraction and processing (Ottawa INTL location)
+- ✅ Original model files: `original/original.osm` and `original/original.xml`
+- ✅ Weather file processing using `get_cwec_file()` utility function
+- ✅ Weather files stored in proper `h2ktohpxml/resources/weather/` location
 - ✅ Extreme period detection with hottest consecutive periods identified
 - ✅ Season determination (CWEC: 06-14 to 08-31, EWY: 06-14 to 08-31, 79 days each)
 - ✅ All 4 scenarios generated successfully with correct modifications
@@ -307,7 +332,7 @@ python bin/resilience.py examples/WizardHouse.h2k --output-path examples/test_si
 - ✅ Cooling systems correctly disabled for thermal autonomy scenarios
 - ✅ Power failure schedules applied during extreme weather outage periods
 - ✅ Required hourly output variables added to all models
-- ✅ Full EnergyPlus simulations executed successfully for all scenarios
+- ✅ Full EnergyPlus simulations executed successfully for all scenarios including original
 - ✅ Simulation results validated (eplusout.sql created, no fatal errors)
 - ✅ Output variables confirmed present in SQL databases
 
@@ -321,16 +346,24 @@ python bin/resilience.py examples/WizardHouse.h2k --output-path examples/test_si
 #### 2. HPXML-OSM Workflow Integration  
 - **Challenge**: Direct Python HPXML translation not available in OpenStudio bindings
 - **Solution**: Integrated OpenStudio-HPXML Ruby workflow via subprocess calls
-- **Fallback**: Simple model creation if OpenStudio-HPXML unavailable
-- **Result**: Real building geometry and systems from H2K files
+- **Validation**: Checks OpenStudio-HPXML availability before starting any workflow
+- **Error Handling**: Exits with clear error message if OpenStudio-HPXML unavailable
+- **Result**: Real building geometry and systems from H2K files (no fallback)
 
-#### 3. Weather File Architecture Enhancement
-- **Enhancement**: Added EWY2020.zip column to weather database CSV
-- **Implementation**: Automated ZIP extraction and EPW file management
+#### 3. Project Structure Enhancement
+- **Updated Organization**: Implemented project folder structure based on H2K file basename
+- **File Preservation**: Copies original H2K file to `original.h2k` in project folder root
+- **Consistent Naming**: Changed from `baseline/` to `original/` folder structure
+- **Scalable Design**: Multiple H2K files can be processed without output conflicts
+
+#### 4. Weather File Architecture Enhancement
+- **Integration**: Now uses existing `get_cwec_file()` function from `h2ktohpxml.utils.weather`
+- **Proper Storage**: Weather files stored in `h2ktohpxml/resources/weather/` directory
+- **Enhanced Validation**: Validates weather file existence after download/extraction
 - **Dual Processing**: Separate analysis of CWEC and EWY weather files
 - **Location Mapping**: Enhanced H2K location extraction and CSV matching
 
-#### 4. Season Determination Algorithm Enhancement
+#### 5. Season Determination Algorithm Enhancement
 - **Initial Issue**: Summer period incorrectly detected as only 2 days
 - **Root Cause**: Algorithm stopped at first temperature drop, ignoring normal fluctuations
 - **Solution**: Robust multi-step algorithm:
@@ -340,7 +373,7 @@ python bin/resilience.py examples/WizardHouse.h2k --output-path examples/test_si
   4. **Fluctuation Handling**: Handles normal temperature variations within summer
 - **Result**: Realistic summer period detection (79-day periods for Ottawa)
 
-#### 5. Simulation Execution and Validation
+#### 6. Simulation Execution and Validation
 - **Challenge**: Complete EnergyPlus simulation workflow with error handling
 - **Solution**: Multi-step simulation process:
   1. **OSM to IDF Conversion**: Using OpenStudio ForwardTranslator
@@ -353,27 +386,31 @@ python bin/resilience.py examples/WizardHouse.h2k --output-path examples/test_si
 
 **All Requirements Implemented:**
 1. ✅ **CLI Parameters**: All required and optional parameters implemented with validation
-2. ✅ **H2K Processing**: Complete H2K to HPXML to OSM conversion workflow
-3. ✅ **Weather Analysis**: CWEC and EWY processing with extreme period detection
-4. ✅ **Season Detection**: Robust temperature-based summer period identification
-5. ✅ **Scenario Generation**: All 4 scenarios with correct clothing/cooling/power logic
-6. ✅ **Output Variables**: Required hourly variables added to all models
-7. ✅ **Simulation Execution**: Optional full EnergyPlus simulation with validation
-8. ✅ **Error Handling**: Comprehensive error detection and logging
-9. ✅ **Result Validation**: SQL database verification and output variable checking
+2. ✅ **Project Structure**: Dedicated project folders with H2K basename organization
+3. ✅ **File Management**: Original H2K file preservation and consistent naming scheme
+4. ✅ **H2K Processing**: Complete H2K to HPXML to OSM conversion workflow
+5. ✅ **Weather Analysis**: CWEC and EWY processing using utility functions with proper storage
+6. ✅ **Season Detection**: Robust temperature-based summer period identification
+7. ✅ **Scenario Generation**: All 4 scenarios with correct clothing/cooling/power logic
+8. ✅ **Output Variables**: Required hourly variables added to all models
+9. ✅ **Simulation Execution**: Optional full EnergyPlus simulation with validation
+10. ✅ **Error Handling**: Comprehensive error detection and logging
+11. ✅ **Result Validation**: SQL database verification and output variable checking
 
 **Production Ready Features:**
+- Project-based organization for scalable multi-file processing
+- Original file preservation with clear traceability
 - Robust error handling and logging throughout entire workflow
-- Automatic dependency checking (OpenStudio Python bindings)
-- Weather file caching and automatic extraction
+- Automatic dependency checking (OpenStudio Python bindings and OpenStudio-HPXML)
+- Weather file caching using established utility functions
 - Comprehensive simulation result validation
 - Detailed progress reporting and debug output
-- Graceful fallbacks for missing dependencies
+- Graceful error handling with clear exit codes for missing dependencies
 
 ### Known Limitations (Minor)
 
 1. **EWY Weather Files**: Currently using CWEC files as EWY placeholders (easily updated when real EWY files available)
-2. **Model Complexity**: Uses OpenStudio-HPXML workflow for real models, simple fallback if unavailable
+2. **OpenStudio-HPXML Required**: Tool requires OpenStudio-HPXML installation; exits with error if unavailable
 
 ### Future Enhancement Opportunities
 
@@ -384,25 +421,35 @@ python bin/resilience.py examples/WizardHouse.h2k --output-path examples/test_si
 
 ### CLI Usage Examples
 
-**Basic usage (model generation only):**
+**Basic usage (creates project folder structure):**
 ```bash
 python bin/resilience.py path/to/file.h2k
+# Creates: output_directory/filename/
+# ✓ OpenStudio-HPXML validated at: /OpenStudio-HPXML/
+```
+
+**With custom output location:**
+```bash
+python bin/resilience.py path/to/file.h2k --output-path /custom/location
+# Creates: /custom/location/filename/
 ```
 
 **With custom parameters:**
 ```bash
-python bin/resilience.py path/to/file.h2k \
+python bin/resilience.py examples/WizardHouse.h2k \
+  --output-path examples \
   --outage-days 14 \
-  --output-path /custom/output \
   --clothing-factor-summer 0.3 \
   --clothing-factor-winter 1.2
+# Creates: examples/WizardHouse/
 ```
 
 **Full simulation execution:**
 ```bash
-python bin/resilience.py path/to/file.h2k \
-  --output-path /path/to/results \
+python bin/resilience.py examples/WizardHouse.h2k \
+  --output-path examples \
   --run-simulation
+# Creates: examples/WizardHouse/ with complete simulation results
 ```
 
 **Help and version:**
@@ -411,21 +458,29 @@ python bin/resilience.py --help
 python bin/resilience.py --version
 ```
 
+**Error handling (when OpenStudio-HPXML unavailable):**
+```bash
+python bin/resilience.py examples/WizardHouse.h2k
+# Output: ERROR: OpenStudio-HPXML not found at /OpenStudio-HPXML/
+# Exit code: 1
+```
+
 ### Sample Output Structure (with simulation)
 ```
-test_simulation/
-├── baseline/
-│   ├── baseline.osm, baseline.xml, hpxml_run/, eplusout.*, log.txt
-├── extreme_periods.yml          # {"cwec_outage_start_date": "2023-07-15", "ewy_outage_start_date": "2023-07-15"}
-├── summer_period.yml            # {"cwec_summer_start": "06-14", "cwec_summer_end": "08-31", ...}
-├── outage_typical_year/         # Power outage during CWEC weather
+examples/WizardHouse/                    # Project folder (H2K basename)
+├── original.h2k                        # Copy of original H2K file
+├── original/                           # Original model folder
+│   ├── original.osm, original.xml, hpxml_run/, eplusout.*, log.txt
+├── extreme_periods.yml                 # {"cwec_outage_start_date": "2023-07-15", "ewy_outage_start_date": "2023-07-15"}
+├── summer_period.yml                   # {"cwec_summer_start": "06-14", "cwec_summer_end": "08-31", ...}
+├── outage_typical_year/                # Power outage during CWEC weather
 │   ├── outage_typical_year.osm, eplusout.*, log.txt
-├── outage_extreme_year/         # Power outage during EWY weather  
+├── outage_extreme_year/                # Power outage during EWY weather  
 │   ├── outage_extreme_year.osm, eplusout.*, log.txt
-├── thermal_autonomy_typical_year/  # No cooling, CWEC weather
+├── thermal_autonomy_typical_year/      # No cooling, CWEC weather
 │   ├── thermal_autonomy_typical_year.osm, eplusout.*, log.txt
-└── thermal_autonomy_extreme_year/  # No cooling, EWY weather
+└── thermal_autonomy_extreme_year/      # No cooling, EWY weather
     ├── thermal_autonomy_extreme_year.osm, eplusout.*, log.txt
 ```
 
-**Note**: Each scenario folder contains complete simulation results when `--run-simulation` is used, enabling comprehensive building resilience analysis.
+**Note**: Each analysis creates a dedicated project folder named after the H2K file, enabling multiple files to be processed without conflicts. When `--run-simulation` is used, complete simulation results are generated for comprehensive building resilience analysis.
