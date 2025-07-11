@@ -20,13 +20,18 @@
 				"ms-toolsai.jupyter"
 			],
 			"settings": {
-                "files.associations": {
-                    "*.h2k": "xml",
+				"files.associations": {
+					"*.h2k": "xml",
 					"*.hpxml": "xml"
-                }
-            },
+				}
+			},
 		}
 	},
   "remoteUser": "vscode",
-  "postCreateCommand": "/venv/bin/python -m venv /workspaces/h2k_hpxml/venv && /workspaces/h2k_hpxml/venv/bin/pip install -r /workspaces/h2k_hpxml/requirements.txt"
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    }
+  },
+  "postCreateCommand": "/venv/bin/python -m venv /workspaces/h2k_hpxml/venv && /workspaces/h2k_hpxml/venv/bin/pip install -r /workspaces/h2k_hpxml/requirements.txt && npm install -g @anthropic-ai/claude-code"
 }
