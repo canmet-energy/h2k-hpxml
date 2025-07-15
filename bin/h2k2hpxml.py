@@ -111,8 +111,11 @@ def run(input_path,
     if output_path:
         dest_hpxml_path = output_path
     else:
-        dest_hpxml_path = os.path.join(input_path, "output")
-    dest_hpxml_path = os.path.join(input_path, "output")
+        # Default to creating an output folder in the same directory as the input
+        if os.path.isfile(input_path):
+            dest_hpxml_path = os.path.join(os.path.dirname(input_path), "output")
+        else:
+            dest_hpxml_path = os.path.join(input_path, "output")
     # If the destination path exists, delete the folder
     if os.path.exists(dest_hpxml_path):
         shutil.rmtree(dest_hpxml_path)
@@ -184,7 +187,7 @@ def run(input_path,
                     f"/usr/local/bin/openstudio",
                     ruby_hpxml_path,
                     "-x",
-                    hpxml_path
+                    os.path.abspath(hpxml_path)
                 ]
                 
                 # Convert flags to a list of strings
