@@ -1,0 +1,35 @@
+{
+  "generated_date": "2025-07-15T16:41:51.594356",
+  "results": {
+    "WizardHouse_0.26": {
+      "source_file": "WizardHouse_0.26.h2k",
+      "baseline_file": "baseline_WizardHouse_0.26.json",
+      "sql_records": 14,
+      "processed_date": "2025-07-15T16:41:51.770104"
+    },
+    "WizardHouse_0.325": {
+      "source_file": "WizardHouse_0.325.h2k",
+      "baseline_file": "baseline_WizardHouse_0.325.json",
+      "sql_records": 14,
+      "processed_date": "2025-07-15T16:41:51.952424"
+    },
+    "WizardHouse_0.13": {
+      "source_file": "WizardHouse_0.13.h2k",
+      "baseline_file": "baseline_WizardHouse_0.13.json",
+      "sql_records": 14,
+      "processed_date": "2025-07-15T16:41:52.134237"
+    },
+    "WizardHouse_0.195": {
+      "source_file": "WizardHouse_0.195.h2k",
+      "baseline_file": "baseline_WizardHouse_0.195.json",
+      "sql_records": 14,
+      "processed_date": "2025-07-15T16:41:52.300258"
+    },
+    "WizardHouse": {
+      "source_file": "WizardHouse.h2k",
+      "baseline_file": "baseline_WizardHouse.json",
+      "sql_records": 14,
+      "processed_date": "2025-07-15T16:41:52.467445"
+    }
+  }
+}

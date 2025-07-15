@@ -116,9 +116,7 @@ def run(input_path,
             dest_hpxml_path = os.path.join(os.path.dirname(input_path), "output")
         else:
             dest_hpxml_path = os.path.join(input_path, "output")
-    # If the destination path exists, delete the folder
-    if os.path.exists(dest_hpxml_path):
-        shutil.rmtree(dest_hpxml_path)
+
     # Create the destination folder
     os.makedirs(dest_hpxml_path, exist_ok=True)
 
@@ -168,6 +166,9 @@ def run(input_path,
             # Define the output path for the converted HPXML file
             hpxml_path = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem, pathlib.Path(filepath).stem + ".xml")
 
+            # If the destination path exists, delete the folder
+            if os.path.exists(hpxml_path):
+                shutil.rmtree(hpxml_path)
             # Ensure the output directory exists
             os.makedirs(os.path.dirname(hpxml_path), exist_ok=True)
             

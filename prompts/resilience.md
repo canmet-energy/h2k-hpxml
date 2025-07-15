@@ -6,7 +6,7 @@ Create a command-line interface (CLI) tool that analyzes building resiliency sce
 ## Requirements
 * The code/cli should be contained in bin/resilence.py and leverage bin/h2k2hpxml.py and h2ktohpxml/h2ktohpxml.py
 * Code should be written in python. 
-* Code should use the openstudio sdk to articulate the model scearios as required.
+* Code should use the openstudio sdk to articulate the model scenarios as required.
 * OpenStudio Python Bindings are installed in the environment. 
 * Always check for python bindings before running. 
 
@@ -21,22 +21,37 @@ The CLI should accept the following parameters:
 
 ## Processing Workflow
 
+
+```mermaid
+flowchart TD
+  A[Start] --> B[Files and Folders Setup]
+  B --> C[Convert and Run Original Model]
+  C --> D[Weather File Download]
+  D --> E[Determine Hottest Period for Each Weather File]
+  E --> F[Season Determination]
+  F --> G[Scenario Generation]
+  G --> H{Run Simulations?}
+  H -->|Yes| I[Run Simulations]
+  H -->|No| J[End]
+  I --> J[End]
+```
+
 ### 1. Files and Folders Setup
 - Create a project folder with the output directory with the same basename as the h2k_path.
 - Copy the file at the h2k_path into the project folder as original.h2k
 - Create a `original` folder within the project directory
 
-### 2. Convert and run original model.
+### 1. Convert and run original model.
 - Convert H2K file to OSM format using h2khpxml converter
-- Save as `original.osm` in the baseline folder
+- Save as `original.osm` in the `original` folder
 - Run original simulation using OpenStudio with robust error handling.
 
-### 2. Weather File Download
+### 1. Weather File Download
 - Using the weather file name, locate matching  EWY weather files using `h2ktohpxml/resources/weather/h2k_weather_names.csv`. 
 - Download weather files if not present in `resources/weather/` folder. See if you can use the get_cwec_file function in h2ktohpxml/utils/weather.py . The resources/weather/ folder is where we keep all the weather epw files.
 - Validate that the weather file exists or that it was downloaded correctly.  
 
-### 3. Determine hottest period for each weather file. 
+### 1. Determine hottest period for each weather file. 
 - For both weather files:
   - Scan hourly dry-bulb temperatures
   - Identify the hottest consecutive period matching `outage_days` length
@@ -46,7 +61,7 @@ The CLI should accept the following parameters:
     ewy_outage_start_date: "YYYY-MM-DD"
     ```
 
-### 3. Season Determination
+### 1. Season Determination
 - Analyze both weather files to determine summer/winter periods
 - Summer: periods where average daily temperature > 15°C
 - Winter: periods where average daily temperature ≤ 15°C
@@ -58,7 +73,7 @@ The CLI should accept the following parameters:
   ewy_summer_end: "MM-DD"
   ```
 
-### 4. Scenario Generation
+### 1. Scenario Generation
 Using OpenStudio Python SDK, create four scenarios based on this matrix:
 
 | run_name                      | weather_file | clothing_schedule | mechanical_cooling_available | power_failure_schedule |
@@ -143,76 +158,6 @@ output_path/
         ├── eplusout.sql, log.txt     # Simulation results (if --run-simulation)
         └── [additional EnergyPlus output files]
 ```
-
-## Automated Testing Requirements
-
-### Unit Tests
-- **Parameter Validation**: Test all input parameter validation (ranges, file paths, data types)
-- **Weather File Processing**: Test weather file parsing, temperature analysis, and extreme period detection
-- **Season Detection**: Test summer/winter period identification with various temperature patterns
-- **File Operations**: Test H2K to OSM conversion, file creation, and folder structure generation
-- **Schedule Creation**: Test clothing schedule and power failure schedule generation
-- **Model Manipulation**: Test cooling system addition/removal and OpenStudio model modifications
-
-### Integration Tests
-- **End-to-End Workflow**: Test complete pipeline from H2K input to final scenario generation
-- **Weather File Download**: Test automatic weather file retrieval and caching
-- **OpenStudio Integration**: Test baseline simulation execution and error handling
-- **Scenario Generation**: Test all four scenarios are created correctly with proper configurations
-
-### Test Data Requirements
-Create test fixtures including:
-- **Sample H2K Files**: Valid and invalid H2K XML files
-- **Mock Weather Files**: CWEC and EWY files with known temperature patterns
-- **Reference Models**: Expected OSM outputs for comparison
-- **Test Weather Database**: Mock `h2k_weather_names.csv` for testing weather file matching
-
-### Performance Tests
-- **Large File Handling**: Test with various H2K file sizes
-- **Long Duration Analysis**: Test with maximum outage_days (365)
-- **Memory Usage**: Monitor memory consumption during weather file processing
-- **Concurrent Execution**: Test multiple CLI instances running simultaneously
-
-### Error Handling Tests
-- **Invalid Inputs**: Test with malformed H2K files, invalid parameters, missing files
-- **Network Failures**: Test weather file download failures and retry mechanisms
-- **Disk Space**: Test behavior when output directory has insufficient space
-- **Permission Errors**: Test handling of read-only directories and permission issues
-- **Dependency Failures**: Test behavior when OpenStudio or h2khpxml are unavailable
-
-### Regression Tests
-- **Output Consistency**: Ensure identical inputs produce identical outputs across versions
-- **Weather File Compatibility**: Test with different weather file formats and versions
-- **OpenStudio Version Compatibility**: Test with multiple OpenStudio versions
-
-### Test Organization
-```
-tests/
-├── unit/
-│   ├── test_parameter_validation.py
-│   ├── test_weather_processing.py
-│   ├── test_season_detection.py
-│   ├── test_file_operations.py
-│   └── test_model_manipulation.py
-├── integration/
-│   ├── test_end_to_end.py
-│   ├── test_weather_download.py
-│   └── test_scenario_generation.py
-├── fixtures/
-│   ├── sample_h2k_files/
-│   ├── mock_weather_files/
-│   ├── reference_outputs/
-│   └── test_weather_database.csv
-└── performance/
-    ├── test_large_files.py
-    └── test_memory_usage.py
-```
-
-### Test Execution
-- **Continuous Integration**: Set up automated test execution on code changes
-- **Test Coverage**: Aim for >90% code coverage
-- **Test Documentation**: Document test cases and expected behaviors
-- **Mock External Dependencies**: Use mocks for OpenStudio, weather downloads, and file system operations where appropriate
 
 ## Technical Notes
 - Use OpenStudio Python SDK for model manipulation
