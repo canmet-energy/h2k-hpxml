@@ -4,7 +4,7 @@ import os
 import shutil
 import json
 from datetime import datetime
-from tests.utils import extract_annual_energy_data
+from tests.utils import extract_annual_energy_data, clean_for_baseline_generation
 
 
 @pytest.mark.baseline_generation
@@ -22,6 +22,15 @@ def test_generate_baseline(check_openstudio_bindings):
                         "Type 'YES' to continue: ")
         if response != "YES":
             pytest.skip("Baseline generation cancelled by user")
+    
+    # Clean up previous test runs for fresh baseline generation
+    print("\n🧹 Cleaning previous test data for fresh baseline generation...")
+    cleanup_success, cleaned_items = clean_for_baseline_generation()
+    
+    if not cleanup_success:
+        pytest.fail("Failed to clean previous test data. Cannot proceed with baseline generation.")
+    
+    print(f"✅ Cleanup completed successfully. Cleaned {len(cleaned_items)} items.")
     
     examples_dir = "examples"
     # Use temp folder for simulation outputs, golden_files for JSON baselines
@@ -156,17 +165,35 @@ def test_generate_baseline(check_openstudio_bindings):
         with open(baseline_path, 'w') as f:
             json.dump(baseline_data, f, indent=2)
         
+        # Find and save HPXML file as baseline
+        from tests.utils import workflow_utils
+        hpxml_file = workflow_utils.find_hpxml_file(temp_output_dir, base_name)
+        hpxml_baseline_saved = False
+        
+        if hpxml_file:
+            from tests.utils import file_utils
+            baseline_hpxml_path = file_utils.get_baseline_hpxml_path(base_name)
+            try:
+                shutil.copy2(hpxml_file, baseline_hpxml_path)
+                hpxml_baseline_saved = True
+                print(f"✅ Saved baseline HPXML: {baseline_hpxml_path}")
+            except Exception as e:
+                print(f"⚠️  Warning: Could not save baseline HPXML: {e}")
+        else:
+            print(f"⚠️  HPXML file not found for {base_name}")
+        
         # Store summary info
         results[file_name] = {
             "source_file": file_name,
             "baseline_file": baseline_filename,
+            "hpxml_baseline": f"baseline_{base_name}.xml" if hpxml_baseline_saved else None,
             "sql_records": len(energy_data),
             "processed_date": datetime.now().isoformat()
         }
         
         print(f"✅ Generated baseline for {file_name}: {len(energy_data)} energy records")
 
-    # Generate summary file
+    # Generate energy summary file
     summary_data = {
         "generated_date": datetime.now().isoformat(),
         "results": results,
@@ -176,6 +203,30 @@ def test_generate_baseline(check_openstudio_bindings):
     
     with open(summary_file, 'w') as f:
         json.dump(summary_data, f, indent=2)
+    
+    # Generate HPXML summary file
+    from tests.utils import file_utils
+    hpxml_summary_path = file_utils.get_baseline_hpxml_summary_path()
+    hpxml_files_with_baselines = []
+    
+    for base_name, result in results.items():
+        if result.get("hpxml_baseline"):
+            hpxml_path = file_utils.get_baseline_hpxml_path(base_name.replace('.h2k', '').replace('.H2K', ''))
+            if os.path.exists(hpxml_path):
+                hpxml_files_with_baselines.append(hpxml_path)
+    
+    if hpxml_files_with_baselines:
+        from tests.utils import hpxml_utils
+        hpxml_summary_data = hpxml_utils.create_hpxml_summary(hpxml_files_with_baselines)
+        hpxml_summary_data["generated_date"] = datetime.now().isoformat()
+        hpxml_summary_data["generated_by"] = "test_generate_baseline.py"
+        
+        with open(hpxml_summary_path, 'w') as f:
+            json.dump(hpxml_summary_data, f, indent=2)
+        
+        print(f"✅ Generated HPXML summary: {hpxml_summary_path}")
+    else:
+        print("⚠️  No HPXML baseline files found for summary generation")
     
     print(f"\n🎉 Baseline generation complete!")
     print(f"📄 Summary file: {summary_file}")

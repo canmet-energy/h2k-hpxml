@@ -56,8 +56,7 @@ def test_energy_comparison_regression(check_openstudio_bindings):
     }
 
     # Test each file that has baseline data
-    for base_name, baseline_info in baseline_summary["results"].items():
-        source_file = baseline_info["source_file"]
+    for source_file, baseline_info in baseline_summary["results"].items():
         input_path = os.path.join(examples_dir, source_file)
         
         # Skip if source file no longer exists
@@ -67,11 +66,14 @@ def test_energy_comparison_regression(check_openstudio_bindings):
 
         print(f"Testing energy comparison for {source_file}...")
         
+        # Extract base name without extension for file utilities
+        base_name = os.path.splitext(source_file)[0]
+        
         # Load individual baseline file using shared utility
         baseline_data = load_baseline_file(base_name)
         if not baseline_data:
             test_results["files_failed"] += 1
-            test_results["details"][base_name] = {
+            test_results["details"][source_file] = {
                 "status": "MISSING_BASELINE",
                 "error": f"Failed to load baseline file for {base_name}",
                 "comparison": None
@@ -87,7 +89,7 @@ def test_energy_comparison_regression(check_openstudio_bindings):
 
         if not success:
             test_results["files_failed"] += 1
-            test_results["details"][base_name] = {
+            test_results["details"][source_file] = {
                 "status": "CLI_FAILED",
                 "error": stderr,
                 "comparison": None
@@ -99,7 +101,7 @@ def test_energy_comparison_regression(check_openstudio_bindings):
         
         if not sql_path:
             test_results["files_failed"] += 1
-            test_results["details"][base_name] = {
+            test_results["details"][source_file] = {
                 "status": "MISSING_SQL",
                 "error": f"eplusout.sql not found for {base_name}",
                 "comparison": None
@@ -147,7 +149,7 @@ def test_energy_comparison_regression(check_openstudio_bindings):
         # Save individual comparison report using shared utility
         save_comparison_file(base_name, individual_comparison)
 
-        test_results["details"][base_name] = {
+        test_results["details"][source_file] = {
             "status": file_status,
             "source_file": source_file,
             "comparison_file": f"comparison_{base_name}.json",

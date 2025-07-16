@@ -42,6 +42,26 @@ def get_comparison_file_path(base_name: str) -> str:
     return os.path.join(COMPARISON_DIR, f"comparison_{base_name}.json")
 
 
+def get_baseline_hpxml_summary_path() -> str:
+    """Get path to baseline HPXML summary file."""
+    return os.path.join(BASELINE_DIR, "baseline_hpxml_summary.json")
+
+
+def get_comparison_hpxml_summary_path() -> str:
+    """Get path to comparison HPXML summary file."""
+    return os.path.join(COMPARISON_DIR, "comparison_hpxml_summary.json")
+
+
+def get_baseline_hpxml_path(base_name: str) -> str:
+    """Get path to individual baseline HPXML file."""
+    return os.path.join(BASELINE_DIR, f"baseline_{base_name}.xml")
+
+
+def get_comparison_hpxml_path(base_name: str) -> str:
+    """Get path to individual comparison HPXML file."""
+    return os.path.join(COMPARISON_DIR, f"comparison_{base_name}.xml")
+
+
 def ensure_golden_directories() -> None:
     """Ensure all golden file directories exist."""
     for directory in [BASELINE_DIR, COMPARISON_DIR]:

@@ -169,3 +169,6 @@ h2k_files
 # Ignore all .epw files in the h2ktohpxml/resources/weather directory
 h2ktohpxml/resources/weather/*.epw
 
+# Ignore baseline backup directories
+tests/fixtures/expected_outputs/golden_files/baseline_backup*
+

@@ -1,0 +1,338 @@
+{
+  "total_files": 7,
+  "valid_files": 7,
+  "invalid_files": 0,
+  "files": {
+    "baseline_WizardHouse_0.26": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.26.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+        "total_elements": 597,
+        "file_size_bytes": 25578,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "2583.34",
+          "conditioned_building_volume": "21199.4",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 3,
+          "windows": 8,
+          "doors": 1,
+          "floors": 1,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 1,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 1
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 25578,
+          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "namespace": null,
+          "total_elements": 597
+        }
+      }
+    },
+    "baseline_WizardHouse_0.325": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.325.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+        "total_elements": 597,
+        "file_size_bytes": 25682,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "2583.34",
+          "conditioned_building_volume": "21199.4",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 3,
+          "windows": 8,
+          "doors": 1,
+          "floors": 1,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 1,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 1
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 25682,
+          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "namespace": null,
+          "total_elements": 597
+        }
+      }
+    },
+    "baseline_ERS-EX-10001": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_ERS-EX-10001.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+        "total_elements": 794,
+        "file_size_bytes": 33758,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "3079.7201",
+          "conditioned_building_volume": "26811.01",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 4,
+          "windows": 15,
+          "doors": 3,
+          "floors": 2,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 2,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 4
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 33758,
+          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "namespace": null,
+          "total_elements": 794
+        }
+      }
+    },
+    "baseline_ERS-EX-10000": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_ERS-EX-10000.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+        "total_elements": 794,
+        "file_size_bytes": 33758,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "3079.7201",
+          "conditioned_building_volume": "26811.01",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 4,
+          "windows": 15,
+          "doors": 3,
+          "floors": 2,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 2,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 4
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 33758,
+          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "namespace": null,
+          "total_elements": 794
+        }
+      }
+    },
+    "baseline_WizardHouse_0.13": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.13.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+        "total_elements": 597,
+        "file_size_bytes": 25682,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "2583.34",
+          "conditioned_building_volume": "21199.4",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 3,
+          "windows": 8,
+          "doors": 1,
+          "floors": 1,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 1,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 1
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 25682,
+          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "namespace": null,
+          "total_elements": 597
+        }
+      }
+    },
+    "baseline_WizardHouse_0.195": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.195.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+        "total_elements": 597,
+        "file_size_bytes": 25578,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "2583.34",
+          "conditioned_building_volume": "21199.4",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 3,
+          "windows": 8,
+          "doors": 1,
+          "floors": 1,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 1,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 1
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 25578,
+          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "namespace": null,
+          "total_elements": 597
+        }
+      }
+    },
+    "baseline_WizardHouse": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+        "total_elements": 604,
+        "file_size_bytes": 25806,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "2583.34",
+          "conditioned_building_volume": "21199.4",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 3,
+          "windows": 8,
+          "doors": 2,
+          "floors": 1,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 1,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 1
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 25806,
+          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "namespace": null,
+          "total_elements": 604
+        }
+      }
+    }
+  },
+  "generated_date": "2025-07-16T16:06:06.792203",
+  "generated_by": "test_generate_baseline.py"
+}

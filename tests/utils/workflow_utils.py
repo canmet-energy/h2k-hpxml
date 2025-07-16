@@ -89,6 +89,49 @@ def find_sql_file(base_output_path: str, base_name: str) -> Optional[str]:
     return None
 
 
+def find_hpxml_file(base_output_path: str, base_name: str) -> Optional[str]:
+    """
+    Find the generated HPXML file in the output directory structure.
+    
+    Args:
+        base_output_path: Base output directory
+        base_name: Base name of the input file (without extension)
+        
+    Returns:
+        Path to HPXML file if found, None otherwise
+    """
+    # Common locations to search for HPXML files
+    search_patterns = [
+        os.path.join(base_output_path, base_name, f"{base_name}.xml"),
+        os.path.join(base_output_path, base_name, "original.xml"),
+        os.path.join(base_output_path, f"{base_name}.xml"),
+        os.path.join(base_output_path, "original.xml")
+    ]
+    
+    # Check exact paths first
+    for pattern in search_patterns:
+        if os.path.exists(pattern):
+            print(f"Found HPXML file at: {pattern}")
+            return pattern
+    
+    # Try glob patterns for more flexible searching
+    glob_patterns = [
+        os.path.join(base_output_path, "**", "*.xml"),
+        os.path.join(base_output_path, base_name, "**", "*.xml")
+    ]
+    
+    for pattern in glob_patterns:
+        matches = glob.glob(pattern, recursive=True)
+        # Filter to actual HPXML files (exclude other XML files if any)
+        hpxml_matches = [m for m in matches if m.endswith('.xml')]
+        if hpxml_matches:
+            hpxml_path = hpxml_matches[0]  # Take the first match
+            print(f"Found HPXML file via glob at: {hpxml_path}")
+            return hpxml_path
+    
+    return None
+
+
 def explore_output_directory(output_path: str, max_depth: int = 3) -> Dict[str, Any]:
     """
     Explore output directory structure for debugging.
@@ -152,6 +195,11 @@ def validate_workflow_outputs(base_output_path: str, base_name: str) -> Tuple[bo
         "eplusout.sql",  # Primary target
         "eplusout.err"   # Error log
     ]
+    
+    # Also check for HPXML file
+    hpxml_file = find_hpxml_file(base_output_path, base_name)
+    if not hpxml_file:
+        missing_files.append("HPXML file (*.xml)")
     
     # Search for each expected file
     for expected_file in expected_files:

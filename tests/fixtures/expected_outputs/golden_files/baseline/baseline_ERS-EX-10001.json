@@ -1,16 +1,16 @@
 {
-  "source_file": "WizardHouse_0.26.h2k",
+  "source_file": "ERS-EX-10001.H2K",
   "energy_data": {
     "Electricity": {
       "Facility": {
-        "value": 33198354047.81179,
+        "value": 31528428189.852264,
         "units": "J",
         "key_value": null
       }
     },
     "NaturalGas": {
       "Facility": {
-        "value": 51178640107.68799,
+        "value": 118077496270.47739,
         "units": "J",
         "key_value": null
       }
@@ -52,7 +52,7 @@
     },
     "fridge": {
       "InteriorEquipment:Electricity:Zone:CONDITIONED SPACE": {
-        "value": 2160008299.237149,
+        "value": 2096053599.5027633,
         "units": "J",
         "key_value": null
       }
@@ -66,7 +66,7 @@
     },
     "mech vent": {
       "InteriorEquipment:Electricity:Zone:CONDITIONED SPACE": {
-        "value": 628092000.0000001,
+        "value": 327154464.00000036,
         "units": "J",
         "key_value": null
       }
@@ -89,19 +89,19 @@
       "Building Area": {
         "Net Conditioned Building Area": {
           "Area": {
-            "value": 240.0,
+            "value": 286.12,
             "units": "m2"
           }
         },
         "Total Building Area": {
           "Area": {
-            "value": 313.2,
+            "value": 405.59,
             "units": "m2"
           }
         },
         "Unconditioned Building Area": {
           "Area": {
-            "value": 73.2,
+            "value": 119.47,
             "units": "m2"
           }
         }
@@ -109,19 +109,19 @@
       "Comfort and Setpoint Not Met Summary": {
         "Time Not Comfortable Based on Simple ASHRAE 55-2004": {
           "Facility": {
-            "value": 3451.0,
+            "value": 4782.0,
             "units": "Hours"
           }
         },
         "Time Setpoint Not Met During Occupied Cooling": {
           "Facility": {
-            "value": 23.0,
+            "value": 3.0,
             "units": "Hours"
           }
         },
         "Time Setpoint Not Met During Occupied Heating": {
           "Facility": {
-            "value": 155.0,
+            "value": 235.0,
             "units": "Hours"
           }
         }
@@ -129,7 +129,7 @@
       "Electric Loads Satisfied": {
         "Electricity Coming From Utility": {
           "Electricity": {
-            "value": 33.198,
+            "value": 31.528,
             "units": "GJ"
           },
           "Percent Electricity": {
@@ -139,7 +139,7 @@
         },
         "Net Electricity From Utility": {
           "Electricity": {
-            "value": 33.198,
+            "value": 31.528,
             "units": "GJ"
           },
           "Percent Electricity": {
@@ -149,7 +149,7 @@
         },
         "Total Electricity End Uses": {
           "Electricity": {
-            "value": 33.198,
+            "value": 31.528,
             "units": "GJ"
           },
           "Percent Electricity": {
@@ -159,7 +159,7 @@
         },
         "Total On-Site and Utility Electric Sources": {
           "Electricity": {
-            "value": 33.198,
+            "value": 31.528,
             "units": "GJ"
           },
           "Percent Electricity": {
@@ -171,7 +171,7 @@
       "End Uses": {
         "Cooling": {
           "Electricity": {
-            "value": 5.79,
+            "value": 3.24,
             "units": "GJ"
           }
         },
@@ -183,19 +183,19 @@
         },
         "Fans": {
           "Electricity": {
-            "value": 1.6,
+            "value": 2.85,
             "units": "GJ"
           }
         },
         "Heating": {
           "Natural Gas": {
-            "value": 35.76,
+            "value": 94.91,
             "units": "GJ"
           }
         },
         "Interior Equipment": {
           "Electricity": {
-            "value": 21.21,
+            "value": 20.85,
             "units": "GJ"
           }
         },
@@ -207,25 +207,25 @@
         },
         "Total End Uses": {
           "Electricity": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           },
           "Natural Gas": {
-            "value": 51.18,
+            "value": 118.08,
             "units": "GJ"
           },
           "Water": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
         "Water Systems": {
           "Natural Gas": {
-            "value": 15.42,
+            "value": 23.16,
             "units": "GJ"
           },
           "Water": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         }
@@ -233,7 +233,7 @@
       "End Uses By Space Type": {
         "Cooling:Unassigned": {
           "Electricity": {
-            "value": 5.79,
+            "value": 3.24,
             "units": "GJ"
           }
         },
@@ -245,19 +245,19 @@
         },
         "Fans:Unassigned": {
           "Electricity": {
-            "value": 1.6,
+            "value": 2.85,
             "units": "GJ"
           }
         },
         "Heating:Unassigned": {
           "Natural Gas": {
-            "value": 35.76,
+            "value": 94.91,
             "units": "GJ"
           }
         },
         "Interior Equipment:GENERAL": {
           "Electricity": {
-            "value": 21.21,
+            "value": 20.85,
             "units": "GJ"
           }
         },
@@ -269,11 +269,11 @@
         },
         "Water Systems:Unassigned": {
           "Natural Gas": {
-            "value": 15.42,
+            "value": 23.16,
             "units": "GJ"
           },
           "Water": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         }
@@ -281,7 +281,7 @@
       "End Uses By Subcategory": {
         "Cooling:General": {
           "Electricity": {
-            "value": 5.79,
+            "value": 3.24,
             "units": "GJ"
           }
         },
@@ -293,13 +293,13 @@
         },
         "Fans:supply fan": {
           "Electricity": {
-            "value": 1.6,
+            "value": 2.85,
             "units": "GJ"
           }
         },
         "Heating:General": {
           "Natural Gas": {
-            "value": 35.76,
+            "value": 94.91,
             "units": "GJ"
           }
         },
@@ -329,13 +329,13 @@
         },
         "Interior Equipment:fridge": {
           "Electricity": {
-            "value": 2.16,
+            "value": 2.1,
             "units": "GJ"
           }
         },
         "Interior Equipment:mech vent": {
           "Electricity": {
-            "value": 0.63,
+            "value": 0.33,
             "units": "GJ"
           }
         },
@@ -353,7 +353,7 @@
         },
         "Water Systems:General": {
           "Natural Gas": {
-            "value": 15.42,
+            "value": 23.16,
             "units": "GJ"
           }
         },
@@ -365,13 +365,13 @@
         },
         "Water Systems:dhw distribution waste": {
           "Water": {
-            "value": 20.61,
+            "value": 20.75,
             "units": "m3"
           }
         },
         "Water Systems:dhw fixtures": {
           "Water": {
-            "value": 67.97,
+            "value": 68.44,
             "units": "m3"
           }
         },
@@ -399,57 +399,57 @@
       "Site and Source Energy": {
         "Net Site Energy": {
           "Energy Per Conditioned Building Area": {
-            "value": 351.57,
+            "value": 522.89,
             "units": "MJ/m2"
           },
           "Energy Per Total Building Area": {
-            "value": 269.4,
+            "value": 368.86,
             "units": "MJ/m2"
           },
           "Total Energy": {
-            "value": 84.38,
+            "value": 149.61,
             "units": "GJ"
           }
         },
         "Net Source Energy": {
           "Energy Per Conditioned Building Area": {
-            "value": 669.24,
+            "value": 796.35,
             "units": "MJ/m2"
           },
           "Energy Per Total Building Area": {
-            "value": 512.82,
+            "value": 561.77,
             "units": "MJ/m2"
           },
           "Total Energy": {
-            "value": 160.62,
+            "value": 227.85,
             "units": "GJ"
           }
         },
         "Total Site Energy": {
           "Energy Per Conditioned Building Area": {
-            "value": 351.57,
+            "value": 522.89,
             "units": "MJ/m2"
           },
           "Energy Per Total Building Area": {
-            "value": 269.4,
+            "value": 368.86,
             "units": "MJ/m2"
           },
           "Total Energy": {
-            "value": 84.38,
+            "value": 149.61,
             "units": "GJ"
           }
         },
         "Total Source Energy": {
           "Energy Per Conditioned Building Area": {
-            "value": 669.24,
+            "value": 796.35,
             "units": "MJ/m2"
           },
           "Energy Per Total Building Area": {
-            "value": 512.82,
+            "value": 561.77,
             "units": "MJ/m2"
           },
           "Total Energy": {
-            "value": 160.62,
+            "value": 227.85,
             "units": "GJ"
           }
         }
@@ -537,41 +537,41 @@
       "Utility Use Per Conditioned Floor Area": {
         "HVAC": {
           "Electricity Intensity": {
-            "value": 30.8,
+            "value": 21.27,
             "units": "MJ/m2"
           },
           "Natural Gas Intensity": {
-            "value": 213.24,
+            "value": 412.69,
             "units": "MJ/m2"
           },
           "Water Intensity": {
-            "value": 0.45,
+            "value": 0.38,
             "units": "m3/m2"
           }
         },
         "Lighting": {
           "Electricity Intensity": {
-            "value": 19.15,
+            "value": 16.07,
             "units": "MJ/m2"
           }
         },
         "Other": {
           "Electricity Intensity": {
-            "value": 88.38,
+            "value": 72.86,
             "units": "MJ/m2"
           }
         },
         "Total": {
           "Electricity Intensity": {
-            "value": 138.33,
+            "value": 110.19,
             "units": "MJ/m2"
           },
           "Natural Gas Intensity": {
-            "value": 213.24,
+            "value": 412.69,
             "units": "MJ/m2"
           },
           "Water Intensity": {
-            "value": 0.45,
+            "value": 0.38,
             "units": "m3/m2"
           }
         }
@@ -579,33 +579,33 @@
       "Utility Use Per Total Floor Area": {
         "HVAC": {
           "Electricity Intensity": {
-            "value": 23.6,
+            "value": 15.01,
             "units": "MJ/m2"
           },
           "Natural Gas Intensity": {
-            "value": 163.41,
+            "value": 291.13,
             "units": "MJ/m2"
           }
         },
         "Lighting": {
           "Electricity Intensity": {
-            "value": 14.68,
+            "value": 11.33,
             "units": "MJ/m2"
           }
         },
         "Other": {
           "Electricity Intensity": {
-            "value": 67.72,
+            "value": 51.4,
             "units": "MJ/m2"
           }
         },
         "Total": {
           "Electricity Intensity": {
-            "value": 106.0,
+            "value": 77.73,
             "units": "MJ/m2"
           },
           "Natural Gas Intensity": {
-            "value": 163.41,
+            "value": 291.13,
             "units": "MJ/m2"
           }
         }
@@ -617,7 +617,7 @@
             "units": "%"
           },
           "Water": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
@@ -627,7 +627,7 @@
             "units": "%"
           },
           "Water": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
@@ -637,7 +637,7 @@
             "units": "%"
           },
           "Water": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         }
@@ -647,73 +647,73 @@
       "Annual and Peak Values - Electricity": {
         "Cogeneration:ElectricityNet": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
         "Cogeneration:ElectricityPurchased": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
         "Cooling:Electricity": {
           "Electricity Annual Value": {
-            "value": 5.79,
+            "value": 3.24,
             "units": "GJ"
           }
         },
         "Electricity:Building": {
           "Electricity Annual Value": {
-            "value": 24.63,
+            "value": 24.26,
             "units": "GJ"
           }
         },
         "Electricity:Facility": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
         "Electricity:HVAC": {
           "Electricity Annual Value": {
-            "value": 7.39,
+            "value": 6.09,
             "units": "GJ"
           }
         },
         "Electricity:SpaceType:GENERAL": {
           "Electricity Annual Value": {
-            "value": 24.63,
+            "value": 24.26,
             "units": "GJ"
           }
         },
         "Electricity:Zone:CONDITIONED SPACE": {
           "Electricity Annual Value": {
-            "value": 24.63,
+            "value": 24.26,
             "units": "GJ"
           }
         },
         "ElectricityNet:Facility": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
         "ElectricityNet:Plant": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
         "ElectricityPurchased:Facility": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
         "ElectricityPurchased:Plant": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
@@ -725,43 +725,43 @@
         },
         "Fans:Electricity": {
           "Electricity Annual Value": {
-            "value": 1.6,
+            "value": 2.85,
             "units": "GJ"
           }
         },
         "General:Cogeneration:ElectricityNet": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
         "General:Cogeneration:ElectricityPurchased": {
           "Electricity Annual Value": {
-            "value": 33.2,
+            "value": 31.53,
             "units": "GJ"
           }
         },
         "General:Cooling:Electricity": {
           "Electricity Annual Value": {
-            "value": 5.79,
+            "value": 3.24,
             "units": "GJ"
           }
         },
         "InteriorEquipment:Electricity": {
           "Electricity Annual Value": {
-            "value": 21.21,
+            "value": 20.85,
             "units": "GJ"
           }
         },
         "InteriorEquipment:Electricity:SpaceType:GENERAL": {
           "Electricity Annual Value": {
-            "value": 21.21,
+            "value": 20.85,
             "units": "GJ"
           }
         },
         "InteriorEquipment:Electricity:Zone:CONDITIONED SPACE": {
           "Electricity Annual Value": {
-            "value": 21.21,
+            "value": 20.85,
             "units": "GJ"
           }
         },
@@ -863,19 +863,19 @@
         },
         "fridge:InteriorEquipment:Electricity": {
           "Electricity Annual Value": {
-            "value": 2.16,
+            "value": 2.1,
             "units": "GJ"
           }
         },
         "fridge:InteriorEquipment:Electricity:SpaceType:GENERAL": {
           "Electricity Annual Value": {
-            "value": 2.16,
+            "value": 2.1,
             "units": "GJ"
           }
         },
         "fridge:InteriorEquipment:Electricity:Zone:CONDITIONED SPACE": {
           "Electricity Annual Value": {
-            "value": 2.16,
+            "value": 2.1,
             "units": "GJ"
           }
         },
@@ -899,19 +899,19 @@
         },
         "mech vent:InteriorEquipment:Electricity": {
           "Electricity Annual Value": {
-            "value": 0.63,
+            "value": 0.33,
             "units": "GJ"
           }
         },
         "mech vent:InteriorEquipment:Electricity:SpaceType:GENERAL": {
           "Electricity Annual Value": {
-            "value": 0.63,
+            "value": 0.33,
             "units": "GJ"
           }
         },
         "mech vent:InteriorEquipment:Electricity:Zone:CONDITIONED SPACE": {
           "Electricity Annual Value": {
-            "value": 0.63,
+            "value": 0.33,
             "units": "GJ"
           }
         },
@@ -935,7 +935,7 @@
         },
         "supply fan:Fans:Electricity": {
           "Electricity Annual Value": {
-            "value": 1.6,
+            "value": 2.85,
             "units": "GJ"
           }
         }
@@ -943,43 +943,43 @@
       "Annual and Peak Values - Natural Gas": {
         "General:Heating:NaturalGas": {
           "Natural Gas Annual Value": {
-            "value": 35.76,
+            "value": 94.91,
             "units": "GJ"
           }
         },
         "General:WaterSystems:NaturalGas": {
           "Natural Gas Annual Value": {
-            "value": 15.42,
+            "value": 23.16,
             "units": "GJ"
           }
         },
         "Heating:NaturalGas": {
           "Natural Gas Annual Value": {
-            "value": 35.76,
+            "value": 94.91,
             "units": "GJ"
           }
         },
         "NaturalGas:Facility": {
           "Natural Gas Annual Value": {
-            "value": 51.18,
+            "value": 118.08,
             "units": "GJ"
           }
         },
         "NaturalGas:HVAC": {
           "Natural Gas Annual Value": {
-            "value": 35.76,
+            "value": 94.91,
             "units": "GJ"
           }
         },
         "NaturalGas:Plant": {
           "Natural Gas Annual Value": {
-            "value": 15.42,
+            "value": 23.16,
             "units": "GJ"
           }
         },
         "WaterSystems:NaturalGas": {
           "Natural Gas Annual Value": {
-            "value": 15.42,
+            "value": 23.16,
             "units": "GJ"
           }
         }
@@ -987,145 +987,145 @@
       "Annual and Peak Values - Other": {
         "Cooling:EnergyTransfer": {
           "Annual Value": {
-            "value": 28.12,
+            "value": 7.7,
             "units": "GJ"
           }
         },
         "Cooling:EnergyTransfer:Zone:CONDITIONED SPACE": {
           "Annual Value": {
-            "value": 28.12,
+            "value": 7.7,
             "units": "GJ"
           }
         },
         "CoolingCoils:EnergyTransfer": {
           "Annual Value": {
-            "value": 31.21,
+            "value": 9.93,
             "units": "GJ"
           }
         },
         "EnergyTransfer:Building": {
           "Annual Value": {
-            "value": 62.08,
+            "value": 94.77,
             "units": "GJ"
           }
         },
         "EnergyTransfer:Facility": {
           "Annual Value": {
-            "value": 141.92,
+            "value": 203.96,
             "units": "GJ"
           }
         },
         "EnergyTransfer:HVAC": {
           "Annual Value": {
-            "value": 65.18,
+            "value": 95.35,
             "units": "GJ"
           }
         },
         "EnergyTransfer:Plant": {
           "Annual Value": {
-            "value": 14.66,
+            "value": 13.85,
             "units": "GJ"
           }
         },
         "EnergyTransfer:Zone:CONDITIONED SPACE": {
           "Annual Value": {
-            "value": 62.08,
+            "value": 94.77,
             "units": "GJ"
           }
         },
         "General:Cooling:EnergyTransfer": {
           "Annual Value": {
-            "value": 28.12,
+            "value": 7.7,
             "units": "GJ"
           }
         },
         "General:Cooling:EnergyTransfer:Zone:CONDITIONED SPACE": {
           "Annual Value": {
-            "value": 28.12,
+            "value": 7.7,
             "units": "GJ"
           }
         },
         "General:Heating:EnergyTransfer": {
           "Annual Value": {
-            "value": 33.96,
+            "value": 87.07,
             "units": "GJ"
           }
         },
         "General:Heating:EnergyTransfer:Zone:CONDITIONED SPACE": {
           "Annual Value": {
-            "value": 33.96,
+            "value": 87.07,
             "units": "GJ"
           }
         },
         "General:WaterSystems:PlantLoopHeatingDemand": {
           "Annual Value": {
-            "value": 14.66,
+            "value": 13.85,
             "units": "GJ"
           }
         },
         "Heating:EnergyTransfer": {
           "Annual Value": {
-            "value": 33.96,
+            "value": 87.07,
             "units": "GJ"
           }
         },
         "Heating:EnergyTransfer:Zone:CONDITIONED SPACE": {
           "Annual Value": {
-            "value": 33.96,
+            "value": 87.07,
             "units": "GJ"
           }
         },
         "HeatingCoils:EnergyTransfer": {
           "Annual Value": {
-            "value": 33.97,
+            "value": 85.42,
             "units": "GJ"
           }
         },
         "PlantLoopHeatingDemand:Facility": {
           "Annual Value": {
-            "value": 14.66,
+            "value": 13.85,
             "units": "GJ"
           }
         },
         "PlantLoopHeatingDemand:Plant": {
           "Annual Value": {
-            "value": 14.66,
+            "value": 13.85,
             "units": "GJ"
           }
         },
         "WaterSystems:EnergyTransfer": {
           "Annual Value": {
-            "value": 14.66,
+            "value": 13.85,
             "units": "GJ"
           }
         },
         "WaterSystems:PlantLoopHeatingDemand": {
           "Annual Value": {
-            "value": 14.66,
+            "value": 13.85,
             "units": "GJ"
           }
         },
         "clothes washer:WaterSystems:EnergyTransfer": {
           "Annual Value": {
-            "value": 2.78,
+            "value": 2.65,
             "units": "GJ"
           }
         },
         "dhw distribution waste:WaterSystems:EnergyTransfer": {
           "Annual Value": {
-            "value": 2.62,
+            "value": 2.46,
             "units": "GJ"
           }
         },
         "dhw fixtures:WaterSystems:EnergyTransfer": {
           "Annual Value": {
-            "value": 8.63,
+            "value": 8.12,
             "units": "GJ"
           }
         },
         "dishwasher:WaterSystems:EnergyTransfer": {
           "Annual Value": {
-            "value": 0.64,
+            "value": 0.62,
             "units": "GJ"
           }
         }
@@ -1133,37 +1133,37 @@
       "Annual and Peak Values - Water": {
         "MainsWater:Facility": {
           "Annual Value": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
         "MainsWater:Plant": {
           "Annual Value": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
         "Water:Facility": {
           "Annual Value": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
         "Water:Plant": {
           "Annual Value": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
         "WaterSystems:MainsWater": {
           "Annual Value": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
         "WaterSystems:Water": {
           "Annual Value": {
-            "value": 106.84,
+            "value": 107.46,
             "units": "m3"
           }
         },
@@ -1181,25 +1181,25 @@
         },
         "dhw distribution waste:WaterSystems:MainsWater": {
           "Annual Value": {
-            "value": 20.61,
+            "value": 20.75,
             "units": "m3"
           }
         },
         "dhw distribution waste:WaterSystems:Water": {
           "Annual Value": {
-            "value": 20.61,
+            "value": 20.75,
             "units": "m3"
           }
         },
         "dhw fixtures:WaterSystems:MainsWater": {
           "Annual Value": {
-            "value": 67.97,
+            "value": 68.44,
             "units": "m3"
           }
         },
         "dhw fixtures:WaterSystems:Water": {
           "Annual Value": {
-            "value": 67.97,
+            "value": 68.44,
             "units": "m3"
           }
         },
@@ -1219,6 +1219,6 @@
     }
   },
   "sql_records": 14,
-  "processed_date": "2025-07-16T16:05:20.940068",
+  "processed_date": "2025-07-16T16:05:36.422126",
   "generated_by": "test_generate_baseline.py"
 }
