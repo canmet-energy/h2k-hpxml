@@ -45,7 +45,7 @@ Golden files contain reference data used for regression testing. Accidentally ru
 ```bash
 # This will skip baseline generation and use existing golden files
 pytest tests/
-pytest tests/integration/test_energy_comparison.py
+pytest tests/integration/test_regression.py
 ```
 
 ### Baseline Generation (Protected)

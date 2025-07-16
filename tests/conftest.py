@@ -14,6 +14,9 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "baseline_generation: mark test as baseline generation (requires --run-baseline flag)"
     )
+    config.addinivalue_line(
+        "markers", "regression: mark test as regression test (validates against baseline)"
+    )
 
 def pytest_collection_modifyitems(config, items):
     """Modify test collection to handle baseline generation tests."""

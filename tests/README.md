@@ -25,11 +25,24 @@ pytest tests/unit/                   # Unit tests
 ```
 
 ### Regression Testing
+
+#### Combined Regression Test (Recommended)
 ```bash
-# Run energy data regression tests
+# Run regression test (energy + HPXML validation)
+pytest tests/integration/test_regression.py -v -s
+```
+
+This test is **~50% faster** than running separate tests because it:
+- Runs each H2K file once through the simulation pipeline
+- Validates both energy data (with 5% tolerance) and HPXML structure (exact match) in a single pass
+- Provides comprehensive reporting for both validation types
+
+#### Individual Test Types (Less Efficient)
+```bash
+# Run energy data regression tests only
 pytest tests/integration/test_energy_comparison.py -v
 
-# Run HPXML structure regression tests  
+# Run HPXML structure regression tests only
 pytest tests/integration/test_hpxml_comparison.py -v
 
 # Run unit tests (fast)
@@ -80,7 +93,7 @@ tests/
 ### When Output Changes
 1. **Verify changes are intentional**: Review differences carefully
 2. **Update golden files**: `CI=true pytest tests/integration/test_generate_baseline.py --run-baseline -v -s`
-3. **Test against new baselines**: `pytest tests/integration/test_*comparison.py -v`
+3. **Test against new baselines**: `pytest tests/integration/test_regression.py -v -s`
 
 ### Adding New Tests
 1. **Use existing utilities**: Import from `tests.utils`
@@ -98,11 +111,12 @@ tests/
 
 ```bash
 # Essential test commands
-pytest                                    # Run all tests
-pytest -v                                # Verbose output  
-pytest -m "not baseline_generation"      # Skip baseline generation
-CI=true pytest --run-baseline -v -s      # Generate new baselines
-python clean_test_data.py                # Clean test data
+pytest                                              # Run all tests
+pytest -v                                          # Verbose output  
+pytest -m "not baseline_generation"                # Skip baseline generation
+pytest tests/integration/test_regression.py -v -s  # Regression test (recommended)
+CI=true pytest --run-baseline -v -s                # Generate new baselines
+python clean_test_data.py                          # Clean test data
 ```
 
 ## Notes

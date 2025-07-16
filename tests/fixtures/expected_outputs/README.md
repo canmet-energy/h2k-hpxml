@@ -54,7 +54,7 @@ tests/fixtures/expected_outputs/
 
 2. **Run regression tests** (compare against golden files):
    ```bash
-   python -m pytest tests/integration/test_energy_comparison.py -v -s
+   python -m pytest tests/integration/test_regression.py -v -s
    ```
 
 3. **Full test suite**:

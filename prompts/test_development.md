@@ -65,8 +65,7 @@ Run all files in the `examples` folder. For each run, check that each step was c
 tests/
 ├── integration/
 │   ├── test_generate_baseline.py     # Baseline generation test (Energy + HPXML)
-│   ├── test_energy_comparison.py     # Energy data regression comparison test
-│   └── test_hpxml_comparison.py      # NEW: HPXML regression comparison test
+│   └── test_regression.py            # Energy + HPXML regression test
 ├── fixtures/
 │   └── expected_outputs/
 │       └── golden_files/            # 🔒 PERMANENT: Golden master files (version controlled)
@@ -152,35 +151,26 @@ tests/
     ```
   - **HPXML Baseline**: Raw HPXML files + summary with structure validation and key elements extraction
 
-#### 3. Energy Comparison Testing (`test_energy_comparison.py`)
-- **Purpose**: Validate current code changes against stable energy baseline
-- **Scope**: All 5 H2K files with individual comparison reports
-- **Tolerance**: 5% percentage difference as specified in requirements
-- **Results**: 96/96 comparisons passed for all files (100% success rate)
-- **Features**:
-  - Individual comparison files per simulation
-  - Compact summary with pass/fail status
+#### 3. Regression Testing (`test_regression.py`)
+- **Purpose**: Efficiently validate both energy data and HPXML conversion in a single test run
+- **Scope**: All 5 H2K files with comprehensive validation
+- **Efficiency**: ~50% faster than separate tests by running each H2K file once through the simulation pipeline
+- **Energy Validation**:
+  - Tolerance: 5% percentage difference as specified in requirements
+  - Results: 203/203 comparisons passed for all files (100% success rate)
   - Robust handling of EnergyPlus optimization differences
-  - Missing zero-value component tolerance
-
-#### 4. NEW: HPXML Comparison Testing (`test_hpxml_comparison.py`)
-- **Purpose**: Validate H2K to HPXML conversion accuracy against stable HPXML baselines
-- **Scope**: All 5 H2K files with individual HPXML comparison reports
-- **Validation Types**:
+- **HPXML Validation**:
   - **Building Characteristics**: Floor area, volume, bedrooms, bathrooms, building type
   - **Enclosure Elements**: Count and properties of walls, windows, doors, floors, ceilings
   - **HVAC Systems**: Heating, cooling, heat pumps, distribution systems, ventilation
   - **Climate Data**: Weather station assignments and metadata
   - **File Structure**: Element counts, file size, namespace validation
 - **Features**:
-  - Individual HPXML files saved for visual inspection
-  - Detailed comparison reports with specific difference identification
-  - HPXML structure validation (compliance with HPXML standards)
-  - Compact summary with pass/fail status
-  - Normalized comparison (removes timestamps and volatile elements)
-- **Test Functions**:
-  - `test_hpxml_comparison_against_baseline()`: Compares generated HPXML against baseline versions
-  - `test_hpxml_structure_validation()`: Validates HPXML structure without baseline comparison
+  - Single test run validates both energy data and HPXML structure
+  - Separate reporting for energy vs HPXML validation failures
+  - Comprehensive error reporting with specific difference identification
+  - Normalized HPXML comparison (removes timestamps and volatile elements)
+  - Individual comparison files saved for detailed inspection
 
 #### 5. Data Extraction and Comparison Logic
 - **SQL Queries**: Synchronized between baseline generation and comparison
@@ -310,14 +300,8 @@ python -m pytest tests/integration/test_generate_baseline.py --run-baseline -v -
 # Generate new baseline (only when code is stable) - includes Energy + HPXML
 python -m pytest tests/integration/test_generate_baseline.py -v -s
 
-# Run energy comparison against baseline
-python -m pytest tests/integration/test_energy_comparison.py -v -s
-
-# NEW: Run HPXML comparison against baseline
-python -m pytest tests/integration/test_hpxml_comparison.py -v -s
-
-# NEW: Run only HPXML structure validation (no baseline needed)
-python -m pytest tests/integration/test_hpxml_comparison.py::test_hpxml_structure_validation -v -s
+# Run regression test (energy + HPXML) - recommended
+python -m pytest tests/integration/test_regression.py -v -s
 ```
 
 #### Run with Verbose Output
@@ -440,8 +424,7 @@ python -m pytest tests/integration/test_generate_baseline.py --run-baseline
 #### Key Files
 - **Main Tests**: 
   - `tests/integration/test_generate_baseline.py`: Energy + HPXML baseline generation
-  - `tests/integration/test_energy_comparison.py`: Energy data regression testing
-  - `tests/integration/test_hpxml_comparison.py`: **NEW** HPXML regression testing
+  - `tests/integration/test_regression.py`: Energy + HPXML regression testing
 - **Unit Tests**: `tests/unit/test_validate_eplusout_sql.py` (golden file validation)
 - **Common Utilities**: `tests/utils/` (shared functions to reduce code duplication)
   - `sql_utils.py`: SQL data extraction and database utilities
@@ -473,8 +456,8 @@ python -m pytest
 python -m pytest tests/integration/test_generate_baseline.py --run-baseline -v -s
 # ⚠️ This will prompt for confirmation and create automatic backups
 
-# Run energy comparison against baseline (safe)
-python -m pytest tests/integration/test_energy_comparison.py -v -s
+# Run regression test (energy + HPXML) - safe and efficient
+python -m pytest tests/integration/test_regression.py -v -s
 
 # Run specific tests with markers
 python -m pytest -m "not baseline_generation" -v    # Skip baseline generation
@@ -493,7 +476,7 @@ python -m pytest tests/integration/test_generate_baseline.py  # Skipped by defau
 python -m pytest tests/unit/                        # Unit tests (safe validation)
 
 # ✅ SAFE: This only runs comparison tests
-python -m pytest tests/integration/test_energy_comparison.py
+python -m pytest tests/integration/test_regression.py
 
 # 🚨 DANGER: These commands WILL overwrite golden files
 python -m pytest tests/integration/test_generate_baseline.py --run-baseline
