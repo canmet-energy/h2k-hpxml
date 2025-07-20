@@ -1,83 +1,100 @@
-#!venv/bin/python
+#!/usr/bin/env python3
+"""
+H2K to HPXML Conversion CLI Tool
+
+Convert H2K files to HPXML format and run OpenStudio simulations.
+"""
+
 import pathlib
 import os
 import sys
-# Avoid having to add PYTHONPATH to env.
-PROJECT_ROOT = str(pathlib.Path(os.path.dirname(os.path.realpath(__file__))).parent.absolute())
-sys.path.append(PROJECT_ROOT)
 import configparser
 import subprocess
 import click
-from h2ktohpxml.h2ktohpxml import h2ktohpxml
 from colorama import Fore, Style
 import pyfiglet
 import random
 import traceback
 import re
+import shutil
+import csv
+import concurrent.futures
+import time
+
+from h2k_hpxml.core.h2ktohpxml import h2ktohpxml
+
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-@click.group(context_settings=CONTEXT_SETTINGS)
-# This should match the version of OSHPXML with a suffix for our CLI version
-@click.version_option(version='1.7.0.1.1')
 
+@click.group(context_settings=CONTEXT_SETTINGS)
+@click.version_option(version='1.7.0.1.1')
 def cli():
+    """H2K to HPXML conversion and simulation tool."""
     pass
 
-@cli.command(help=f"People that worked on this.")
+
+@cli.command(help="People that worked on this.")
 def credits():
+    """Display credits for the H2K to HPXML team."""
     print(Fore.GREEN + "H2K to HPXML Team" + Style.RESET_ALL)
-    colors = [Fore.RED,
-              Fore.GREEN,
-              Fore.MAGENTA,
-              Fore.CYAN,
-              Fore.YELLOW,
-              Fore.BLUE
-              ]
-    for x in [
+    colors = [Fore.RED, Fore.GREEN, Fore.MAGENTA, Fore.CYAN, Fore.YELLOW, Fore.BLUE]
+    
+    for name in [
         "Aidan Brookson\n",
         "Leigh St. Hilaire\n",
         'Chris Kirney\n',
-        'Phylroy Lopex\n'        
+        'Phylroy Lopex\n',
         'Julia Purdy\n'
     ]:
-        print(random.choice(colors) + pyfiglet.figlet_format(x) + Fore.RESET)
+        print(random.choice(colors) + pyfiglet.figlet_format(name) + Fore.RESET)
+
 
 @cli.command(help="Convert and Simulate H2K file to OS/E+.")
-@click.option('--input_path','-i', default=os.path.join('/shared'), help='h2k file or folder containing h2k files.')
-@click.option('--output_path','-o', help='Path to output hpxml files. By default it is the same as the input path with a folder named output created inside it.')
-@click.option('--timestep', multiple=True, default=[], help='Request monthly output type (ALL, total, fuels, enduses, systemuses, emissions, emissionfuels, emissionenduses, hotwater, loads, componentloads, unmethours, temperatures, airflows, weather, resilience); can be called multiple times')
-@click.option('--daily', multiple=True, default=[], help='Request daily output type (ALL, total, fuels, enduses, systemuses, emissions, emissionfuels, emissionenduses, hotwater, loads, componentloads, unmethours, temperatures, airflows, weather, resilience); can be called multiple times')
-@click.option('--hourly', multiple=True, default=[], help='Request hourly output type (ALL, total, fuels, enduses, systemuses, emissions, emissionfuels, emissionenduses, hotwater, loads, componentloads, unmethours, temperatures, airflows, weather, resilience); can be called multiple times')
-@click.option('--monthly', multiple=True, default=[], help='Request monthly output type (ALL, total, fuels, enduses, systemuses, emissions, emissionfuels, emissionenduses, hotwater, loads, componentloads, unmethours, temperatures, airflows, weather, resilience); can be called multiple times')
-@click.option('--add-component-loads','-l', is_flag=True, default=True, help='Add component loads.')
-@click.option('--debug','-d',  is_flag=True, default=False, help='Enable debug mode and all extra file outputs.')
-@click.option('--skip-validation','-s',  is_flag=True, default=False, help='Skip Schema/Schematron validation for faster performance')
-@click.option('--output-format','-f', default='csv', help='Output format for the simulation resultsOutput file format type (csv, json, msgpack, csv_dview)')
-@click.option('--add-stochastic-schedules',  is_flag=True, default=False, help='Add detailed stochastic occupancy schedules')
-@click.option('--add-timeseries-output-variable', multiple=True, default=[], help='Add timeseries output variable; can be called multiple times; can be called multiple times')
-@click.option('--do-not-sim',  is_flag=True, default=False, help='Convert only, do not run simulation')
-def run(input_path,
-            output_path,
-            timestep,
-            daily,
-            hourly,
-            monthly,
-            add_component_loads,
-            debug,
-            skip_validation,
-            output_format,
-            add_stochastic_schedules,
-            add_timeseries_output_variable,
-            do_not_sim):
-    import shutil
-    import csv
+@click.option('--input_path', '-i', default=os.path.join('/shared'), 
+              help='h2k file or folder containing h2k files.')
+@click.option('--output_path', '-o', 
+              help='Path to output hpxml files. By default it is the same as the input path with a folder named output created inside it.')
+@click.option('--timestep', multiple=True, default=[], 
+              help='Request timestep output type (ALL, total, fuels, enduses, systemuses, emissions, emissionfuels, emissionenduses, hotwater, loads, componentloads, unmethours, temperatures, airflows, weather, resilience); can be called multiple times')
+@click.option('--daily', multiple=True, default=[], 
+              help='Request daily output type (ALL, total, fuels, enduses, systemuses, emissions, emissionfuels, emissionenduses, hotwater, loads, componentloads, unmethours, temperatures, airflows, weather, resilience); can be called multiple times')
+@click.option('--hourly', multiple=True, default=[], 
+              help='Request hourly output type (ALL, total, fuels, enduses, systemuses, emissions, emissionfuels, emissionenduses, hotwater, loads, componentloads, unmethours, temperatures, airflows, weather, resilience); can be called multiple times')
+@click.option('--monthly', multiple=True, default=[], 
+              help='Request monthly output type (ALL, total, fuels, enduses, systemuses, emissions, emissionfuels, emissionenduses, hotwater, loads, componentloads, unmethours, temperatures, airflows, weather, resilience); can be called multiple times')
+@click.option('--add-component-loads', '-l', is_flag=True, default=True, 
+              help='Add component loads.')
+@click.option('--debug', '-d', is_flag=True, default=False, 
+              help='Enable debug mode and all extra file outputs.')
+@click.option('--skip-validation', '-s', is_flag=True, default=False, 
+              help='Skip Schema/Schematron validation for faster performance')
+@click.option('--output-format', '-f', default='csv', 
+              help='Output format for the simulation results (csv, json, msgpack, csv_dview)')
+@click.option('--add-stochastic-schedules', is_flag=True, default=False, 
+              help='Add detailed stochastic occupancy schedules')
+@click.option('--add-timeseries-output-variable', multiple=True, default=[], 
+              help='Add timeseries output variable; can be called multiple times')
+@click.option('--do-not-sim', is_flag=True, default=False, 
+              help='Convert only, do not run simulation')
+def run(input_path, output_path, timestep, daily, hourly, monthly, add_component_loads,
+        debug, skip_validation, output_format, add_stochastic_schedules,
+        add_timeseries_output_variable, do_not_sim):
     """
-    Convert H2K files to HPXML format based on the provided configuration file.
+    Convert H2K files to HPXML format and optionally run simulations.
 
     Args:
-        config_path (str): Path to the configuration file.
+        input_path (str): Path to h2k file or folder containing h2k files
+        output_path (str): Path to output hpxml files
+        timestep, daily, hourly, monthly: Output frequency options
+        add_component_loads (bool): Add component loads
+        debug (bool): Enable debug mode
+        skip_validation (bool): Skip validation for faster performance
+        output_format (str): Output format (csv, json, msgpack, csv_dview)
+        add_stochastic_schedules (bool): Add stochastic schedules
+        add_timeseries_output_variable (list): Additional output variables
+        do_not_sim (bool): Convert only, don't simulate
     """
-
+    
     # Ensure that only one of the hourly, monthly or timeseries options is provided
     if sum(bool(x) for x in [hourly, monthly, timestep]) > 1:
         raise ValueError("Only one of the options --hourly, --monthly, or --timestep can be provided at a time.")
@@ -100,13 +117,14 @@ def run(input_path,
     if add_timeseries_output_variable:
         flags += " " + " ".join(f"--add-timeseries-output-variable {v}" for v in add_timeseries_output_variable)
 
-    # Initialize the config parser and read the configuration file
+    # Find project root and read config
+    project_root = _find_project_root()
     config = configparser.ConfigParser()
-    config.read(os.path.join(PROJECT_ROOT,'conversionconfig.ini'))
+    config.read(os.path.join(project_root, 'conversionconfig.ini'))
     hpxml_os_path = config.get("paths", "hpxml_os_path")
-    ruby_hpxml_path = os.path.join(hpxml_os_path,'workflow','run_simulation.rb')
+    ruby_hpxml_path = os.path.join(hpxml_os_path, 'workflow', 'run_simulation.rb')
     
-    # Get source and destination paths from the configuration
+    # Get source and destination paths
     source_h2k_path = input_path
     if output_path:
         dest_hpxml_path = output_path
@@ -120,7 +138,6 @@ def run(input_path,
     # Create the destination folder
     os.makedirs(dest_hpxml_path, exist_ok=True)
 
-
     # Determine if the source path is a single file or a directory of files
     if os.path.isfile(source_h2k_path) and source_h2k_path.lower().endswith(".h2k"):
         h2k_files = [source_h2k_path]
@@ -128,17 +145,13 @@ def run(input_path,
         h2k_files = [os.path.join(source_h2k_path, f) for f in os.listdir(source_h2k_path) if f.lower().endswith(".h2k")]
         if not h2k_files:
             print(f"No .h2k files found in the directory {source_h2k_path}.")
-            exit(1)
+            sys.exit(1)
     else:
         print(f"The source path {source_h2k_path} is neither a .h2k file nor a directory.")
-        exit(1)
-
-    # Translate files to hpxml
-    # Process each H2K file
-    import concurrent.futures
-    import time
+        sys.exit(1)
 
     def detect_xml_encoding(filepath):
+        """Detect XML encoding from file header."""
         with open(filepath, "rb") as f:
             first_line = f.readline()
             match = re.search(br'encoding=[\'"]([A-Za-z0-9_\-]+)[\'"]', first_line)
@@ -146,8 +159,8 @@ def run(input_path,
                 return match.group(1).decode("ascii")
         return "utf-8"  # fallback
 
-    # Define a function to process each file
     def process_file(filepath):
+        """Process a single H2K file to HPXML and optionally simulate."""
         try:
             print("================================================")
             print("Processing file:", filepath)
@@ -168,7 +181,7 @@ def run(input_path,
 
             # If the destination path exists, delete the folder
             if os.path.exists(hpxml_path):
-                shutil.rmtree(hpxml_path)
+                shutil.rmtree(os.path.dirname(hpxml_path))
             # Ensure the output directory exists
             os.makedirs(os.path.dirname(hpxml_path), exist_ok=True)
             
@@ -182,7 +195,6 @@ def run(input_path,
                 # Pause 3 seconds
                 time.sleep(3)
 
-                path_to_log = f"{output_path}/run"
                 # Run the OpenStudio simulation
                 command = [
                     f"/usr/local/bin/openstudio",
@@ -220,7 +232,7 @@ def run(input_path,
 
                     # Check for specific exception text and handle run.log
                     if "returned non-zero exit status 1." in str(e):
-                        run_log_path = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem,"run", "run.log")
+                        run_log_path = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem, "run", "run.log")
                         if os.path.exists(run_log_path):
                             with open(run_log_path, "r") as run_log_file:
                                 run_log_content = "**OS-HPXML ERROR**: " + run_log_file.read()
@@ -260,6 +272,23 @@ def run(input_path,
         mdfile.write("|----------|--------|-------|\n")
         for result in failure_results:
             mdfile.write(f"| {result[0]} | {result[1]} | {result[2]} |\n")
-        
-if __name__ == '__main__':
+
+
+def _find_project_root():
+    """Find the project root directory containing conversionconfig.ini."""
+    current_dir = pathlib.Path(__file__).parent
+    for parent in [current_dir] + list(current_dir.parents):
+        config_file = parent / 'conversionconfig.ini'
+        if config_file.exists():
+            return str(parent)
+    # Fallback to current working directory
+    return os.getcwd()
+
+
+def main():
+    """Entry point for the h2k2hpxml command."""
     cli()
+
+
+if __name__ == '__main__':
+    main()

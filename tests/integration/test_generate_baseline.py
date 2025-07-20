@@ -65,11 +65,11 @@ def test_generate_baseline(check_openstudio_bindings):
 
         # Run the CLI tool to generate outputs in temp directory
         result = subprocess.run([
-            "python", "bin/h2k2hpxml.py", "run",
+            "python", "-m", "h2k_hpxml.cli.convert", "run",
             "--input_path", input_path,
             "--output_path", temp_output_dir,
             "--debug"
-        ], capture_output=True, text=True)
+        ], capture_output=True, text=True, env={**os.environ, "PYTHONPATH": "/workspaces/h2k_hpxml/src:/workspaces/h2k_hpxml"})
 
         print(f"CLI stdout: {result.stdout}")
         if result.stderr:

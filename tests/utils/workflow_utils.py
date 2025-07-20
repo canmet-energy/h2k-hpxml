@@ -29,7 +29,7 @@ def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tu
     try:
         # Construct the command
         cmd = [
-            "python", "bin/h2k2hpxml.py", "run",
+            "python", "-m", "h2k_hpxml.cli.convert", "run",
             "--input_path", input_path,
             "--output_path", output_dir
         ]
@@ -37,8 +37,12 @@ def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tu
         if debug:
             cmd.append("--debug")
         
+        # Set up environment with proper PYTHONPATH
+        env = os.environ.copy()
+        env["PYTHONPATH"] = "/workspaces/h2k_hpxml/src:/workspaces/h2k_hpxml"
+        
         # Run the command
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, env=env)
         
         success = result.returncode == 0
         return success, result.stdout, result.stderr
