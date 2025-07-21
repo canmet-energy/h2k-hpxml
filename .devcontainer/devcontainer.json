@@ -6,6 +6,9 @@
 	// see https://github.com/canmet-energy/h2k_hpxml_container/blob/main/Dockerfile
 	"image": "canmet/model_dev_container:3.9.0",
 	"containerUser": "vscode",
+	"containerEnv": {
+		"NODE_TLS_REJECT_UNAUTHORIZED": "0"
+	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -27,15 +30,9 @@
 				"python.terminal.activateEnvironment": true,
 				"python.defaultInterpreterPath": "/workspaces/h2k_hpxml/venv/bin/python",
 				"python.terminal.activateEnvInCurrentTerminal": true
-			},
+			}
 		}
 	},
   "remoteUser": "vscode",
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "lts"
-    }
-  },
-  "postCreateCommand": "bash -c 'cd /workspaces/h2k_hpxml && python -m venv venv && source venv/bin/activate && pip install --upgrade pip && pip install -e . && pip install pytest'",
-  "postStartCommand": "bash -l -c 'sleep 3 && echo \"Checking for npm...\" && which npm || (echo \"npm not found, checking alternatives...\" && find /usr/local -name npm 2>/dev/null | head -1) && npm --version && echo \"Installing Claude Code...\" && npm install -g @anthropic-ai/claude-code && echo \"Claude Code installed successfully!\"'"
+  "postCreateCommand": "if [ \"$(curl -k -o /dev/null -s -w \"%{http_code}\" \"https://intranet.nrcan.gc.ca/\")\" -ge 200 ] && [ \"$(curl -o /dev/null -s -w \"%{http_code}\" \"https://intranet.nrcan.gc.ca/\")\" -lt 400 ]; then echo \"nrcan network detected.\" && git clone https://github.com/canmet-energy/linux_nrcan_certs.git && cd linux_nrcan_certs && ./install_nrcan_certs.sh && cd .. && rm -fr linux_nrcan_certs ; fi && bash -c 'curl -fsSLk https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs && sudo apt-get update && cd /workspaces/h2k_hpxml && python -m venv venv && source venv/bin/activate && pip install --upgrade pip && pip install -e . && pip install pytest && sudo npm config set strict-ssl false && sudo npm install -g @anthropic-ai/claude-code'"
 }
