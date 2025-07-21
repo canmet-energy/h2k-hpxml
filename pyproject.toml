@@ -76,3 +76,9 @@ addopts = [
     "-v",
     "--tb=short",
 ]
+markers = [
+    "regression: regression tests that compare against baseline data",
+    "resilience: resilience CLI functionality tests",
+    "slow: tests that take a long time to run",
+    "baseline: tests for generating baseline data (use with --run-baseline flag)",
+]

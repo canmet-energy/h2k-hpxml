@@ -399,12 +399,12 @@ class ResilienceProcessor:
     
     def get_weather_file_paths(self, weather_info):
         """Get CWEC and EWY weather file paths using the weather utility."""
-        from h2k_hpxml.core.utils.weather import get_cwec_file
+        from h2k_hpxml.utils.weather import get_cwec_file
         import csv
         
         # Get the standard weather resources folder path
         project_root = self._find_project_root()
-        weather_folder = os.path.join(project_root, 'src', 'h2k_hpxml', 'core', 'resources', 'weather')
+        weather_folder = os.path.join(project_root, 'src', 'h2k_hpxml', 'resources', 'weather')
         
         try:
             # Use the get_cwec_file function to download/get CWEC file
@@ -423,7 +423,7 @@ class ResilienceProcessor:
             
             # For EWY files, we need to get the EWY filename from the CSV
             weather_csv_path = os.path.join(
-                project_root, 'src', 'h2k_hpxml', 'core', 'resources', 'weather', 'h2k_weather_names.csv'
+                project_root, 'src', 'h2k_hpxml', 'resources', 'weather', 'h2k_weather_names.csv'
             )
             
             ewy_filename = None

@@ -248,20 +248,8 @@ def get_h2k_example_files() -> List[str]:
     return sorted(h2k_files)
 
 
-def create_test_output_directory(base_dir: str, test_name: str) -> str:
-    """
-    Create a test output directory with proper naming.
-    
-    Args:
-        base_dir: Base directory for test outputs
-        test_name: Name of the test
-        
-    Returns:
-        Path to created output directory
-    """
-    output_dir = os.path.join(base_dir, test_name)
-    os.makedirs(output_dir, exist_ok=True)
-    return output_dir
+
+
 
 
 def cleanup_test_outputs(output_dir: str, keep_on_failure: bool = True) -> None:
@@ -272,6 +260,18 @@ def cleanup_test_outputs(output_dir: str, keep_on_failure: bool = True) -> None:
         output_dir: Directory to clean up
         keep_on_failure: Whether to keep outputs when tests fail
     """
-    # This could be implemented to clean up test outputs
-    # For now, we'll keep all outputs for debugging
-    pass
+    import shutil
+    
+    if not os.path.exists(output_dir):
+        return
+        
+    if keep_on_failure:
+        # For debugging, keep outputs - just log what would be cleaned
+        print(f"Would clean up: {output_dir} (keeping for debugging)")
+    else:
+        # Actually remove the directory
+        try:
+            shutil.rmtree(output_dir)
+            print(f"Cleaned up: {output_dir}")
+        except Exception as e:
+            print(f"Failed to clean up {output_dir}: {e}")
