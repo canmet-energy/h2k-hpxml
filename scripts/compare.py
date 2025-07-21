@@ -9,7 +9,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from h2k_hpxml import h2ktohpxml
+from h2k_hpxml.core.translator import h2ktohpxml
 from h2k_hpxml.analysis import annual
 
 config = configparser.ConfigParser()

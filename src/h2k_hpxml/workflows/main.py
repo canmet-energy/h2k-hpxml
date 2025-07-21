@@ -1,7 +1,7 @@
 import os
 import sys
 import configparser
-from h2ktohpxml import h2ktohpxml
+from h2k_hpxml.core.translator import h2ktohpxml
 
 # print("Hello from main.py")
 

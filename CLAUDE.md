@@ -15,10 +15,10 @@ This is the H2K to HPXML to EnergyPlus initiative project, which translates Cana
 - `pytest --run-baseline` - Run baseline generation tests (WARNING: overwrites golden files)
 
 ### Translation and Simulation
-- `python main.py` - Run H2K to HPXML translation using conversionconfig.ini
-- `python run.py` - Run OpenStudio-HPXML simulation workflow
-- `python bin/h2k2hpxml.py <h2k_file>` - CLI tool for H2K to HPXML conversion
-- `python bin/resilience.py <h2k_file> [options]` - Resilience analysis tool
+- `python -m h2k_hpxml.workflows.main` - Run H2K to HPXML translation using conversionconfig.ini
+- `python -m h2k_hpxml.workflows.run` - Run OpenStudio-HPXML simulation workflow
+- `python -m h2k_hpxml.cli.convert <h2k_file>` - CLI tool for H2K to HPXML conversion
+- `python -m h2k_hpxml.cli.resilience <h2k_file> [options]` - Resilience analysis tool
 
 ### Environment Setup
 - `pip install -r requirements.txt` - Install Python dependencies
@@ -26,13 +26,11 @@ This is the H2K to HPXML to EnergyPlus initiative project, which translates Cana
 
 ## Code Architecture
 
-### Core Translation Module (`h2ktohpxml/`)
-- **`h2ktohpxml.py`** - Main translation engine that converts H2K XML strings to HPXML
-- **`Model.py`** - Model handling and data structures
-- **`utils/`** - Utility modules for weather, units, H2K parsing, energy calculations
-- **`templates/`** - Base HPXML templates (base.xml)
+### Core Translation Module (`src/h2k_hpxml/core/`)
+- **`translator.py`** - Main translation engine that converts H2K XML strings to HPXML
+- **`model.py`** - Model handling and data structures
 
-### Translation Components
+### Translation Components (`src/h2k_hpxml/components/`)
 - **`enclosure/`** - Building envelope elements (walls, floors, ceilings, windows, doors, foundations)
 - **`systems/`** - HVAC and building systems (heating, cooling, heat pumps, ventilation, hot water)
 - **`baseloads/`** - Plug loads, lighting, and appliances
@@ -40,11 +38,13 @@ This is the H2K to HPXML to EnergyPlus initiative project, which translates Cana
 
 ### Configuration
 - **`conversionconfig.ini`** - Main configuration file with paths and simulation settings
-- **`config/`** subdirectories contain JSON configuration files for various components
+- **`src/h2k_hpxml/resources/config/`** - JSON configuration files for various components
+- **`src/h2k_hpxml/resources/templates/`** - Base HPXML templates (base.xml)
+- **`src/h2k_hpxml/resources/weather/`** - Weather data and mappings
 
 ### Analysis Tools
-- **`analysis/`** - Annual energy analysis and comparison utilities
-- **`bin/resilience.py`** - Specialized CLI tool for building resilience analysis with 4 scenarios:
+- **`src/h2k_hpxml/analysis/`** - Annual energy analysis and comparison utilities
+- **`src/h2k_hpxml/cli/resilience.py`** - Specialized CLI tool for building resilience analysis with 4 scenarios:
   - Power outage + normal weather
   - Power outage + extreme weather  
   - Thermal autonomy + normal weather
@@ -60,7 +60,7 @@ This is the H2K to HPXML to EnergyPlus initiative project, which translates Cana
 ### Dependencies
 - Project requires OpenStudio Python bindings
 - OpenStudio-HPXML must be installed at `/OpenStudio-HPXML/`
-- Weather files are automatically downloaded to `h2ktohpxml/utils/` when needed
+- Weather files are automatically downloaded to `src/h2k_hpxml/utils/` when needed
 
 ### Translation Process
 1. H2K XML files are parsed using xmltodict
@@ -77,15 +77,15 @@ This is the H2K to HPXML to EnergyPlus initiative project, which translates Cana
 
 ### Key Configuration Files
 - `conversionconfig.ini` - Main configuration (paths, simulation flags, weather settings)
-- `config/foundationconfig.json` - Foundation type mappings
-- `config/hpxmllocations.json` - Location and weather mappings
-- `config/selection.json` - Component selection logic
+- `src/h2k_hpxml/resources/config/foundationconfig.json` - Foundation type mappings
+- `src/h2k_hpxml/resources/config/hpxmllocations.json` - Location and weather mappings
+- `src/h2k_hpxml/resources/config/selection.json` - Component selection logic
 
 ### Weather Data
 - Supports both CWEC (typical) and EWY (extreme) weather files
 - Historic weather library with automatic downloads
-- Weather files stored in `h2ktohpxml/utils/` with file locking
+- Weather files stored in `src/h2k_hpxml/utils/` with file locking
 
 ### CLI Tools
-- `bin/h2k2hpxml.py` - Basic conversion tool
-- `bin/resilience.py` - Advanced resilience analysis with clothing factors and HVAC scenarios
+- `python -m h2k_hpxml.cli.convert` - Basic conversion tool
+- `python -m h2k_hpxml.cli.resilience` - Advanced resilience analysis with clothing factors and HVAC scenarios

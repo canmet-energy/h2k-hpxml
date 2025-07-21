@@ -5,7 +5,7 @@ import json
 import difflib
 from unidecode import unidecode
 
-def get_numbers_and_provinces(file_path="/workspaces/h2k_hpxml/h2ktohpxml/utils/h2k_weather_names.txt"):
+def get_numbers_and_provinces(file_path="/workspaces/h2k_hpxml/src/h2k_hpxml/resources/weather/h2k_weather_names.txt"):
     # Define a dictionary mapping province names to their codes
     prov_terr_codes = {
         "BRITISH COLUMBIA": "BC",

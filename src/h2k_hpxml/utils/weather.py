@@ -61,7 +61,7 @@ def get_cwec_file(
     weather_vintage = unidecode(weather_vintage).upper()
     weather_library = unidecode(weather_library).lower()
 
-    # Read the csv file /workspaces/h2k_hpxml/h2ktohpxml/utils/weather.py with the list of weather files
+    # Read the csv file with the list of weather files from the resources directory
 
     weather_files_csv = os.path.join(
         os.path.dirname(__file__), "..", "resources", "weather", "h2k_weather_names.csv"
