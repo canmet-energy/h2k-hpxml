@@ -1,1 +1,1 @@
-from .h2ktohpxml import *
+from .translator import *

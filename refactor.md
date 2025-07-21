@@ -88,10 +88,10 @@ h2k_hpxml/
   - `config/`, `templates/` → `src/h2k_hpxml/resources/`
 - [ ] Update internal imports within reorganized modules
 
-### Phase 4: Analysis & Workflows
-- [ ] Move `analysis/` → `src/h2k_hpxml/analysis/`
-- [ ] Create `src/h2k_hpxml/workflows/` for simulation logic from `main.py` and `run.py`
-- [ ] Move root scripts (`clean_test_data.py`, `compare.py`) to `scripts/` directory
+### Phase 4: Analysis & Workflows - COMPLETED ✅
+- [x] Move `analysis/` → `src/h2k_hpxml/analysis/`
+- [x] Create `src/h2k_hpxml/workflows/` for simulation logic from `main.py` and `run.py`
+- [x] Move root scripts (`clean_test_data.py`, `compare.py`) to `scripts/` directory
 
 ### Phase 5: Final Updates
 - [ ] Update all import statements throughout codebase
@@ -125,7 +125,21 @@ h2k_hpxml/
 - [x] Tested CLI functionality: `python -m h2k_hpxml.cli.convert --help` works ✅
 - [x] Removed deprecated bin/ directory ✅
 - [x] Moved main.py, run.py → src/h2k_hpxml/workflows/
-- [x] Moved clean_test_data.py, compare.py → scripts/
+- [x] Moved clean_test_data.py → tests/ (test-specific utility)
+- [x] Moved compare.py → scripts/
+- [x] Tested: **3 passed, 1 skipped** ✅ (same results as baseline)
+
+### Phase 3 Progress - COMPLETED ✅
+- [x] Reorganized building components: enclosure/, systems/, baseloads/, program_mode/ → src/h2k_hpxml/components/
+- [x] Moved utilities: utils/ → src/h2k_hpxml/utils/ (top level)
+- [x] Reorganized resources: config/, templates/, weather/ → src/h2k_hpxml/resources/
+- [x] Simplified core module: core/ now contains only translator.py and model.py
+- [x] Renamed h2ktohpxml.py → translator.py for clarity
+- [x] Normalized Model.py → model.py filename
+- [x] Updated all import paths for new structure (25+ files)
+- [x] Fixed config file path resolution in utils/h2k.py
+- [x] Tested imports: `from h2k_hpxml.core.translator import h2ktohpxml` works ✅
+- [x] Tested CLI: `python -m h2k_hpxml.cli.convert --help` works ✅
 - [x] Tested: **3 passed, 1 skipped** ✅ (same results as baseline)
 
 ## Notes

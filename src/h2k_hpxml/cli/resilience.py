@@ -18,8 +18,9 @@ import subprocess
 import configparser
 
 import click
-from h2k_hpxml.core.h2ktohpxml import h2ktohpxml
-from h2k_hpxml.core.utils import weather as weather_utils
+from h2k_hpxml.core.translator import h2ktohpxml
+from h2k_hpxml.utils import weather as weather_utils
+
 import pandas as pd
 import numpy as np
 

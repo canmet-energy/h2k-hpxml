@@ -21,7 +21,7 @@ import csv
 import concurrent.futures
 import time
 
-from h2k_hpxml.core.h2ktohpxml import h2ktohpxml
+from h2k_hpxml.core.translator import h2ktohpxml
 
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])

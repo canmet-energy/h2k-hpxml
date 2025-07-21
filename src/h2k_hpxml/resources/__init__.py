@@ -1,0 +1,1 @@
+"""Static resources for H2K HPXML translation."""
