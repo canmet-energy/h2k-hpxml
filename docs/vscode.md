@@ -86,10 +86,10 @@ cd linux_nrcan_certs && ./install_nrcan_certs.sh && cd .. && rm -fr linux_nrcan_
 ```
 
 ### Install / Update Python Packages. 
-This will install all the python packages required by standards. 
+This will install the package and all python dependencies. 
 1. In the terminal, enter:
 ``
-pip install -r requirements.txt
+pip install -e .
 ``
 
 

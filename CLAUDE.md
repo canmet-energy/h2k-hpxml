@@ -21,7 +21,12 @@ This is the H2K to HPXML to EnergyPlus initiative project, which translates Cana
 - `python -m h2k_hpxml.cli.resilience <h2k_file> [options]` - Resilience analysis tool
 
 ### Environment Setup
-- `pip install -r requirements.txt` - Install Python dependencies
+- `pip install -e .` - Install package and Python dependencies in development mode
+- `pip install .` - Install package and Python dependencies
+- `h2k-deps --check-only` - Check dependency status (OpenStudio & OpenStudio-HPXML)
+- `h2k-deps --auto-install` - Automatically install missing dependencies
+- `h2k-deps --uninstall` - Uninstall OpenStudio and OpenStudio-HPXML dependencies
+- `h2k-deps` - Interactive dependency management
 - Requires OpenStudio Python bindings and OpenStudio-HPXML at `/OpenStudio-HPXML/`
 
 ## Code Architecture
@@ -87,5 +92,6 @@ This is the H2K to HPXML to EnergyPlus initiative project, which translates Cana
 - Weather files stored in `src/h2k_hpxml/utils/` with file locking
 
 ### CLI Tools
-- `python -m h2k_hpxml.cli.convert` - Basic conversion tool
-- `python -m h2k_hpxml.cli.resilience` - Advanced resilience analysis with clothing factors and HVAC scenarios
+- `h2k2hpxml` or `python -m h2k_hpxml.cli.convert` - H2K to HPXML conversion tool
+- `h2k-resilience` or `python -m h2k_hpxml.cli.resilience` - Resilience analysis with clothing factors and HVAC scenarios
+- `h2k-deps` or `python -m h2k_hpxml.utils.dependencies` - Dependency management (check/install OpenStudio & OpenStudio-HPXML)

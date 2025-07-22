@@ -10,7 +10,7 @@ Before using the resilience tool, ensure you have:
 
 1. **OpenStudio Python Bindings** - Required for model manipulation
 2. **OpenStudio-HPXML** - Required for H2K to OSM conversion (must be installed at `/OpenStudio-HPXML/`)
-3. **Python Dependencies** - Install via: `pip install -r requirements.txt`
+3. **Python Dependencies** - Install via: `pip install -e .` (development) or `pip install .` (production)
 
 The tool will automatically validate these dependencies and exit with clear error messages if they're missing.
 

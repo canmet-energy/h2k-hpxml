@@ -21,7 +21,12 @@ This file can also be used to define non-h2k parameters for the translation proc
 
 
 # Running the translator
-1. Ensure the virtual environment is activated (run `.\.venv\Scripts\Activate.ps1`) and the required packages are installed (`pip install -r .\requirements.txt`)
-2. Run main.py (`py main.py`) to translate a single file or a directory of files based on the `source_h2k_path` specified in conversionconfig.ini
-3. Run run.py (`py run.py`) to run an hpxml file through the HPXML-OS workflow
-4. Run simulateh2k.py (`py simulateh2k.py`) to translate a file and simulate it using the HPXML-OS workflow
+1. Install the package and dependencies:
+   - For development: `pip install -e .` (installs package in editable mode with all dependencies)
+   - For production: `pip install .` (installs package with all dependencies)
+2. Check and install external dependencies: `h2k-deps --check-only` or `h2k-deps --auto-install`
+3. Use the CLI tools:
+   - `h2k2hpxml <h2k_file>` - Convert H2K files to HPXML format
+   - `h2k-resilience <h2k_file>` - Run resilience analysis
+   - `python -m h2k_hpxml.workflows.main` - Run batch translation based on conversionconfig.ini
+   - `python -m h2k_hpxml.workflows.run` - Run OpenStudio-HPXML simulation workflow

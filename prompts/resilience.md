@@ -213,7 +213,7 @@ The resilience CLI tool has been successfully implemented in `bin/resilience.py`
 - **Output Variables**: Adds all required hourly output variables for thermal comfort analysis
 
 #### 6. Dependencies and Environment ✅
-- **PyYAML**: Added `pyyaml==6.0.1` to requirements.txt for YAML file generation
+- **PyYAML**: Added `pyyaml==6.0.1` to pyproject.toml dependencies for YAML file generation
 - **Pandas/NumPy**: Used for weather data analysis and CSV processing
 - **Weather Database**: Enhanced `h2k_weather_names.csv` with EWY2020.zip column
 - **OpenStudio Validation**: Checks for Python bindings availability before execution

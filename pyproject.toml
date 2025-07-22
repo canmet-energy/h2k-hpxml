@@ -39,6 +39,7 @@ dependencies = [
     "requests==2.32.3",
     "filelock==3.18.0",
     "pyyaml==6.0.1",
+    "packaging>=20.0",
 ]
 dynamic = ["version"]
 
@@ -58,6 +59,7 @@ Documentation = "https://github.com/canmet-energy/h2k_hpxml/blob/main/README.md"
 [project.scripts]
 h2k2hpxml = "h2k_hpxml.cli.convert:main"
 h2k-resilience = "h2k_hpxml.cli.resilience:main"
+h2k-deps = "h2k_hpxml.utils.dependencies:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -81,4 +83,5 @@ markers = [
     "resilience: resilience CLI functionality tests",
     "slow: tests that take a long time to run",
     "baseline: tests for generating baseline data (use with --run-baseline flag)",
+    "integration: integration tests that check external services and URLs",
 ]
