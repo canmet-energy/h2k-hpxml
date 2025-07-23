@@ -864,6 +864,31 @@ class DependencyManager:
                     path_str += '/'
                 config.set('paths', 'hpxml_os_path', path_str)
                 click.echo(f"✅ Updated OpenStudio-HPXML path: {path_str}")
+            else:
+                # Auto-detect OpenStudio-HPXML if not explicitly provided
+                detected_hpxml_path = None
+                
+                # Check environment variable first
+                env_hpxml_path = os.environ.get('OPENSTUDIO_HPXML_PATH')
+                if env_hpxml_path and Path(env_hpxml_path).exists():
+                    detected_hpxml_path = Path(env_hpxml_path)
+                else:
+                    # Check if default path exists
+                    default_path = self.default_hpxml_path
+                    if default_path.exists():
+                        # Verify it has the required workflow script
+                        workflow_script = default_path / "workflow" / "run_simulation.rb"
+                        if workflow_script.exists():
+                            detected_hpxml_path = default_path
+                
+                if detected_hpxml_path:
+                    path_str = str(detected_hpxml_path).replace('\\', '/') 
+                    if not path_str.endswith('/'):
+                        path_str += '/'
+                    config.set('paths', 'hpxml_os_path', path_str)
+                    click.echo(f"✅ Updated OpenStudio-HPXML path: {path_str}")
+                else:
+                    click.echo("⚠️  OpenStudio-HPXML not found - keeping existing config setting")
             
             # Detect and update OpenStudio binary path
             openstudio_paths = self._get_openstudio_paths()
