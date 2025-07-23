@@ -476,7 +476,8 @@ class TestInstallationMethods:
         
         result = manager._find_config_file()
         
-        assert result == "/test/dir/conversionconfig.ini"
+        # Use Path() for cross-platform compatibility
+        assert result == str(Path("/test/dir/conversionconfig.ini"))
 
     @patch('pathlib.Path.exists')
     @patch('pathlib.Path.cwd')

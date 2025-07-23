@@ -9,6 +9,7 @@ clothing factors and HVAC performance during power outages and extreme weather c
 import pathlib
 import os
 import sys
+import platform
 import traceback
 import yaml
 from datetime import datetime, timedelta
@@ -20,9 +21,45 @@ import configparser
 import click
 from h2k_hpxml.core.translator import h2ktohpxml
 from h2k_hpxml.utils import weather as weather_utils
+from h2k_hpxml.utils.dependencies import safe_echo, DependencyManager
 
 import pandas as pd
 import numpy as np
+
+def get_openstudio_binary_path():
+    """Get the OpenStudio binary path for the current platform."""
+    dep_manager = DependencyManager()
+    
+    # Try to find OpenStudio binary in common locations
+    for openstudio_path in dep_manager._get_openstudio_paths():
+        if dep_manager._test_binary_path(openstudio_path):
+            return openstudio_path
+    
+    # Try the command in PATH
+    if dep_manager._test_openstudio_command():
+        return "openstudio"  # Found in PATH
+    
+    # Fallback to platform-specific defaults
+    if platform.system() == "Windows":
+        return "C:\\openstudio\\bin\\openstudio.exe"
+    else:
+        return "/usr/local/bin/openstudio"
+
+def safe_log_write(log_file, message):
+    """Write message to log file with Unicode character replacement for cross-platform compatibility."""
+    # Replace Unicode characters with ASCII equivalents for log files
+    replacements = {
+        '✓': '[OK]',
+        '✗': '[ERROR]',
+        '✅': '[OK]',
+        '❌': '[ERROR]',
+        '⚠️': '[WARNING]',
+        '⚠': '[WARNING]',
+        '🔄': '[PROCESSING]'
+    }
+    for unicode_char, ascii_equiv in replacements.items():
+        message = message.replace(unicode_char, ascii_equiv)
+    log_file.write(message)
 
 # Check for OpenStudio Python bindings
 try:
@@ -37,7 +74,6 @@ DEFAULT_ENCODING = "utf-8"
 DEFAULT_OUTAGE_DAYS = 7
 DEFAULT_SUMMER_CLOTHING = 0.5
 DEFAULT_WINTER_CLOTHING = 1.0
-OPENSTUDIO_BINARY_PATH = "/usr/local/bin/openstudio"
 CONVERSION_TIMEOUT_SECONDS = 300
 EPW_HEADER_LINES = 8
 NOON_HOUR = 12
@@ -332,8 +368,9 @@ class ResilienceProcessor:
             output_dir = os.path.join(self.original_folder, "hpxml_run")
             os.makedirs(output_dir, exist_ok=True)
             
+            openstudio_binary = get_openstudio_binary_path()
             command = [
-                OPENSTUDIO_BINARY_PATH,
+                openstudio_binary,
                 ruby_hpxml_path,
                 "-x", hpxml_path,
                 "-o", output_dir,
@@ -722,7 +759,7 @@ class ResilienceProcessor:
                 click.echo("Please install OpenStudio-HPXML and ensure it is properly configured.", err=True)
                 sys.exit(1)
                 
-            click.echo(f"✓ OpenStudio-HPXML validated at: {hpxml_os_path}")
+            safe_echo(f"✓ OpenStudio-HPXML validated at: {hpxml_os_path}")
         
         except Exception as e:
             click.echo(f"ERROR: Failed to validate OpenStudio-HPXML: {str(e)}", err=True)
@@ -1217,7 +1254,7 @@ class ResilienceProcessor:
                 )
                 
                 if success:
-                    click.echo(f"    ✓ {scenario} simulation completed successfully")
+                    safe_echo(f"    ✓ {scenario} simulation completed successfully")
                 else:
                     click.echo(f"    ✗ {scenario} simulation failed (check log.txt)")
             
@@ -1313,7 +1350,7 @@ class ResilienceProcessor:
                     log_file.write("ERROR: eplusout.sql file not created\n")
                     return False
                 
-                log_file.write("✓ eplusout.sql file created\n")
+                safe_log_write(log_file, "✓ eplusout.sql file created\n")
                 
                 # Check for errors in eplusout.err
                 err_path = os.path.join(output_folder, 'eplusout.err')
@@ -1345,7 +1382,7 @@ class ResilienceProcessor:
                                             log_file.write(f"  {fatal_line}\n")
                                     return False
                                 else:
-                                    log_file.write("✓ No fatal or severe errors found\n")
+                                    safe_log_write(log_file, "✓ No fatal or severe errors found\n")
                             else:
                                 log_file.write("WARNING: Could not parse error summary from eplusout.err\n")
                         else:
@@ -1362,7 +1399,7 @@ class ResilienceProcessor:
                                     log_file.write(f"  {error_line}\n")
                                 return False
                             else:
-                                log_file.write("✓ No fatal or severe errors found\n")
+                                safe_log_write(log_file, "✓ No fatal or severe errors found\n")
                 
                 # Step 4: Validate required output variables
                 log_file.write("Step 4: Validating output variables...\n")
@@ -1436,9 +1473,9 @@ class ResilienceProcessor:
                 else:
                     # Check for hourly frequency
                     if 'Hourly' in available_vars[var]:
-                        log_file.write(f"✓ Found variable (Hourly): {var}\n")
+                        safe_log_write(log_file, f"✓ Found variable (Hourly): {var}\n")
                     else:
-                        log_file.write(f"⚠ Found variable but not hourly: {var} ({available_vars[var]})\n")
+                        safe_log_write(log_file, f"⚠ Found variable but not hourly: {var} ({available_vars[var]})\n")
             
             conn.close()
             
@@ -1446,7 +1483,7 @@ class ResilienceProcessor:
                 log_file.write(f"ERROR: {len(missing_vars)} required variables missing\n")
                 return False
             else:
-                log_file.write("✓ All required output variables validated\n")
+                safe_log_write(log_file, "✓ All required output variables validated\n")
                 return True
                 
         except Exception as e:

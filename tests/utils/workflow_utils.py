@@ -10,8 +10,38 @@ This module provides common functions for:
 
 import subprocess
 import os
+import sys
+import platform
 import glob
+from pathlib import Path
 from typing import Tuple, Optional, List, Dict, Any
+
+
+def get_python_executable():
+    """Get the Python executable path for cross-platform compatibility."""
+    if platform.system() == "Windows":
+        # Try virtual environment first, then system Python
+        venv_python = Path.cwd() / "venv" / "Scripts" / "python.exe"
+        if venv_python.exists():
+            return str(venv_python)
+        return sys.executable
+    else:
+        # Linux/Unix
+        venv_python = Path.cwd() / "venv" / "bin" / "python"
+        if venv_python.exists():
+            return str(venv_python)
+        return sys.executable
+
+
+def get_pythonpath():
+    """Get PYTHONPATH for cross-platform compatibility."""
+    src_path = Path.cwd() / "src"
+    root_path = Path.cwd()
+    
+    if platform.system() == "Windows":
+        return f"{src_path};{root_path}"
+    else:
+        return f"{src_path}:{root_path}"
 
 
 def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tuple[bool, str, str]:
@@ -27,9 +57,10 @@ def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tu
         Tuple of (success, stdout, stderr)
     """
     try:
-        # Construct the command
+        # Construct the command with cross-platform Python executable
+        python_exe = get_python_executable()
         cmd = [
-            "python", "-m", "h2k_hpxml.cli.convert", "run",
+            python_exe, "-m", "h2k_hpxml.cli.convert", "run",
             "--input_path", input_path,
             "--output_path", output_dir
         ]
@@ -37,9 +68,14 @@ def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tu
         if debug:
             cmd.append("--debug")
         
-        # Set up environment with proper PYTHONPATH
+        # Set up environment with cross-platform PYTHONPATH
         env = os.environ.copy()
-        env["PYTHONPATH"] = "/workspaces/h2k_hpxml/src:/workspaces/h2k_hpxml"
+        current_pythonpath = env.get("PYTHONPATH", "")
+        new_pythonpath = get_pythonpath()
+        if current_pythonpath:
+            env["PYTHONPATH"] = f"{new_pythonpath}{os.pathsep}{current_pythonpath}"
+        else:
+            env["PYTHONPATH"] = new_pythonpath
         
         # Run the command
         result = subprocess.run(cmd, capture_output=True, text=True, env=env)

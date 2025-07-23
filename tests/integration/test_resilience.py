@@ -13,11 +13,41 @@ import os
 import shutil
 import subprocess
 import json
+import sys
+import platform
+from pathlib import Path
 from datetime import datetime
 from tests.utils import (
     find_hpxml_file,
     get_h2k_example_files
 )
+
+
+def get_python_executable():
+    """Get the Python executable path for cross-platform compatibility."""
+    if platform.system() == "Windows":
+        # Try virtual environment first, then system Python
+        venv_python = Path.cwd() / "venv" / "Scripts" / "python.exe"
+        if venv_python.exists():
+            return str(venv_python)
+        return sys.executable
+    else:
+        # Linux/Unix
+        venv_python = Path.cwd() / "venv" / "bin" / "python"
+        if venv_python.exists():
+            return str(venv_python)
+        return sys.executable
+
+
+def get_pythonpath():
+    """Get PYTHONPATH for cross-platform compatibility."""
+    src_path = Path.cwd() / "src"
+    root_path = Path.cwd()
+    
+    if platform.system() == "Windows":
+        return f"{src_path};{root_path}"
+    else:
+        return f"{src_path}:{root_path}"
 
 
 @pytest.mark.resilience
@@ -55,8 +85,9 @@ def test_resilience_cli_basic(check_openstudio_bindings):
     
     try:
         # Run resilience CLI without simulations (faster test)
+        python_exe = get_python_executable()
         cmd = [
-            "/workspaces/h2k_hpxml/venv/bin/python", "-m", "h2k_hpxml.cli.resilience",
+            python_exe, "-m", "h2k_hpxml.cli.resilience",
             input_path,
             "--outage-days", "3",  # Shorter for testing
             "--output-path", temp_output_dir,
@@ -68,10 +99,11 @@ def test_resilience_cli_basic(check_openstudio_bindings):
         # Set PYTHONPATH to include src directory while preserving existing paths
         env = os.environ.copy()
         current_pythonpath = env.get("PYTHONPATH", "")
+        new_pythonpath = get_pythonpath()
         if current_pythonpath:
-            env["PYTHONPATH"] = f"/workspaces/h2k_hpxml/src:{current_pythonpath}"
+            env["PYTHONPATH"] = f"{new_pythonpath}{os.pathsep}{current_pythonpath}"
         else:
-            env["PYTHONPATH"] = "/workspaces/h2k_hpxml/src"
+            env["PYTHONPATH"] = new_pythonpath
         
         result = subprocess.run(
             cmd,
@@ -167,8 +199,9 @@ def test_resilience_cli_with_simulation(check_openstudio_bindings):
     
     try:
         # Run resilience CLI with simulations
+        python_exe = get_python_executable()
         cmd = [
-            "/workspaces/h2k_hpxml/venv/bin/python", "-m", "h2k_hpxml.cli.resilience",
+            python_exe, "-m", "h2k_hpxml.cli.resilience",
             input_path,
             "--outage-days", "2",  # Minimal for testing
             "--output-path", temp_output_dir,
@@ -180,10 +213,11 @@ def test_resilience_cli_with_simulation(check_openstudio_bindings):
         # Set PYTHONPATH to include src directory while preserving existing paths
         env = os.environ.copy()
         current_pythonpath = env.get("PYTHONPATH", "")
+        new_pythonpath = get_pythonpath()
         if current_pythonpath:
-            env["PYTHONPATH"] = f"/workspaces/h2k_hpxml/src:{current_pythonpath}"
+            env["PYTHONPATH"] = f"{new_pythonpath}{os.pathsep}{current_pythonpath}"
         else:
-            env["PYTHONPATH"] = "/workspaces/h2k_hpxml/src"
+            env["PYTHONPATH"] = new_pythonpath
         
         result = subprocess.run(
             cmd,
@@ -266,10 +300,11 @@ def test_resilience_cli_error_handling():
     # Set PYTHONPATH to include src directory while preserving existing paths
     env = os.environ.copy()
     current_pythonpath = env.get("PYTHONPATH", "")
+    new_pythonpath = get_pythonpath()
     if current_pythonpath:
-        env["PYTHONPATH"] = f"/workspaces/h2k_hpxml/src:{current_pythonpath}"
+        env["PYTHONPATH"] = f"{new_pythonpath}{os.pathsep}{current_pythonpath}"
     else:
-        env["PYTHONPATH"] = "/workspaces/h2k_hpxml/src"
+        env["PYTHONPATH"] = new_pythonpath
     
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, env=env)
     assert result.returncode != 0, "CLI should fail for non-existent input file"
@@ -279,8 +314,9 @@ def test_resilience_cli_error_handling():
     test_files = get_h2k_example_files()
     if test_files:
         input_path = os.path.join("examples", test_files[0])
+        python_exe = get_python_executable()
         cmd = [
-            "/workspaces/h2k_hpxml/venv/bin/python", "-m", "h2k_hpxml.cli.resilience",
+            python_exe, "-m", "h2k_hpxml.cli.resilience",
             input_path,
             "--outage-days", "-1",
             "--output-path", temp_output_dir
@@ -289,10 +325,11 @@ def test_resilience_cli_error_handling():
         # Set PYTHONPATH to include src directory while preserving existing paths
         env = os.environ.copy()
         current_pythonpath = env.get("PYTHONPATH", "")
+        new_pythonpath = get_pythonpath()
         if current_pythonpath:
-            env["PYTHONPATH"] = f"/workspaces/h2k_hpxml/src:{current_pythonpath}"
+            env["PYTHONPATH"] = f"{new_pythonpath}{os.pathsep}{current_pythonpath}"
         else:
-            env["PYTHONPATH"] = "/workspaces/h2k_hpxml/src"
+            env["PYTHONPATH"] = new_pythonpath
         
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, env=env)
         assert result.returncode != 0, "CLI should fail for negative outage days"
@@ -301,8 +338,9 @@ def test_resilience_cli_error_handling():
     # Test 3: Invalid clothing factor (out of range)
     if test_files:
         input_path = os.path.join("examples", test_files[0])
+        python_exe = get_python_executable()
         cmd = [
-            "/workspaces/h2k_hpxml/venv/bin/python", "-m", "h2k_hpxml.cli.resilience",
+            python_exe, "-m", "h2k_hpxml.cli.resilience",
             input_path,
             "--clothing-factor-summer", "3.0",  # Out of range (0.0-2.0)
             "--output-path", temp_output_dir
@@ -311,10 +349,11 @@ def test_resilience_cli_error_handling():
         # Set PYTHONPATH to include src directory while preserving existing paths
         env = os.environ.copy()
         current_pythonpath = env.get("PYTHONPATH", "")
+        new_pythonpath = get_pythonpath()
         if current_pythonpath:
-            env["PYTHONPATH"] = f"/workspaces/h2k_hpxml/src:{current_pythonpath}"
+            env["PYTHONPATH"] = f"{new_pythonpath}{os.pathsep}{current_pythonpath}"
         else:
-            env["PYTHONPATH"] = "/workspaces/h2k_hpxml/src"
+            env["PYTHONPATH"] = new_pythonpath
         
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, env=env)
         assert result.returncode != 0, "CLI should fail for out-of-range clothing factor"
@@ -330,15 +369,17 @@ def test_resilience_cli_help():
     """
     print(f"\n🔄 Testing Resilience CLI help...")
     
-    cmd = ["/workspaces/h2k_hpxml/venv/bin/python", "-m", "h2k_hpxml.cli.resilience", "--help"]
+    python_exe = get_python_executable()
+    cmd = [python_exe, "-m", "h2k_hpxml.cli.resilience", "--help"]
     
     # Set PYTHONPATH to include src directory while preserving existing paths
     env = os.environ.copy()
     current_pythonpath = env.get("PYTHONPATH", "")
+    new_pythonpath = get_pythonpath()
     if current_pythonpath:
-        env["PYTHONPATH"] = f"/workspaces/h2k_hpxml/src:{current_pythonpath}"
+        env["PYTHONPATH"] = f"{new_pythonpath}{os.pathsep}{current_pythonpath}"
     else:
-        env["PYTHONPATH"] = "/workspaces/h2k_hpxml/src"
+        env["PYTHONPATH"] = new_pythonpath
     
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, env=env)
     

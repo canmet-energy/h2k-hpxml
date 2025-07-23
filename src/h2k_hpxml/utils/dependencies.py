@@ -40,6 +40,56 @@ from pathlib import Path
 import click
 from packaging import version
 
+def safe_echo(message, **kwargs):
+    """Echo with Unicode character replacement for Windows compatibility."""
+    if isinstance(message, str):
+        # Replace common Unicode characters with ASCII equivalents
+        replacements = {
+            '✅': '[OK]',
+            '✓': '[OK]',
+            '❌': '[ERROR]',
+            '✗': '[ERROR]',
+            '⚠️': '[WARNING]',
+            '⚠': '[WARNING]',
+            '🔍': '[SEARCH]',
+            '🔄': '[PROCESSING]',
+            '📥': '[DOWNLOAD]',
+            '🎉': '[SUCCESS]',
+            '🏠': '[HOUSE]',
+            '🔧': '[TOOL]',
+            '📋': '[LIST]',
+            '🗑️': '[DELETE]',
+            '🪟': '[WINDOWS]',
+            '⏳': '[WAIT]',
+            'ℹ️': '[INFO]'
+        }
+        for unicode_char, ascii_equiv in replacements.items():
+            message = message.replace(unicode_char, ascii_equiv)
+    return click.echo(message, **kwargs)
+
+# Configure click for Unicode support on Windows
+if platform.system() == "Windows":
+    import locale
+    import codecs
+    
+    # Get the system's preferred encoding
+    preferred_encoding = locale.getpreferredencoding()
+    
+    # If we're using a limited encoding, try to use UTF-8
+    if preferred_encoding.lower() in ['cp1252', 'windows-1252', 'charmap']:
+        try:
+            # Try to use UTF-8 for output
+            import sys
+            if hasattr(sys.stdout, 'reconfigure'):
+                sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+            if hasattr(sys.stderr, 'reconfigure'):
+                sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+        except (AttributeError, OSError):
+            # Store original echo and replace with safe version
+            if not hasattr(click, 'original_echo'):
+                click.original_echo = click.echo
+                click.echo = safe_echo
+
 
 class DependencyManager:
     """

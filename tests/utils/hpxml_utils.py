@@ -11,8 +11,32 @@ This module provides functions for:
 import xml.etree.ElementTree as ET
 import os
 import json
+import re
 from typing import Dict, Any, List, Tuple, Optional
 from difflib import unified_diff
+
+
+def normalize_paths_for_comparison(xml_content: str) -> str:
+    """
+    Normalize file paths in XML content for cross-platform comparison.
+    
+    This function standardizes OpenStudio-HPXML paths to remove platform-specific
+    differences like drive letters (C:/) and mixed path separators.
+    
+    Args:
+        xml_content: Raw XML content as string
+        
+    Returns:
+        XML content with normalized paths
+    """
+    # First, normalize all backslashes to forward slashes for consistency
+    normalized_content = xml_content.replace('\\', '/')
+    
+    # Replace Windows-style OpenStudio-HPXML paths with standard format
+    # Pattern matches: C:/OpenStudio-HPXML/... or D:/OpenStudio-HPXML/...
+    normalized_content = re.sub(r'[A-Z]:/OpenStudio-HPXML/', '/OpenStudio-HPXML/', normalized_content)
+    
+    return normalized_content
 
 
 def extract_hpxml_key_elements(hpxml_path: str) -> Dict[str, Any]:
@@ -159,7 +183,11 @@ def normalize_hpxml_for_comparison(hpxml_path: str) -> str:
         # Sort elements for consistent comparison (if needed)
         # This depends on HPXML structure and what elements can be reordered
         
-        return ET.tostring(root, encoding='unicode')
+        # Convert to string and normalize paths for cross-platform compatibility
+        xml_content = ET.tostring(root, encoding='unicode')
+        normalized_content = normalize_paths_for_comparison(xml_content)
+        
+        return normalized_content
         
     except Exception as e:
         return f"Error normalizing HPXML: {str(e)}"

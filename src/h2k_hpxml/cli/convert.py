@@ -8,6 +8,7 @@ Convert H2K files to HPXML format and run OpenStudio simulations.
 import pathlib
 import os
 import sys
+import platform
 import configparser
 import subprocess
 import click
@@ -22,13 +23,33 @@ import concurrent.futures
 import time
 
 from h2k_hpxml.core.translator import h2ktohpxml
+from h2k_hpxml.utils.dependencies import DependencyManager
+
+
+def get_openstudio_binary_path():
+    """Get the OpenStudio binary path for the current platform."""
+    dep_manager = DependencyManager()
+    
+    # Try to find OpenStudio binary in common locations
+    for openstudio_path in dep_manager._get_openstudio_paths():
+        if dep_manager._test_binary_path(openstudio_path):
+            return openstudio_path
+    
+    # Try the command in PATH
+    if dep_manager._test_openstudio_command():
+        return "openstudio"  # Found in PATH
+    
+    # Fallback to platform-specific defaults
+    if platform.system() == "Windows":
+        return "C:\\openstudio\\bin\\openstudio.exe"
+    else:
+        return "/usr/local/bin/openstudio"
 
 
 # Constants
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 DEFAULT_ENCODING = "utf-8"
 SIMULATION_PAUSE_SECONDS = 3
-OPENSTUDIO_BINARY_PATH = "/usr/local/bin/openstudio"
 OUTPUT_FOLDER_NAME = "output"
 
 
@@ -163,8 +184,9 @@ def _run_simulation(hpxml_path, ruby_hpxml_path, hpxml_os_path, flags):
         tuple: (success_status, error_message)
     """
     # Run the OpenStudio simulation
+    openstudio_binary = get_openstudio_binary_path()
     command = [
-        OPENSTUDIO_BINARY_PATH,
+        openstudio_binary,
         ruby_hpxml_path,
         "-x",
         os.path.abspath(hpxml_path)
