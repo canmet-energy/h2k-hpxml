@@ -75,6 +75,59 @@ class TestDependencyManager:
         assert manager.skip_deps is True
         assert manager.auto_install is True
 
+    def test_init_custom_paths(self):
+        """Test DependencyManager initialization with custom paths."""
+        hpxml_path = "/custom/hpxml/path"
+        openstudio_path = "/custom/openstudio/path"
+        
+        manager = DependencyManager(
+            hpxml_path=hpxml_path, 
+            openstudio_path=openstudio_path
+        )
+        
+        assert manager._custom_hpxml_path == Path(hpxml_path)
+        assert manager._custom_openstudio_path == Path(openstudio_path)
+        assert manager.default_hpxml_path == Path(hpxml_path)
+
+    def test_default_hpxml_path_environment_variable(self):
+        """Test that OPENSTUDIO_HPXML_PATH environment variable is respected."""
+        env_path = "/env/test/path"
+        
+        with patch.dict(os.environ, {'OPENSTUDIO_HPXML_PATH': env_path}):
+            manager = DependencyManager()
+            assert manager.default_hpxml_path == Path(env_path)
+
+    def test_default_hpxml_path_user_fallback(self):
+        """Test fallback to user directory when system path is not writable."""
+        manager = DependencyManager()
+        
+        with patch.object(manager, '_has_write_access', return_value=False):
+            with patch('pathlib.Path.exists', return_value=False):
+                path = manager.default_hpxml_path
+                
+                if manager.is_windows:
+                    assert "AppData" in str(path) or "h2k_hpxml" in str(path)
+                else:
+                    assert ".local/share" in str(path)
+
+    def test_has_write_access(self):
+        """Test write access checking."""
+        manager = DependencyManager()
+        
+        # Test existing writable directory
+        with patch('pathlib.Path.exists', return_value=True):
+            with patch('os.access', return_value=True):
+                assert manager._has_write_access("/tmp") is True
+        
+        # Test non-writable directory
+        with patch('pathlib.Path.exists', return_value=True):
+            with patch('os.access', return_value=False):
+                assert manager._has_write_access("/tmp") is False
+        
+        # Test exception handling
+        with patch('pathlib.Path.exists', side_effect=PermissionError):
+            assert manager._has_write_access("/tmp") is False
+
     @patch('click.echo')
     def test_validate_all_skip_deps(self, mock_echo, manager):
         """Test validate_all when skip_deps is True."""
@@ -266,7 +319,10 @@ class TestOpenStudioHPXMLDetection:
             result = manager._check_openstudio_hpxml()
         
         assert result is False
-        mock_echo.assert_any_call("❌ OpenStudio-HPXML not found at: /OpenStudio-HPXML")
+        # The path message should contain "OpenStudio-HPXML not found at:" 
+        # but exact path depends on the path resolution logic
+        echo_calls = [str(call) for call in mock_echo.call_args_list]
+        assert any("OpenStudio-HPXML not found at:" in call for call in echo_calls)
 
     @patch('click.echo')
     def test_check_openstudio_hpxml_missing_workflow(self, mock_echo, manager):
@@ -334,13 +390,15 @@ class TestInstallationMethods:
         mock_install_linux.assert_called_once()
 
     @patch('h2k_hpxml.utils.dependencies.DependencyManager._update_config_file')
+    @patch('h2k_hpxml.utils.dependencies.DependencyManager._install_to_target')
+    @patch('h2k_hpxml.utils.dependencies.DependencyManager._create_target_directory') 
+    @patch('h2k_hpxml.utils.dependencies.DependencyManager._remove_existing_installation')
     @patch('urllib.request.urlretrieve')
     @patch('zipfile.ZipFile')
-    @patch('shutil.rmtree')
-    @patch('subprocess.run')
     @patch('click.echo')
-    def test_install_openstudio_hpxml_success(self, mock_echo, mock_subprocess, mock_rmtree, 
-                                            mock_zipfile, mock_urlretrieve, mock_update_config, manager):
+    def test_install_openstudio_hpxml_success(self, mock_echo, mock_zipfile, mock_urlretrieve,
+                                            mock_remove, mock_create_dir, mock_install_target, 
+                                            mock_update_config, manager):
         """Test successful OpenStudio-HPXML installation."""
         mock_zip_context = Mock()
         mock_zipfile.return_value.__enter__ = Mock(return_value=mock_zip_context)
@@ -353,12 +411,9 @@ class TestInstallationMethods:
         mock_extracted_folder.__str__ = Mock(return_value="/tmp/test/extracted/OpenStudio-HPXML-v1.9.1")
         
         with patch('pathlib.Path.exists', return_value=False):
-            with patch('pathlib.Path.mkdir'):
-                with patch('pathlib.Path.parent'):
-                    with patch('pathlib.Path.iterdir', return_value=[mock_extracted_folder]):
-                        with patch('os.makedirs'):
-                            with patch('shutil.copytree'):
-                                result = manager._install_openstudio_hpxml()
+            with patch('pathlib.Path.iterdir', return_value=[mock_extracted_folder]):
+                with patch('os.makedirs'):
+                    result = manager._install_openstudio_hpxml()
         
         assert result is True
         # Verify the correct URL is used
@@ -385,12 +440,21 @@ class TestInstallationMethods:
         mock_config_parser.return_value = mock_config
         mock_config.has_section.return_value = True
         
-        with patch('builtins.open', mock_open()) as mock_file:
-            result = manager._update_config_file(Path("/OpenStudio-HPXML"))
+        # Mock _get_openstudio_paths to return a valid path
+        with patch.object(manager, '_get_openstudio_paths', return_value=['/usr/local/bin/openstudio']):
+            with patch('pathlib.Path.exists', return_value=True):
+                with patch('builtins.open', mock_open()) as mock_file:
+                    result = manager._update_config_file(Path("/OpenStudio-HPXML"))
         
         assert result is True
-        mock_config.set.assert_called_with('paths', 'hpxml_os_path', '/OpenStudio-HPXML/')
-        mock_echo.assert_any_call("✅ Updated conversionconfig.ini: hpxml_os_path = /OpenStudio-HPXML/")
+        
+        # Expect TWO calls: one for hpxml_os_path, one for openstudio_binary
+        expected_calls = [
+            call('paths', 'hpxml_os_path', '/OpenStudio-HPXML/'),
+            call('paths', 'openstudio_binary', '/usr/local/bin/openstudio')
+        ]
+        mock_config.set.assert_has_calls(expected_calls, any_order=True)
+        mock_echo.assert_any_call("✅ Updated OpenStudio-HPXML path: /OpenStudio-HPXML/")
 
     @patch('h2k_hpxml.utils.dependencies.DependencyManager._find_config_file')
     @patch('click.echo')
@@ -560,6 +624,26 @@ class TestUtilityFunctions:
         
         assert manager.auto_install is True
         assert manager.interactive is False
+
+    def test_validate_dependencies_with_paths(self):
+        """Test validate_dependencies function with custom paths."""
+        with patch('h2k_hpxml.utils.dependencies.DependencyManager') as MockManager:
+            mock_instance = MockManager.return_value
+            mock_instance.validate_all.return_value = True
+            
+            result = validate_dependencies(
+                hpxml_path="/custom/hpxml", 
+                openstudio_path="/custom/openstudio"
+            )
+            
+            assert result is True
+            MockManager.assert_called_once_with(
+                interactive=True,
+                skip_deps=False,
+                auto_install=False,
+                hpxml_path="/custom/hpxml",
+                openstudio_path="/custom/openstudio"
+            )
 
     def test_is_debian_based_true(self):
         """Test Debian detection when /etc/debian_version exists."""
