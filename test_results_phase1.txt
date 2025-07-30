@@ -1,0 +1,134 @@
+=== PHASE 1 TESTS ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.11, pytest-8.3.3, pluggy-1.6.0 -- /venv/bin/python3.12
+cachedir: .pytest_cache
+rootdir: /workspaces/h2k_hpxml
+configfile: pyproject.toml
+testpaths: tests
+collecting ... collected 8 items / 5 errors
+
+==================================== ERRORS ====================================
+______________ ERROR collecting tests/unit/test_config_manager.py ______________
+tests/unit/test_config_manager.py:11: in <module>
+    from h2k_hpxml.config.manager import ConfigManager
+src/h2k_hpxml/__init__.py:6: in <module>
+    from .core.translator import h2ktohpxml
+src/h2k_hpxml/core/__init__.py:1: in <module>
+    from .translator import h2ktohpxml
+src/h2k_hpxml/core/translator.py:16: in <module>
+    from ..utils.logging import get_logger
+src/h2k_hpxml/utils/__init__.py:7: in <module>
+    from .weather import get_climate_zone
+src/h2k_hpxml/utils/weather.py:12: in <module>
+    config_manager = ConfigManager()
+src/h2k_hpxml/config/manager.py:50: in __init__
+    self._load_configuration(config_file)
+src/h2k_hpxml/config/manager.py:59: in _load_configuration
+    config_file = self._find_config_file()
+src/h2k_hpxml/config/manager.py:89: in _find_config_file
+    raise ConfigurationError(
+E   h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+________________ ERROR collecting tests/unit/test_core_model.py ________________
+tests/unit/test_core_model.py:7: in <module>
+    from h2k_hpxml.core.model import CounterManager
+src/h2k_hpxml/__init__.py:6: in <module>
+    from .core.translator import h2ktohpxml
+src/h2k_hpxml/core/__init__.py:1: in <module>
+    from .translator import h2ktohpxml
+src/h2k_hpxml/core/translator.py:18: in <module>
+    from .hpxml_assembly import finalize_hpxml_output as _finalize_hpxml_output
+src/h2k_hpxml/core/hpxml_assembly.py:10: in <module>
+    from ..components.ashrae140_mode import apply_ashrae_140
+src/h2k_hpxml/components/ashrae140_mode.py:3: in <module>
+    from ..utils import h2k
+src/h2k_hpxml/utils/__init__.py:7: in <module>
+    from .weather import get_climate_zone
+src/h2k_hpxml/utils/weather.py:12: in <module>
+    config_manager = ConfigManager()
+src/h2k_hpxml/config/manager.py:50: in __init__
+    self._load_configuration(config_file)
+src/h2k_hpxml/config/manager.py:59: in _load_configuration
+    config_file = self._find_config_file()
+src/h2k_hpxml/config/manager.py:89: in _find_config_file
+    raise ConfigurationError(
+E   h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+_____________ ERROR collecting tests/unit/test_core_translator.py ______________
+tests/unit/test_core_translator.py:10: in <module>
+    from h2k_hpxml.core.translator import h2ktohpxml
+src/h2k_hpxml/__init__.py:6: in <module>
+    from .core.translator import h2ktohpxml
+src/h2k_hpxml/core/__init__.py:1: in <module>
+    from .translator import h2ktohpxml
+src/h2k_hpxml/core/translator.py:18: in <module>
+    from .hpxml_assembly import finalize_hpxml_output as _finalize_hpxml_output
+src/h2k_hpxml/core/hpxml_assembly.py:10: in <module>
+    from ..components.ashrae140_mode import apply_ashrae_140
+src/h2k_hpxml/components/ashrae140_mode.py:3: in <module>
+    from ..utils import h2k
+src/h2k_hpxml/utils/__init__.py:7: in <module>
+    from .weather import get_climate_zone
+src/h2k_hpxml/utils/weather.py:12: in <module>
+    config_manager = ConfigManager()
+src/h2k_hpxml/config/manager.py:50: in __init__
+    self._load_configuration(config_file)
+src/h2k_hpxml/config/manager.py:59: in _load_configuration
+    config_file = self._find_config_file()
+src/h2k_hpxml/config/manager.py:89: in _find_config_file
+    raise ConfigurationError(
+E   h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+_______________ ERROR collecting tests/unit/test_dependencies.py _______________
+tests/unit/test_dependencies.py:39: in <module>
+    from h2k_hpxml.utils.dependencies import DependencyManager
+src/h2k_hpxml/__init__.py:6: in <module>
+    from .core.translator import h2ktohpxml
+src/h2k_hpxml/core/__init__.py:1: in <module>
+    from .translator import h2ktohpxml
+src/h2k_hpxml/core/translator.py:18: in <module>
+    from .hpxml_assembly import finalize_hpxml_output as _finalize_hpxml_output
+src/h2k_hpxml/core/hpxml_assembly.py:10: in <module>
+    from ..components.ashrae140_mode import apply_ashrae_140
+src/h2k_hpxml/components/ashrae140_mode.py:3: in <module>
+    from ..utils import h2k
+src/h2k_hpxml/utils/__init__.py:7: in <module>
+    from .weather import get_climate_zone
+src/h2k_hpxml/utils/weather.py:12: in <module>
+    config_manager = ConfigManager()
+src/h2k_hpxml/config/manager.py:50: in __init__
+    self._load_configuration(config_file)
+src/h2k_hpxml/config/manager.py:59: in _load_configuration
+    config_file = self._find_config_file()
+src/h2k_hpxml/config/manager.py:89: in _find_config_file
+    raise ConfigurationError(
+E   h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+___________ ERROR collecting tests/unit/test_essential_utilities.py ____________
+tests/unit/test_essential_utilities.py:10: in <module>
+    from h2k_hpxml.utils.common import ComponentExtractor
+src/h2k_hpxml/__init__.py:6: in <module>
+    from .core.translator import h2ktohpxml
+src/h2k_hpxml/core/__init__.py:1: in <module>
+    from .translator import h2ktohpxml
+src/h2k_hpxml/core/translator.py:18: in <module>
+    from .hpxml_assembly import finalize_hpxml_output as _finalize_hpxml_output
+src/h2k_hpxml/core/hpxml_assembly.py:10: in <module>
+    from ..components.ashrae140_mode import apply_ashrae_140
+src/h2k_hpxml/components/ashrae140_mode.py:3: in <module>
+    from ..utils import h2k
+src/h2k_hpxml/utils/__init__.py:7: in <module>
+    from .weather import get_climate_zone
+src/h2k_hpxml/utils/weather.py:12: in <module>
+    config_manager = ConfigManager()
+src/h2k_hpxml/config/manager.py:50: in __init__
+    self._load_configuration(config_file)
+src/h2k_hpxml/config/manager.py:59: in _load_configuration
+    config_file = self._find_config_file()
+src/h2k_hpxml/config/manager.py:89: in _find_config_file
+    raise ConfigurationError(
+E   h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+=========================== short test summary info ============================
+ERROR tests/unit/test_config_manager.py - h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+ERROR tests/unit/test_core_model.py - h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+ERROR tests/unit/test_core_translator.py - h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+ERROR tests/unit/test_dependencies.py - h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+ERROR tests/unit/test_essential_utilities.py - h2k_hpxml.exceptions.ConfigurationError: Configuration file not found for environment 'prod' or default 'conversionconfig.ini'
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 5 errors in 0.27s ===============================

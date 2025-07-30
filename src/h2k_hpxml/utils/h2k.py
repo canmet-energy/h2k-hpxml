@@ -1,26 +1,25 @@
 # Utility functions related to H2k mapping
 import json
 import os
-import sys
-from operator import itemgetter
 
 from . import obj
 from . import units
 
-config_folder = os.path.join(os.path.dirname(__file__), "..", "resources", "config")
-with open(os.path.join(config_folder, "selection.json"), "r", encoding="utf-8") as f:
+resources_folder = os.path.join(os.path.dirname(__file__), "..", "resources")
+with open(os.path.join(resources_folder, "config_selection.json"), encoding="utf-8") as f:
     selection_config = json.load(f)
 
-with open(os.path.join(config_folder, "numeric.json"), "r", encoding="utf-8") as f:
+with open(os.path.join(resources_folder, "config_numeric.json"), encoding="utf-8") as f:
     numeric_config = json.load(f)
 
-with open(
-    os.path.join(config_folder, "foundationconfig.json"), "r", encoding="utf-8"
-) as f:
+with open(os.path.join(resources_folder, "config_foundations.json"), encoding="utf-8") as f:
     foundation_config = json.load(f)
 
 
-def get_selection_field(h2k_dict={}, field_key=""):
+def get_selection_field(h2k_dict=None, field_key=""):
+    if h2k_dict is None:
+        h2k_dict = {}
+
     if field_key not in selection_config.keys():
         print("field key not found " + field_key)
         return None
@@ -39,7 +38,10 @@ def get_selection_field(h2k_dict={}, field_key=""):
     return selection_map.get(h2k_val, default_val)
 
 
-def get_number_field(h2k_dict={}, field_key=""):
+def get_number_field(h2k_dict=None, field_key=""):
+    if h2k_dict is None:
+        h2k_dict = {}
+
     if field_key not in numeric_config.keys():
         print("field key not found " + field_key)
         return None
@@ -62,9 +64,7 @@ def get_number_field(h2k_dict={}, field_key=""):
     if None in [unit_type, h2k_units, hpxml_units]:
         return h2k_val
 
-    return round(
-        units.convert_unit(h2k_val, unit_type, h2k_units, hpxml_units), decimals
-    )
+    return round(units.convert_unit(h2k_val, unit_type, h2k_units, hpxml_units), decimals)
 
 
 def get_composite_rval(composite_dict, wall_core="C"):
@@ -78,9 +78,7 @@ def get_composite_rval(composite_dict, wall_core="C"):
     if section_list == []:
         rval = get_number_field(composite_dict, "composite_nom_r_value")
     else:
-        section_list = (
-            section_list if isinstance(section_list, list) else [section_list]
-        )
+        section_list = section_list if isinstance(section_list, list) else [section_list]
         percentage = 0
         totPercentage = 0
         sumQuotient = 0
@@ -94,9 +92,7 @@ def get_composite_rval(composite_dict, wall_core="C"):
 
             totPercentage += percentage
 
-            sumQuotient += percentage / (
-                (float(section.get("@rsi", 0)) * 5.678) + wall_core_rval
-            )
+            sumQuotient += percentage / ((float(section.get("@rsi", 0)) * 5.678) + wall_core_rval)
 
         rval = round((100 / sumQuotient) - wall_core_rval, 4)
 

@@ -1,6 +1,6 @@
 # Testing Guide
 
-This testing framework provides comprehensive regression testing for the H2K to HPXML translation pipeline using golden file comparisons.
+This testing framework provides focused, efficient testing for the H2K to HPXML translation pipeline using golden file regression testing and essential unit tests.
 
 ## Prerequisites
 
@@ -112,7 +112,7 @@ tests/
 ```bash
 # Essential test commands
 pytest                                              # Run all tests
-pytest -v                                          # Verbose output  
+pytest -v                                          # Verbose output
 pytest -m "not baseline_generation"                # Skip baseline generation
 pytest tests/integration/test_regression.py -v -s  # Regression test (recommended)
 CI=true pytest --run-baseline -v -s                # Generate new baselines

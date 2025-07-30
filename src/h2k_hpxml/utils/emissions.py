@@ -18,8 +18,8 @@ elec_emission_factors = {
 }
 
 fuel_emission_factors = {
-    "natural_gas": 1888, #[g/m3], update for each province
-    "propane": 1515, #[g/L]
-    "oil": 2753, #[g/L]
-    "wood": 1539, #[g/kg]
+    "natural_gas": 1888,  # [g/m3], update for each province
+    "propane": 1515,  # [g/L]
+    "oil": 2753,  # [g/L]
+    "wood": 1539,  # [g/kg]
 }

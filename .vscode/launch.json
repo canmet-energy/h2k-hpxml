@@ -1,0 +1,37 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: H2K to HPXML Translation",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/h2k_hpxml/cli/convert.py",
+            "args": ["${workspaceFolder}/tests/fixtures/input/WizardHouse.h2k"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
+        },
+        {
+            "name": "Python: Pytest Current File",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["${file}"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

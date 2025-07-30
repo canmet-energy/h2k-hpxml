@@ -172,4 +172,7 @@ h2ktohpxml/resources/weather/*.epw
 # Ignore baseline backup directories
 tests/fixtures/expected_outputs/golden_files/baseline_backup*
 
+# Ignore installer executables
+tools/installer/*.exe
+
 venv/

@@ -1,30 +1,15 @@
-import difflib
-import os
-from unidecode import unidecode
-import json
-import requests
-import zipfile
-import configparser
 import csv
+import os
+import zipfile
+
+import requests
 from filelock import FileLock
+from unidecode import unidecode
 
-# Load configuration file and get the hpxml_os_path, weather_vintage, and weather_library
-config = configparser.ConfigParser()
+from ..config import ConfigManager
 
-# Find project root containing conversionconfig.ini
-def find_project_root():
-    current_dir = os.path.dirname(__file__)
-    for _ in range(10):  # Limit search depth
-        config_path = os.path.join(current_dir, "conversionconfig.ini")
-        if os.path.exists(config_path):
-            return config_path
-        current_dir = os.path.dirname(current_dir)
-    return None
-
-config_path = find_project_root()
-if not config_path:
-    raise FileNotFoundError("Configuration file 'conversionconfig.ini' not found in project hierarchy")
-config.read(config_path)
+# Load configuration using ConfigManager
+config_manager = ConfigManager()
 
 prov_terr_codes = {
     "BRITISH COLUMBIA": "BC",
@@ -46,11 +31,10 @@ prov_terr_codes = {
 def get_cwec_file(
     weather_region="ONTARIO",
     weather_location="LONDON",
-    weather_folder=os.path.join(config.get("paths", "hpxml_os_path"), "weather"),
-    weather_vintage=config.get("weather", "weather_vintage"),
-    weather_library=config.get("weather", "weather_library"),
+    weather_folder=os.path.join(str(config_manager.hpxml_os_path), "weather"),
+    weather_vintage=config_manager.weather_vintage,
+    weather_library=config_manager.weather_library,
 ):
-
     if not weather_region:
         raise ValueError("Weather region is not defined in the h2k file")
     if not weather_location:
@@ -70,19 +54,16 @@ def get_cwec_file(
     if not os.path.exists(weather_files_csv):
         raise FileNotFoundError(f"CSV file not found at {weather_files_csv}")
 
-    with open(weather_files_csv, mode="r") as csv_file:
+    with open(weather_files_csv) as csv_file:
         csv_reader = csv.DictReader(csv_file)
-        weather_files = [row for row in csv_reader]
+        weather_files = list(csv_reader)
     province_english = weather_region
     city_english = weather_location
 
     # Look up the corresponding CWEC2020.zip value given the province and city
     zip_file = None
     for row in weather_files:
-        if (
-            row["provinces_english"] == province_english
-            and row["cities_english"] == city_english
-        ):
+        if row["provinces_english"] == province_english and row["cities_english"] == city_english:
             zip_file = row["CWEC2020.zip"]
             break
     if zip_file is None:
@@ -97,9 +78,7 @@ def get_cwec_file(
         return os.path.join(weather_folder, f"{zip_file[:-4]}")
 
     # Download the file from github
-    github_url = (
-        f"https://github.com/canmet-energy/btap_weather/raw/refs/heads/main/historic/"
-    )
+    github_url = "https://github.com/canmet-energy/btap_weather/raw/refs/heads/main/historic/"
     # Download file from github using the github_url and zip_file name
     file_url = f"{github_url}{zip_file}"
     local_filename = os.path.join(os.path.dirname(__file__), f"{zip_file}")

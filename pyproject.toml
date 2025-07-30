@@ -50,6 +50,13 @@ test = [
 ]
 dev = [
     "pytest==8.3.3",
+    "mypy>=1.0.0",
+    "types-requests",
+    "types-PyYAML",
+    "hypothesis>=6.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "pre-commit>=3.0.0",
 ]
 
 [project.urls]
@@ -86,3 +93,106 @@ markers = [
     "baseline: tests for generating baseline data (use with --run-baseline flag)",
     "integration: integration tests that check external services and URLs",
 ]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "xmltodict.*",
+    "openstudio.*",
+    "pyfiglet.*",
+    "colorama.*",
+    "filelock.*",
+    "unidecode.*",
+]
+ignore_missing_imports = true
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    # directories
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | tests/fixtures
+)/
+'''
+
+[tool.ruff]
+target-version = "py38"
+line-length = 100
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "tests/fixtures",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex, we'll address case by case
+    "B904",  # raise from None, not critical for this project
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py files
+"tests/**/*" = [
+    "B011",  # Do not call assert False since python -O removes these calls
+    "F401",  # Allow unused imports in tests
+    "F811",  # Allow redefinition of unused variables in tests
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["h2k_hpxml"]
+force-single-line = true

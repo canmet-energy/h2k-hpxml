@@ -2,5 +2,5 @@
 
 from h2k_hpxml.cli.convert import main as convert_main
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     convert_main()

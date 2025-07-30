@@ -1,7 +1,8 @@
 import os
+from collections.abc import MutableMapping
+
 import pandas as pd
 import xmltodict
-from collections.abc import MutableMapping
 
 
 def flatten(dictionary, parent_key="", separator="_"):
@@ -27,9 +28,7 @@ def read_os_results(path="", return_type="dict"):
         return {}
 
     columns = ["parameter", "value"]
-    res_df = pd.read_csv(
-        f"{results_folder_path}results_annual.csv", header=None, names=columns
-    )
+    res_df = pd.read_csv(f"{results_folder_path}results_annual.csv", header=None, names=columns)
 
     if return_type == "dict":
         return dict(zip(res_df.parameter, res_df.value))
@@ -45,7 +44,7 @@ def read_h2k_results(path="", case="Base", operating_conditions="SOC"):
     if path == "":
         return {}
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         h2k_string = f.read()
 
     h2k_dict = xmltodict.parse(h2k_string)
@@ -77,7 +76,7 @@ def read_h2k_results(path="", case="Base", operating_conditions="SOC"):
     matching_res_set = {}
     for res_set in all_results:
         case_match = ((case == "Base") and ("type" not in res_set.keys())) or (
-            (res_set.get("@type", None) == case)
+            res_set.get("@type", None) == case
         )
 
         op_cond_match = res_set.get("@houseCode", None) == operating_conditions
@@ -88,19 +87,20 @@ def read_h2k_results(path="", case="Base", operating_conditions="SOC"):
     return matching_res_set, weather_location, hot_water_load_Lperday
 
 
-def compare_os_h2k_annual(h2k_results={}, os_results={}):
+def compare_os_h2k_annual(h2k_results=None, os_results=None):
+    if h2k_results is None:
+        h2k_results = {}
+    if os_results is None:
+        os_results = {}
+
     compare_dict = {
         "total_annual_consumption_GJ": {
-            "h2k": float(
-                h2k_results.get("Annual", {}).get("Consumption", {}).get("@total", 0)
-            ),
+            "h2k": float(h2k_results.get("Annual", {}).get("Consumption", {}).get("@total", 0)),
             "hpxml": os_results.get("Energy Use: Total (MBtu)", 0)
             * (1.0550558526 / 1),  # [MBtu -> GJ]
         },
         "heating_sys_energy_delivered_GJ": {
-            "h2k": float(
-                h2k_results.get("Annual", {}).get("Load", {}).get("@auxiliaryEnergy", 0)
-            )
+            "h2k": float(h2k_results.get("Annual", {}).get("Load", {}).get("@auxiliaryEnergy", 0))
             / 1000,  # [GJ]
             "hpxml": os_results.get("Load: Heating: Delivered (MBtu)", 0)
             * (1.0550558526 / 1),  # [MBtu -> GJ]
@@ -129,9 +129,7 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
         1.0550558526 / 1
     )  # [MBtu -> GJ]
 
-    os_heat_loss_ceilings = os_results.get(
-        "Component Load: Heating: Ceilings (MBtu)", 0
-    ) * (
+    os_heat_loss_ceilings = os_results.get("Component Load: Heating: Ceilings (MBtu)", 0) * (
         1.0550558526 / 1
     )  # [MBtu -> GJ]
 
@@ -139,9 +137,7 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
         1.0550558526 / 1
     )  # [MBtu -> GJ]
 
-    os_heat_loss_rim_joists = os_results.get(
-        "Component Load: Heating: Rim Joists (MBtu)", 0
-    ) * (
+    os_heat_loss_rim_joists = os_results.get("Component Load: Heating: Rim Joists (MBtu)", 0) * (
         1.0550558526 / 1
     )  # [MBtu -> GJ]
 
@@ -160,9 +156,7 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
         1.0550558526 / 1
     )  # [MBtu -> GJ]
 
-    os_heat_loss_floors = os_results.get(
-        "Component Load: Heating: Floors (MBtu)", 0
-    ) * (
+    os_heat_loss_floors = os_results.get("Component Load: Heating: Floors (MBtu)", 0) * (
         1.0550558526 / 1
     )  # [MBtu -> GJ]
 
@@ -188,9 +182,7 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
         1.0550558526 / 1
     )  # [MBtu -> GJ]
 
-    os_heat_loss_mech_vent = os_results.get(
-        "Component Load: Heating: Mechanical Ventilation (MBtu)", 0
-    ) * (
+    os_results.get("Component Load: Heating: Mechanical Ventilation (MBtu)", 0) * (
         1.0550558526 / 1
     )  # [MBtu -> GJ]
 
@@ -211,49 +203,33 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
     h2k_heat_loss_windows = float(
         h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@windows", 0)
     )
-    h2k_heat_loss_doors = float(
-        h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@doors", 0)
-    )
+    h2k_heat_loss_doors = float(h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@doors", 0))
     h2k_heat_loss_exp_floors = float(
         h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@exposedFloors", 0)
     )
     h2k_heat_loss_crawlspace = float(
         h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@crawlspace", 0)
     )
-    h2k_heat_loss_slab = float(
-        h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@slab", 0)
-    )
+    h2k_heat_loss_slab = float(h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@slab", 0))
     h2k_heat_loss_basement_bg_walls = float(
-        h2k_results.get("Annual", {})
-        .get("HeatLoss", {})
-        .get("@basementBelowGradeWall", 0)
+        h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@basementBelowGradeWall", 0)
     )
     h2k_heat_loss_basement_ag_walls = float(
-        h2k_results.get("Annual", {})
-        .get("HeatLoss", {})
-        .get("@basementAboveGradeWall", 0)
+        h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@basementAboveGradeWall", 0)
     )
     h2k_heat_loss_basement_floor_headers = float(
-        h2k_results.get("Annual", {})
-        .get("HeatLoss", {})
-        .get("@basementFloorHeaders", 0)
+        h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@basementFloorHeaders", 0)
     )  # add this to main walls
     h2k_heat_loss_pony_wall = float(
         h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@ponyWall", 0)
     )
-    h2k_heat_loss_basement_floors_above = float(
-        h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@floorsAboveBasement", 0)
-    )
+    float(h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@floorsAboveBasement", 0))
     h2k_heat_loss_air_leakage = float(
-        h2k_results.get("Annual", {})
-        .get("HeatLoss", {})
-        .get("@airLeakageAndNaturalVentilation", 0)
+        h2k_results.get("Annual", {}).get("HeatLoss", {}).get("@airLeakageAndNaturalVentilation", 0)
     )
 
     h2k_heat_loss_ag_walls_total = (
-        h2k_heat_loss_walls
-        + h2k_heat_loss_basement_floor_headers
-        + h2k_heat_loss_pony_wall
+        h2k_heat_loss_walls + h2k_heat_loss_basement_floor_headers + h2k_heat_loss_pony_wall
     )
     os_heat_loss_ag_walls_total = os_heat_loss_walls + os_heat_loss_rim_joists
 
@@ -338,9 +314,7 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
             "hpxml": (
                 os_results.get("End Use: Electricity: Heating (MBtu)", 0)
                 + os_results.get("End Use: Electricity: Heating Fans/Pumps (MBtu)", 0)
-                + os_results.get(
-                    "End Use: Electricity: Heating Heat Pump Backup (MBtu)", 0
-                )
+                + os_results.get("End Use: Electricity: Heating Heat Pump Backup (MBtu)", 0)
                 + os_results.get(
                     "End Use: Electricity: Heating Heat Pump Backup Fans/Pumps (MBtu)",
                     0,
@@ -357,9 +331,7 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
             ),
             "hpxml": (
                 os_results.get("End Use: Natural Gas: Heating (MBtu)", 0)
-                + os_results.get(
-                    "End Use: Natural Gas: Heating Heat Pump Backup (MBtu)", 0
-                )
+                + os_results.get("End Use: Natural Gas: Heating Heat Pump Backup (MBtu)", 0)
             )
             * (1.0550558526 / 1),  # [MBtu -> GJ]
         },
@@ -372,9 +344,7 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
             ),
             "hpxml": (
                 os_results.get("End Use: Fuel Oil: Heating (MBtu)", 0)
-                + os_results.get(
-                    "End Use: Fuel Oil: Heating Heat Pump Backup (MBtu)", 0
-                )
+                + os_results.get("End Use: Fuel Oil: Heating Heat Pump Backup (MBtu)", 0)
             )
             * (1.0550558526 / 1),  # [MBtu -> GJ]
         },
@@ -400,13 +370,9 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
             ),
             "hpxml": (
                 os_results.get("End Use: Wood Cord: Heating (MBtu)", 0)
-                + os_results.get(
-                    "End Use: Wood Cord: Heating Heat Pump Backup (MBtu)", 0
-                )
+                + os_results.get("End Use: Wood Cord: Heating Heat Pump Backup (MBtu)", 0)
                 + os_results.get("End Use: Wood Pellets: Heating (MBtu)", 0)
-                + os_results.get(
-                    "End Use: Wood Pellets: Heating Heat Pump Backup (MBtu)", 0
-                )
+                + os_results.get("End Use: Wood Pellets: Heating Heat Pump Backup (MBtu)", 0)
             )
             * (1.0550558526 / 1),  # [MBtu -> GJ]
         },
@@ -420,12 +386,8 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
             ),
             "hpxml": (
                 os_results.get("End Use: Electricity: Hot Water (MBtu)", 0)
-                + os_results.get(
-                    "End Use: Electricity: Hot Water Recirc Pump (MBtu)", 0
-                )
-                + os_results.get(
-                    "End Use: Electricity: Hot Water Solar Thermal Pump (MBtu)", 0
-                )
+                + os_results.get("End Use: Electricity: Hot Water Recirc Pump (MBtu)", 0)
+                + os_results.get("End Use: Electricity: Hot Water Solar Thermal Pump (MBtu)", 0)
             )
             * (1.0550558526 / 1),  # [MBtu -> GJ]
         },
@@ -536,7 +498,9 @@ def compare_os_h2k_annual(h2k_results={}, os_results={}):
     return flatten(compare_dict)
 
 
-def get_ashrae_140_results(os_results={}):
+def get_ashrae_140_results(os_results=None):
+    if os_results is None:
+        os_results = {}
 
     # Heating Load
     heating_load = os_results.get("Load: Heating: Delivered (MBtu)", 0)

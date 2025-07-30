@@ -123,8 +123,8 @@ python bin/resilience.py examples/WizardHouse.h2k --output-path examples
 
 # Step 2: Check the generated structure
 ls examples/WizardHouse/
-# Output: original/ original.h2k extreme_periods.yml summer_period.yml 
-#         outage_typical_year/ outage_extreme_year/ 
+# Output: original/ original.h2k extreme_periods.yml summer_period.yml
+#         outage_typical_year/ outage_extreme_year/
 #         thermal_autonomy_typical_year/ thermal_autonomy_extreme_year/
 
 # Step 3: Run with simulations for full analysis

@@ -2,7 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/universal
 {
 	"name": "H2K_HPXML",
-	// use a pre-built image 
+	// use a pre-built image
 	// see https://github.com/canmet-energy/h2k_hpxml_container/blob/main/Dockerfile
 	"image": "canmet/model_dev_container:3.9.0",
 	"containerUser": "vscode",
@@ -26,7 +26,7 @@
 				"files.associations": {
 					"*.h2k": "xml",
 					"*.hpxml": "xml",
-					"*.sql": "sqlite",
+					"*.sql": "sqlite"
 				},
 				"python.terminal.activateEnvironment": true,
 				"python.defaultInterpreterPath": "/workspaces/h2k_hpxml/venv/bin/python",

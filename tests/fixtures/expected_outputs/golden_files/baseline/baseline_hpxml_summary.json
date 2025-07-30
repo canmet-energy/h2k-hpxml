@@ -47,6 +47,9 @@
           "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
           "namespace": null,
           "total_elements": 597
+        },
+        "simulation_control": {
+          "timestep": "60"
         }
       }
     },
@@ -94,6 +97,9 @@
           "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
           "namespace": null,
           "total_elements": 597
+        },
+        "simulation_control": {
+          "timestep": "60"
         }
       }
     },
@@ -141,6 +147,9 @@
           "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
           "namespace": null,
           "total_elements": 794
+        },
+        "simulation_control": {
+          "timestep": "60"
         }
       }
     },
@@ -188,6 +197,9 @@
           "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
           "namespace": null,
           "total_elements": 794
+        },
+        "simulation_control": {
+          "timestep": "60"
         }
       }
     },
@@ -235,6 +247,9 @@
           "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
           "namespace": null,
           "total_elements": 597
+        },
+        "simulation_control": {
+          "timestep": "60"
         }
       }
     },
@@ -282,6 +297,9 @@
           "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
           "namespace": null,
           "total_elements": 597
+        },
+        "simulation_control": {
+          "timestep": "60"
         }
       }
     },
@@ -329,10 +347,13 @@
           "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
           "namespace": null,
           "total_elements": 604
+        },
+        "simulation_control": {
+          "timestep": "60"
         }
       }
     }
   },
-  "generated_date": "2025-07-16T16:06:06.792203",
+  "generated_date": "2025-07-29T00:57:27.977351",
   "generated_by": "test_generate_baseline.py"
 }

@@ -14,79 +14,81 @@ Example:
     Basic usage::
 
         from h2k_hpxml.utils.dependencies import validate_dependencies
-        
+
         # Interactive validation with prompts
         validate_dependencies()
-        
-        # Automatic installation without prompts  
+
+        # Automatic installation without prompts
         validate_dependencies(auto_install=True)
-        
+
         # Check only, no installation
         validate_dependencies(check_only=True)
 
 Author: h2k_hpxml development team
 """
 
+import configparser
 import os
 import platform
-import subprocess
 import shutil
+import subprocess
 import tempfile
-import zipfile
 import urllib.request
-import configparser
+import zipfile
 from pathlib import Path
 
 import click
 from packaging import version
+
 
 def safe_echo(message, **kwargs):
     """Echo with Unicode character replacement for Windows compatibility."""
     if isinstance(message, str):
         # Replace common Unicode characters with ASCII equivalents
         replacements = {
-            '✅': '[OK]',
-            '✓': '[OK]',
-            '❌': '[ERROR]',
-            '✗': '[ERROR]',
-            '⚠️': '[WARNING]',
-            '⚠': '[WARNING]',
-            '🔍': '[SEARCH]',
-            '🔄': '[PROCESSING]',
-            '📥': '[DOWNLOAD]',
-            '🎉': '[SUCCESS]',
-            '🏠': '[HOUSE]',
-            '🔧': '[TOOL]',
-            '📋': '[LIST]',
-            '🗑️': '[DELETE]',
-            '🪟': '[WINDOWS]',
-            '⏳': '[WAIT]',
-            'ℹ️': '[INFO]'
+            "✅": "[OK]",
+            "✓": "[OK]",
+            "❌": "[ERROR]",
+            "✗": "[ERROR]",
+            "⚠️": "[WARNING]",
+            "⚠": "[WARNING]",
+            "🔍": "[SEARCH]",
+            "🔄": "[PROCESSING]",
+            "📥": "[DOWNLOAD]",
+            "🎉": "[SUCCESS]",
+            "🏠": "[HOUSE]",
+            "🔧": "[TOOL]",
+            "📋": "[LIST]",
+            "🗑️": "[DELETE]",
+            "🪟": "[WINDOWS]",
+            "⏳": "[WAIT]",
+            "ℹ️": "[INFO]",
         }
         for unicode_char, ascii_equiv in replacements.items():
             message = message.replace(unicode_char, ascii_equiv)
     return click.echo(message, **kwargs)
 
+
 # Configure click for Unicode support on Windows
 if platform.system() == "Windows":
     import locale
-    import codecs
-    
+
     # Get the system's preferred encoding
     preferred_encoding = locale.getpreferredencoding()
-    
+
     # If we're using a limited encoding, try to use UTF-8
-    if preferred_encoding.lower() in ['cp1252', 'windows-1252', 'charmap']:
+    if preferred_encoding.lower() in ["cp1252", "windows-1252", "charmap"]:
         try:
             # Try to use UTF-8 for output
             import sys
-            if hasattr(sys.stdout, 'reconfigure'):
-                sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-            if hasattr(sys.stderr, 'reconfigure'):
-                sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
+            if hasattr(sys.stdout, "reconfigure"):
+                sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            if hasattr(sys.stderr, "reconfigure"):
+                sys.stderr.reconfigure(encoding="utf-8", errors="replace")
         except (AttributeError, OSError):
             # Store original echo and replace with safe version
-            if not hasattr(click, 'original_echo'):
+            if not hasattr(click, "original_echo"):
                 click.original_echo = click.echo
                 click.echo = safe_echo
 
@@ -94,11 +96,11 @@ if platform.system() == "Windows":
 class DependencyManager:
     """
     Manages detection, validation, and installation of h2k_hpxml dependencies.
-    
+
     This class handles OpenStudio and OpenStudio-HPXML dependencies across
     Windows and Linux platforms, providing automated installation with
     appropriate fallback methods.
-    
+
     Attributes:
         REQUIRED_OPENSTUDIO_VERSION (str): Required OpenStudio version
         REQUIRED_HPXML_VERSION (str): Required OpenStudio-HPXML version
@@ -106,28 +108,34 @@ class DependencyManager:
         skip_deps (bool): Whether to skip all dependency validation
         auto_install (bool): Whether to automatically install missing deps
     """
-    
+
     # Required dependency versions
     REQUIRED_OPENSTUDIO_VERSION = "3.9.0"
     REQUIRED_HPXML_VERSION = "v1.9.1"
-    
+
     # GitHub release URLs
     OPENSTUDIO_BASE_URL = "https://github.com/NREL/OpenStudio/releases/download"
     HPXML_BASE_URL = "https://github.com/NREL/OpenStudio-HPXML/releases/download"
-    
+
     # Build hash for OpenStudio 3.9.0 binaries
     OPENSTUDIO_BUILD_HASH = "c77fbb9569"
 
-    def __init__(self, interactive=True, skip_deps=False, auto_install=False, 
-                 hpxml_path=None, openstudio_path=None):
+    def __init__(
+        self,
+        interactive=True,
+        skip_deps=False,
+        auto_install=False,
+        hpxml_path=None,
+        openstudio_path=None,
+    ):
         """
         Initialize dependency manager with configurable paths.
-        
+
         Args:
             interactive (bool): Prompt user for installation choices.
                 Default: True
             skip_deps (bool): Skip all dependency validation.
-                Default: False  
+                Default: False
             auto_install (bool): Automatically install missing dependencies
                 without user prompts. Default: False
             hpxml_path (str|Path): Custom OpenStudio-HPXML installation path.
@@ -138,12 +146,12 @@ class DependencyManager:
         self.interactive = interactive
         self.skip_deps = skip_deps
         self.auto_install = auto_install
-        
+
         # Platform detection
         system = platform.system().lower()
         self.is_windows = system == "windows"
         self.is_linux = system == "linux"
-        
+
         # Store custom paths
         self._custom_hpxml_path = Path(hpxml_path) if hpxml_path else None
         self._custom_openstudio_path = Path(openstudio_path) if openstudio_path else None
@@ -151,20 +159,24 @@ class DependencyManager:
     def _get_user_data_dir(self):
         """Get platform-appropriate user data directory without external dependencies."""
         if self.is_windows:
-            appdata = os.environ.get('APPDATA', os.path.expanduser('~/AppData/Roaming'))
+            appdata = os.environ.get("APPDATA", os.path.expanduser("~/AppData/Roaming"))
             return Path(appdata) / "h2k_hpxml"
         else:
             # Linux/Unix: use XDG_DATA_HOME or ~/.local/share
-            xdg_data = os.environ.get('XDG_DATA_HOME', os.path.expanduser('~/.local/share'))
+            xdg_data = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
             return Path(xdg_data) / "h2k_hpxml"
-    
+
     def _has_write_access(self, path):
         """Check if we have write access to a directory."""
         try:
             test_path = Path(path)
             if not test_path.exists():
                 # Check parent directory
-                return self._has_write_access(test_path.parent) if test_path.parent != test_path else False
+                return (
+                    self._has_write_access(test_path.parent)
+                    if test_path.parent != test_path
+                    else False
+                )
             return os.access(str(test_path), os.W_OK)
         except (PermissionError, OSError):
             return False
@@ -173,24 +185,24 @@ class DependencyManager:
     def default_hpxml_path(self):
         """
         Get platform-appropriate default OpenStudio-HPXML installation path.
-        
+
         Supports environment variables and user-writable fallbacks:
         1. Custom path provided in constructor
         2. OPENSTUDIO_HPXML_PATH environment variable
         3. System default with user fallback if no write access
-        
+
         Returns:
             Path: Default installation path for OpenStudio-HPXML
         """
         # 1. Use custom path if provided
         if self._custom_hpxml_path:
             return self._custom_hpxml_path
-            
+
         # 2. Check environment variable
-        env_path = os.environ.get('OPENSTUDIO_HPXML_PATH')
+        env_path = os.environ.get("OPENSTUDIO_HPXML_PATH")
         if env_path:
             return Path(env_path)
-            
+
         # 3. Use platform-appropriate defaults with user fallback
         if self.is_windows:
             system_path = Path("C:/OpenStudio-HPXML")
@@ -198,24 +210,24 @@ class DependencyManager:
         else:
             system_path = Path("/OpenStudio-HPXML")
             user_path = Path.home() / ".local" / "share" / "OpenStudio-HPXML"
-        
+
         # Return system path if it exists and is readable, or if we have write access to create it
         if system_path.exists():
             if os.access(str(system_path), os.R_OK):
                 return system_path
         elif self._has_write_access(system_path.parent):
             return system_path
-            
+
         # Fallback to user-writable path
         return user_path
 
     def validate_all(self):
         """
         Validate all required dependencies.
-        
+
         Checks for OpenStudio and OpenStudio-HPXML installations,
         handling missing dependencies based on configuration.
-        
+
         Returns:
             bool: True if all dependencies are satisfied or successfully
                 installed, False otherwise
@@ -223,20 +235,20 @@ class DependencyManager:
         if self.skip_deps:
             click.echo("Skipping dependency validation (--skip-deps)")
             return True
-            
+
         click.echo("🔍 Checking dependencies...")
-        
+
         openstudio_ok = self._check_openstudio()
         hpxml_ok = self._check_openstudio_hpxml()
-        
+
         # Update config file with current dependency paths
         # (even if some dependencies are missing to reflect current state)
         self._update_config_file()
-        
+
         if openstudio_ok and hpxml_ok:
             click.echo("✅ All dependencies satisfied!")
             return True
-        
+
         # Handle missing dependencies
         if self.auto_install:
             return self._handle_auto_install(openstudio_ok, hpxml_ok)
@@ -244,36 +256,34 @@ class DependencyManager:
             return self._handle_interactive_install(openstudio_ok, hpxml_ok)
         else:
             click.echo(
-                "❌ Dependencies not satisfied and running in "
-                "non-interactive mode", 
-                err=True
+                "❌ Dependencies not satisfied and running in " "non-interactive mode", err=True
             )
             return False
 
     def check_only(self):
         """
         Check dependencies without installing anything.
-        
+
         Returns:
             bool: True if all dependencies are satisfied, False otherwise
         """
         click.echo("🔍 Dependency Check Report")
         click.echo("=" * 30)
-        
+
         openstudio_ok = self._check_openstudio()
         hpxml_ok = self._check_openstudio_hpxml()
-        
+
         if openstudio_ok and hpxml_ok:
             click.echo("\n🎉 All dependencies satisfied!")
             return True
-        
+
         # Report missing dependencies
         missing = []
         if not openstudio_ok:
             missing.append("OpenStudio")
         if not hpxml_ok:
             missing.append("OpenStudio-HPXML")
-        
+
         click.echo(f"\n❌ Missing: {', '.join(missing)}")
         click.echo("Run with dependency installation to fix these issues.")
         return False
@@ -281,9 +291,9 @@ class DependencyManager:
     def _check_openstudio(self):
         """
         Check if OpenStudio is installed with correct version.
-        
+
         Checks both Python bindings and CLI binary availability.
-        
+
         Returns:
             bool: True if OpenStudio is available with correct version
         """
@@ -293,20 +303,19 @@ class DependencyManager:
         """Check OpenStudio Python bindings."""
         try:
             import openstudio
+
             installed_version = openstudio.openStudioVersion()
-            
-            if version.parse(installed_version) >= version.parse(
-                self.REQUIRED_OPENSTUDIO_VERSION
-            ):
+
+            if version.parse(installed_version) >= version.parse(self.REQUIRED_OPENSTUDIO_VERSION):
                 click.echo(f"✅ OpenStudio Python bindings: v{installed_version}")
                 return True
-            
+
             click.echo(
                 f"❌ OpenStudio Python bindings outdated: "
                 f"v{installed_version} < v{self.REQUIRED_OPENSTUDIO_VERSION}"
             )
             return False
-            
+
         except ImportError:
             click.echo("❌ OpenStudio Python bindings not found")
             return False
@@ -321,12 +330,12 @@ class DependencyManager:
             if self._test_binary_path(openstudio_path):
                 click.echo(f"✅ OpenStudio CLI: {openstudio_path}")
                 return True
-        
+
         # Try openstudio command in PATH
         if self._test_openstudio_command():
             click.echo("✅ OpenStudio CLI found in PATH")
             return True
-        
+
         click.echo("⚠️  OpenStudio CLI not found")
         return False
 
@@ -334,14 +343,9 @@ class DependencyManager:
         """Test if OpenStudio binary exists and runs."""
         if not os.path.exists(path):
             return False
-        
+
         try:
-            result = subprocess.run(
-                [path, "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
+            result = subprocess.run([path, "--version"], capture_output=True, text=True, timeout=10)
             return result.returncode == 0
         except (subprocess.TimeoutExpired, subprocess.SubprocessError, OSError):
             return False
@@ -350,10 +354,7 @@ class DependencyManager:
         """Test if 'openstudio' command works in PATH."""
         try:
             result = subprocess.run(
-                ["openstudio", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["openstudio", "--version"], capture_output=True, text=True, timeout=10
             )
             return result.returncode == 0
         except (subprocess.TimeoutExpired, subprocess.SubprocessError, OSError):
@@ -362,162 +363,173 @@ class DependencyManager:
     def _get_openstudio_paths(self):
         """
         Get platform-specific OpenStudio installation paths.
-        
+
         Supports environment variables for path customization:
         - OPENSTUDIO_PATH: Custom OpenStudio installation directory
-        
+
         Returns:
             list: List of potential OpenStudio binary paths
         """
         paths = []
-        
+
         # 1. Check for custom path from constructor
         if self._custom_openstudio_path:
             if self.is_windows:
                 paths.append(str(self._custom_openstudio_path / "bin" / "openstudio.exe"))
             else:
                 paths.append(str(self._custom_openstudio_path / "bin" / "openstudio"))
-        
+
         # 2. Check environment variable
-        env_path = os.environ.get('OPENSTUDIO_PATH')
+        env_path = os.environ.get("OPENSTUDIO_PATH")
         if env_path:
             env_path = Path(env_path)
             if self.is_windows:
                 paths.append(str(env_path / "bin" / "openstudio.exe"))
             else:
                 paths.append(str(env_path / "bin" / "openstudio"))
-        
+
         # 3. Add platform-specific default paths
         if self.is_windows:
             paths.extend(self._get_windows_paths())
         else:
             paths.extend(self._get_linux_paths())
-        
+
         return paths
 
     def _get_windows_paths(self):
         """Get Windows-specific OpenStudio paths with user-writable alternatives."""
         paths = []
         program_files_dirs = [
-            os.environ.get('PROGRAMFILES', r'C:\Program Files'),
-            os.environ.get('PROGRAMFILES(X86)', r'C:\Program Files (x86)')
+            os.environ.get("PROGRAMFILES", r"C:\Program Files"),
+            os.environ.get("PROGRAMFILES(X86)", r"C:\Program Files (x86)"),
         ]
-        
+
         # System-wide Program Files installations
         for pf_dir in program_files_dirs:
-            paths.extend([
-                os.path.join(pf_dir, 'OpenStudio', 'bin', 'openstudio.exe'),
-                os.path.join(
-                    pf_dir,
-                    f'OpenStudio {self.REQUIRED_OPENSTUDIO_VERSION}',
-                    'bin',
-                    'openstudio.exe'
-                ),
-            ])
-        
+            paths.extend(
+                [
+                    os.path.join(pf_dir, "OpenStudio", "bin", "openstudio.exe"),
+                    os.path.join(
+                        pf_dir,
+                        f"OpenStudio {self.REQUIRED_OPENSTUDIO_VERSION}",
+                        "bin",
+                        "openstudio.exe",
+                    ),
+                ]
+            )
+
         # System-wide C:\ installations
-        paths.extend([
-            r'C:\openstudio\bin\openstudio.exe',
-            f'C:\\openstudio-{self.REQUIRED_OPENSTUDIO_VERSION}\\bin\\openstudio.exe',
-        ])
-        
+        paths.extend(
+            [
+                r"C:\openstudio\bin\openstudio.exe",
+                f"C:\\openstudio-{self.REQUIRED_OPENSTUDIO_VERSION}\\bin\\openstudio.exe",
+            ]
+        )
+
         # User-specific installations
-        user_profile = os.environ.get('USERPROFILE', os.path.expanduser('~'))
-        local_appdata = os.environ.get('LOCALAPPDATA', os.path.join(user_profile, 'AppData', 'Local'))
-        
-        paths.extend([
-            os.path.join(user_profile, 'openstudio', 'bin', 'openstudio.exe'),
-            os.path.join(local_appdata, 'OpenStudio', 'bin', 'openstudio.exe'),
-            os.path.join(local_appdata, f'OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}', 'bin', 'openstudio.exe'),
-        ])
-        
+        user_profile = os.environ.get("USERPROFILE", os.path.expanduser("~"))
+        local_appdata = os.environ.get(
+            "LOCALAPPDATA", os.path.join(user_profile, "AppData", "Local")
+        )
+
+        paths.extend(
+            [
+                os.path.join(user_profile, "openstudio", "bin", "openstudio.exe"),
+                os.path.join(local_appdata, "OpenStudio", "bin", "openstudio.exe"),
+                os.path.join(
+                    local_appdata,
+                    f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}",
+                    "bin",
+                    "openstudio.exe",
+                ),
+            ]
+        )
+
         return paths
 
     def _get_linux_paths(self):
         """Get Linux-specific OpenStudio paths with user-writable alternatives."""
         paths = [
             # System-wide installations
-            '/usr/local/bin/openstudio',
-            '/usr/bin/openstudio',
-            '/opt/openstudio/bin/openstudio',
-            
+            "/usr/local/bin/openstudio",
+            "/usr/bin/openstudio",
+            "/opt/openstudio/bin/openstudio",
             # User-specific installations
-            os.path.expanduser('~/openstudio/bin/openstudio'),
-            os.path.expanduser('~/.local/bin/openstudio'),
-            os.path.expanduser('~/.local/openstudio/bin/openstudio'),
+            os.path.expanduser("~/openstudio/bin/openstudio"),
+            os.path.expanduser("~/.local/bin/openstudio"),
+            os.path.expanduser("~/.local/openstudio/bin/openstudio"),
         ]
-        
+
         # Add version-specific paths
         version = self.REQUIRED_OPENSTUDIO_VERSION
-        paths.extend([
-            f'/usr/local/openstudio-{version}/bin/openstudio',
-            f'/opt/openstudio-{version}/bin/openstudio',
-            os.path.expanduser(f'~/openstudio-{version}/bin/openstudio'),
-            os.path.expanduser(f'~/.local/openstudio-{version}/bin/openstudio'),
-        ])
-        
+        paths.extend(
+            [
+                f"/usr/local/openstudio-{version}/bin/openstudio",
+                f"/opt/openstudio-{version}/bin/openstudio",
+                os.path.expanduser(f"~/openstudio-{version}/bin/openstudio"),
+                os.path.expanduser(f"~/.local/openstudio-{version}/bin/openstudio"),
+            ]
+        )
+
         return paths
 
     def _check_openstudio_hpxml(self):
         """
         Check if OpenStudio-HPXML is installed.
-        
+
         Returns:
             bool: True if OpenStudio-HPXML is available
         """
         # Check environment variable first
-        hpxml_path = os.environ.get('OPENSTUDIO_HPXML_PATH')
+        hpxml_path = os.environ.get("OPENSTUDIO_HPXML_PATH")
         if hpxml_path:
             hpxml_path = Path(hpxml_path)
         else:
             hpxml_path = self.default_hpxml_path
-        
+
         if not hpxml_path.exists():
             click.echo(f"❌ OpenStudio-HPXML not found at: {hpxml_path}")
             return False
-        
+
         # Check for required workflow script
         workflow_script = hpxml_path / "workflow" / "run_simulation.rb"
         if not workflow_script.exists():
-            click.echo(
-                f"❌ OpenStudio-HPXML workflow script missing: {workflow_script}"
-            )
+            click.echo(f"❌ OpenStudio-HPXML workflow script missing: {workflow_script}")
             return False
-        
+
         # Try to detect version
         version_info = self._detect_hpxml_version(hpxml_path)
         if version_info:
-            click.echo(
-                f"✅ OpenStudio-HPXML: {version_info} at {hpxml_path}"
-            )
+            click.echo(f"✅ OpenStudio-HPXML: {version_info} at {hpxml_path}")
         else:
             click.echo(f"✅ OpenStudio-HPXML found at: {hpxml_path}")
-        
+
         return True
 
     def _detect_hpxml_version(self, hpxml_path):
         """
         Try to detect OpenStudio-HPXML version from documentation files.
-        
+
         Args:
             hpxml_path (Path): Path to OpenStudio-HPXML installation
-            
+
         Returns:
             str or None: Version string if found, None otherwise
         """
         version_files = ["README.md", "CHANGELOG.md", "docs/source/conf.py"]
-        
+
         for version_file in version_files:
             file_path = hpxml_path / version_file
             if file_path.exists():
                 try:
-                    content = file_path.read_text(encoding='utf-8')
+                    content = file_path.read_text(encoding="utf-8")
                     # Look for version patterns
                     import re
+
                     patterns = [
-                        r'v?(\d+\.\d+\.\d+)',
-                        r'Version\s+(\d+\.\d+\.\d+)',
-                        r'version\s*=\s*[\'"]([^"\']+)[\'"]'
+                        r"v?(\d+\.\d+\.\d+)",
+                        r"Version\s+(\d+\.\d+\.\d+)",
+                        r'version\s*=\s*[\'"]([^"\']+)[\'"]',
                     ]
                     for pattern in patterns:
                         matches = re.findall(pattern, content, re.IGNORECASE)
@@ -525,30 +537,30 @@ class DependencyManager:
                             return f"v{matches[0]}"
                 except Exception:
                     continue
-        
+
         return None
 
     def _handle_auto_install(self, openstudio_ok, hpxml_ok):
         """Handle automatic installation of missing dependencies."""
         click.echo("🔄 Auto-installing missing dependencies...")
-        
+
         success = True
-        
+
         if not openstudio_ok:
             click.echo("\n📥 Installing OpenStudio...")
             if not self._install_openstudio():
                 success = False
-        
+
         if not hpxml_ok:
             click.echo("\n📥 Installing OpenStudio-HPXML...")
             if not self._install_openstudio_hpxml():
                 success = False
-        
+
         if success:
             click.echo("\n✅ All dependencies installed successfully!")
             # Re-validate to confirm installation
             return self._check_openstudio() and self._check_openstudio_hpxml()
-        
+
         click.echo("\n❌ Some dependencies failed to install.")
         return False
 
@@ -559,31 +571,28 @@ class DependencyManager:
             missing.append("OpenStudio")
         if not hpxml_ok:
             missing.append("OpenStudio-HPXML")
-        
+
         click.echo(f"\n❌ Missing dependencies: {', '.join(missing)}")
         click.echo("\nOptions:")
         click.echo("1. Automatically install missing dependencies")
         click.echo("2. Show manual installation instructions")
         click.echo("3. Continue without dependencies (may cause errors)")
         click.echo("4. Exit")
-        
+
         while True:
             try:
                 choice = click.prompt("Choose an option [1-4]", type=int)
             except click.Abort:
                 click.echo("Installation cancelled.")
                 return False
-            
+
             if choice == 1:
                 return self._handle_auto_install(openstudio_ok, hpxml_ok)
             elif choice == 2:
                 self._show_manual_instructions(missing)
                 return False
             elif choice == 3:
-                click.echo(
-                    "⚠️  Continuing without all dependencies. "
-                    "Errors may occur."
-                )
+                click.echo("⚠️  Continuing without all dependencies. " "Errors may occur.")
                 return True
             elif choice == 4:
                 click.echo("Installation cancelled.")
@@ -595,10 +604,10 @@ class DependencyManager:
         """Show manual installation instructions for missing dependencies."""
         click.echo("\n📋 Manual Installation Instructions")
         click.echo("=" * 50)
-        
+
         if "OpenStudio" in missing_deps:
             self._show_openstudio_instructions()
-        
+
         if "OpenStudio-HPXML" in missing_deps:
             self._show_hpxml_instructions()
 
@@ -606,23 +615,18 @@ class DependencyManager:
         """Show OpenStudio manual installation instructions."""
         click.echo(f"\n🔧 OpenStudio v{self.REQUIRED_OPENSTUDIO_VERSION}")
         click.echo(
-            f"Download from: {self.OPENSTUDIO_BASE_URL}/"
-            f"v{self.REQUIRED_OPENSTUDIO_VERSION}/"
+            f"Download from: {self.OPENSTUDIO_BASE_URL}/" f"v{self.REQUIRED_OPENSTUDIO_VERSION}/"
         )
-        
+
         if self.is_windows:
             click.echo("- Download: OpenStudio-*-Windows.exe")
             click.echo("- Run installer as administrator")
             click.echo("- Add to PATH if not automatically added")
         else:
             click.echo(
-                "- Ubuntu/Debian: Download .deb package and run: "
-                "sudo dpkg -i package.deb"
+                "- Ubuntu/Debian: Download .deb package and run: " "sudo dpkg -i package.deb"
             )
-            click.echo(
-                "- Other Linux: Download .tar.gz and extract to "
-                "/usr/local/openstudio"
-            )
+            click.echo("- Other Linux: Download .tar.gz and extract to " "/usr/local/openstudio")
 
     def _show_hpxml_instructions(self):
         """Show OpenStudio-HPXML manual installation instructions."""
@@ -633,7 +637,7 @@ class DependencyManager:
             f"OpenStudio-HPXML-{self.REQUIRED_HPXML_VERSION}.zip"
         )
         click.echo(f"- Extract to: {self.default_hpxml_path}")
-        
+
         if self.is_windows:
             click.echo("- Ensure workflow\\run_simulation.rb exists")
         else:
@@ -642,7 +646,7 @@ class DependencyManager:
     def _install_openstudio(self):
         """
         Install OpenStudio automatically based on platform.
-        
+
         Returns:
             bool: True if installation successful, False otherwise
         """
@@ -666,20 +670,17 @@ class DependencyManager:
             f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}+"
             f"{self.OPENSTUDIO_BUILD_HASH}-Windows.exe"
         )
-        
+
         click.echo(f"Windows OpenStudio installer: {installer_url}")
+        click.echo("\n⚠️  Automatic installation on Windows requires " "administrator privileges.")
         click.echo(
-            "\n⚠️  Automatic installation on Windows requires "
-            "administrator privileges."
+            "Please download and run the installer manually, " "or grant administrator access."
         )
-        click.echo(
-            "Please download and run the installer manually, "
-            "or grant administrator access."
-        )
-        
+
         if click.confirm("Download installer automatically?"):
             try:
                 import webbrowser
+
                 webbrowser.open(installer_url)
                 click.echo("✅ Installer download started in browser")
                 click.echo("Please run the installer and restart this application.")
@@ -688,7 +689,7 @@ class DependencyManager:
                 click.echo(f"❌ Failed to open browser: {e}")
                 click.echo(f"Please manually download: {installer_url}")
                 return False
-        
+
         return False
 
     def _install_openstudio_linux(self):
@@ -704,10 +705,7 @@ class DependencyManager:
 
     def _is_debian_based(self):
         """Check if running on Debian-based system."""
-        return (
-            os.path.exists('/etc/debian_version') or
-            shutil.which('apt-get') is not None
-        )
+        return os.path.exists("/etc/debian_version") or shutil.which("apt-get") is not None
 
     def _install_openstudio_deb(self):
         """Install OpenStudio using .deb package."""
@@ -717,22 +715,19 @@ class DependencyManager:
             f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}+"
             f"{self.OPENSTUDIO_BUILD_HASH}-Ubuntu-22.04-x86_64.deb"
         )
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             deb_path = os.path.join(temp_dir, "openstudio.deb")
-            
+
             click.echo("Downloading OpenStudio .deb package...")
             urllib.request.urlretrieve(deb_url, deb_path)
-            
+
             click.echo("Installing OpenStudio (requires sudo)...")
-            subprocess.run(['sudo', 'dpkg', '-i', deb_path], check=True)
-            
+            subprocess.run(["sudo", "dpkg", "-i", deb_path], check=True)
+
             # Install dependencies if needed
-            subprocess.run(
-                ['sudo', 'apt-get', 'install', '-f', '-y'],
-                check=False
-            )
-            
+            subprocess.run(["sudo", "apt-get", "install", "-f", "-y"], check=False)
+
             click.echo("✅ OpenStudio installed successfully")
             return True
 
@@ -744,32 +739,40 @@ class DependencyManager:
             f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}+"
             f"{self.OPENSTUDIO_BUILD_HASH}-Ubuntu-22.04-x86_64.tar.gz"
         )
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             tarball_path = os.path.join(temp_dir, "openstudio.tar.gz")
-            
+
             click.echo("Downloading OpenStudio tarball...")
             urllib.request.urlretrieve(tarball_url, tarball_path)
-            
+
             # Extract to /usr/local/openstudio
             install_dir = Path("/usr/local/openstudio")
-            
+
             click.echo(f"Extracting to {install_dir} (requires sudo)...")
-            subprocess.run(['sudo', 'mkdir', '-p', str(install_dir)], check=True)
-            subprocess.run([
-                'sudo', 'tar', '-xzf', tarball_path,
-                '-C', str(install_dir), '--strip-components=1'
-            ], check=True)
-            
+            subprocess.run(["sudo", "mkdir", "-p", str(install_dir)], check=True)
+            subprocess.run(
+                [
+                    "sudo",
+                    "tar",
+                    "-xzf",
+                    tarball_path,
+                    "-C",
+                    str(install_dir),
+                    "--strip-components=1",
+                ],
+                check=True,
+            )
+
             # Create symlink to bin directory
             bin_link = Path("/usr/local/bin/openstudio")
             openstudio_bin = install_dir / "bin" / "openstudio"
-            
+
             if openstudio_bin.exists():
-                subprocess.run([
-                    'sudo', 'ln', '-sf', str(openstudio_bin), str(bin_link)
-                ], check=False)
-            
+                subprocess.run(
+                    ["sudo", "ln", "-sf", str(openstudio_bin), str(bin_link)], check=False
+                )
+
             click.echo("✅ OpenStudio installed successfully")
             return True
 
@@ -780,52 +783,51 @@ class DependencyManager:
             f"{self.REQUIRED_HPXML_VERSION}/"
             f"OpenStudio-HPXML-{self.REQUIRED_HPXML_VERSION}.zip"
         )
-        
+
         try:
             with tempfile.TemporaryDirectory() as temp_dir:
                 zip_path = os.path.join(temp_dir, "OpenStudio-HPXML.zip")
-                
+
                 click.echo(f"Downloading from: {download_url}")
                 urllib.request.urlretrieve(download_url, zip_path)
-                
+
                 # Extract to target location
                 target_path = self.default_hpxml_path
                 if target_path.exists():
                     click.echo(f"Removing existing installation: {target_path}")
                     self._remove_existing_installation(target_path)
-                
+
                 # Create parent directory
                 self._create_target_directory(target_path)
-                
+
                 # Extract with temporary directory first
                 extract_temp_dir = os.path.join(temp_dir, "extracted")
                 os.makedirs(extract_temp_dir, exist_ok=True)
-                
-                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+
+                with zipfile.ZipFile(zip_path, "r") as zip_ref:
                     zip_ref.extractall(extract_temp_dir)
-                
+
                 # Find the extracted OpenStudio-HPXML folder
                 extracted_folders = [
-                    d for d in Path(extract_temp_dir).iterdir()
+                    d
+                    for d in Path(extract_temp_dir).iterdir()
                     if d.is_dir() and "OpenStudio-HPXML" in d.name
                 ]
-                
+
                 if not extracted_folders:
                     raise Exception("No OpenStudio-HPXML folder found in extracted archive")
-                
+
                 source_folder = extracted_folders[0]
-                
+
                 # Move to final location
                 self._install_to_target(source_folder, target_path)
-                
+
                 # Update conversionconfig.ini with the installation path
                 self._update_config_file(target_path)
-                
-                click.echo(
-                    f"✅ OpenStudio-HPXML installed to: {target_path}"
-                )
+
+                click.echo(f"✅ OpenStudio-HPXML installed to: {target_path}")
                 return True
-                
+
         except Exception as e:
             click.echo(f"❌ OpenStudio-HPXML installation failed: {e}")
             return False
@@ -835,12 +837,14 @@ class DependencyManager:
         if not self.is_windows:
             # Try with sudo first, then fallback to regular removal
             try:
-                subprocess.run(['sudo', 'rm', '-rf', str(target_path)], check=True, timeout=30)
+                subprocess.run(["sudo", "rm", "-rf", str(target_path)], check=True, timeout=30)
             except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
                 try:
                     shutil.rmtree(target_path)
                 except PermissionError:
-                    click.echo(f"⚠️  Could not remove {target_path}. Please remove manually or run with sudo.")
+                    click.echo(
+                        f"⚠️  Could not remove {target_path}. Please remove manually or run with sudo."
+                    )
                     raise
         else:
             shutil.rmtree(target_path)
@@ -850,7 +854,9 @@ class DependencyManager:
         if not self.is_windows:
             # Try with sudo first, then fallback to user directory
             try:
-                subprocess.run(['sudo', 'mkdir', '-p', str(target_path.parent)], check=True, timeout=30)
+                subprocess.run(
+                    ["sudo", "mkdir", "-p", str(target_path.parent)], check=True, timeout=30
+                )
             except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
                 # Fallback: create in user directory
                 target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -862,11 +868,60 @@ class DependencyManager:
         if not self.is_windows:
             # Try with sudo for system installation
             try:
-                subprocess.run(['sudo', 'cp', '-r', str(source_folder), str(target_path)], check=True, timeout=60)
+                subprocess.run(
+                    ["sudo", "cp", "-r", str(source_folder), str(target_path)],
+                    check=True,
+                    timeout=60,
+                )
                 # Set appropriate permissions
-                subprocess.run(['sudo', 'find', str(target_path), '-type', 'd', '-exec', 'chmod', '777', '{}', '+'], check=True, timeout=30)
-                subprocess.run(['sudo', 'find', str(target_path), '-type', 'f', '-exec', 'chmod', '666', '{}', '+'], check=True, timeout=30)
-                subprocess.run(['sudo', 'find', str(target_path), '-name', '*.rb', '-exec', 'chmod', '777', '{}', '+'], check=True, timeout=30)
+                subprocess.run(
+                    [
+                        "sudo",
+                        "find",
+                        str(target_path),
+                        "-type",
+                        "d",
+                        "-exec",
+                        "chmod",
+                        "777",
+                        "{}",
+                        "+",
+                    ],
+                    check=True,
+                    timeout=30,
+                )
+                subprocess.run(
+                    [
+                        "sudo",
+                        "find",
+                        str(target_path),
+                        "-type",
+                        "f",
+                        "-exec",
+                        "chmod",
+                        "666",
+                        "{}",
+                        "+",
+                    ],
+                    check=True,
+                    timeout=30,
+                )
+                subprocess.run(
+                    [
+                        "sudo",
+                        "find",
+                        str(target_path),
+                        "-name",
+                        "*.rb",
+                        "-exec",
+                        "chmod",
+                        "777",
+                        "{}",
+                        "+",
+                    ],
+                    check=True,
+                    timeout=30,
+                )
             except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
                 # Fallback: user installation
                 click.echo("⚠️  sudo installation failed, installing to user directory")
@@ -877,7 +932,7 @@ class DependencyManager:
                         os.chmod(os.path.join(root, d), 0o755)
                     for f in files:
                         file_path = os.path.join(root, f)
-                        if f.endswith('.rb'):
+                        if f.endswith(".rb"):
                             os.chmod(file_path, 0o755)
                         else:
                             os.chmod(file_path, 0o644)
@@ -887,7 +942,7 @@ class DependencyManager:
     def _update_config_file(self, hpxml_path=None):
         """
         Update conversionconfig.ini with dependency installation paths.
-        
+
         Args:
             hpxml_path (Path, optional): Path to OpenStudio-HPXML installation.
                                        If None, uses current default_hpxml_path
@@ -897,29 +952,29 @@ class DependencyManager:
         if not config_path:
             click.echo("⚠️  conversionconfig.ini not found, skipping config update")
             return False
-        
+
         try:
             # Read current config
             config = configparser.ConfigParser()
             config.read(config_path)
-            
+
             # Ensure paths section exists
-            if not config.has_section('paths'):
-                config.add_section('paths')
-            
+            if not config.has_section("paths"):
+                config.add_section("paths")
+
             # Update OpenStudio-HPXML path
             if hpxml_path:
-                path_str = str(hpxml_path).replace('\\', '/') 
-                if not path_str.endswith('/'):
-                    path_str += '/'
-                config.set('paths', 'hpxml_os_path', path_str)
+                path_str = str(hpxml_path).replace("\\", "/")
+                if not path_str.endswith("/"):
+                    path_str += "/"
+                config.set("paths", "hpxml_os_path", path_str)
                 click.echo(f"✅ Updated OpenStudio-HPXML path: {path_str}")
             else:
                 # Auto-detect OpenStudio-HPXML if not explicitly provided
                 detected_hpxml_path = None
-                
+
                 # Check environment variable first
-                env_hpxml_path = os.environ.get('OPENSTUDIO_HPXML_PATH')
+                env_hpxml_path = os.environ.get("OPENSTUDIO_HPXML_PATH")
                 if env_hpxml_path and Path(env_hpxml_path).exists():
                     detected_hpxml_path = Path(env_hpxml_path)
                 else:
@@ -930,40 +985,40 @@ class DependencyManager:
                         workflow_script = default_path / "workflow" / "run_simulation.rb"
                         if workflow_script.exists():
                             detected_hpxml_path = default_path
-                
+
                 if detected_hpxml_path:
-                    path_str = str(detected_hpxml_path).replace('\\', '/') 
-                    if not path_str.endswith('/'):
-                        path_str += '/'
-                    config.set('paths', 'hpxml_os_path', path_str)
+                    path_str = str(detected_hpxml_path).replace("\\", "/")
+                    if not path_str.endswith("/"):
+                        path_str += "/"
+                    config.set("paths", "hpxml_os_path", path_str)
                     click.echo(f"✅ Updated OpenStudio-HPXML path: {path_str}")
                 else:
                     click.echo("⚠️  OpenStudio-HPXML not found - keeping existing config setting")
-            
+
             # Detect and update OpenStudio binary path
             openstudio_paths = self._get_openstudio_paths()
             openstudio_binary = None
-            
+
             for os_path in openstudio_paths:
                 if Path(os_path).exists():
                     openstudio_binary = os_path
                     break
-            
+
             if openstudio_binary:
-                config.set('paths', 'openstudio_binary', openstudio_binary)
+                config.set("paths", "openstudio_binary", openstudio_binary)
                 click.echo(f"✅ Updated OpenStudio binary path: {openstudio_binary}")
             else:
                 # Clear the setting if not found
-                config.set('paths', 'openstudio_binary', '')
+                config.set("paths", "openstudio_binary", "")
                 click.echo("⚠️  OpenStudio binary not found - cleared config setting")
-            
+
             # Write updated config
-            with open(config_path, 'w') as config_file:
+            with open(config_path, "w") as config_file:
                 config.write(config_file)
-            
+
             click.echo(f"✅ Updated configuration file: {config_path}")
             return True
-            
+
         except Exception as e:
             click.echo(f"⚠️  Failed to update conversionconfig.ini: {e}")
             return False
@@ -971,89 +1026,89 @@ class DependencyManager:
     def _find_config_file(self):
         """
         Find conversionconfig.ini file by searching upward from current directory.
-        
+
         Returns:
             str or None: Path to conversionconfig.ini if found, None otherwise
         """
         # Start from current working directory and search upward
         current_dir = Path.cwd()
         for parent in [current_dir] + list(current_dir.parents):
-            config_file = parent / 'conversionconfig.ini'
+            config_file = parent / "conversionconfig.ini"
             if config_file.exists():
                 return str(config_file)
-        
+
         # Also check common project locations
         common_locations = [
-            Path(__file__).parent.parent.parent.parent / 'conversionconfig.ini',  # Project root
-            Path('/workspaces/h2k_hpxml/conversionconfig.ini'),  # Codespace location
+            Path(__file__).parent.parent.parent.parent / "conversionconfig.ini",  # Project root
+            Path("/workspaces/h2k_hpxml/conversionconfig.ini"),  # Codespace location
         ]
-        
+
         for location in common_locations:
             if location.exists():
                 return str(location)
-        
+
         return None
 
     def uninstall_dependencies(self):
         """
         Uninstall OpenStudio and OpenStudio-HPXML dependencies.
-        
+
         Returns:
             bool: True if uninstall completed successfully, False otherwise
         """
         click.echo("🗑️  Dependency Uninstaller")
         click.echo("=" * 30)
-        
+
         # Check what's currently installed
         openstudio_installed = self._check_openstudio()
         hpxml_installed = self._check_openstudio_hpxml()
-        
+
         if not openstudio_installed and not hpxml_installed:
             click.echo("ℹ️  No dependencies found to uninstall.")
             return True
-        
+
         # Show what will be uninstalled
         to_uninstall = []
         if openstudio_installed:
             to_uninstall.append("OpenStudio (Python bindings and CLI)")
         if hpxml_installed:
             to_uninstall.append("OpenStudio-HPXML")
-        
-        click.echo(f"\nThe following will be uninstalled:")
+
+        click.echo("\nThe following will be uninstalled:")
         for item in to_uninstall:
             click.echo(f"  • {item}")
-        
+
         # Safety confirmation
         if self.interactive:
             click.echo("\n⚠️  Warning: This will permanently remove the installed dependencies.")
             if not click.confirm("Do you want to continue?"):
                 click.echo("Uninstall cancelled.")
                 return False
-        
+
         # Perform uninstall
         success = True
-        
+
         if hpxml_installed:
             click.echo("\n🗑️  Uninstalling OpenStudio-HPXML...")
             if not self._uninstall_openstudio_hpxml():
                 success = False
-        
+
         if openstudio_installed:
             click.echo("\n🗑️  Uninstalling OpenStudio...")
             if not self._uninstall_openstudio():
                 success = False
-        
+
         if success:
             click.echo("\n✅ All dependencies uninstalled successfully!")
         else:
             click.echo("\n❌ Some dependencies failed to uninstall.")
-        
+
         return success
 
     def _uninstall_openstudio(self):
         """
         Uninstall OpenStudio based on platform.
-        
+
         Returns:
             bool: True if uninstall successful, False otherwise
         """
@@ -1075,11 +1130,11 @@ class DependencyManager:
         click.echo("   • Go to Windows Settings > Apps & Features")
         click.echo("   • Search for 'OpenStudio' and uninstall")
         click.echo("   • Or use Control Panel > Programs and Features")
-        
+
         if self.interactive:
             click.echo("\n⏳ Please uninstall OpenStudio using Windows settings...")
             input("Press Enter when OpenStudio has been uninstalled...")
-        
+
         # Check if still installed
         return not self._check_openstudio()
 
@@ -1098,37 +1153,33 @@ class DependencyManager:
         """Uninstall OpenStudio .deb package on Debian-based systems."""
         try:
             # Find OpenStudio packages
-            result = subprocess.run(
-                ['dpkg', '-l', '*openstudio*'], 
-                capture_output=True, 
-                text=True
-            )
-            
-            if result.returncode != 0 or 'openstudio' not in result.stdout.lower():
+            result = subprocess.run(["dpkg", "-l", "*openstudio*"], capture_output=True, text=True)
+
+            if result.returncode != 0 or "openstudio" not in result.stdout.lower():
                 click.echo("ℹ️  No OpenStudio .deb packages found.")
                 return True
-            
+
             # Extract package names
-            lines = result.stdout.split('\n')
+            lines = result.stdout.split("\n")
             packages = []
             for line in lines:
-                if 'ii' in line and 'openstudio' in line.lower():
+                if "ii" in line and "openstudio" in line.lower():
                     parts = line.split()
                     if len(parts) >= 2:
                         packages.append(parts[1])
-            
+
             if not packages:
                 click.echo("ℹ️  No installed OpenStudio packages found.")
                 return True
-            
+
             # Uninstall packages
             for package in packages:
                 click.echo(f"Removing package: {package}")
-                subprocess.run(['sudo', 'dpkg', '-r', package], check=True)
-            
+                subprocess.run(["sudo", "dpkg", "-r", package], check=True)
+
             click.echo("✅ OpenStudio .deb packages removed successfully")
             return True
-            
+
         except subprocess.CalledProcessError as e:
             click.echo(f"❌ Failed to remove OpenStudio packages: {e}")
             return False
@@ -1138,64 +1189,64 @@ class DependencyManager:
         install_paths = [
             Path("/usr/local/openstudio"),
             Path("/opt/openstudio"),
-            Path("/usr/local/bin/openstudio")
+            Path("/usr/local/bin/openstudio"),
         ]
-        
+
         removed_any = False
-        
+
         for path in install_paths:
             if path.exists():
                 try:
                     if path.is_file():
-                        subprocess.run(['sudo', 'rm', '-f', str(path)], check=True)
+                        subprocess.run(["sudo", "rm", "-f", str(path)], check=True)
                         click.echo(f"Removed file: {path}")
                     else:
-                        subprocess.run(['sudo', 'rm', '-rf', str(path)], check=True)
+                        subprocess.run(["sudo", "rm", "-rf", str(path)], check=True)
                         click.echo(f"Removed directory: {path}")
                     removed_any = True
                 except subprocess.CalledProcessError:
                     click.echo(f"⚠️  Failed to remove: {path}")
-        
+
         if removed_any:
             click.echo("✅ OpenStudio tarball installation removed")
         else:
             click.echo("ℹ️  No OpenStudio tarball installation found")
-        
+
         return True
 
     def _uninstall_openstudio_hpxml(self):
         """
         Uninstall OpenStudio-HPXML by removing the installation directory.
-        
+
         Returns:
             bool: True if uninstall successful, False otherwise
         """
         try:
             # Check environment variable first
-            hpxml_path = os.environ.get('OPENSTUDIO_HPXML_PATH')
+            hpxml_path = os.environ.get("OPENSTUDIO_HPXML_PATH")
             if hpxml_path:
                 hpxml_path = Path(hpxml_path)
             else:
                 hpxml_path = self.default_hpxml_path
-            
+
             if not hpxml_path.exists():
                 click.echo("ℹ️  OpenStudio-HPXML not found or already uninstalled.")
                 return True
-            
+
             click.echo(f"Removing OpenStudio-HPXML from: {hpxml_path}")
-            
+
             # Remove directory with appropriate permissions
             if not self.is_windows:
-                subprocess.run(['sudo', 'rm', '-rf', str(hpxml_path)], check=True)
+                subprocess.run(["sudo", "rm", "-rf", str(hpxml_path)], check=True)
             else:
                 shutil.rmtree(hpxml_path)
-            
+
             # Update config file to remove the path
             self._update_config_file_uninstall()
-            
+
             click.echo("✅ OpenStudio-HPXML uninstalled successfully")
             return True
-            
+
         except Exception as e:
             click.echo(f"❌ OpenStudio-HPXML uninstall failed: {e}")
             return False
@@ -1205,33 +1256,39 @@ class DependencyManager:
         config_path = self._find_config_file()
         if not config_path:
             return
-        
+
         try:
             # Read current config
             config = configparser.ConfigParser()
             config.read(config_path)
-            
+
             # Update hpxml_os_path to placeholder value
-            if not config.has_section('paths'):
-                config.add_section('paths')
-            
-            config.set('paths', 'hpxml_os_path', '/path/to/OpenStudio-HPXML/')
-            
+            if not config.has_section("paths"):
+                config.add_section("paths")
+
+            config.set("paths", "hpxml_os_path", "/path/to/OpenStudio-HPXML/")
+
             # Write updated config
-            with open(config_path, 'w') as config_file:
+            with open(config_path, "w") as config_file:
                 config.write(config_file)
-            
+
             click.echo("✅ Updated conversionconfig.ini (set placeholder path)")
-            
+
         except Exception as e:
             click.echo(f"⚠️  Failed to update conversionconfig.ini: {e}")
 
 
-def validate_dependencies(interactive=True, skip_deps=False, check_only=False,
-                         auto_install=False, hpxml_path=None, openstudio_path=None):
+def validate_dependencies(
+    interactive=True,
+    skip_deps=False,
+    check_only=False,
+    auto_install=False,
+    hpxml_path=None,
+    openstudio_path=None,
+):
     """
     Convenience function to validate h2k_hpxml dependencies.
-    
+
     Args:
         interactive (bool): Whether to prompt user for installation choices.
             Default: True
@@ -1244,18 +1301,18 @@ def validate_dependencies(interactive=True, skip_deps=False, check_only=False,
             Default: None (use environment variables or defaults)
         openstudio_path (str|Path): Custom OpenStudio installation path.
             Default: None (use environment variables or defaults)
-    
+
     Returns:
         bool: True if all dependencies are satisfied or successfully
             installed, False otherwise
-    
+
     Example:
         >>> # Interactive validation with prompts
         >>> validate_dependencies()
-        
+
         >>> # Automatic installation with custom paths
         >>> validate_dependencies(auto_install=True, hpxml_path="/custom/hpxml")
-        
+
         >>> # Check only, no installation
         >>> validate_dependencies(check_only=True)
     """
@@ -1264,9 +1321,9 @@ def validate_dependencies(interactive=True, skip_deps=False, check_only=False,
         skip_deps=skip_deps,
         auto_install=auto_install,
         hpxml_path=hpxml_path,
-        openstudio_path=openstudio_path
+        openstudio_path=openstudio_path,
     )
-    
+
     if check_only:
         return manager.check_only()
     else:
@@ -1276,79 +1333,61 @@ def validate_dependencies(interactive=True, skip_deps=False, check_only=False,
 def main():
     """Main entry point for standalone dependency checking."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="Check and install h2k_hpxml dependencies",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   %(prog)s --check-only           # Only check dependencies
-  %(prog)s --auto-install         # Automatically install missing deps  
+  %(prog)s --auto-install         # Automatically install missing deps
   %(prog)s --uninstall            # Uninstall OpenStudio and OpenStudio-HPXML
   %(prog)s --update-config        # Update config with detected paths
   %(prog)s --non-interactive      # Don't prompt for installation
-        """
+        """,
     )
-    
+
     parser.add_argument(
-        "--check-only",
-        action="store_true",
-        help="Only check dependencies, don't install"
+        "--check-only", action="store_true", help="Only check dependencies, don't install"
     )
     parser.add_argument(
-        "--non-interactive",
-        action="store_true",
-        help="Don't prompt for installation"
+        "--non-interactive", action="store_true", help="Don't prompt for installation"
     )
+    parser.add_argument("--skip-deps", action="store_true", help="Skip dependency validation")
     parser.add_argument(
-        "--skip-deps",
-        action="store_true",
-        help="Skip dependency validation"
-    )
-    parser.add_argument(
-        "--auto-install",
-        action="store_true",
-        help="Automatically install missing dependencies"
+        "--auto-install", action="store_true", help="Automatically install missing dependencies"
     )
     parser.add_argument(
         "--uninstall",
         action="store_true",
-        help="Uninstall OpenStudio and OpenStudio-HPXML dependencies"
+        help="Uninstall OpenStudio and OpenStudio-HPXML dependencies",
     )
     parser.add_argument(
         "--update-config",
         action="store_true",
-        help="Update configuration file with detected dependency paths"
+        help="Update configuration file with detected dependency paths",
     )
     parser.add_argument(
-        "--hpxml-path",
-        type=str,
-        metavar="PATH",
-        help="Custom OpenStudio-HPXML installation path"
+        "--hpxml-path", type=str, metavar="PATH", help="Custom OpenStudio-HPXML installation path"
     )
     parser.add_argument(
-        "--openstudio-path", 
-        type=str,
-        metavar="PATH",
-        help="Custom OpenStudio installation path"
+        "--openstudio-path", type=str, metavar="PATH", help="Custom OpenStudio installation path"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Handle uninstall option
     if args.uninstall:
         manager = DependencyManager(
             interactive=not args.non_interactive,
             hpxml_path=args.hpxml_path,
-            openstudio_path=args.openstudio_path
+            openstudio_path=args.openstudio_path,
         )
         success = manager.uninstall_dependencies()
     # Handle update-config option
     elif args.update_config:
         manager = DependencyManager(
-            interactive=False,
-            hpxml_path=args.hpxml_path,
-            openstudio_path=args.openstudio_path
+            interactive=False, hpxml_path=args.hpxml_path, openstudio_path=args.openstudio_path
         )
         click.echo("🔄 Updating configuration with detected dependency paths...")
         success = manager._update_config_file()
@@ -1363,10 +1402,11 @@ Examples:
             check_only=args.check_only,
             auto_install=args.auto_install,
             hpxml_path=args.hpxml_path,
-            openstudio_path=args.openstudio_path
+            openstudio_path=args.openstudio_path,
         )
-    
+
     import sys
+
     sys.exit(0 if success else 1)
 
 

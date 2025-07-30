@@ -13,8 +13,8 @@ Usage:
 """
 
 import argparse
-import sys
 import os
+import sys
 
 # Add tests directory to path so we can import test utilities
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -32,36 +32,34 @@ Examples:
   python clean_test_data.py --baseline-only    # Clean for baseline generation
   python clean_test_data.py --temp-only        # Clean only temp files
   python clean_test_data.py --dry-run          # Show what would be cleaned
-        """
+        """,
     )
-    
+
     parser.add_argument(
         "--baseline-only",
         action="store_true",
-        help="Clean only files needed for fresh baseline generation (preserves existing baselines)"
+        help="Clean only files needed for fresh baseline generation (preserves existing baselines)",
     )
-    
+
     parser.add_argument(
-        "--temp-only",
-        action="store_true",
-        help="Clean only the tests/temp directory"
+        "--temp-only", action="store_true", help="Clean only the tests/temp directory"
     )
-    
+
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Show what would be cleaned without actually cleaning"
+        help="Show what would be cleaned without actually cleaning",
     )
-    
+
     args = parser.parse_args()
-    
+
     print("🧹 Test Data Cleanup Script")
     print("=" * 50)
-    
+
     if args.dry_run:
         print("🔍 DRY RUN MODE - No files will actually be deleted")
         print("")
-    
+
     try:
         if args.temp_only:
             print("📁 Cleaning temp directory only...")
@@ -83,7 +81,7 @@ Examples:
                 else:
                     print("❌ Failed to clean temp directory")
                     return 1
-                    
+
         elif args.baseline_only:
             print("🎯 Cleaning for baseline generation...")
             if args.dry_run:
@@ -98,7 +96,7 @@ Examples:
                 else:
                     print("❌ Baseline cleanup failed")
                     return 1
-                    
+
         else:
             print("🧽 Comprehensive cleanup...")
             if args.dry_run:
@@ -114,7 +112,7 @@ Examples:
                 else:
                     print("❌ Comprehensive cleanup failed")
                     return 1
-        
+
         if not args.dry_run:
             print("")
             print("🎉 Cleanup completed successfully!")
@@ -122,9 +120,9 @@ Examples:
         else:
             print("")
             print("🔍 Dry run completed. Use without --dry-run to actually clean files.")
-        
+
         return 0
-        
+
     except Exception as e:
         print(f"💥 Error during cleanup: {str(e)}")
         return 1

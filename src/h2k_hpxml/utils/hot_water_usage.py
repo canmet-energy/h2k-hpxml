@@ -1,19 +1,10 @@
 # Utility functions that calculate expected hot water usage in HPXML
-import json
-import os
-import sys
-from operator import itemgetter
 
-from . import obj
-from . import units
 from . import h2k
 
 
 def get_fixtures_multiplier(h2k_dict, model_data):
-
-    target_daily_hot_water_usgpd = h2k.get_number_field(
-        h2k_dict, "total_daily_hot_water"
-    )
+    target_daily_hot_water_usgpd = h2k.get_number_field(h2k_dict, "total_daily_hot_water")
 
     clothes_washer_usgpd = model_data.get_building_detail("clothes_washer_usgpd")
     dishwasher_usgpd = model_data.get_building_detail("dishwasher_usgpd")
@@ -72,7 +63,6 @@ def calc_distribution_waste(
     num_occupants,
     frac_low_flow_fixtures,
 ):
-
     sys_factor = 1.0  # Always standard distribution system and pipe r value < 3
 
     ref_w_gpd = 7.16 * (num_occupants**0.7)
@@ -98,15 +88,11 @@ def calc_distribution_waste(
 
 
 # not used because we're always using the standard pipe length so the ratio is 1
-def get_std_pipe_length(
-    has_uncond_bsmnt, has_cond_bsmnt, conditioned_floor_area, num_storeys
-):
+def get_std_pipe_length(has_uncond_bsmnt, has_cond_bsmnt, conditioned_floor_area, num_storeys):
     bsmnt = 0
     if has_uncond_bsmnt & (not has_cond_bsmnt):
         bsmnt = 1
 
     return (
-        2.0 * (conditioned_floor_area / num_storeys) ** 0.5
-        + 10.0 * num_storeys
-        + 5.0 * bsmnt
+        2.0 * (conditioned_floor_area / num_storeys) ** 0.5 + 10.0 * num_storeys + 5.0 * bsmnt
     )  # PipeL in ANSI 301

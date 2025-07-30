@@ -1,54 +1,54 @@
 {
-  "generated_date": "2025-07-16T16:06:06.783234",
+  "generated_date": "2025-07-29T00:57:27.968252",
   "results": {
     "WizardHouse_0.26.h2k": {
       "source_file": "WizardHouse_0.26.h2k",
       "baseline_file": "baseline_WizardHouse_0.26.json",
       "hpxml_baseline": "baseline_WizardHouse_0.26.xml",
       "sql_records": 14,
-      "processed_date": "2025-07-16T16:05:20.943310"
+      "processed_date": "2025-07-29T00:56:40.894616"
     },
     "WizardHouse_0.325.h2k": {
       "source_file": "WizardHouse_0.325.h2k",
       "baseline_file": "baseline_WizardHouse_0.325.json",
       "hpxml_baseline": "baseline_WizardHouse_0.325.xml",
       "sql_records": 14,
-      "processed_date": "2025-07-16T16:05:28.349994"
+      "processed_date": "2025-07-29T00:56:48.108988"
     },
     "ERS-EX-10001.H2K": {
       "source_file": "ERS-EX-10001.H2K",
       "baseline_file": "baseline_ERS-EX-10001.json",
       "hpxml_baseline": "baseline_ERS-EX-10001.xml",
       "sql_records": 14,
-      "processed_date": "2025-07-16T16:05:36.423359"
+      "processed_date": "2025-07-29T00:56:55.958801"
     },
     "ERS-EX-10000.H2K": {
       "source_file": "ERS-EX-10000.H2K",
       "baseline_file": "baseline_ERS-EX-10000.json",
       "hpxml_baseline": "baseline_ERS-EX-10000.xml",
       "sql_records": 14,
-      "processed_date": "2025-07-16T16:05:44.544676"
+      "processed_date": "2025-07-29T00:57:06.093437"
     },
     "WizardHouse_0.13.h2k": {
       "source_file": "WizardHouse_0.13.h2k",
       "baseline_file": "baseline_WizardHouse_0.13.json",
       "hpxml_baseline": "baseline_WizardHouse_0.13.xml",
       "sql_records": 14,
-      "processed_date": "2025-07-16T16:05:51.906972"
+      "processed_date": "2025-07-29T00:57:13.421793"
     },
     "WizardHouse_0.195.h2k": {
       "source_file": "WizardHouse_0.195.h2k",
       "baseline_file": "baseline_WizardHouse_0.195.json",
       "hpxml_baseline": "baseline_WizardHouse_0.195.xml",
       "sql_records": 14,
-      "processed_date": "2025-07-16T16:05:59.307358"
+      "processed_date": "2025-07-29T00:57:20.660827"
     },
     "WizardHouse.h2k": {
       "source_file": "WizardHouse.h2k",
       "baseline_file": "baseline_WizardHouse.json",
       "hpxml_baseline": "baseline_WizardHouse.xml",
       "sql_records": 14,
-      "processed_date": "2025-07-16T16:06:06.783223"
+      "processed_date": "2025-07-29T00:57:27.968243"
     }
   },
   "total_files": 7,
