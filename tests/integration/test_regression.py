@@ -23,20 +23,20 @@ src_path = os.path.join(project_root, "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
-from tests.utils import compare_energy_values
-from tests.utils import compare_hpxml_files
-from tests.utils import extract_annual_energy_data
-from tests.utils import find_hpxml_file
-from tests.utils import find_sql_file
-from tests.utils import get_baseline_hpxml_summary_path
-from tests.utils import get_baseline_summary_path
-from tests.utils import get_comparison_hpxml_summary_path
-from tests.utils import get_comparison_summary_path
-from tests.utils import load_baseline_file
-from tests.utils import load_baseline_summary
-from tests.utils import run_h2k_workflow
-from tests.utils import save_comparison_file
-from tests.utils import save_comparison_summary
+from tests.utils import compare_energy_values  # noqa: E402
+from tests.utils import compare_hpxml_files  # noqa: E402
+from tests.utils import extract_annual_energy_data  # noqa: E402
+from tests.utils import find_hpxml_file  # noqa: E402
+from tests.utils import find_sql_file  # noqa: E402
+from tests.utils import get_baseline_hpxml_summary_path  # noqa: E402
+from tests.utils import get_baseline_summary_path  # noqa: E402
+from tests.utils import get_comparison_hpxml_summary_path  # noqa: E402
+from tests.utils import get_comparison_summary_path  # noqa: E402
+from tests.utils import load_baseline_file  # noqa: E402
+from tests.utils import load_baseline_summary  # noqa: E402
+from tests.utils import run_h2k_workflow  # noqa: E402
+from tests.utils import save_comparison_file  # noqa: E402
+from tests.utils import save_comparison_summary  # noqa: E402
 
 
 @pytest.mark.regression

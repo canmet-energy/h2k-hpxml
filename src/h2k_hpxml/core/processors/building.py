@@ -5,12 +5,12 @@ This module handles processing of building construction details, occupancy,
 and structural information from H2K data to populate HPXML building sections.
 """
 
+from ...core import data_utils as obj
+from ...core import h2k_parser as h2k
 from ...core.model import ModelData
 from ...exceptions import HPXMLGenerationError
 from ...types import H2KDict
 from ...types import HPXMLDict
-from ...utils import h2k
-from ...utils import obj
 from ...utils.logging import get_logger
 
 # Get logger for this module

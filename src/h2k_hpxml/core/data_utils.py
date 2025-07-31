@@ -1,4 +1,5 @@
-from typing import Any, Dict, Union
+from typing import Any
+from typing import Dict
 
 
 def get_val(obj: Dict[str, Any], path: str) -> Any:

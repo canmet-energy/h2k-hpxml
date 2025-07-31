@@ -1,4 +1,4 @@
-from ..utils import h2k
+from ..core import h2k_parser as h2k
 
 
 # Water fixtures include "shower head" and "faucet"

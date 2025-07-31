@@ -1,6 +1,6 @@
 from operator import itemgetter
 
-from ..utils import h2k
+from ..core import h2k_parser as h2k
 
 
 # Applies ASHRAE 140 assumptions to file

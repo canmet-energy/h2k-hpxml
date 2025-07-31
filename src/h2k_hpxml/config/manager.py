@@ -11,8 +11,12 @@ Provides centralized configuration management with support for:
 
 import configparser
 import os
+import platform
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Union
 
 from ..exceptions import ConfigurationError
 from ..utils.logging import get_logger
@@ -25,21 +29,29 @@ class ConfigManager:
     Centralized configuration manager for H2K-HPXML package.
 
     Supports loading configuration from:
-    1. INI files (conversionconfig.ini)
-    2. Environment variables (H2K_*)
-    3. Default values
-    4. Environment-specific overrides
+    1. User config directory
+    2. Project config files (conversionconfig.ini)
+    3. Environment variables (H2K_*)
+    4. Default values
+    5. Environment-specific overrides
     """
 
-    def __init__(self, config_file: Optional[Union[str, Path]] = None, environment: str = "prod"):
+    def __init__(
+        self,
+        config_file: Optional[Union[str, Path]] = None,
+        environment: str = "prod",
+        auto_create: bool = True,
+    ) -> None:
         """
         Initialize configuration manager.
 
         Args:
-            config_file: Path to INI configuration file. If None, searches for conversionconfig.ini
+            config_file: Path to INI configuration file. If None, searches hierarchically
             environment: Environment profile (dev, test, prod)
+            auto_create: Whether to auto-create user config from template if not found
         """
         self.environment = environment
+        self.auto_create = auto_create
         self.config = configparser.ConfigParser()
         self._config_data = {}
 
@@ -49,6 +61,30 @@ class ConfigManager:
         self._validate_configuration()
 
         logger.info(f"Configuration loaded for environment: {environment}")
+
+    def _get_user_config_path(self) -> Path:
+        """
+        Get user configuration directory path based on OS.
+
+        Returns:
+            Path to user configuration directory (~/.config/h2k_hpxml on Linux/macOS,
+            %APPDATA%/h2k_hpxml on Windows)
+        """
+        if platform.system() == "Windows":
+            # Use APPDATA on Windows
+            appdata = os.environ.get("APPDATA")
+            if appdata:
+                return Path(appdata) / "h2k_hpxml"
+            else:
+                # Fallback to user home
+                return Path.home() / "AppData" / "Roaming" / "h2k_hpxml"
+        else:
+            # Use XDG Base Directory on Linux/macOS
+            xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
+            if xdg_config_home:
+                return Path(xdg_config_home) / "h2k_hpxml"
+            else:
+                return Path.home() / ".config" / "h2k_hpxml"
 
     def _load_configuration(self, config_file: Optional[Union[str, Path]] = None) -> None:
         """Load configuration from INI file."""
@@ -66,43 +102,46 @@ class ConfigManager:
             raise ConfigurationError(f"Failed to parse configuration file: {e}")
 
     def _find_config_file(self) -> Path:
-        """Find conversionconfig.ini or environment-specific config in config directory or parent directories."""
-        current_dir = Path.cwd()
+        """
+        Find configuration file with hierarchical search.
 
-        # Search up to 3 levels for config file
+        Search order (highest to lowest priority):
+        1. User config directory
+        2. Project config directory
+        3. Create from template
+        """
+        # 1. User config directory
+        user_config = self._get_user_config_path() / "config.ini"
+        if user_config.exists():
+            logger.info(f"Using user config: {user_config}")
+            return user_config
+
+        # 2. Project config directory (search up to 3 levels)
+        current_dir = Path.cwd()
         for _ in range(3):
             # Check in config subdirectory first (new structure)
             config_dir = current_dir / "config"
             if config_dir.exists():
-                # First try environment-specific config in config dir
-                env_config_path = config_dir / f"conversionconfig.{self.environment}.ini"
-                if env_config_path.exists():
-                    logger.info(f"Using environment-specific config: {env_config_path}")
-                    return env_config_path
-
-                # Fallback to default config in config dir
                 config_path = config_dir / "conversionconfig.ini"
                 if config_path.exists():
-                    logger.info(f"Using config from config directory: {config_path}")
+                    logger.info(f"Using project config from config directory: {config_path}")
                     return config_path
 
             # Fallback to old structure (backward compatibility)
-            # First try environment-specific config
-            env_config_path = current_dir / f"conversionconfig.{self.environment}.ini"
-            if env_config_path.exists():
-                logger.info(f"Using environment-specific config: {env_config_path}")
-                return env_config_path
-
-            # Fallback to default config
             config_path = current_dir / "conversionconfig.ini"
             if config_path.exists():
                 logger.info(f"Using legacy config location: {config_path}")
                 return config_path
             current_dir = current_dir.parent
 
-        raise ConfigurationError(
-            f"Configuration file not found for environment '{self.environment}' or default 'conversionconfig.ini'"
-        )
+        # 3. Create from template (if auto_create is enabled)
+        if self.auto_create:
+            logger.info("No existing config found. Creating user config from template")
+            return self._create_config_from_template()
+        else:
+            raise ConfigurationError(
+                "Configuration file not found. Use 'h2k-deps --setup' to create user configuration."
+            )
 
     def _apply_environment_overrides(self) -> None:
         """Apply environment variable overrides."""
@@ -260,17 +299,17 @@ class ConfigManager:
         return self.get_resource_path(config_name)
 
     @property
-    def source_h2k_path(self) -> Path:
+    def source_h2k_path(self) -> Optional[Path]:
         """Source H2K files directory."""
         return self.get_path("paths", "source_h2k_path")
 
     @property
-    def hpxml_os_path(self) -> Path:
+    def hpxml_os_path(self) -> Optional[Path]:
         """OpenStudio-HPXML installation directory."""
         return self.get_path("paths", "hpxml_os_path")
 
     @property
-    def dest_hpxml_path(self) -> Path:
+    def dest_hpxml_path(self) -> Optional[Path]:
         """Destination directory for generated HPXML files."""
         return self.get_path("paths", "dest_hpxml_path")
 
@@ -311,13 +350,108 @@ class ConfigManager:
             result[section_name] = dict(self.config.items(section_name))
         return result
 
+    def _create_config_from_template(self) -> Path:
+        """
+        Create user configuration file from template.
+
+        Returns:
+            Path to created config file
+        """
+        # Get user config directory and ensure it exists
+        user_config_dir = self._get_user_config_path()
+        user_config_dir.mkdir(parents=True, exist_ok=True)
+
+        # Use single config filename
+        user_config_path = user_config_dir / "config.ini"
+
+        # Find template file
+        template_path = self._find_template_file("conversionconfig.template.ini")
+
+        if template_path and template_path.exists():
+            # Copy template to user config
+            import shutil
+
+            shutil.copy2(template_path, user_config_path)
+            logger.info(f"Created user config from template: {user_config_path}")
+        else:
+            # Create minimal config if no template found
+            self._create_minimal_config(user_config_path)
+            logger.info(f"Created minimal user config: {user_config_path}")
+
+        return user_config_path
+
+    def _find_template_file(self, template_name: str) -> Optional[Path]:
+        """
+        Find template file in project or package resources.
+
+        Args:
+            template_name: Name of template file
+
+        Returns:
+            Path to template file if found
+        """
+        # Check project config/defaults directory
+        current_dir = Path.cwd()
+        for _ in range(3):
+            defaults_dir = current_dir / "config" / "defaults"
+            template_path = defaults_dir / template_name
+            if template_path.exists():
+                return template_path
+            current_dir = current_dir.parent
+
+        # Check package resources (future implementation)
+        # package_templates = Path(__file__).parent.parent / "resources" / "templates"
+        # template_path = package_templates / template_name
+        # if template_path.exists():
+        #     return template_path
+
+        return None
+
+    def _create_minimal_config(self, config_path: Path) -> None:
+        """
+        Create minimal configuration file with default values.
+
+        Args:
+            config_path: Path where to create config file
+        """
+        minimal_config = configparser.ConfigParser()
+
+        # Add required sections with minimal values
+        minimal_config.add_section("paths")
+        minimal_config.set("paths", "source_h2k_path", "examples")
+        minimal_config.set("paths", "hpxml_os_path", "")
+        minimal_config.set("paths", "openstudio_binary", "")
+        minimal_config.set("paths", "dest_hpxml_path", "output/hpxml/")
+        minimal_config.set("paths", "dest_compare_data", "output/comparisons/")
+        minimal_config.set("paths", "workflow_temp_path", "output/workflows/")
+
+        minimal_config.add_section("simulation")
+        minimal_config.set("simulation", "flags", "--add-component-loads --debug")
+
+        minimal_config.add_section("weather")
+        minimal_config.set("weather", "weather_library", "historic")
+        minimal_config.set("weather", "weather_vintage", "CWEC2020")
+
+        minimal_config.add_section("logging")
+        minimal_config.set("logging", "log_level", "INFO")
+        minimal_config.set("logging", "log_to_file", "true")
+        minimal_config.set("logging", "log_file_path", "output/logs/h2k_hpxml.log")
+
+        with open(config_path, "w") as f:
+            f.write("# H2K-HPXML Configuration\n")
+            f.write("# Auto-generated minimal configuration\n")
+            f.write("# Use 'h2k-deps --update-config' to set OpenStudio paths\n\n")
+            minimal_config.write(f)
+
 
 # Global configuration instance
 _config_manager = None
 
 
 def get_config_manager(
-    config_file: Optional[Union[str, Path]] = None, environment: str = "prod"
+    config_file: Optional[Union[str, Path]] = None,
+    environment: str = "prod",
+    auto_create: bool = True,
 ) -> ConfigManager:
     """
     Get global configuration manager instance.
@@ -325,6 +459,7 @@ def get_config_manager(
     Args:
         config_file: Path to configuration file
         environment: Environment profile
+        auto_create: Whether to auto-create user config from template if not found
 
     Returns:
         ConfigManager instance
@@ -332,7 +467,7 @@ def get_config_manager(
     global _config_manager
 
     if _config_manager is None:
-        _config_manager = ConfigManager(config_file, environment)
+        _config_manager = ConfigManager(config_file, environment, auto_create)
 
     return _config_manager
 

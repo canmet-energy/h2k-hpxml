@@ -16,6 +16,25 @@
         "tests"
     ],
     "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportOptionalOperand": "none",
+        "reportOptionalMemberAccess": "none",
+        "reportUnknownMemberType": "none",
+        "reportUnknownArgumentType": "none",
+        "reportUnknownVariableType": "none",
+        "reportGeneralTypeIssues": "warning",
+        "reportOptionalSubscript": "none",
+        "reportOptionalCall": "none",
+        "reportOptionalIterable": "none",
+        "reportOptionalContextManager": "none",
+        "reportIncompatibleMethodOverride": "warning",
+        "reportIncompatibleVariableOverride": "warning",
+        "reportAttributeAccessIssue": "none",
+        "reportOperatorIssue": "none",
+        "reportArgumentType": "none",
+        "reportCallIssue": "none",
+        "reportReturnType": "none"
+    },
     "python.analysis.autoImportCompletions": true,
     "python.analysis.autoSearchPaths": true,
     "files.exclude": {

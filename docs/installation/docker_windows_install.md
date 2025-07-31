@@ -6,7 +6,7 @@
 1. When the installation is successful, select Close to complete the installation process.
 1. Type "Computer Management" in the windows search bar. Then click "run as an administrator". If you on an domain like NRCan, be sure you do this while on VPN.
 
-   ![image](./images/computer_management.png)
-1. Navigate to Local Users and Groups > Groups > docker-users and add your username to the group. See example with username 'plopez'.![image](./images/docker_group.png)
+   ![image](../images/computer_management.png)
+1. Navigate to Local Users and Groups > Groups > docker-users and add your username to the group. See example with username 'plopez'.![image](../images/docker_group.png)
 
 1. Reboot for the changes to take effect and start Docker Desktop.

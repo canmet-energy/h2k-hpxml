@@ -5,10 +5,16 @@ This module provides a simplified ModelData class using @property decorators
 and better data organization to reduce boilerplate code.
 """
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass
+from dataclasses import field
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
-from ..types import BuildingDetails, ComponentID
+from ..types import BuildingDetails
+from ..types import ComponentID
 from ..types import FoundationDetails
 from ..types import WallSegment
 from ..utils.logging import get_logger

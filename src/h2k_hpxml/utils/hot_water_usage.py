@@ -1,6 +1,6 @@
 # Utility functions that calculate expected hot water usage in HPXML
 
-from . import h2k
+from ..core import h2k_parser as h2k
 
 
 def get_fixtures_multiplier(h2k_dict, model_data):

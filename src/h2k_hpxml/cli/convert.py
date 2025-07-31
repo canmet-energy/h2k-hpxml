@@ -118,7 +118,7 @@ def _build_simulation_flags(
     return flags
 
 
-def _detect_xml_encoding(filepath):
+def _detect_xml_encoding(filepath: str) -> str:
     """
     Detect XML encoding from file header.
 
@@ -136,7 +136,7 @@ def _detect_xml_encoding(filepath):
     return DEFAULT_ENCODING  # fallback
 
 
-def _convert_h2k_to_hpxml(filepath, dest_hpxml_path):
+def _convert_h2k_to_hpxml(filepath: str, dest_hpxml_path: str) -> str:
     """
     Convert H2K file to HPXML format.
 
@@ -182,7 +182,7 @@ def _convert_h2k_to_hpxml(filepath, dest_hpxml_path):
     return hpxml_path
 
 
-def _run_simulation(hpxml_path, ruby_hpxml_path, hpxml_os_path, flags):
+def _run_simulation(hpxml_path: str, ruby_hpxml_path: str, hpxml_os_path: str, flags: str) -> None:
     """
     Run OpenStudio simulation on HPXML file.
 
@@ -350,7 +350,7 @@ def credits():
     "--output-format",
     "-f",
     default="csv",
-    help=("Output format for the simulation results " "(csv, json, msgpack, csv_dview)"),
+    help=("Output format for the simulation results (csv, json, msgpack, csv_dview)"),
 )
 @click.option(
     "--add-stochastic-schedules",
@@ -422,8 +422,7 @@ def run(
     # Ensure only one of hourly, monthly or timeseries options is provided
     if sum(bool(x) for x in [hourly, monthly, timestep]) > 1:
         raise ValueError(
-            "Only one of the options --hourly, --monthly, or --timestep "
-            "can be provided at a time."
+            "Only one of the options --hourly, --monthly, or --timestep can be provided at a time."
         )
 
     # Build simulation flags
@@ -472,7 +471,7 @@ def run(
             print(f"No .h2k files found in directory {source_h2k_path}.")
             sys.exit(1)
     else:
-        print(f"The source path {source_h2k_path} is neither a .h2k file " f"nor a directory.")
+        print(f"The source path {source_h2k_path} is neither a .h2k file nor a directory.")
         sys.exit(1)
 
     def process_file(filepath):
@@ -552,7 +551,7 @@ def _find_project_root():
     return os.getcwd()
 
 
-def main():
+def main() -> None:
     """Entry point for the h2k2hpxml command."""
     cli()
 

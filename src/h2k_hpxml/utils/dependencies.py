@@ -255,9 +255,7 @@ class DependencyManager:
         elif self.interactive:
             return self._handle_interactive_install(openstudio_ok, hpxml_ok)
         else:
-            click.echo(
-                "❌ Dependencies not satisfied and running in " "non-interactive mode", err=True
-            )
+            click.echo("❌ Dependencies not satisfied and running in non-interactive mode", err=True)
             return False
 
     def check_only(self):
@@ -592,7 +590,7 @@ class DependencyManager:
                 self._show_manual_instructions(missing)
                 return False
             elif choice == 3:
-                click.echo("⚠️  Continuing without all dependencies. " "Errors may occur.")
+                click.echo("⚠️  Continuing without all dependencies. Errors may occur.")
                 return True
             elif choice == 4:
                 click.echo("Installation cancelled.")
@@ -615,7 +613,7 @@ class DependencyManager:
         """Show OpenStudio manual installation instructions."""
         click.echo(f"\n🔧 OpenStudio v{self.REQUIRED_OPENSTUDIO_VERSION}")
         click.echo(
-            f"Download from: {self.OPENSTUDIO_BASE_URL}/" f"v{self.REQUIRED_OPENSTUDIO_VERSION}/"
+            f"Download from: {self.OPENSTUDIO_BASE_URL}/v{self.REQUIRED_OPENSTUDIO_VERSION}/"
         )
 
         if self.is_windows:
@@ -623,10 +621,8 @@ class DependencyManager:
             click.echo("- Run installer as administrator")
             click.echo("- Add to PATH if not automatically added")
         else:
-            click.echo(
-                "- Ubuntu/Debian: Download .deb package and run: " "sudo dpkg -i package.deb"
-            )
-            click.echo("- Other Linux: Download .tar.gz and extract to " "/usr/local/openstudio")
+            click.echo("- Ubuntu/Debian: Download .deb package and run: sudo dpkg -i package.deb")
+            click.echo("- Other Linux: Download .tar.gz and extract to /usr/local/openstudio")
 
     def _show_hpxml_instructions(self):
         """Show OpenStudio-HPXML manual installation instructions."""
@@ -672,10 +668,8 @@ class DependencyManager:
         )
 
         click.echo(f"Windows OpenStudio installer: {installer_url}")
-        click.echo("\n⚠️  Automatic installation on Windows requires " "administrator privileges.")
-        click.echo(
-            "Please download and run the installer manually, " "or grant administrator access."
-        )
+        click.echo("\n⚠️  Automatic installation on Windows requires administrator privileges.")
+        click.echo("Please download and run the installer manually, or grant administrator access.")
 
         if click.confirm("Download installer automatically?"):
             try:
@@ -939,20 +933,287 @@ class DependencyManager:
         else:
             shutil.copytree(source_folder, target_path)
 
-    def _update_config_file(self, hpxml_path=None):
+    def setup_user_config(self):
         """
-        Update conversionconfig.ini with dependency installation paths.
+        Set up user configuration from template.
+
+        Returns:
+            bool: True if setup successful, False otherwise
+        """
+        from ..config.manager import ConfigManager
+
+        click.echo("🔧 Setting up user configuration")
+
+        # Create user config from template without interfering with project discovery
+        try:
+            # Create a temporary ConfigManager to get the user config path
+            temp_config = ConfigManager(auto_create=False)
+            user_config_path = temp_config._get_user_config_path()
+            user_config_path.mkdir(parents=True, exist_ok=True)
+
+            # Use single config filename
+            user_config_file = user_config_path / "config.ini"
+
+            # Find and copy template from project directory
+            template_name = "conversionconfig.template.ini"
+            template_path = temp_config._find_template_file(template_name)
+
+            if template_path and template_path.exists():
+                # Copy template to user config, preserving comments
+                self._copy_template_with_path_updates(template_path, user_config_file)
+                click.echo(f"✅ User configuration created from template at: {user_config_file}")
+                click.echo(f"✅ Template source: {template_path.name}")
+            else:
+                # Create minimal config if no template found
+                temp_config._create_minimal_config(user_config_file)
+                click.echo(f"✅ User configuration created (minimal) at: {user_config_file}")
+                # Update with detected dependency paths for minimal config
+                self._update_user_config_file(user_config_file)
+            return True
+
+        except Exception as e:
+            click.echo(f"❌ Failed to setup user configuration: {e}")
+            return False
+
+    def _copy_template_with_path_updates(self, template_path, user_config_file):
+        """
+        Copy template file to user config while preserving comments and updating paths.
+
+        Args:
+            template_path (Path): Source template file
+            user_config_file (Path): Destination user config file
+        """
+        # Detect paths first
+        openstudio_binary = self._detect_openstudio_binary()
+        detected_hpxml_path = self._detect_hpxml_path(None)
+
+        # Read template content
+        template_content = template_path.read_text(encoding="utf-8")
+
+        # Update paths in template content while preserving comments
+        updated_content = template_content
+
+        # Update OpenStudio-HPXML path
+        if detected_hpxml_path:
+            path_str = str(detected_hpxml_path).replace("\\", "/")
+            if not path_str.endswith("/"):
+                path_str += "/"
+            updated_content = updated_content.replace(
+                "hpxml_os_path = ", f"hpxml_os_path = {path_str}"
+            )
+
+        # Update OpenStudio binary path
+        if openstudio_binary:
+            updated_content = updated_content.replace(
+                "openstudio_binary = ", f"openstudio_binary = {openstudio_binary}"
+            )
+
+        # Write updated content to user config file
+        user_config_file.write_text(updated_content, encoding="utf-8")
+
+        if detected_hpxml_path:
+            click.echo(f"   Updated OpenStudio-HPXML path: {path_str}")
+        if openstudio_binary:
+            click.echo(f"   Updated OpenStudio binary path: {openstudio_binary}")
+
+    def _update_config_file(self, hpxml_path=None, user_only=False):
+        """
+        Update configuration files with dependency installation paths.
 
         Args:
             hpxml_path (Path, optional): Path to OpenStudio-HPXML installation.
                                        If None, uses current default_hpxml_path
+            user_only (bool): If True, only update user config files
         """
-        # Find conversionconfig.ini file
-        config_path = self._find_config_file()
-        if not config_path:
-            click.echo("⚠️  conversionconfig.ini not found, skipping config update")
+        if user_only:
+            return self._update_user_configs_only(hpxml_path)
+        else:
+            return self._update_all_config_files(hpxml_path)
+
+    def _update_user_configs_only(self, hpxml_path=None):
+        """Update only user configuration files."""
+        from ..config.manager import ConfigManager
+
+        # Find user config files
+        config_manager = ConfigManager(auto_create=False)
+        user_config_dir = config_manager._get_user_config_path()
+
+        if not user_config_dir.exists():
+            click.echo("⚠️  No user configuration directory found")
             return False
 
+        user_config_files = []
+        for config_name in ["config.ini"]:
+            config_file = user_config_dir / config_name
+            if config_file.exists():
+                user_config_files.append(str(config_file))
+
+        if not user_config_files:
+            click.echo("⚠️  No user configuration files found")
+            return False
+
+        # Detect and prepare paths
+        openstudio_binary = self._detect_openstudio_binary()
+        detected_hpxml_path = self._detect_hpxml_path(hpxml_path)
+
+        updated_files = []
+        failed_files = []
+
+        # Update each user config file
+        for config_path in user_config_files:
+            try:
+                success = self._update_single_config_file(
+                    config_path, detected_hpxml_path, openstudio_binary
+                )
+                if success:
+                    updated_files.append(config_path)
+                else:
+                    failed_files.append(config_path)
+            except Exception as e:
+                click.echo(f"⚠️  Failed to update {config_path}: {e}")
+                failed_files.append(config_path)
+
+        # Report results
+        if updated_files:
+            click.echo(f"✅ Updated {len(updated_files)} user configuration file(s):")
+            for file_path in updated_files:
+                click.echo(f"   • {file_path}")
+
+        if failed_files:
+            click.echo(f"⚠️  Failed to update {len(failed_files)} user configuration file(s):")
+            for file_path in failed_files:
+                click.echo(f"   • {file_path}")
+
+        return len(updated_files) > 0
+
+    def _update_all_config_files(self, hpxml_path=None):
+        """Update all configuration files (project and user)."""
+        # Find all configuration files
+        config_files = self._find_all_config_files()
+        if not config_files:
+            click.echo("⚠️  No configuration files found, skipping config update")
+            return False
+
+        # Detect and prepare paths for all files
+        openstudio_binary = self._detect_openstudio_binary()
+        detected_hpxml_path = self._detect_hpxml_path(hpxml_path)
+
+        updated_files = []
+        failed_files = []
+
+        # Update each configuration file
+        for config_path in config_files:
+            try:
+                success = self._update_single_config_file(
+                    config_path, detected_hpxml_path, openstudio_binary
+                )
+                if success:
+                    updated_files.append(config_path)
+                else:
+                    failed_files.append(config_path)
+            except Exception as e:
+                click.echo(f"⚠️  Failed to update {config_path}: {e}")
+                failed_files.append(config_path)
+
+        # Report results
+        if updated_files:
+            click.echo(f"✅ Updated {len(updated_files)} configuration file(s):")
+            for file_path in updated_files:
+                click.echo(f"   • {file_path}")
+
+        if failed_files:
+            click.echo(f"⚠️  Failed to update {len(failed_files)} configuration file(s):")
+            for file_path in failed_files:
+                click.echo(f"   • {file_path}")
+
+        return len(updated_files) > 0
+
+    def _update_user_config_file(self, user_config_file):
+        """Update a specific user config file with detected paths."""
+        openstudio_binary = self._detect_openstudio_binary()
+        detected_hpxml_path = self._detect_hpxml_path(None)
+
+        success = self._update_single_config_file(
+            str(user_config_file), detected_hpxml_path, openstudio_binary
+        )
+        if success:
+            click.echo("✅ Updated user configuration with detected paths")
+        else:
+            click.echo("⚠️  Failed to update user configuration with paths")
+        return success
+
+    def _find_all_config_files(self):
+        """
+        Find all configuration files (main and environment-specific).
+
+        Returns:
+            list: List of paths to configuration files found
+        """
+        config_files = []
+
+        # Start from current working directory and search upward
+        current_dir = Path.cwd()
+        for parent in [current_dir] + list(current_dir.parents):
+            # Check for config directory
+            config_dir = parent / "config"
+            if config_dir.exists():
+                # Look for all config files in config directory
+                for config_name in ["conversionconfig.ini"]:
+                    config_file = config_dir / config_name
+                    if config_file.exists():
+                        config_files.append(str(config_file))
+
+            # Also check parent directory for legacy locations
+            for config_name in ["conversionconfig.ini"]:
+                config_file = parent / config_name
+                if config_file.exists():
+                    config_files.append(str(config_file))
+
+        # Also check common project locations
+        common_locations = [
+            Path(__file__).parent.parent.parent.parent / "config",  # Project root/config
+            Path("/workspaces/h2k_hpxml/config"),  # Codespace location
+        ]
+
+        for location in common_locations:
+            if location.exists():
+                for config_name in ["conversionconfig.ini"]:
+                    config_file = location / config_name
+                    if config_file.exists() and str(config_file) not in config_files:
+                        config_files.append(str(config_file))
+
+        return config_files
+
+    def _detect_openstudio_binary(self):
+        """Detect OpenStudio binary path."""
+        openstudio_paths = self._get_openstudio_paths()
+        for os_path in openstudio_paths:
+            if Path(os_path).exists():
+                return os_path
+        return ""
+
+    def _detect_hpxml_path(self, hpxml_path):
+        """Detect OpenStudio-HPXML path."""
+        if hpxml_path:
+            return hpxml_path
+
+        # Check environment variable first
+        env_hpxml_path = os.environ.get("OPENSTUDIO_HPXML_PATH")
+        if env_hpxml_path and Path(env_hpxml_path).exists():
+            return Path(env_hpxml_path)
+
+        # Check if default path exists
+        default_path = self.default_hpxml_path
+        if default_path.exists():
+            # Verify it has the required workflow script
+            workflow_script = default_path / "workflow" / "run_simulation.rb"
+            if workflow_script.exists():
+                return default_path
+
+        return None
+
+    def _update_single_config_file(self, config_path, detected_hpxml_path, openstudio_binary):
+        """Update a single configuration file with detected paths."""
         try:
             # Read current config
             config = configparser.ConfigParser()
@@ -963,64 +1224,32 @@ class DependencyManager:
                 config.add_section("paths")
 
             # Update OpenStudio-HPXML path
-            if hpxml_path:
-                path_str = str(hpxml_path).replace("\\", "/")
+            if detected_hpxml_path:
+                path_str = str(detected_hpxml_path).replace("\\", "/")
                 if not path_str.endswith("/"):
                     path_str += "/"
                 config.set("paths", "hpxml_os_path", path_str)
-                click.echo(f"✅ Updated OpenStudio-HPXML path: {path_str}")
+                click.echo(f"   Updated OpenStudio-HPXML path: {path_str}")
             else:
-                # Auto-detect OpenStudio-HPXML if not explicitly provided
-                detected_hpxml_path = None
+                click.echo("   ⚠️  OpenStudio-HPXML not found - keeping existing setting")
 
-                # Check environment variable first
-                env_hpxml_path = os.environ.get("OPENSTUDIO_HPXML_PATH")
-                if env_hpxml_path and Path(env_hpxml_path).exists():
-                    detected_hpxml_path = Path(env_hpxml_path)
-                else:
-                    # Check if default path exists
-                    default_path = self.default_hpxml_path
-                    if default_path.exists():
-                        # Verify it has the required workflow script
-                        workflow_script = default_path / "workflow" / "run_simulation.rb"
-                        if workflow_script.exists():
-                            detected_hpxml_path = default_path
-
-                if detected_hpxml_path:
-                    path_str = str(detected_hpxml_path).replace("\\", "/")
-                    if not path_str.endswith("/"):
-                        path_str += "/"
-                    config.set("paths", "hpxml_os_path", path_str)
-                    click.echo(f"✅ Updated OpenStudio-HPXML path: {path_str}")
-                else:
-                    click.echo("⚠️  OpenStudio-HPXML not found - keeping existing config setting")
-
-            # Detect and update OpenStudio binary path
-            openstudio_paths = self._get_openstudio_paths()
-            openstudio_binary = None
-
-            for os_path in openstudio_paths:
-                if Path(os_path).exists():
-                    openstudio_binary = os_path
-                    break
-
+            # Update OpenStudio binary path
             if openstudio_binary:
                 config.set("paths", "openstudio_binary", openstudio_binary)
-                click.echo(f"✅ Updated OpenStudio binary path: {openstudio_binary}")
+                click.echo(f"   Updated OpenStudio binary path: {openstudio_binary}")
             else:
                 # Clear the setting if not found
                 config.set("paths", "openstudio_binary", "")
-                click.echo("⚠️  OpenStudio binary not found - cleared config setting")
+                click.echo("   ⚠️  OpenStudio binary not found - cleared setting")
 
             # Write updated config
             with open(config_path, "w") as config_file:
                 config.write(config_file)
 
-            click.echo(f"✅ Updated configuration file: {config_path}")
             return True
 
         except Exception as e:
-            click.echo(f"⚠️  Failed to update conversionconfig.ini: {e}")
+            click.echo(f"   ⚠️  Error updating {config_path}: {e}")
             return False
 
     def _find_config_file(self):
@@ -1341,8 +1570,10 @@ def main():
 Examples:
   %(prog)s --check-only           # Only check dependencies
   %(prog)s --auto-install         # Automatically install missing deps
+  %(prog)s --setup                # Set up user configuration from template
+  %(prog)s --update-config        # Update all config files with detected paths
+  %(prog)s --update-config --global   # Update user config files only
   %(prog)s --uninstall            # Uninstall OpenStudio and OpenStudio-HPXML
-  %(prog)s --update-config        # Update config with detected paths
   %(prog)s --non-interactive      # Don't prompt for installation
         """,
     )
@@ -1363,9 +1594,24 @@ Examples:
         help="Uninstall OpenStudio and OpenStudio-HPXML dependencies",
     )
     parser.add_argument(
+        "--setup", action="store_true", help="Set up user configuration from templates"
+    )
+    parser.add_argument(
         "--update-config",
         action="store_true",
         help="Update configuration file with detected dependency paths",
+    )
+    parser.add_argument(
+        "--global",
+        dest="update_global",
+        action="store_true",
+        help="Update user configuration files only (use with --update-config)",
+    )
+    parser.add_argument(
+        "--local",
+        dest="update_local",
+        action="store_true",
+        help="Update project configuration files only (use with --update-config)",
     )
     parser.add_argument(
         "--hpxml-path", type=str, metavar="PATH", help="Custom OpenStudio-HPXML installation path"
@@ -1376,8 +1622,20 @@ Examples:
 
     args = parser.parse_args()
 
+    # Handle setup option
+    if args.setup:
+        manager = DependencyManager(
+            interactive=not args.non_interactive,
+            hpxml_path=args.hpxml_path,
+            openstudio_path=args.openstudio_path,
+        )
+        success = manager.setup_user_config()
+        if success:
+            click.echo("✅ User configuration setup completed!")
+        else:
+            click.echo("❌ Failed to setup user configuration")
     # Handle uninstall option
-    if args.uninstall:
+    elif args.uninstall:
         manager = DependencyManager(
             interactive=not args.non_interactive,
             hpxml_path=args.hpxml_path,
@@ -1390,7 +1648,19 @@ Examples:
             interactive=False, hpxml_path=args.hpxml_path, openstudio_path=args.openstudio_path
         )
         click.echo("🔄 Updating configuration with detected dependency paths...")
-        success = manager._update_config_file()
+
+        # Determine update scope
+        user_only = args.update_global and not args.update_local
+        if args.update_global and args.update_local:
+            click.echo("⚠️  Both --global and --local specified, updating all configs")
+            user_only = False
+        elif args.update_local:
+            click.echo(
+                "ℹ️  --local specified, but user config takes priority. Consider using --global for user configs."
+            )
+            user_only = False
+
+        success = manager._update_config_file(user_only=user_only)
         if success:
             click.echo("✅ Configuration file updated successfully!")
         else:

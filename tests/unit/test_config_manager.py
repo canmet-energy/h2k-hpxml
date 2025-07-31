@@ -14,6 +14,33 @@ from h2k_hpxml.config.manager import reset_config_manager
 from h2k_hpxml.exceptions import ConfigurationError
 
 
+def cleanup_user_configs():
+    """Remove user config directory to ensure test isolation."""
+    import platform
+    import shutil
+
+    try:
+        # Compute the user config path directly to avoid circular imports
+        if platform.system() == "Windows":
+            appdata = os.environ.get("APPDATA")
+            if appdata:
+                user_config_dir = Path(appdata) / "h2k_hpxml"
+            else:
+                user_config_dir = Path.home() / "AppData" / "Roaming" / "h2k_hpxml"
+        else:
+            xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
+            if xdg_config_home:
+                user_config_dir = Path(xdg_config_home) / "h2k_hpxml"
+            else:
+                user_config_dir = Path.home() / ".config" / "h2k_hpxml"
+
+        if user_config_dir.exists():
+            shutil.rmtree(user_config_dir)
+    except (PermissionError, OSError):
+        # If we can't remove it, that's okay for tests
+        pass
+
+
 class TestConfigManager:
     """Test cases for ConfigManager class."""
 
@@ -23,9 +50,15 @@ class TestConfigManager:
         # Save original working directory
         self._original_cwd = os.getcwd()
 
+        # Clean up any existing user config files that could interfere with tests
+        cleanup_user_configs()
+
     def teardown_method(self):
         """Restore original working directory after each test."""
         os.chdir(self._original_cwd)
+
+        # Clean up user configs after each test to ensure isolation
+        cleanup_user_configs()
 
     def test_config_manager_initialization_with_missing_file(self):
         """Test ConfigManager raises error when config file not found."""
@@ -33,7 +66,7 @@ class TestConfigManager:
             os.chdir(temp_dir)  # Change to directory without config file
 
             with pytest.raises(ConfigurationError, match="Configuration file not found"):
-                ConfigManager()
+                ConfigManager(auto_create=False)
 
     def test_config_manager_initialization_with_valid_file(self):
         """Test ConfigManager initializes correctly with valid config file."""
@@ -59,63 +92,45 @@ log_level = DEBUG
             config_path.write_text(config_content)
             os.chdir(temp_dir)
 
-            config = ConfigManager()
+            config = ConfigManager(auto_create=False)
 
             assert config.get("paths", "source_h2k_path") == "/test/input"
             assert config.get("weather", "weather_library") == "test"
             assert config.log_level == "DEBUG"
 
-    def test_environment_specific_config(self):
-        """Test environment-specific configuration loading."""
-        base_config = """
+    def test_simplified_config_loading(self):
+        """Test simplified configuration loading without environment specificity."""
+        config_content = """
 [paths]
-source_h2k_path = /base/input
-hpxml_os_path = /base/openstudio
-dest_hpxml_path = /base/output
+source_h2k_path = /project/input
+hpxml_os_path = /project/openstudio
+dest_hpxml_path = /project/output
+
+[simulation]
+flags = --add-component-loads
 
 [weather]
-weather_library = base
-weather_vintage = BASE2020
+weather_library = historic
+weather_vintage = CWEC2020
 
 [logging]
 log_level = INFO
 """
 
-        dev_config = """
-[paths]
-source_h2k_path = /dev/input
-hpxml_os_path = /dev/openstudio
-dest_hpxml_path = /dev/output
-
-[simulation]
-flags = --dev
-
-[weather]
-weather_library = dev
-weather_vintage = DEV2020
-
-[logging]
-log_level = DEBUG
-"""
-
         with tempfile.TemporaryDirectory() as temp_dir:
-            base_path = Path(temp_dir) / "conversionconfig.ini"
-            dev_path = Path(temp_dir) / "conversionconfig.dev.ini"
-
-            base_path.write_text(base_config)
-            dev_path.write_text(dev_config)
+            config_path = Path(temp_dir) / "conversionconfig.ini"
+            config_path.write_text(config_content)
             os.chdir(temp_dir)
 
-            # Test dev environment loads dev-specific config
-            config = ConfigManager(environment="dev")
+            # Test config loads regardless of environment parameter
+            config_dev = ConfigManager(environment="dev", auto_create=False)
+            config_prod = ConfigManager(environment="prod", auto_create=False)
 
-            assert config.get("paths", "source_h2k_path") == "/dev/input"
-            assert config.get("paths", "dest_hpxml_path") == "/dev/output"
-            assert config.log_level == "DEBUG"
-
-            # Values not in dev config should fall back to base
-            # Note: This test assumes the dev config extends the base config
-            # In practice, the dev config file would need all required sections
+            # Both should load the same config file and return same values
+            assert config_dev.get("paths", "source_h2k_path") == "/project/input"
+            assert config_prod.get("paths", "source_h2k_path") == "/project/input"
+            assert config_dev.log_level == "INFO"
+            assert config_prod.log_level == "INFO"
 
     def test_environment_variable_overrides(self):
         """Test environment variable overrides work correctly."""
@@ -146,7 +161,7 @@ log_level = INFO
                 os.environ,
                 {"H2K_PATHS_SOURCE_H2K_PATH": "/env/input", "H2K_LOGGING_LOG_LEVEL": "ERROR"},
             ):
-                config = ConfigManager()
+                config = ConfigManager(auto_create=False)
 
                 # Check overrides work
                 assert config.get("paths", "source_h2k_path") == "/env/input"
@@ -171,7 +186,7 @@ log_level = INFO
             os.chdir(temp_dir)
 
             with pytest.raises(ConfigurationError, match="Missing required configuration section"):
-                ConfigManager()
+                ConfigManager(auto_create=False)
 
     def test_path_validation_warnings(self):
         """Test path validation generates warnings for missing required paths."""
@@ -198,7 +213,7 @@ log_level = INFO
             os.chdir(temp_dir)
 
             with patch("h2k_hpxml.config.manager.logger") as mock_logger:
-                ConfigManager()
+                ConfigManager(auto_create=False)
 
                 # Should generate warnings for nonexistent required paths
                 warning_calls = mock_logger.warning.call_args_list
@@ -229,7 +244,7 @@ log_to_file = true
             config_path.write_text(config_content)
             os.chdir(temp_dir)
 
-            config = ConfigManager()
+            config = ConfigManager(auto_create=False)
 
             # Test get with fallback
             assert config.get("paths", "source_h2k_path", "fallback") == "/test/input"
@@ -269,7 +284,7 @@ log_level = INFO
             config_path.write_text(config_content)
             os.chdir(temp_dir)
 
-            config = ConfigManager()
+            config = ConfigManager(auto_create=False)
 
             # Test absolute path
             path = config.get_path("paths", "source_h2k_path")
@@ -311,7 +326,7 @@ log_to_file = false
             config_path.write_text(config_content)
             os.chdir(temp_dir)
 
-            config = ConfigManager()
+            config = ConfigManager(auto_create=False)
 
             # Test path properties
             assert str(config.source_h2k_path) == "/test/input"
@@ -350,7 +365,7 @@ log_level = INFO
             config_path.write_text(config_content)
             os.chdir(temp_dir)
 
-            config = ConfigManager()
+            config = ConfigManager(auto_create=False)
 
             # Test resource path method (will raise error for nonexistent resource)
             with pytest.raises(ConfigurationError, match="Resource file not found"):
@@ -385,7 +400,7 @@ log_level = INFO
             config_path.write_text(config_content)
             os.chdir(temp_dir)
 
-            config = ConfigManager()
+            config = ConfigManager(auto_create=False)
 
             # Test get_section
             paths_section = config.get_section("paths")
@@ -424,7 +439,7 @@ log_level = INFO
             config_path.write_text(config_content)
             os.chdir(temp_dir)
 
-            config = ConfigManager()
+            config = ConfigManager(auto_create=False)
             config_dict = config.to_dict()
 
             assert "paths" in config_dict
@@ -443,9 +458,15 @@ class TestGlobalConfigManager:
         # Save original working directory
         self._original_cwd = os.getcwd()
 
+        # Clean up any existing user config files that could interfere with tests
+        cleanup_user_configs()
+
     def teardown_method(self):
         """Restore original working directory after each test."""
         os.chdir(self._original_cwd)
+
+        # Clean up user configs after each test to ensure isolation
+        cleanup_user_configs()
 
     def test_get_config_manager_singleton(self):
         """Test that get_config_manager returns singleton instance."""
@@ -511,3 +532,93 @@ log_level = INFO
 
             # Should be different instances
             assert config1 is not config2
+
+    def test_user_config_auto_creation(self):
+        """Test that user config is auto-created when no config files exist."""
+        import shutil
+        import tempfile
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            os.chdir(temp_dir)  # Change to directory without config file
+
+            # Mock the user config path to use a temporary directory
+            mock_user_config_dir = Path(temp_dir) / "user_config"
+
+            with patch.object(
+                ConfigManager, "_get_user_config_path", return_value=mock_user_config_dir
+            ):
+                # This should auto-create the user config
+                config = ConfigManager(auto_create=True)
+
+                # Verify config was created
+                user_config_file = mock_user_config_dir / "config.ini"
+                assert user_config_file.exists()
+
+                # Verify it has the expected minimal configuration
+                assert config.get("paths", "source_h2k_path") == "examples"
+                assert config.get("weather", "weather_library") == "historic"
+                assert config.get("logging", "log_level") == "INFO"
+
+    def test_user_config_priority_over_project_config(self):
+        """Test that user config takes priority over project config."""
+        import tempfile
+        from unittest.mock import patch
+
+        # Create project config
+        project_config = """
+[paths]
+source_h2k_path = /project/input
+hpxml_os_path = /project/openstudio
+dest_hpxml_path = /project/output
+
+[simulation]
+flags = --project
+
+[weather]
+weather_library = project
+weather_vintage = PROJECT2020
+
+[logging]
+log_level = INFO
+"""
+
+        # Create user config content
+        user_config = """
+[paths]
+source_h2k_path = /user/input
+hpxml_os_path = /user/openstudio
+dest_hpxml_path = /user/output
+
+[simulation]
+flags = --user
+
+[weather]
+weather_library = user
+weather_vintage = USER2020
+
+[logging]
+log_level = DEBUG
+"""
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create project config file
+            project_config_path = Path(temp_dir) / "conversionconfig.ini"
+            project_config_path.write_text(project_config)
+            os.chdir(temp_dir)
+
+            # Create user config directory and file
+            mock_user_config_dir = Path(temp_dir) / "user_config"
+            mock_user_config_dir.mkdir()
+            user_config_path = mock_user_config_dir / "config.ini"
+            user_config_path.write_text(user_config)
+
+            with patch.object(
+                ConfigManager, "_get_user_config_path", return_value=mock_user_config_dir
+            ):
+                config = ConfigManager(auto_create=False)
+
+                # Should use user config values, not project config values
+                assert config.get("paths", "source_h2k_path") == "/user/input"
+                assert config.get("weather", "weather_library") == "user"
+                assert config.log_level == "DEBUG"

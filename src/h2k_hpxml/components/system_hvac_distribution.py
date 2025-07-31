@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from ..utils import obj
+from ..core import data_utils as obj
 
 
 # Returns the HVAC distribution system based on the specified type

@@ -1,4 +1,4 @@
-from ..utils import h2k
+from ..core import h2k_parser as h2k
 
 
 def get_windows(h2k_windows, parent_type, model_data):

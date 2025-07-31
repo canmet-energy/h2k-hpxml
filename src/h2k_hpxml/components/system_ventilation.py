@@ -1,5 +1,5 @@
-from ..utils import h2k
-from ..utils import obj
+from ..core import data_utils as obj
+from ..core import h2k_parser as h2k
 
 
 def get_ventilation_systems(h2k_dict, model_data):

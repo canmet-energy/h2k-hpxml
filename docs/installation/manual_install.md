@@ -15,9 +15,12 @@ OpenStudio-HPXML 1.9.1 - https://github.com/NREL/OpenStudio-HPXML/releases
 
 
 
-### conversionconfig.ini
-Use the conversionconfig.ini to specify the file or folder path of the h2k file(s) you would like to convert to HPXML.
-This file can also be used to define non-h2k parameters for the translation process.
+### Configuration
+Use the `config/conversionconfig.ini` file to specify the file or folder path of the h2k file(s) you would like to convert to HPXML. This file can also be used to define non-h2k parameters for the translation process. If this file doesn't exist, create it using:
+
+```bash
+h2k-deps --setup
+```
 
 
 # Running the translator

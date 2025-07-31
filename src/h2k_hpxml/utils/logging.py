@@ -56,7 +56,9 @@ class H2KLogger:
 
             # File handler (DEBUG and above) with rotation
             file_handler = logging.handlers.RotatingFileHandler(
-                log_dir / "h2k_hpxml.log", maxBytes=10 * 1024 * 1024, backupCount=5  # 10MB
+                log_dir / "h2k_hpxml.log",
+                maxBytes=10 * 1024 * 1024,
+                backupCount=5,  # 10MB
             )
             file_handler.setLevel(logging.DEBUG)
             file_handler.setFormatter(detailed_formatter)

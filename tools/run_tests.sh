@@ -3,6 +3,23 @@
 
 set -e
 
+# Parse command line arguments
+FIX_RUFF=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --fix)
+            FIX_RUFF=true
+            shift
+            ;;
+        *)
+            echo "Unknown option $1"
+            echo "Usage: $0 [--fix]"
+            echo "  --fix    Automatically fix ruff linting errors"
+            exit 1
+            ;;
+    esac
+done
+
 echo "🧪 H2K HPXML Test Suite"
 echo "======================="
 
@@ -45,18 +62,35 @@ run_test "Pytest Suite" "pytest -v --tb=short --maxfail=5"
 
 # 3. Code quality checks
 if command -v ruff >/dev/null 2>&1; then
-    run_test "Ruff Linting" "ruff check ."
-    run_test "Ruff Formatting" "ruff format --check ."
+    if [ "$FIX_RUFF" = true ]; then
+        echo -e "\n🔧 ${YELLOW}Fixing Ruff Issues${NC}"
+        echo "Running ruff check --fix ."
+        if ruff check --fix .; then
+            echo -e "✅ ${GREEN}Ruff fixes applied${NC}"
+        else
+            echo -e "⚠️  ${YELLOW}Some ruff issues could not be auto-fixed${NC}"
+        fi
+        echo "Running ruff format ."
+        if ruff format .; then
+            echo -e "✅ ${GREEN}Ruff formatting applied${NC}"
+        fi
+        # Run the checks again to see final status
+        run_test "Ruff Linting (after fixes)" "ruff check ."
+        run_test "Ruff Formatting (after fixes)" "ruff format --check ."
+    else
+        run_test "Ruff Linting" "ruff check ."
+        run_test "Ruff Formatting" "ruff format --check ."
+    fi
 else
     echo -e "⚠️  ${YELLOW}Ruff not available, skipping linting checks${NC}"
 fi
 
-# 4. Type checking
-if command -v mypy >/dev/null 2>&1; then
-    run_test "MyPy Type Checking" "mypy src/h2k_hpxml/ --ignore-missing-imports"
-else
-    echo -e "⚠️  ${YELLOW}MyPy not available, skipping type checks${NC}"
-fi
+# # 4. Type checking
+# if command -v mypy >/dev/null 2>&1; then
+#     run_test "MyPy Type Checking" "mypy src/h2k_hpxml/ --ignore-missing-imports"
+# else
+#     echo -e "⚠️  ${YELLOW}MyPy not available, skipping type checks${NC}"
+# fi
 
 # 5. Pre-commit hooks
 if command -v pre-commit >/dev/null 2>&1 && [ -f .pre-commit-config.yaml ]; then

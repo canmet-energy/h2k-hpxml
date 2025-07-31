@@ -412,7 +412,7 @@ python -m pytest tests/integration/test_generate_baseline.py --run-baseline
 - **Clear Documentation**: Comprehensive safety documentation available
 - **Test Validation**: Unit tests verify golden file integrity
 
-See `docs/golden_files_safety.md` for complete safety documentation.
+See `tests/golden_files_safety.md` for complete safety documentation.
 
 **Dangerous Commands** (WILL overwrite golden files):
 ```bash
@@ -444,7 +444,7 @@ python -m pytest tests/integration/test_generate_baseline.py --run-baseline
     - `golden_files/baseline/baseline_hpxml_summary.json` **NEW**
     - `golden_files/comparison/comparison_energy_summary.json`
     - `golden_files/comparison/comparison_hpxml_summary.json` **NEW**
-- **Documentation**: `docs/golden_files_safety.md` (comprehensive safety guide), `docs/test_utilities.md` (common utilities documentation)
+- **Documentation**: `tests/golden_files_safety.md` (comprehensive safety guide), `docs/test_utilities.md` (common utilities documentation)
 
 #### Test Commands
 ```bash
@@ -483,7 +483,7 @@ python -m pytest tests/integration/test_generate_baseline.py --run-baseline
 python -m pytest --run-baseline  # Runs all tests including baseline generation
 
 # 📚 DOCUMENTATION: Review safety measures
-cat docs/golden_files_safety.md
+cat tests/golden_files_safety.md
 ```
 
 #### Protection Features

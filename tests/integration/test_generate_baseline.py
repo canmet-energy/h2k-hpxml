@@ -17,8 +17,8 @@ src_path = os.path.join(project_root, "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
-from tests.utils import clean_for_baseline_generation
-from tests.utils import extract_annual_energy_data
+from tests.utils import clean_for_baseline_generation  # noqa: E402
+from tests.utils import extract_annual_energy_data  # noqa: E402
 
 
 @pytest.mark.baseline_generation

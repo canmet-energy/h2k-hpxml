@@ -51,6 +51,8 @@ pytest tests/unit/ -v
 
 ## Golden File Management
 
+⚠️ **IMPORTANT**: See [golden_files_safety.md](golden_files_safety.md) for comprehensive safety documentation.
+
 ### Generating New Baselines
 **⚠️ WARNING: Only run baseline generation with verified, stable code**
 
@@ -78,8 +80,8 @@ tests/
 ├── fixtures/expected_outputs/golden_files/
 │   ├── baseline/           # Golden master files
 │   └── comparison/         # Test comparison outputs
-├── temp/                   # Temporary simulation outputs
-└── utils/                  # Shared test utilities
+├── utils/                  # Shared test utilities
+└── golden_files_safety.md  # Safety documentation
 ```
 
 ## Development Workflow

@@ -6,7 +6,10 @@ to improve type safety and code documentation.
 """
 
 from pathlib import Path
-from typing import Any, Dict, Tuple, Union
+from typing import Any
+from typing import Dict
+from typing import Tuple
+from typing import Union
 
 # Configuration types
 ConfigDict = Dict[str, Any]

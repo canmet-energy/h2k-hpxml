@@ -90,7 +90,7 @@ SUMMER_END_DEFAULT = (8, 31)  # August 31st
     "--outage-days",
     default=DEFAULT_OUTAGE_DAYS,
     type=click.IntRange(0, 365),
-    help=("Number of days for power outage analysis " "(default: 7, range: 0-365)"),
+    help=("Number of days for power outage analysis (default: 7, range: 0-365)"),
 )
 @click.option(
     "--output-path",
@@ -101,13 +101,13 @@ SUMMER_END_DEFAULT = (8, 31)  # August 31st
     "--clothing-factor-summer",
     default=DEFAULT_SUMMER_CLOTHING,
     type=click.FloatRange(0.0, 2.0),
-    help=("Summer clothing insulation factor " "(default: 0.5, range: 0.0-2.0)"),
+    help=("Summer clothing insulation factor (default: 0.5, range: 0.0-2.0)"),
 )
 @click.option(
     "--clothing-factor-winter",
     default=DEFAULT_WINTER_CLOTHING,
     type=click.FloatRange(0.0, 2.0),
-    help=("Winter clothing insulation factor " "(default: 1.0, range: 0.0-2.0)"),
+    help=("Winter clothing insulation factor (default: 1.0, range: 0.0-2.0)"),
 )
 @click.option(
     "--run-simulation",
@@ -166,8 +166,7 @@ def resilience(
         click.echo(f"Output directory: {output_path}")
         click.echo(f"Outage duration: {outage_days} days")
         click.echo(
-            f"Clothing factors - Summer: {clothing_factor_summer}, "
-            f"Winter: {clothing_factor_winter}"
+            f"Clothing factors - Summer: {clothing_factor_summer}, Winter: {clothing_factor_winter}"
         )
         click.echo(f"Run simulations: {run_simulation}")
 
@@ -1579,7 +1578,7 @@ class ResilienceProcessor:
             return False
 
 
-def main():
+def main() -> None:
     """Entry point for the h2k-resilience command."""
     resilience()
 

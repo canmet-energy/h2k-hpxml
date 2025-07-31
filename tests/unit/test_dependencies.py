@@ -455,46 +455,43 @@ class TestInstallationMethods:
         assert result is False
         mock_echo.assert_any_call("❌ OpenStudio-HPXML installation failed: Network error")
 
-    @patch("configparser.ConfigParser")
-    @patch("h2k_hpxml.utils.dependencies.DependencyManager._find_config_file")
+    @patch("h2k_hpxml.utils.dependencies.DependencyManager._find_all_config_files")
+    @patch("h2k_hpxml.utils.dependencies.DependencyManager._update_single_config_file")
+    @patch("h2k_hpxml.utils.dependencies.DependencyManager._detect_openstudio_binary")
+    @patch("h2k_hpxml.utils.dependencies.DependencyManager._detect_hpxml_path")
     @patch("click.echo")
     def test_update_config_file_success(
-        self, mock_echo, mock_find_config, mock_config_parser, manager
+        self,
+        mock_echo,
+        mock_detect_hpxml,
+        mock_detect_binary,
+        mock_update_single,
+        mock_find_all,
+        manager,
     ):
         """Test successful config file update."""
-        mock_find_config.return_value = "/path/to/conversionconfig.ini"
-        mock_config = Mock()
-        mock_config_parser.return_value = mock_config
-        mock_config.has_section.return_value = True
+        mock_find_all.return_value = ["/path/to/conversionconfig.ini"]
+        mock_detect_hpxml.return_value = "/OpenStudio-HPXML/"
+        mock_detect_binary.return_value = "/usr/local/bin/openstudio"
+        mock_update_single.return_value = True
 
-        # Mock _get_openstudio_paths to return a valid path
-        with patch.object(
-            manager, "_get_openstudio_paths", return_value=["/usr/local/bin/openstudio"]
-        ):
-            with patch("pathlib.Path.exists", return_value=True):
-                with patch("builtins.open", mock_open()):
-                    result = manager._update_config_file(Path("/OpenStudio-HPXML"))
+        result = manager._update_config_file(Path("/OpenStudio-HPXML"))
 
         assert result is True
+        mock_update_single.assert_called_once_with(
+            "/path/to/conversionconfig.ini", "/OpenStudio-HPXML/", "/usr/local/bin/openstudio"
+        )
 
-        # Expect TWO calls: one for hpxml_os_path, one for openstudio_binary
-        expected_calls = [
-            call("paths", "hpxml_os_path", "/OpenStudio-HPXML/"),
-            call("paths", "openstudio_binary", "/usr/local/bin/openstudio"),
-        ]
-        mock_config.set.assert_has_calls(expected_calls, any_order=True)
-        mock_echo.assert_any_call("✅ Updated OpenStudio-HPXML path: /OpenStudio-HPXML/")
-
-    @patch("h2k_hpxml.utils.dependencies.DependencyManager._find_config_file")
+    @patch("h2k_hpxml.utils.dependencies.DependencyManager._find_all_config_files")
     @patch("click.echo")
-    def test_update_config_file_not_found(self, mock_echo, mock_find_config, manager):
+    def test_update_config_file_not_found(self, mock_echo, mock_find_all, manager):
         """Test config file update when file not found."""
-        mock_find_config.return_value = None
+        mock_find_all.return_value = []
 
         result = manager._update_config_file(Path("/OpenStudio-HPXML"))
 
         assert result is False
-        mock_echo.assert_called_with("⚠️  conversionconfig.ini not found, skipping config update")
+        mock_echo.assert_called_with("⚠️  No configuration files found, skipping config update")
 
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.cwd")

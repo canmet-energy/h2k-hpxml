@@ -1,5 +1,5 @@
-from ..utils import h2k
-from ..utils import obj
+from ..core import data_utils as obj
+from ..core import h2k_parser as h2k
 
 
 # Translates heat pump data from the "Type2" heating system section of h2k

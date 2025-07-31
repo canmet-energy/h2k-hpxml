@@ -3,10 +3,16 @@
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
+from typing import Union
 
-from ..types import ComponentDict, H2KDict
-from ..utils import h2k, obj
+from ..core import data_utils as obj
+from ..core import h2k_parser as h2k
+from ..types import ComponentDict
+from ..types import H2KDict
 
 # Get logger for this module
 logger = logging.getLogger(__name__)

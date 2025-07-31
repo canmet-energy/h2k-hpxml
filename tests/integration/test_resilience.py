@@ -29,8 +29,8 @@ src_path = os.path.join(project_root, "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
-from tests.utils import find_hpxml_file
-from tests.utils import get_h2k_example_files
+from tests.utils import find_hpxml_file  # noqa: E402
+from tests.utils import get_h2k_example_files  # noqa: E402
 
 
 def get_python_executable():
@@ -122,7 +122,11 @@ def test_resilience_cli_basic(check_openstudio_bindings):
             env["PYTHONPATH"] = new_pythonpath
 
         result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=300, env=env  # 5 minute timeout
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            env=env,  # 5 minute timeout
         )
 
         print(f"Return code: {result.returncode}")

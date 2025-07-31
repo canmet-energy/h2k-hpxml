@@ -1,5 +1,5 @@
-from ..utils import h2k
-from ..utils import obj
+from ..core import data_utils as obj
+from ..core import h2k_parser as h2k
 
 
 # Here we always return an array of objects, because we could be dealing with a primary + secondary system configuration

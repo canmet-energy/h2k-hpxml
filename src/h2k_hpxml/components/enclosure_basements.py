@@ -1,7 +1,7 @@
 import math
 
-from ..utils import h2k
-from ..utils import obj
+from ..core import data_utils as obj
+from ..core import h2k_parser as h2k
 from .enclosure_doors import get_doors
 from .enclosure_rim_joists import get_rim_joists
 from .enclosure_windows import get_windows

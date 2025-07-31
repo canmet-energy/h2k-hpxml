@@ -8,7 +8,7 @@ Another benefit is that simulations will run 50% faster using linux containers c
 ## Requirements
 ### Docker
 
-**Windows**: [Docker Desktop 2.0+](https://www.docker.com/products/docker-desktop/) on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end. (Docker Toolbox is not supported. Windows container images are not supported.) Installation instructions are [here](./docker_windows_install.md).
+**Windows**: [Docker Desktop 2.0+](https://www.docker.com/products/docker-desktop/) on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end. (Docker Toolbox is not supported. Windows container images are not supported.) Installation instructions are [here](../installation/docker_windows_install.md).
 
 **macOS**: [Docker Desktop 2.0+](https://www.docker.com/products/docker-desktop/).
 
@@ -88,18 +88,77 @@ cd linux_nrcan_certs && ./install_nrcan_certs.sh && cd .. && rm -fr linux_nrcan_
 ### Install / Update Python Packages.
 This will install the package and all python dependencies.
 1. In the terminal, enter:
-``
+```bash
 pip install -e .
-``
-
-
-You are now ready for development! You can change branches/fork, commit, push and pull from git. You can run bundle command to test the code as well from the terminal.
-
-## Run Development Tests
-Test are kept in the ***tests*** folder. To invoke all the tests in that folder, simple enter:
-
 ```
-pytests tests
+
+### Configure Development Environment
+After installing the package, set up your development configuration:
+
+1. **Create configuration from template**:
+   ```bash
+   h2k-deps --setup
+   ```
+
+2. **Install dependencies automatically**:
+   ```bash
+   h2k-deps --auto-install
+   ```
+
+3. **Verify setup**:
+   ```bash
+   h2k-deps --check-only
+   ```
+
+4. **Run tests to verify everything works**:
+   ```bash
+   pytest tests/unit/
+   ```
+
+### Configuration Files
+
+The development environment uses:
+- **Main config**: `config/conversionconfig.ini` (created from template)
+- **Template**: `config/templates/conversionconfig.template.ini` (version controlled)
+
+Your configuration changes go in the main config file which is gitignored to avoid conflicts.
+
+You are now ready for development! You can change branches/fork, commit, push and pull from git. You can run tests and quality checks from the terminal.
+
+## Development Testing
+
+### Run Tests
+Tests are kept in the **tests** folder. To run tests:
+
+```bash
+# Run all tests
+pytest
+
+# Run unit tests only
+pytest tests/unit/
+
+# Run integration tests only
+pytest tests/integration/
+
+# Run with baseline generation (WARNING: overwrites golden files)
+pytest --run-baseline
+```
+
+### Code Quality Checks
+
+The project includes automated quality assurance tools:
+
+```bash
+# Run all quality checks (formatting, linting, type checking, tests)
+./scripts/quality_check.sh
+
+# Auto-fix formatting and linting issues
+./scripts/quality_fix.sh
+
+# Manual tools
+black src/ tests/                    # Code formatting
+ruff check src/ tests/               # Linting
+mypy src/h2k_hpxml/core/            # Type checking
 ```
 
 
@@ -107,24 +166,73 @@ pytests tests
 ### Copy files to/from host into your workspace folder.
 You can use the CTRL+C, CTRL-V to cut as paste to/from your host(windows) machine. You can also drag and drop files using the vscode folder Explorer.
 
-## Workflow
-While you can invoke the translator directly via code, you can also use the command line to translate and run the h2k files.
+## Development Workflow
 
-1. Place h2k files into any folder in the project. There is an example folder with two files you can try out here in
-```
-/workspaces/h2k_hpxml/examples
-```
-2. Type the following python command to translate and run the h2k files.
-```
-python ./bin/h2k2hpxml.py run -i /workspaces/h2k_hpxml/examples
-```
-Note: You can examine all the switches available by issuing the command:
-```
-python ./bin/h2k2hpxml.py run -h
-```
+### H2K to HPXML Translation
 
-3.  By default the output is in the same folder provided, unless redirected using the output switch. It will create an output folder based on the name of the original h2k filename. The folder will contain
- * **the hpxml file**: designated by the .xml extension, and all the conventional.
- * **the energy plus files**: this includes the idf, and htm and msgpack files.  ***By default the oshpxml does not produce the sqlite files or the osm files, To enable this, add the --debug flag to the run command.***
+You can use the command line tools to translate and simulate H2K files:
 
- It will also create a file called 'processing_results.md' which will show the files that failed, and hopfully, a useful error message.
+1. **H2K to HPXML conversion**:
+   ```bash
+   # Convert a single file
+   h2k2hpxml examples/WizardHouse.h2k
+
+   # Convert with custom output
+   h2k2hpxml examples/WizardHouse.h2k --output custom_output.xml
+
+   # Get help on available options
+   h2k2hpxml --help
+   ```
+
+2. **Full workflow (translation + simulation)**:
+   ```bash
+   # Run the complete workflow
+   python -m h2k_hpxml.workflows.main
+
+   # Run OpenStudio-HPXML simulation workflow
+   python -m h2k_hpxml.workflows.run
+   ```
+
+3. **Resilience analysis**:
+   ```bash
+   # Run resilience analysis with all scenarios
+   h2k-resilience examples/WizardHouse.h2k
+
+   # Run specific scenarios
+   h2k-resilience examples/WizardHouse.h2k --scenarios "outage_typical_year,thermal_autonomy_extreme_year"
+   ```
+
+### Output Files
+
+By default, outputs are created in directories specified by your configuration:
+- **HPXML files**: `output/hpxml/` (`.xml` files)
+- **Simulation results**: `output/workflows/` (EnergyPlus files, results)
+- **Comparison data**: `output/comparisons/` (analysis results)
+
+The simulation workflow creates:
+- **HPXML file**: The translated building model (`.xml`)
+- **EnergyPlus files**: Input files (`.idf`), results (`.htm`, `.csv`, `.sql`)
+- **OpenStudio files**: Model files (`.osm`) when debug flags are enabled
+
+### Configuration for Development
+
+Your development configuration is at `config/conversionconfig.ini`. Common settings to customize:
+
+```ini
+[paths]
+# Your local H2K files
+source_h2k_path = /path/to/your/h2k/files
+
+# Auto-detected dependencies (updated by h2k-deps)
+hpxml_os_path = /OpenStudio-HPXML/
+openstudio_binary = /usr/local/bin/openstudio
+
+[simulation]
+# Add debug flags for detailed output
+flags = --add-component-loads --debug --annual-output-file-format csv
+
+[logging]
+# Enable debug logging for development
+log_level = DEBUG
+log_to_file = true
+```

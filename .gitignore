@@ -223,3 +223,14 @@ tests/fixtures/expected_outputs/golden_files/baseline_backup*
 tools/installer/*.exe
 
 venv/
+
+# Local configuration files (OS-specific paths)
+# Project-level configs are now user-specific and should not be committed
+config/conversionconfig.ini
+config/conversionconfig.dev.ini
+config/conversionconfig.test.ini
+
+# Keep templates and defaults in version control
+!config/templates/
+!config/defaults/
+!config/**/*.template.ini

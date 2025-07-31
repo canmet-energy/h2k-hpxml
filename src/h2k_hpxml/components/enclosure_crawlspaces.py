@@ -1,7 +1,7 @@
 import math
 
-from ..utils import h2k
-from ..utils import obj
+from ..core import data_utils as obj
+from ..core import h2k_parser as h2k
 from .enclosure_doors import get_doors
 from .enclosure_rim_joists import get_rim_joists
 from .enclosure_windows import get_windows
@@ -72,13 +72,15 @@ def get_crawlspaces(h2k_dict, model_data=None):
 
         # Get required details from h2k crawlspace
         is_crawlspace_rectangular = h2k.get_selection_field(crawlspace, "foundation_rectangular")
-        crawlspace_floor_area = h2k.get_number_field(crawlspace, "foundation_floor_area")
-        crawlspace_perimeter = h2k.get_number_field(crawlspace, "foundation_perimeter")
-        crawlspace_exp_perimeter = h2k.get_number_field(crawlspace, "foundation_exp_perimeter")
-        crawlspace_width = h2k.get_number_field(crawlspace, "foundation_width")
-        crawlspace_length = h2k.get_number_field(crawlspace, "foundation_length")
-        crawlspace_height = h2k.get_number_field(crawlspace, "foundation_height")
-        crawlspace_depth = h2k.get_number_field(crawlspace, "foundation_depth")
+        crawlspace_floor_area = h2k.get_number_field(crawlspace, "foundation_floor_area") or 0.0
+        crawlspace_perimeter = h2k.get_number_field(crawlspace, "foundation_perimeter") or 0.0
+        crawlspace_exp_perimeter = (
+            h2k.get_number_field(crawlspace, "foundation_exp_perimeter") or 0.0
+        )
+        crawlspace_width = h2k.get_number_field(crawlspace, "foundation_width") or 0.0
+        crawlspace_length = h2k.get_number_field(crawlspace, "foundation_length") or 0.0
+        crawlspace_height = h2k.get_number_field(crawlspace, "foundation_height") or 0.0
+        crawlspace_depth = h2k.get_number_field(crawlspace, "foundation_depth") or 0.0
 
         foundation_tot_perimeter = (
             2 * (crawlspace_width + crawlspace_length)

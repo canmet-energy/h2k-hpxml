@@ -145,9 +145,9 @@ def get_numbers_and_provinces(
 
             # Find the closest match for each city in the filtered DataFrame
             filtered_df[historic_type] = filtered_df.apply(
-                lambda x: difflib.get_close_matches(
-                    f"CAN_{prov_terr_codes[unidecode(x['provinces_english']).upper()]}_{unidecode(x['cities_english'])}_{historic_type}".lower(),
-                    filtered_cwec_files,
+                lambda x: difflib.get_close_matches(  # noqa: B023
+                    f"CAN_{prov_terr_codes[unidecode(x['provinces_english']).upper()]}_{unidecode(x['cities_english'])}_{historic_type}".lower(),  # noqa: B023
+                    filtered_cwec_files,  # noqa: B023
                     n=1,
                     cutoff=0.1,
                 )[0],
