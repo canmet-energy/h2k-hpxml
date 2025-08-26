@@ -2,21 +2,24 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/universal
 {
 	"name": "H2K_HPXML",
-	// use a pre-built image
-	// see https://github.com/canmet-energy/h2k_hpxml_container/blob/main/Dockerfile
-	"image": "canmet/model_dev_container:3.9.0",
-	"containerUser": "vscode",
+    "build": {
+        "dockerfile": "./Dockerfile",
+        "args": {
+            "IS_DEVCONTAINER": "true"
+        }
+    },
 	"containerEnv": {
 		"NODE_TLS_REJECT_UNAUTHORIZED": "0"
 	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"castwide.solargraph",
 				"ms-azuretools.vscode-docker",
-				"KoichiSasada.vscode-rdbg",
 				"karyfoundation.idf",
 				"ms-python.python",
+				"ms-python.black-formatter",
+				"ms-python.isort",
+				"ms-python.mypy-type-checker",
 				"mechatroner.rainbow-csv",
 				"janisdd.vscode-edit-csv",
 				"qwtel.sqlite-viewer",
@@ -29,11 +32,27 @@
 					"*.sql": "sqlite"
 				},
 				"python.terminal.activateEnvironment": true,
-				"python.defaultInterpreterPath": "/workspaces/h2k_hpxml/venv/bin/python",
-				"python.terminal.activateEnvInCurrentTerminal": true
+				"python.defaultInterpreterPath": "./venv/bin/python",
+				"python.terminal.activateEnvInCurrentTerminal": true,
+				"python.formatting.provider": "black",
+				"python.linting.enabled": true,
+				"python.linting.mypyEnabled": true,
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": "explicit"
+				}
 			}
 		}
 	},
-  "remoteUser": "vscode",
-  "postCreateCommand": "if [ \"$(curl -k -o /dev/null -s -w \"%{http_code}\" \"https://intranet.nrcan.gc.ca/\")\" -ge 200 ] && [ \"$(curl -o /dev/null -s -w \"%{http_code}\" \"https://intranet.nrcan.gc.ca/\")\" -lt 400 ]; then echo \"nrcan network detected.\" && git clone https://github.com/canmet-energy/linux_nrcan_certs.git && cd linux_nrcan_certs && ./install_nrcan_certs.sh && cd .. && rm -fr linux_nrcan_certs ; fi && bash -c 'curl -fsSLk https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs && sudo apt-get update && cd /workspaces/h2k_hpxml && python -m venv venv && source venv/bin/activate && pip install --upgrade pip && pip install -e . && pip install pytest && sudo npm config set strict-ssl false && sudo npm install -g @anthropic-ai/claude-code'"
+    "remoteEnv": {
+        "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt",
+        "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
+        "REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
+        "AWS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt"
+    },
+  "mounts": [
+        // AWS credentials support - works for both Windows and Unix-like systems
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind,readonly"
+	],
+  "remoteUser": "vscode"
 }
