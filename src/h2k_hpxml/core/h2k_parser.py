@@ -1,10 +1,6 @@
 # Utility functions related to H2k mapping
 import json
 import os
-from typing import Any
-from typing import Dict
-from typing import Optional
-from typing import Union
 
 from ..utils import units
 from . import data_utils as obj
@@ -20,9 +16,7 @@ with open(os.path.join(resources_folder, "config_foundations.json"), encoding="u
     foundation_config = json.load(f)
 
 
-def get_selection_field(
-    h2k_dict: Optional[Dict[str, Any]] = None, field_key: str = ""
-) -> Optional[str]:
+def get_selection_field(h2k_dict=None, field_key=""):
     if h2k_dict is None:
         h2k_dict = {}
 
@@ -44,9 +38,7 @@ def get_selection_field(
     return selection_map.get(h2k_val, default_val)
 
 
-def get_number_field(
-    h2k_dict: Optional[Dict[str, Any]] = None, field_key: str = ""
-) -> Optional[Union[int, float]]:
+def get_number_field(h2k_dict=None, field_key=""):
     if h2k_dict is None:
         h2k_dict = {}
 
@@ -75,7 +67,7 @@ def get_number_field(
     return round(units.convert_unit(h2k_val, unit_type, h2k_units, hpxml_units), decimals)
 
 
-def get_composite_rval(composite_dict: Dict[str, Any], wall_core: str = "C") -> float:
+def get_composite_rval(composite_dict, wall_core="C"):
     # wall_core = 0.116 RSI for concrete, 0.417 RSI for wood, which is subtracted before the effective R-value is returned
     # this calculation aligns with h2k's calculation method
     wall_core_rval = 0.116 * 5.678 if wall_core == "C" else 0.417 * 5.678
@@ -108,5 +100,5 @@ def get_composite_rval(composite_dict: Dict[str, Any], wall_core: str = "C") -> 
     return abs(rval) if rval == -0.0 else rval
 
 
-def get_foundation_config(key: str = "") -> Dict[str, Any]:
+def get_foundation_config(key=""):
     return foundation_config.get(key, foundation_config)

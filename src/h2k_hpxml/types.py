@@ -6,22 +6,18 @@ to improve type safety and code documentation.
 """
 
 from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import Tuple
-from typing import Union
 
 # Configuration types
-ConfigDict = Dict[str, Any]
-ConfigValue = Union[str, int, float, bool, None]
+ConfigDict = dict
+ConfigValue = object
 
 # XML/Dictionary types
-XMLDict = Dict[str, Any]
+XMLDict = dict
 H2KDict = XMLDict
 HPXMLDict = XMLDict
 
 # Path types
-PathLike = Union[str, Path]
+PathLike = object
 
 # Translation types
 TranslationMode = str  # "SOC", "ASHRAE140", etc.
@@ -30,7 +26,7 @@ WeatherLibrary = str  # "historic", etc.
 
 # Building component types
 ComponentID = str
-ComponentDict = Dict[str, Any]
+ComponentDict = dict
 
 # Numeric types with units
 Temperature = float  # Celsius
@@ -42,17 +38,17 @@ RValue = float  # m²K/W
 UValue = float  # W/m²K
 
 # Error context types
-ErrorContext = Dict[str, Any]
+ErrorContext = dict
 
 # Model data types
-ModelDataDict = Dict[str, Any]
-BuildingDetails = Dict[str, Any]
-FoundationDetails = Dict[str, Any]
-WallSegment = Dict[str, Any]
+ModelDataDict = dict
+BuildingDetails = dict
+FoundationDetails = dict
+WallSegment = dict
 
 # Result types
 TranslationResult = str  # HPXML string
-ValidationResult = Tuple[bool, str]  # (success, translation_mode)
+ValidationResult = tuple  # (success, translation_mode)
 
 # Logger types
 LogLevel = str  # "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"

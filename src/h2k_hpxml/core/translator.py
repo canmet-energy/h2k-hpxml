@@ -6,7 +6,6 @@ Inputs: h2k string in xml format, config class instance to handle config params
 Outputs: hpxml string
 """
 
-from typing import Optional
 
 from ..types import ConfigDict
 from ..types import H2KDict
@@ -27,7 +26,7 @@ from .template_loader import load_and_parse_templates as _load_and_parse_templat
 logger = get_logger(__name__)
 
 
-def h2ktohpxml(h2k_string: str = "", config: Optional[ConfigDict] = None) -> TranslationResult:
+def h2ktohpxml(h2k_string="", config=None):
     """
     Convert H2K XML string to HPXML format.
 

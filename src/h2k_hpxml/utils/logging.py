@@ -8,7 +8,6 @@ supporting both console and file output with configurable log levels.
 import logging
 import logging.handlers
 from pathlib import Path
-from typing import Optional
 
 
 class H2KLogger:
@@ -67,7 +66,7 @@ class H2KLogger:
             # If we can't create log files, continue with console only
             self.logger.warning("Could not create log file, using console output only")
 
-    def get_logger(self, name: Optional[str] = None) -> logging.Logger:
+    def get_logger(self, name=None):
         """Get a logger instance for a specific module or component.
 
         Args:
@@ -80,7 +79,7 @@ class H2KLogger:
             return logging.getLogger(f"h2k_hpxml.{name}")
         return self.logger
 
-    def set_level(self, level: str):
+    def set_level(self, level):
         """Set the logging level for console output.
 
         Args:
@@ -105,7 +104,7 @@ class H2KLogger:
             self.logger.warning(f"Unknown logging level: {level}")
 
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name=None):
     """Convenience function to get a logger instance.
 
     Args:
@@ -118,7 +117,7 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     return h2k_logger.get_logger(name)
 
 
-def set_log_level(level: str):
+def set_log_level(level):
     """Convenience function to set the logging level.
 
     Args:
@@ -128,7 +127,7 @@ def set_log_level(level: str):
     h2k_logger.set_level(level)
 
 
-def configure_from_config(config_dict: dict):
+def configure_from_config(config_dict):
     """Configure logging from configuration dictionary.
 
     Args:

@@ -2,7 +2,7 @@
 
 ## Background
 
-CMHC is investigating energy use in Canada’s existing housing stock and exploring policy measures to enhance energy efficiency and affordability for Canadians. The primary tool used to evaluate building energy performance in Canada is NRCan’s Hot2000 (H2K) software. H2K is a building energy simulator that estimates the annual energy consumption of homes across Canada. NRCan has also developed a comprehensive database of archetypes representing housing across the country, using over 30 years of data from the EnerGuide for housing program. This location-specific database includes more than 6,000 archetypes, each reflecting regional housing characteristics.
+NRCan/CMHC is investigating energy use in Canada’s existing housing stock and exploring policy measures to enhance energy efficiency and affordability for Canadians. The primary tool used to evaluate building energy performance in Canada is NRCan’s Hot2000 (H2K) software. H2K is a building energy simulator that estimates the annual energy consumption of homes across Canada. NRCan has also developed a comprehensive database of archetypes representing housing across the country, using over 30 years of data from the EnerGuide for housing program. This location-specific database includes more than 6,000 archetypes, each reflecting regional housing characteristics.
 
 However, H2K has some limitations, including the inability to provide hourly energy data.  H2K only produces annual energy estimates. This lack of hourly resolution restricts its capacity to support analyses of modern energy conservation measures, such as thermal and electrical storage technologies, renewable energy, advanced building automation, and other innovative solutions. Furthermore, H2K cannot assess the effects of time-of-use (TOU) electricity rates or peak demand on housing affordability.
 
@@ -145,16 +145,13 @@ The project integrates several key components:
 The project includes several quality assurance tools:
 
 ```bash
-# Run all quality checks (formatting, linting, type checking, tests)
-./scripts/quality_check.sh
-
-# Auto-fix formatting and linting issues
-./scripts/quality_fix.sh
-
 # Manual formatting and linting
 black src/ tests/                    # Code formatting
 ruff check src/ tests/               # Linting
-mypy src/h2k_hpxml/core/            # Type checking
+ruff check --fix src/ tests/         # Auto-fix linting issues
+
+# Type checking (Note: Most type hints have been removed from the codebase)
+mypy src/h2k_hpxml/core/            # Will show remaining type issues
 ```
 
 ### Testing
@@ -179,5 +176,10 @@ To streamline development, we've also created a [Visual Studio Code](https://cod
 
 Full instructions on how to set up the Docker development environment are [here](docs/development/vscode.md)
 
+### AI Assistant Development
+
+For AI assistants (like Claude Code) working with this repository, see [CLAUDE.md](CLAUDE.md) for detailed architecture overview, essential commands, and development guidance.
+
+## Contributing
 
 Contributions are encouraged! If you find a bug, submit an "Issue" on the tab above.  Please understand that this is still under heavy development and should not be used for any production level of work.

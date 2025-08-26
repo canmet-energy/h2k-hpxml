@@ -1,19 +1,16 @@
-from typing import Any
-from typing import Dict
-from typing import Optional
 
 from ..core import h2k_parser as h2k
 
 
 class ModelData:
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, data):
         self.data = data
 
-    def get_building_detail(self, key: str) -> Any:
+    def get_building_detail(self, key):
         return self.data.get(key)
 
 
-def get_appliances(h2k_dict: Dict[str, Any], model_data: Optional[ModelData] = None):
+def get_appliances(h2k_dict, model_data=None):
     if model_data is None:
         model_data = ModelData({})
 

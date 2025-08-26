@@ -7,10 +7,6 @@ import shutil
 import subprocess
 import time
 from pathlib import Path
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
 
 from ..config import ConfigManager
 from ..utils.logging import get_logger
@@ -22,7 +18,7 @@ class FileProcessingUtilities:
     """Utilities for processing files in CLI tools."""
 
     @staticmethod
-    def detect_xml_encoding(filepath: Path) -> str:
+    def detect_xml_encoding(filepath):
         """
         Detect XML encoding from file header.
 
@@ -44,7 +40,7 @@ class FileProcessingUtilities:
         return "utf-8"  # fallback
 
     @staticmethod
-    def read_file_with_encoding_detection(filepath: Path) -> str:
+    def read_file_with_encoding_detection(filepath):
         """
         Read file content with automatic encoding detection.
 
@@ -96,7 +92,7 @@ class FileProcessingUtilities:
         return output_dir
 
     @staticmethod
-    def find_files_by_extension(directory: Path, extension: str) -> List[Path]:
+    def find_files_by_extension(directory, extension):
         """
         Find all files with specific extension in directory.
 
@@ -163,7 +159,7 @@ class SimulationUtilities:
     """Utilities for running OpenStudio simulations."""
 
     @staticmethod
-    def build_simulation_flags(**kwargs) -> str:
+    def build_simulation_flags(**kwargs):
         """
         Build simulation flags string for OpenStudio command.
 
@@ -209,7 +205,7 @@ class SimulationUtilities:
         return " ".join(flags)
 
     @staticmethod
-    def get_openstudio_binary_path() -> str:
+    def get_openstudio_binary_path():
         """
         Get the OpenStudio binary path using dependency manager.
 
@@ -303,7 +299,7 @@ class ConcurrentProcessing:
     """Utilities for concurrent file processing."""
 
     @staticmethod
-    def get_optimal_worker_count() -> int:
+    def get_optimal_worker_count():
         """Get optimal number of worker threads based on CPU count."""
         return max(1, os.cpu_count() - 1)
 
@@ -389,7 +385,7 @@ class ProjectUtilities:
     """Utilities for project-level operations."""
 
     @staticmethod
-    def find_project_root(start_path: Optional[Path] = None) -> Path:
+    def find_project_root(start_path=None):
         """
         Find project root directory containing conversionconfig.ini.
 
@@ -416,7 +412,7 @@ class ProjectUtilities:
         return fallback
 
     @staticmethod
-    def setup_paths_from_config() -> Dict[str, Path]:
+    def setup_paths_from_config():
         """
         Setup common paths from configuration.
 
@@ -440,7 +436,7 @@ class ProjectUtilities:
             raise
 
     @staticmethod
-    def validate_required_paths(paths: Dict[str, Path]) -> List[str]:
+    def validate_required_paths(paths):
         """
         Validate that required paths exist.
 

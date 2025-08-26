@@ -1,7 +1,4 @@
 import functools
-from typing import Any
-from typing import List
-from typing import Tuple
 
 from ..core import data_utils as obj
 from ..core import h2k_parser as h2k
@@ -13,15 +10,7 @@ from .enclosure_windows import get_windows
 
 
 # Gets all wall components and possible subcomponents (windows, doors, floor headers)
-def get_walls(
-    h2k_dict: H2KDict, model_data: Any = None
-) -> Tuple[
-    List[ComponentDict],
-    List[ComponentDict],
-    List[ComponentDict],
-    List[ComponentDict],
-    List[ComponentDict],
-]:
+def get_walls(h2k_dict, model_data=None):
     components = obj.get_val(h2k_dict, "HouseFile,House,Components")
 
     if "Wall" not in components.keys():

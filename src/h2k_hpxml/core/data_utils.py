@@ -1,8 +1,6 @@
-from typing import Any
-from typing import Dict
 
 
-def get_val(obj: Dict[str, Any], path: str) -> Any:
+def get_val(obj, path):
     """Get a value from a nested dictionary using a comma-separated path.
 
     Args:

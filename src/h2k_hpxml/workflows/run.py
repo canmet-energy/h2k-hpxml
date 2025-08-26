@@ -5,11 +5,9 @@ import sys
 from configparser import NoOptionError
 from configparser import NoSectionError
 from pathlib import Path
-from typing import Any
-from typing import Dict
 
 
-def get_config_with_dependency_paths() -> Dict[str, Any]:
+def get_config_with_dependency_paths():
     """Get configuration with dependency paths."""
     config = configparser.ConfigParser()
     config.read("conversionconfig.ini")

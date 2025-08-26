@@ -3,11 +3,6 @@
 import logging
 import os
 from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Tuple
-from typing import Union
 
 from ..core import data_utils as obj
 from ..core import h2k_parser as h2k
@@ -22,7 +17,7 @@ class ComponentExtractor:
     """Utility class for extracting H2K components with common patterns."""
 
     @staticmethod
-    def get_components_safe(h2k_dict: H2KDict, component_type: str) -> List[Dict[str, Any]]:
+    def get_components_safe(h2k_dict, component_type):
         """
         Safely extract components from H2K dictionary.
 
@@ -45,12 +40,12 @@ class ComponentExtractor:
 
     @staticmethod
     def process_component_with_counter(
-        h2k_components: List[Dict[str, Any]],
-        model_data: Any,
-        counter_name: str,
-        id_prefix: str,
-        processor_func: callable,
-    ) -> List[ComponentDict]:
+        h2k_components,
+        model_data,
+        counter_name,
+        id_prefix,
+        processor_func,
+    ):
         """
         Process components with automatic counter management.
 
@@ -84,8 +79,8 @@ class ValidationHelper:
 
     @staticmethod
     def validate_r_value(
-        component: Dict[str, Any], r_value_field: str, component_label: str, model_data: Any
-    ) -> float:
+        component, r_value_field, component_label, model_data
+    ):
         """
         Validate R-value and add warning if invalid.
 
@@ -114,7 +109,7 @@ class ValidationHelper:
         return r_value
 
     @staticmethod
-    def get_component_label(component: Dict[str, Any], default: str = "No Label") -> str:
+    def get_component_label(component, default="No Label"):
         """Get component label with fallback."""
         return component.get("Label", default)
 
@@ -130,12 +125,12 @@ class FacilityTypeHelper:
     """Utility class for facility type determinations."""
 
     @staticmethod
-    def is_attached_unit(res_facility_type: str) -> bool:
+    def is_attached_unit(res_facility_type):
         """Determine if residence is attached unit type."""
         return "attached" in res_facility_type or "apartment" in res_facility_type
 
     @staticmethod
-    def get_buffered_attached_type(res_facility_type: str) -> str:
+    def get_buffered_attached_type(res_facility_type):
         """Get buffered space type for attached units."""
         return (
             "other non-freezing space"
@@ -144,7 +139,7 @@ class FacilityTypeHelper:
         )
 
     @staticmethod
-    def determine_exterior_adjacent(component: Dict[str, Any], res_facility_type: str) -> str:
+    def determine_exterior_adjacent(component, res_facility_type):
         """Determine exterior adjacency for component."""
         buffered_type = FacilityTypeHelper.get_buffered_attached_type(res_facility_type)
 
@@ -155,7 +150,7 @@ class PathUtilities:
     """Utility functions for path operations."""
 
     @staticmethod
-    def ensure_path_exists(path: Union[str, Path], create_parents: bool = True) -> Path:
+    def ensure_path_exists(path, create_parents=True):
         """
         Ensure path exists, creating parent directories if needed.
 
@@ -183,7 +178,7 @@ class PathUtilities:
         return path_obj
 
     @staticmethod
-    def validate_file_path(file_path: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_file_path(file_path):
         """
         Validate that a file path exists and is readable.
 
@@ -207,7 +202,7 @@ class PathUtilities:
         return True, ""
 
     @staticmethod
-    def get_relative_path(file_path: Union[str, Path], base_path: Union[str, Path]) -> Path:
+    def get_relative_path(file_path, base_path):
         """Get relative path from base path."""
         return Path(file_path).relative_to(Path(base_path))
 
@@ -217,8 +212,8 @@ class ErrorHandlingPatterns:
 
     @staticmethod
     def safe_get_nested_value(
-        data: Dict[str, Any], path: str, default: Any = None, separator: str = ","
-    ) -> Any:
+        data, path, default=None, separator=","
+    ):
         """
         Safely get nested dictionary value with path notation.
 
@@ -245,8 +240,8 @@ class ErrorHandlingPatterns:
 
     @staticmethod
     def safe_numeric_conversion(
-        value: Any, conversion_type: type = float, default: Union[int, float] = 0.0
-    ) -> Union[int, float]:
+        value, conversion_type=float, default=0.0
+    ):
         """
         Safely convert value to numeric type.
 
@@ -265,7 +260,7 @@ class ErrorHandlingPatterns:
             return default
 
     @staticmethod
-    def collect_processing_errors(func: callable) -> callable:
+    def collect_processing_errors(func):
         """
         Decorator to collect processing errors without stopping execution.
 
@@ -299,14 +294,14 @@ class DataStructureHelpers:
     """Helpers for common data structure operations."""
 
     @staticmethod
-    def ensure_list(data: Any) -> List[Any]:
+    def ensure_list(data):
         """Ensure data is returned as a list."""
         if data is None:
             return []
         return data if isinstance(data, list) else [data]
 
     @staticmethod
-    def merge_dictionaries(*dicts: Dict[str, Any]) -> Dict[str, Any]:
+    def merge_dictionaries(*dicts):
         """Merge multiple dictionaries, with later ones taking precedence."""
         result = {}
         for d in dicts:
@@ -315,12 +310,12 @@ class DataStructureHelpers:
         return result
 
     @staticmethod
-    def filter_none_values(data: Dict[str, Any]) -> Dict[str, Any]:
+    def filter_none_values(data):
         """Remove None values from dictionary."""
         return {k: v for k, v in data.items() if v is not None}
 
     @staticmethod
-    def group_by_key(items: List[Dict[str, Any]], key: str) -> Dict[str, List[Dict[str, Any]]]:
+    def group_by_key(items, key):
         """Group list of dictionaries by a specific key."""
         groups = {}
         for item in items:
@@ -335,18 +330,18 @@ class IDGenerators:
     """Utility functions for generating consistent IDs."""
 
     @staticmethod
-    def generate_component_id(prefix: str, counter: int, suffix: str = "") -> str:
+    def generate_component_id(prefix, counter, suffix=""):
         """Generate component ID with consistent formatting."""
         base_id = f"{prefix}{counter}"
         return f"{base_id}{suffix}" if suffix else base_id
 
     @staticmethod
-    def generate_system_id(system_type: str, counter: int) -> str:
+    def generate_system_id(system_type, counter):
         """Generate system ID with consistent formatting."""
         return f"{system_type.title()}System{counter}"
 
     @staticmethod
-    def sanitize_label_for_id(label: str, max_length: int = 20) -> str:
+    def sanitize_label_for_id(label, max_length=20):
         """Sanitize label text for use in IDs."""
         # Remove special characters and spaces, limit length
         sanitized = "".join(c for c in label if c.isalnum() or c in "_-")
@@ -355,13 +350,13 @@ class IDGenerators:
 
 # Convenience functions that combine multiple utilities
 def extract_and_process_components(
-    h2k_dict: H2KDict,
-    component_type: str,
-    model_data: Any,
-    counter_name: str,
-    id_prefix: str,
-    processor_func: callable,
-) -> List[ComponentDict]:
+    h2k_dict,
+    component_type,
+    model_data,
+    counter_name,
+    id_prefix,
+    processor_func,
+):
     """
     Complete workflow to extract and process H2K components.
 
@@ -384,11 +379,11 @@ def extract_and_process_components(
 
 
 def validate_and_warn_r_value(
-    component: Dict[str, Any],
-    r_value_field: str,
-    model_data: Any,
-    component_type: str = "component",
-) -> float:
+    component,
+    r_value_field,
+    model_data,
+    component_type="component",
+):
     """
     Validate R-value with automatic label detection and warning.
 

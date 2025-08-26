@@ -5,7 +5,6 @@ This module handles loading the base HPXML template and parsing both H2K and HPX
 """
 
 import os
-from typing import Tuple
 
 import xmltodict
 
@@ -19,7 +18,7 @@ from ..utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def load_and_parse_templates(h2k_string: str) -> Tuple[H2KDict, HPXMLDict]:
+def load_and_parse_templates(h2k_string):
     """
     Load and parse HPXML template and H2K input.
 

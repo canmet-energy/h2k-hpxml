@@ -5,7 +5,6 @@ This module defines application-specific exceptions to provide better
 error handling and more informative error messages throughout the system.
 """
 
-from typing import Optional
 
 
 class H2KHPXMLError(Exception):
@@ -15,7 +14,7 @@ class H2KHPXMLError(Exception):
     exceptions inherit from, allowing for easy catching of all application errors.
     """
 
-    def __init__(self, message: str, details: Optional[dict] = None):
+    def __init__(self, message, details=None):
         """Initialize H2K-HPXML base error.
 
         Args:
@@ -43,9 +42,9 @@ class H2KParsingError(H2KHPXMLError):
 
     def __init__(
         self,
-        message: str,
-        h2k_file_path: Optional[str] = None,
-        xml_error: Optional[Exception] = None,
+        message,
+        h2k_file_path=None,
+        xml_error=None,
     ):
         """Initialize H2K parsing error.
 
@@ -75,7 +74,7 @@ class HPXMLGenerationError(H2KHPXMLError):
     """
 
     def __init__(
-        self, message: str, component: Optional[str] = None, h2k_data: Optional[dict] = None
+        self, message, component=None, h2k_data=None
     ):
         """Initialize HPXML generation error.
 
@@ -105,7 +104,7 @@ class ConfigurationError(H2KHPXMLError):
     """
 
     def __init__(
-        self, message: str, config_key: Optional[str] = None, config_value: Optional[str] = None
+        self, message, config_key=None, config_value=None
     ):
         """Initialize configuration error.
 
@@ -134,10 +133,10 @@ class DependencyError(H2KHPXMLError):
 
     def __init__(
         self,
-        message: str,
-        dependency_name: Optional[str] = None,
-        expected_version: Optional[str] = None,
-        found_version: Optional[str] = None,
+        message,
+        dependency_name=None,
+        expected_version=None,
+        found_version=None,
     ):
         """Initialize dependency error.
 
@@ -170,10 +169,10 @@ class ValidationError(H2KHPXMLError):
 
     def __init__(
         self,
-        message: str,
-        field_name: Optional[str] = None,
-        field_value: Optional[str] = None,
-        validation_rule: Optional[str] = None,
+        message,
+        field_name=None,
+        field_value=None,
+        validation_rule=None,
     ):
         """Initialize validation error.
 
@@ -206,9 +205,9 @@ class WeatherDataError(H2KHPXMLError):
 
     def __init__(
         self,
-        message: str,
-        weather_location: Optional[str] = None,
-        weather_file: Optional[str] = None,
+        message,
+        weather_location=None,
+        weather_file=None,
     ):
         """Initialize weather data error.
 
@@ -237,10 +236,10 @@ class SimulationError(H2KHPXMLError):
 
     def __init__(
         self,
-        message: str,
-        hpxml_file: Optional[str] = None,
-        simulation_log: Optional[str] = None,
-        return_code: Optional[int] = None,
+        message,
+        hpxml_file=None,
+        simulation_log=None,
+        return_code=None,
     ):
         """Initialize simulation error.
 

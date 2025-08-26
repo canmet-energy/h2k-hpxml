@@ -13,10 +13,6 @@ import configparser
 import os
 import platform
 from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import Optional
-from typing import Union
 
 from ..exceptions import ConfigurationError
 from ..utils.logging import get_logger
@@ -38,10 +34,10 @@ class ConfigManager:
 
     def __init__(
         self,
-        config_file: Optional[Union[str, Path]] = None,
-        environment: str = "prod",
-        auto_create: bool = True,
-    ) -> None:
+        config_file=None,
+        environment="prod",
+        auto_create=True,
+    ):
         """
         Initialize configuration manager.
 
@@ -62,7 +58,7 @@ class ConfigManager:
 
         logger.info(f"Configuration loaded for environment: {environment}")
 
-    def _get_user_config_path(self) -> Path:
+    def _get_user_config_path(self):
         """
         Get user configuration directory path based on OS.
 
@@ -86,7 +82,7 @@ class ConfigManager:
             else:
                 return Path.home() / ".config" / "h2k_hpxml"
 
-    def _load_configuration(self, config_file: Optional[Union[str, Path]] = None) -> None:
+    def _load_configuration(self, config_file=None):
         """Load configuration from INI file."""
         if config_file is None:
             config_file = self._find_config_file()
@@ -101,7 +97,7 @@ class ConfigManager:
         except Exception as e:
             raise ConfigurationError(f"Failed to parse configuration file: {e}")
 
-    def _find_config_file(self) -> Path:
+    def _find_config_file(self):
         """
         Find configuration file with hierarchical search.
 
@@ -143,7 +139,7 @@ class ConfigManager:
                 "Configuration file not found. Use 'h2k-deps --setup' to create user configuration."
             )
 
-    def _apply_environment_overrides(self) -> None:
+    def _apply_environment_overrides(self):
         """Apply environment variable overrides."""
         # Environment variables with H2K_SECTION_KEY format override config values
         for env_var, value in os.environ.items():
@@ -157,7 +153,7 @@ class ConfigManager:
                     self.config.set(section, key, value)
                     logger.debug(f"Applied environment override: {env_var} = {value}")
 
-    def _validate_configuration(self) -> None:
+    def _validate_configuration(self):
         """Validate required configuration sections and keys."""
         required_sections = ["paths", "simulation", "weather", "logging"]
         required_keys = {
@@ -180,7 +176,7 @@ class ConfigManager:
         # Validate paths exist
         self._validate_paths()
 
-    def _validate_paths(self) -> None:
+    def _validate_paths(self):
         """Validate that configured paths exist or can be created."""
         paths_to_check = [
             ("source_h2k_path", True),  # Must exist
@@ -204,7 +200,7 @@ class ConfigManager:
                         )
                         # Continue without failing - this is common in test environments
 
-    def get(self, section: str, key: str, fallback: Any = None) -> Any:
+    def get(self, section, key, fallback=None):
         """
         Get configuration value.
 
@@ -221,7 +217,7 @@ class ConfigManager:
         except (configparser.NoSectionError, configparser.NoOptionError):
             return fallback
 
-    def get_bool(self, section: str, key: str, fallback: bool = False) -> bool:
+    def get_bool(self, section, key, fallback=False):
         """Get boolean configuration value."""
         try:
             return self.config.getboolean(section, key)
@@ -230,7 +226,7 @@ class ConfigManager:
         except ValueError as e:
             raise ConfigurationError(f"Invalid boolean value for {section}.{key}: {e}")
 
-    def get_int(self, section: str, key: str, fallback: int = 0) -> int:
+    def get_int(self, section, key, fallback=0):
         """Get integer configuration value."""
         try:
             return self.config.getint(section, key)
@@ -239,7 +235,7 @@ class ConfigManager:
         except ValueError as e:
             raise ConfigurationError(f"Invalid integer value for {section}.{key}: {e}")
 
-    def get_path(self, section: str, key: str, fallback: Optional[str] = None) -> Optional[Path]:
+    def get_path(self, section, key, fallback=None):
         """
         Get path configuration value as Path object.
 
@@ -257,21 +253,21 @@ class ConfigManager:
 
         return path.resolve()
 
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section):
         """Get all key-value pairs from a configuration section."""
         if not self.config.has_section(section):
             return {}
         return dict(self.config.items(section))
 
-    def has_section(self, section: str) -> bool:
+    def has_section(self, section):
         """Check if configuration section exists."""
         return self.config.has_section(section)
 
-    def has_option(self, section: str, key: str) -> bool:
+    def has_option(self, section, key):
         """Check if configuration option exists."""
         return self.config.has_option(section, key)
 
-    def get_resource_path(self, resource_name: str) -> Path:
+    def get_resource_path(self, resource_name):
         """
         Get path to package resource file.
 
@@ -290,67 +286,67 @@ class ConfigManager:
 
         return resource_path
 
-    def get_template_path(self, template_name: str = "template_base.xml") -> Path:
+    def get_template_path(self, template_name="template_base.xml"):
         """Get path to HPXML template file."""
         return self.get_resource_path(template_name)
 
-    def get_config_resource_path(self, config_name: str) -> Path:
+    def get_config_resource_path(self, config_name):
         """Get path to configuration resource file (e.g., config_locations.json)."""
         return self.get_resource_path(config_name)
 
     @property
-    def source_h2k_path(self) -> Optional[Path]:
+    def source_h2k_path(self):
         """Source H2K files directory."""
         return self.get_path("paths", "source_h2k_path")
 
     @property
-    def hpxml_os_path(self) -> Optional[Path]:
+    def hpxml_os_path(self):
         """OpenStudio-HPXML installation directory."""
         return self.get_path("paths", "hpxml_os_path")
 
     @property
-    def dest_hpxml_path(self) -> Optional[Path]:
+    def dest_hpxml_path(self):
         """Destination directory for generated HPXML files."""
         return self.get_path("paths", "dest_hpxml_path")
 
     @property
-    def openstudio_binary(self) -> Optional[str]:
+    def openstudio_binary(self):
         """Path to OpenStudio binary."""
         return self.get("paths", "openstudio_binary")
 
     @property
-    def simulation_flags(self) -> str:
+    def simulation_flags(self):
         """OpenStudio-HPXML simulation flags."""
         return self.get("simulation", "flags", "")
 
     @property
-    def weather_library(self) -> str:
+    def weather_library(self):
         """Weather library to use (historic, etc.)."""
         return self.get("weather", "weather_library", "historic")
 
     @property
-    def weather_vintage(self) -> str:
+    def weather_vintage(self):
         """Weather vintage to use (CWEC2020, etc.)."""
         return self.get("weather", "weather_vintage", "CWEC2020")
 
     @property
-    def log_level(self) -> str:
+    def log_level(self):
         """Logging level."""
         return self.get("logging", "log_level", "INFO")
 
     @property
-    def log_to_file(self) -> bool:
+    def log_to_file(self):
         """Whether to log to file."""
         return self.get_bool("logging", "log_to_file", True)
 
-    def to_dict(self) -> Dict[str, Dict[str, Any]]:
+    def to_dict(self):
         """Convert configuration to nested dictionary."""
         result = {}
         for section_name in self.config.sections():
             result[section_name] = dict(self.config.items(section_name))
         return result
 
-    def _create_config_from_template(self) -> Path:
+    def _create_config_from_template(self):
         """
         Create user configuration file from template.
 
@@ -380,7 +376,7 @@ class ConfigManager:
 
         return user_config_path
 
-    def _find_template_file(self, template_name: str) -> Optional[Path]:
+    def _find_template_file(self, template_name):
         """
         Find template file in project or package resources.
 
@@ -407,7 +403,7 @@ class ConfigManager:
 
         return None
 
-    def _create_minimal_config(self, config_path: Path) -> None:
+    def _create_minimal_config(self, config_path):
         """
         Create minimal configuration file with default values.
 
@@ -449,10 +445,10 @@ _config_manager = None
 
 
 def get_config_manager(
-    config_file: Optional[Union[str, Path]] = None,
-    environment: str = "prod",
-    auto_create: bool = True,
-) -> ConfigManager:
+    config_file=None,
+    environment="prod",
+    auto_create=True,
+):
     """
     Get global configuration manager instance.
 
@@ -472,7 +468,7 @@ def get_config_manager(
     return _config_manager
 
 
-def reset_config_manager() -> None:
+def reset_config_manager():
     """Reset global configuration manager (useful for testing)."""
     global _config_manager
     _config_manager = None

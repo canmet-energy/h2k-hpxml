@@ -4,7 +4,6 @@ Input validation for H2K to HPXML translation.
 This module provides validation functions for H2K input files and configuration parameters.
 """
 
-from typing import Tuple
 
 from ..exceptions import ConfigurationError
 from ..exceptions import H2KParsingError
@@ -16,9 +15,7 @@ from ..utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def validate_and_load_configuration(
-    h2k_string: str, config: ConfigDict
-) -> Tuple[bool, TranslationMode]:
+def validate_and_load_configuration(h2k_string, config):
     """
     Validate inputs and extract configuration parameters.
 
