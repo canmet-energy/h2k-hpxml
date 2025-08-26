@@ -2,12 +2,12 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/universal
 {
 	"name": "H2K_HPXML",
-    "build": {
-        "dockerfile": "./Dockerfile",
-        "args": {
-            "IS_DEVCONTAINER": "true"
-        }
-    },
+	"build": {
+		"dockerfile": "./Dockerfile",
+		"args": {
+			"IS_DEVCONTAINER": "true"
+		}
+	},
 	"containerEnv": {
 		"NODE_TLS_REJECT_UNAUTHORIZED": "0"
 	},
@@ -44,15 +44,37 @@
 			}
 		}
 	},
-    "remoteEnv": {
-        "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt",
-        "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
-        "REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
-        "AWS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt"
-    },
-  "mounts": [
-        // AWS credentials support - works for both Windows and Unix-like systems
+	"remoteEnv": {
+		"NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt",
+		"SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
+		"REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
+		"AWS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt"
+	},
+	"forwardPorts": [
+		8080,
+		8000,
+		3000
+	],
+	"portsAttributes": {
+		"8080": {
+			"visibility": "public",
+			"protocol": "http",
+			"label": "Claude Code Auth"
+		},
+		"8000": {
+			"visibility": "public",
+			"protocol": "http",
+			"label": "Development Server"
+		},
+		"3000": {
+			"visibility": "public",
+			"protocol": "http",
+			"label": "Web App"
+		}
+	},
+	"mounts": [
+		// AWS credentials support - works for both Windows and Unix-like systems
 		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind,readonly"
 	],
-  "remoteUser": "vscode"
+	"remoteUser": "vscode"
 }
