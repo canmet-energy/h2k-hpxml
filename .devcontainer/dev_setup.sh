@@ -142,11 +142,12 @@ setup_python_venv() {
 }
 
 install_vscode_mcp_servers() {
-    log_step "Setting up standalone MCP servers..."
+    log_step "Setting up VS Code MCP servers..."
     
-    # Create .vscode directory and basic MCP configuration
+    # Create .vscode directory in home for global VS Code MCP configuration
     mkdir -p $HOME/.vscode
-    # Update VS Code MCP config with AWS server
+    
+    # Create VS Code MCP configuration
     cat > $HOME/.vscode/mcp.json << 'EOF'
 {
   "servers": {
@@ -168,8 +169,8 @@ install_vscode_mcp_servers() {
   }
 }
 EOF
-
-
+    
+    log_success "VS Code MCP configuration created at $HOME/.vscode/mcp.json"
 }
 
 install_claude() {
@@ -225,30 +226,42 @@ install_claude() {
 }
 
 install_claude_mcp() {
-    if [ "$AWS_MOUNTED" != "true" ]; then
+    if [ "$INSTALL_CLAUDE" != true ]; then
         return
     fi
     
-    log_step "Setting up AWS MCP server..."
+    log_step "Configuring MCP servers for Claude..."
     
-
-    log_success "AWS MCP server added to VS Code configuration"
+    # Configure Serena MCP server for Claude
+    log_info "Adding Serena MCP server to Claude configuration..."
+    if claude mcp add serena -- uv tool run --python 3.12 --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)" 2>/dev/null; then
+        log_success "Serena MCP server added to Claude"
+    else
+        log_info "Serena MCP server already exists in Claude configuration"
+    fi
     
-    # Add AWS server to Claude if installed
-    if [ "$INSTALL_CLAUDE" = true ]; then
+    # Configure AWS MCP server if AWS credentials are available
+    if [ "$AWS_MOUNTED" = true ]; then
         log_info "Adding AWS MCP server to Claude configuration..."
-        claude mcp add awslabs-ccapi-mcp-server \
+        if claude mcp add awslabs-ccapi-mcp-server \
           -e DEFAULT_TAGS=enabled \
           -e SECURITY_SCANNING=enabled \
           -e FASTMCP_LOG_LEVEL=ERROR \
-          -- uv tool run --python 3.12 --from awslabs.ccapi-mcp-server@latest awslabs.ccapi-mcp-server --readonly 2>/dev/null || \
-        echo "AWS MCP server already exists in Claude configuration"
-            log_info "Configuring Claude to use standalone MCP servers..."
-        # Ensure certificates are available for MCP configuration
-        if claude mcp add serena -- uv tool run --python 3.12 --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)" 2>/dev/null; then
-            log_success "Serena MCP server added to Claude"
+          -- uv tool run --python 3.12 --from awslabs.ccapi-mcp-server@latest awslabs.ccapi-mcp-server --readonly 2>/dev/null; then
+            log_success "AWS MCP server added to Claude"
         else
-            log_info "Serena MCP server already exists in Claude configuration"
+            log_info "AWS MCP server already exists in Claude configuration"
+        fi
+    fi
+    
+    # Verify MCP server configuration
+    log_info "Verifying MCP server configuration..."
+    if command -v claude >/dev/null 2>&1; then
+        MCP_SERVERS=$(claude mcp list 2>/dev/null | grep -E "serena|awslabs" | wc -l)
+        if [ "$MCP_SERVERS" -gt 0 ]; then
+            log_success "MCP servers configured successfully"
+        else
+            log_warning "No MCP servers found. You may need to configure them manually."
         fi
     fi
 }
