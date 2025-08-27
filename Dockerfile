@@ -1,8 +1,15 @@
 # Multi-stage build for H2K-HPXML CLI tool
 # Production-ready Docker image with OpenStudio and dependencies
 
+# Build arguments with default values
+ARG UBUNTU_VERSION=22.04
+ARG PYTHON_VERSION=3.12
+ARG OPENSTUDIO_VERSION=3.9.0
+ARG OPENSTUDIO_SHA=c77fbb9569
+ARG OPENSTUDIO_HPXML_VERSION=v1.9.1
+
 # Build stage - install build dependencies and compile Python packages
-FROM python:3.12-slim as builder
+FROM python:${PYTHON_VERSION}-slim AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -25,11 +32,22 @@ COPY README.md CLAUDE.md ./
 ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_H2K_HPXML=1.0.0
 RUN python -m build
 
-# Runtime stage - minimal image with only runtime dependencies
-FROM python:3.12-slim
+# Runtime stage - Use Ubuntu for OpenStudio compatibility
+ARG UBUNTU_VERSION=22.04
+FROM ubuntu:${UBUNTU_VERSION}
 
-# Install runtime system dependencies for OpenStudio
+# Re-declare build arguments in runtime stage
+ARG PYTHON_VERSION=3.12
+ARG OPENSTUDIO_VERSION=3.9.0
+ARG OPENSTUDIO_SHA=c77fbb9569
+ARG OPENSTUDIO_HPXML_VERSION=v1.9.1
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies and add PPA for Python
 RUN apt-get update && apt-get install -y \
+    software-properties-common \
     curl \
     wget \
     unzip \
@@ -38,18 +56,34 @@ RUN apt-get update && apt-get install -y \
     libgfortran5 \
     libgomp1 \
     ruby \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y \
+    python${PYTHON_VERSION} \
+    python${PYTHON_VERSION}-dev \
+    python${PYTHON_VERSION}-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Install OpenStudio 3.9.0
-WORKDIR /tmp
-RUN wget -q https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+d5269793f1-Ubuntu-20.04-x86_64.deb \
-    && dpkg -i OpenStudio-3.9.0+d5269793f1-Ubuntu-20.04-x86_64.deb || true \
-    && apt-get install -f -y \
-    && rm -f OpenStudio-3.9.0+d5269793f1-Ubuntu-20.04-x86_64.deb
+# Install pip for Python
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
 
-# Clone OpenStudio-HPXML v1.9.1
+# Set Python as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1
+
+# Install OpenStudio
+WORKDIR /tmp
+ARG UBUNTU_VERSION=22.04
+RUN wget --progress=dot:giga --no-check-certificate -O OpenStudio.deb \
+    "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
+    && echo "Downloaded OpenStudio package, size:" && ls -lh OpenStudio.deb \
+    && dpkg -i OpenStudio.deb \
+    && echo "OpenStudio installed successfully" \
+    && ls -la /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/ \
+    && rm -f OpenStudio.deb
+
+# Clone OpenStudio-HPXML
 WORKDIR /opt
-RUN git clone --depth 1 --branch v1.9.1 https://github.com/NREL/OpenStudio-HPXML.git
+RUN git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git
 
 # Set up application directory
 WORKDIR /app
