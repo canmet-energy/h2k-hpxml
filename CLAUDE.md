@@ -8,9 +8,15 @@ This is the H2K-HPXML translation tool - a Canadian government project (CMHC/NRC
 
 **Project Status**: Phase 1 (loads) and Phase 2 (HVAC systems) complete. Phase 3 (multi-unit residential buildings) pending.
 
+**Branch Strategy**: 
+- `main` - Production branch for pull requests
+- Feature branches - For development work
+
 ## Essential Commands
 
 ### Development Setup
+
+#### Local Development
 ```bash
 # Install in development mode
 pip install -e .
@@ -21,6 +27,19 @@ h2k-deps --auto-install
 
 # Verify setup
 h2k-deps --check-only
+```
+
+#### Docker Development
+```bash
+# Using DevContainer (recommended for VS Code users)
+# Open project in VS Code and select "Reopen in Container"
+
+# Or use Docker Compose
+docker-compose --profile dev up    # Start development container
+docker-compose run h2k-hpxml-dev bash    # Interactive shell
+
+# Test Docker builds
+./docker/test_container.sh         # Run comprehensive container tests
 ```
 
 ### Testing
@@ -39,12 +58,15 @@ pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translatio
 
 ### Code Quality
 ```bash
+# Install development dependencies first
+pip install -e ".[dev]"
+
 # Formatting and linting
 black src/ tests/                    # Auto-format code
 ruff check src/ tests/               # Linting
 mypy src/h2k_hpxml/core/            # Type checking (note: type hints were removed from most files)
 
-# Run quality checks manually since scripts/quality_check.sh doesn't exist
+# Run all quality checks
 black --check src/ tests/ && ruff check src/ tests/ && mypy src/h2k_hpxml/core/
 ```
 
@@ -146,7 +168,90 @@ When modifying core translation:
 ### Dependencies
 Critical external dependencies:
 - **OpenStudio SDK** (3.9.0) - Building energy modeling platform
-- **OpenStudio-HPXML** - NREL's HPXML implementation 
+- **OpenStudio-HPXML** (v1.9.1) - NREL's HPXML implementation 
 - **EnergyPlus** - Simulation engine (managed via OpenStudio)
 
 Managed via `h2k-deps` command which auto-detects and installs on Windows/Linux.
+**Note**: Docker images have all dependencies pre-installed.
+
+## Docker Support
+
+### Container Architecture
+The project provides comprehensive Docker support with multiple build targets:
+
+- **Production Container** (`canmet/h2k-hpxml:latest`) - Optimized for running translations (~870MB)
+- **Development Container** - Full development environment with tools (~1.3GB)
+- **DevContainer** - VS Code integrated development with Docker-in-Docker support
+
+### Quick Docker Usage
+```bash
+# Production usage
+docker run -v $(pwd)/data:/data canmet/h2k-hpxml:latest input.h2k
+
+# Development with Docker Compose
+docker-compose --profile dev up
+docker-compose run h2k-hpxml-dev bash
+
+# Batch processing
+docker-compose --profile batch run batch-convert
+
+# VS Code DevContainer (recommended for development)
+# Open project and select "Reopen in Container"
+```
+
+### Docker Files Structure
+- `Dockerfile` - Multi-stage unified Dockerfile
+- `docker-compose.yml` - Service definitions with profiles
+- `.devcontainer/` - VS Code DevContainer configuration
+- `docker/entrypoint.sh` - Container initialization script
+- `docker/test_container.sh` - Comprehensive container testing
+- `.github/workflows/docker-publish.yml` - CI/CD pipeline
+
+All Docker containers include pre-installed OpenStudio and dependencies, eliminating manual setup.
+
+## Common Issues & Troubleshooting
+
+### Installation Issues
+- **OpenStudio not found**: Run `h2k-deps --auto-install` or use Docker containers
+- **Missing dependencies**: Ensure you installed with `pip install -e ".[dev]"` for development
+- **Config file issues**: Check `~/.h2k-config/conversionconfig.ini` exists
+
+### Testing Issues
+- **Golden file mismatches**: Expected when output format changes. Review changes carefully before running `--run-baseline`
+- **Weather file errors**: Ensure weather data is downloaded via `h2k-deps` 
+- **Path issues**: Use absolute paths in configuration files
+
+### Docker Issues
+- **Permission denied**: Run `chmod +x docker/*.sh` for script permissions
+- **Volume mount errors**: Ensure local directories exist before mounting
+- **DevContainer issues**: Update VS Code and Docker extensions
+
+### Development Tips
+- Always run tests before committing: `pytest`
+- Format code with: `black src/ tests/`
+- Check for issues with: `ruff check src/ tests/`
+- Use DevContainer for consistent development environment
+- Review `docker/README.md` for detailed Docker usage
+
+## Project Documentation
+
+### Key Documentation Files
+- `README.md` - Project overview and quick start guide
+- `docker/README.md` - Comprehensive Docker usage guide
+- `docker/CONSOLIDATION.md` - Docker implementation history
+- `docs/` - Additional documentation and examples
+- `CLAUDE.md` - This file (AI assistant instructions)
+
+### Configuration Files
+- `config/conversionconfig.ini` - Main configuration file
+- `config/templates/conversionconfig.template.ini` - Configuration template
+- `pyproject.toml` - Python project configuration
+- `docker-compose.yml` - Docker service definitions
+- `.devcontainer/devcontainer.json` - VS Code DevContainer settings
+
+### Resource Files
+- `resources/hpxml_template.xml` - Base HPXML template
+- `resources/weather/` - Weather data files
+- `resources/mapping_jsons/` - H2K to HPXML mappings
+- `tests/h2k_files/` - Test H2K input files
+- `tests/expected_output/` - Baseline golden files
