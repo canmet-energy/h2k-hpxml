@@ -1,5 +1,5 @@
 # Multi-stage build for H2K-HPXML CLI tool
-# Production-ready Docker image with OpenStudio and dependencies
+# Optimized with devcontainer base for development
 
 # Build arguments with default values
 ARG UBUNTU_VERSION=22.04
@@ -32,11 +32,10 @@ COPY README.md CLAUDE.md ./
 ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_H2K_HPXML=1.0.0
 RUN python -m build
 
-# Runtime stage - Use Ubuntu for OpenStudio compatibility
-ARG UBUNTU_VERSION=22.04
-FROM ubuntu:${UBUNTU_VERSION}
+# Production stage - Minimal runtime with only necessary components
+FROM ubuntu:${UBUNTU_VERSION} AS production
 
-# Re-declare build arguments in runtime stage
+# Re-declare build arguments in production stage
 ARG PYTHON_VERSION=3.12
 ARG OPENSTUDIO_VERSION=3.9.0
 ARG OPENSTUDIO_SHA=c77fbb9569
@@ -45,7 +44,7 @@ ARG OPENSTUDIO_HPXML_VERSION=v1.9.1
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies and add PPA for Python
+# Install runtime dependencies including X11 for OpenStudio (but no dev tools)
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl \
@@ -56,12 +55,13 @@ RUN apt-get update && apt-get install -y \
     libgfortran5 \
     libgomp1 \
     ruby \
+    libx11-6 \
+    libxext6 \
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update && apt-get install -y \
     python${PYTHON_VERSION} \
-    python${PYTHON_VERSION}-dev \
-    python${PYTHON_VERSION}-venv \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Install pip for Python
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
@@ -75,15 +75,13 @@ WORKDIR /tmp
 ARG UBUNTU_VERSION=22.04
 RUN wget --progress=dot:giga --no-check-certificate -O OpenStudio.deb \
     "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
-    && echo "Downloaded OpenStudio package, size:" && ls -lh OpenStudio.deb \
     && dpkg -i OpenStudio.deb \
-    && echo "OpenStudio installed successfully" \
-    && ls -la /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/ \
     && rm -f OpenStudio.deb
 
 # Clone OpenStudio-HPXML
 WORKDIR /opt
-RUN git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git
+RUN git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git \
+    && rm -rf OpenStudio-HPXML/.git
 
 # Set up application directory
 WORKDIR /app
@@ -99,51 +97,29 @@ RUN pip install --no-cache-dir *.whl \
 RUN mkdir -p /app/config/templates
 COPY config/defaults/conversionconfig.template.ini /app/config/templates/
 
-# Create non-root user for security
+# Create non-root user for security (no sudo access for production)
 RUN useradd -m -u 1000 h2kuser && \
     chown -R h2kuser:h2kuser /app
-
-# Pre-configure dependencies as h2kuser
-USER h2kuser
-WORKDIR /tmp/setup
-
-# Create a temporary config to validate and setup dependencies
-RUN cp /app/config/templates/conversionconfig.template.ini ./conversionconfig.ini \
-    && sed -i "s|hpxml_os_path = .*|hpxml_os_path = ${HPXML_OS_PATH}|g" ./conversionconfig.ini \
-    && sed -i "s|openstudio_binary = .*|openstudio_binary = ${OPENSTUDIO_BINARY}|g" ./conversionconfig.ini \
-    && export H2K_CONFIG_PATH="$(pwd)/conversionconfig.ini" \
-    && h2k-deps --check-only || echo "Dependencies validated" \
-    && rm -rf /tmp/setup
 
 # Set environment variables for dependencies
 ENV HPXML_OS_PATH=/opt/OpenStudio-HPXML
 ENV OPENSTUDIO_BINARY=/usr/local/bin/openstudio
 ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
 
-# Copy and set up entrypoint script as root
-USER root
+# Copy and set up entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-USER h2kuser
 
-# Set working directory for data processing
+# Switch to non-root user
+USER h2kuser
 WORKDIR /data
 
 # Set entrypoint
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# Default command - show help
 CMD ["h2k2hpxml", "--help"]
 
-# Labels for metadata
-LABEL maintainer="CANMET Energy <canmet-energy@nrcan-rncan.gc.ca>"
-LABEL description="H2K to HPXML to EnergyPlus translation tool for Canadian building energy models"
-LABEL org.opencontainers.image.source="https://github.com/canmet-energy/h2k-hpxml"
-LABEL org.opencontainers.image.documentation="https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md"
-LABEL org.opencontainers.image.licenses="MIT"
-
-# Development stage - Use the production base with additional development tools
-FROM ubuntu:${UBUNTU_VERSION} AS development
+# Development stage - Use VS Code devcontainer base with development tools
+FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04 AS development
 
 # Re-declare build arguments for development stage
 ARG PYTHON_VERSION=3.12
@@ -154,42 +130,25 @@ ARG OPENSTUDIO_HPXML_VERSION=v1.9.1
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install development dependencies including Docker CLI
+# Switch to root for installations
+USER root
+
+# Install Python 3.12 from deadsnakes PPA
 RUN apt-get update && apt-get install -y \
     software-properties-common \
-    curl \
-    wget \
-    unzip \
-    git \
-    libssl3 \
-    libgfortran5 \
-    libgomp1 \
-    ruby \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    sudo \
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update && apt-get install -y \
     python${PYTHON_VERSION} \
     python${PYTHON_VERSION}-dev \
     python${PYTHON_VERSION}-venv \
+    libgfortran5 \
+    libgomp1 \
+    ruby \
+    libx11-6 \
+    libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Docker CLI (not daemon)
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update && apt-get install -y docker-ce-cli docker-compose-plugin \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd -f docker
-
-# Install Node.js 18
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install pip for Python
+# Install pip for Python 3.12
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
 
 # Set Python as default
@@ -201,25 +160,13 @@ WORKDIR /tmp
 ARG UBUNTU_VERSION=22.04
 RUN wget --progress=dot:giga --no-check-certificate -O OpenStudio.deb \
     "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
-    && echo "Downloaded OpenStudio package, size:" && ls -lh OpenStudio.deb \
     && dpkg -i OpenStudio.deb \
-    && echo "OpenStudio installed successfully" \
-    && ls -la /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/ \
     && rm -f OpenStudio.deb
 
 # Clone OpenStudio-HPXML
 WORKDIR /opt
-RUN git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git
-
-# Set environment variables for dependencies
-ENV HPXML_OS_PATH=/opt/OpenStudio-HPXML
-ENV OPENSTUDIO_BINARY=/usr/local/bin/openstudio
-ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
-
-# Create development user with sudo access
-RUN useradd -m -u 1000 -s /bin/bash vscode \
-    && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-    && usermod -aG docker vscode
+RUN git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git \
+    && rm -rf OpenStudio-HPXML/.git
 
 # Copy built package from builder stage and install
 COPY --from=builder /app/dist/*.whl /tmp/
@@ -229,22 +176,28 @@ RUN pip install --no-cache-dir /tmp/*.whl && rm -f /tmp/*.whl
 RUN mkdir -p /app/config/templates
 COPY config/defaults/conversionconfig.template.ini /app/config/templates/
 
-# Switch to development user
+# Set environment variables for dependencies
+ENV HPXML_OS_PATH=/opt/OpenStudio-HPXML
+ENV OPENSTUDIO_BINARY=/usr/local/bin/openstudio
+ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
+
+# Copy development setup script
+COPY .devcontainer/dev_setup.sh /tmp/dev_setup.sh
+RUN chmod +x /tmp/dev_setup.sh
+
+# Switch to vscode user (already exists in devcontainer base)
 USER vscode
 WORKDIR /workspaces/h2k_hpxml
 
-# Install uv (Python package manager)
-RUN pip install --user uv
-
-# Create VS Code MCP configuration
-RUN mkdir -p $HOME/.vscode \
-    && echo '{"servers":{"serena":{"type":"stdio","command":"uv","args":["tool","run","--python","3.12","--from","git+https://github.com/oraios/serena","serena","start-mcp-server","--context","ide-assistant","--project","."]}}}' > $HOME/.vscode/mcp.json
-
-# Set certificate environment variables for the user session
-RUN echo 'export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt' >> $HOME/.bashrc \
-    && echo 'export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt' >> $HOME/.bashrc \
-    && echo 'export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt' >> $HOME/.bashrc \
-    && echo 'export AWS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt' >> $HOME/.bashrc
+# Run development setup script with Claude support
+RUN bash /tmp/dev_setup.sh --claude
 
 # Default to development environment with bash
 CMD ["/bin/bash"]
+
+# Labels for metadata
+LABEL maintainer="CANMET Energy <canmet-energy@nrcan-rncan.gc.ca>"
+LABEL description="H2K to HPXML to EnergyPlus translation tool for Canadian building energy models"
+LABEL org.opencontainers.image.source="https://github.com/canmet-energy/h2k-hpxml"
+LABEL org.opencontainers.image.documentation="https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md"
+LABEL org.opencontainers.image.licenses="MIT"

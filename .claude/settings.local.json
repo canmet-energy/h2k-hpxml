@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest tests/ -v --tb=short)",
+      "Bash(mypy:*)",
+      "Bash(find:*)",
+      "Bash(git checkout:*)",
+      "Bash(python:*)",
+      "Read(//workspages/h2k_hpxml/src/h2k_hpxml/components/**)",
+      "Bash(docker:*)",
+      "Bash(dos2unix:*)",
+      "Bash(sed:*)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(./docker/test_container.sh:*)"
+    ],
+    "deny": [],
+    "ask": [],
+    "additionalDirectories": [
+      "/var/run"
+    ]
+  }
+}

@@ -51,6 +51,10 @@ The Dockerfile supports two build targets:
 - Node.js 18 for frontend development
 - Git for version control
 - sudo access for system modifications
+- Claude CLI with certificate support
+- UV Python package manager
+- Python virtual environment (.venv)
+- NRCAN certificate support (auto-detected)
 
 ⚠️ **Known Issues:**
 - Volume permissions may require adjustment on some systems
@@ -221,9 +225,12 @@ docker run --rm -v $(pwd):/data \
 - **Python Version**: 3.12
 - **OpenStudio**: 3.9.0
 - **OpenStudio-HPXML**: v1.9.1
-- **Size**: ~1.2GB (includes dev tools)
+- **Size**: ~1.3GB (includes dev tools)
 - **User**: vscode (UID 1000) with sudo access
-- **Additional Tools**: Docker CLI, Node.js 18, Git, uv
+- **Additional Tools**: Docker CLI, Node.js 18, Git, UV, Claude CLI
+- **Development Setup**: Runs `dev_setup.sh --claude` for complete environment
+- **Python Environment**: Creates `.venv` virtual environment
+- **Certificate Support**: Auto-detects and configures NRCAN certificates
 - **Default CMD**: `/bin/bash`
 
 ## DevContainer Integration

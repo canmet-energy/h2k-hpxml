@@ -45,8 +45,8 @@ venv.bak/
 .DS_Store
 Thumbs.db
 
-# Development container files
-.devcontainer/
+# Development container files (exclude devcontainer.json but allow dev_setup.sh)
+.devcontainer/devcontainer.json
 
 # Testing and coverage
 .pytest_cache/
