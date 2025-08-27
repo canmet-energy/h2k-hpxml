@@ -93,11 +93,7 @@ class ModelData:
         self._systems = SystemTracker()
 
         # Results storage
-        self._results = {
-            "General": {},
-            "SOC": {},
-            "Reference": {},
-        }
+        self._results = {"General": {}, "SOC": {}, "Reference": {}}
 
     # Building details with improved interface
     def __getitem__(self, key):

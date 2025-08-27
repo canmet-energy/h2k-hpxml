@@ -40,17 +40,9 @@ def process_enclosure_components(h2k_dict, hpxml_dict, model_data, add_test_wall
 
     try:
         # ================ 7. HPXML Section: Enclosure ================
-        walls = []
-        floors = []
-        attics = []
-        roofs = []
-        windows = []
-        skylights = []
-        doors = []
-        rim_joists = []
-        foundations = []
-        foundation_walls = []
-        slabs = []
+        walls, floors, attics, roofs, windows = [], [], [], [], []
+        skylights, doors, rim_joists, foundations = [], [], [], []
+        foundation_walls, slabs = [], []
         # Subcomponents (windows, doors, rim joists) all collected through parents
 
         # Walls

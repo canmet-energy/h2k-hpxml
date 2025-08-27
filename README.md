@@ -97,9 +97,151 @@ h2k-resilience input.h2k [--scenarios SCENARIOS]
 h2k-deps [--setup] [--check-only] [--auto-install]
 ```
 
-### Docker Environment (Alternative)
+### Docker Usage (Recommended for Easy Setup)
 
-During development, we've also created a separate Docker command-line interface (CLI) application that translates and runs H2K data files in EnergyPlus. To use it, simply install Docker Desktop on your machine. Comprehensive installation and usage documentation is available [here](https://github.com/canmet-energy/model-dev-container)
+The easiest way to use h2k-hpxml without installing Python, OpenStudio, or other dependencies is through Docker:
+
+#### Quick Start with Docker
+
+1. **Install Docker** on your machine ([Docker Desktop](https://www.docker.com/products/docker-desktop/))
+
+2. **Run h2k-hpxml directly**:
+   ```bash
+   # Convert H2K file in your current directory
+   docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/your_file.h2k
+   
+   # Resilience analysis
+   docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-resilience /data/your_file.h2k
+   ```
+
+#### Docker Usage Examples
+
+```bash
+# Basic conversion - process file in current directory
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+
+# Specify output location
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
+  h2k2hpxml /data/input.h2k --output /data/output.xml
+
+# Use separate input/output directories (Windows example)
+docker run --rm \
+  -v "C:\path\to\input":/input:ro \
+  -v "C:\path\to\output":/output \
+  canmet/h2k-hpxml h2k2hpxml /input/house.h2k --output /output/house.xml
+
+# Resilience analysis with specific scenarios
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
+  h2k-resilience /data/house.h2k --scenarios "outage_typical_year,thermal_autonomy_extreme_year"
+
+# Get help
+docker run --rm canmet/h2k-hpxml help
+```
+
+#### Docker Configuration
+
+The Docker container automatically:
+- Sets up all required dependencies (OpenStudio, OpenStudio-HPXML, Python packages)
+- Creates configuration files in `/data/.h2k-config/` (preserved between runs)
+- Creates output directories as needed
+
+#### Advantages of Docker Approach
+- ✅ No local Python/OpenStudio installation required
+- ✅ Consistent environment across Windows, Mac, and Linux
+- ✅ Automatic dependency management
+- ✅ Version-pinned for reproducibility
+- ✅ Easy to integrate into CI/CD pipelines
+
+### Docker CLI Reference
+
+#### All Available Commands
+```bash
+# Help and version information
+docker run --rm canmet/h2k-hpxml help                    # Docker usage help
+docker run --rm canmet/h2k-hpxml h2k2hpxml --help       # H2K conversion help
+docker run --rm canmet/h2k-hpxml h2k-resilience --help  # Resilience analysis help
+docker run --rm canmet/h2k-hpxml h2k2hpxml --version    # Show version
+
+# Basic file conversion
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+
+# Conversion with custom output path
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
+  h2k2hpxml /data/input.h2k --output /data/custom_output.xml
+
+# Resilience analysis (default: 7-day outage)
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
+  h2k-resilience /data/input.h2k
+
+# Resilience analysis with custom parameters
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
+  h2k-resilience /data/input.h2k \
+  --outage-days 10 \
+  --clothing-factor-summer 0.6 \
+  --clothing-factor-winter 1.2 \
+  --run-simulation
+
+# Interactive shell (for debugging)
+docker run --rm -it -v $(pwd):/data canmet/h2k-hpxml bash
+```
+
+#### Volume Mounting Options
+```bash
+# Single directory (read/write)
+-v $(pwd):/data                              # Current directory
+-v /absolute/path:/data                      # Absolute path
+-v "C:\Windows\Path":/data                   # Windows path
+
+# Separate input/output directories
+-v /path/to/h2k/files:/input:ro              # Read-only input
+-v /path/to/output:/output                   # Write-only output
+
+# Multiple mount points
+docker run --rm \
+  -v /home/user/h2k_files:/input:ro \
+  -v /home/user/results:/output \
+  -v /home/user/configs:/config \
+  canmet/h2k-hpxml h2k2hpxml /input/house.h2k --output /output/house.xml
+```
+
+#### Environment Variables
+```bash
+# Enable debug logging
+docker run --rm -e H2K_LOG_LEVEL=DEBUG -v $(pwd):/data \
+  canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+
+# Custom configuration path
+docker run --rm -e H2K_CONFIG_PATH=/data/custom_config.ini -v $(pwd):/data \
+  canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+```
+
+#### Building the Docker Image Locally
+```bash
+# Build from source (for development)
+git clone https://github.com/canmet-energy/h2k-hpxml.git
+cd h2k-hpxml
+docker build -t canmet/h2k-hpxml .
+
+# Test the locally built image
+docker run --rm canmet/h2k-hpxml help
+```
+
+#### Docker Compose (Batch Processing)
+```yaml
+# docker-compose.yml example for batch processing
+version: '3.8'
+services:
+  h2k-converter:
+    image: canmet/h2k-hpxml
+    volumes:
+      - ./input:/input:ro
+      - ./output:/output
+    command: h2k2hpxml /input/house.h2k --output /output/house.xml
+```
+
+### Alternative Docker Environment (Development)
+
+For development work, we also provide a comprehensive development container. Installation and usage documentation is available [here](https://github.com/canmet-energy/model-dev-container)
 
 ## Development Environment
 
@@ -107,8 +249,8 @@ During development, we've also created a separate Docker command-line interface 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/canmet-energy/h2k_hpxml.git
-   cd h2k_hpxml
+   git clone https://github.com/canmet-energy/h2k-hpxml.git
+   cd h2k-hpxml
    ```
 
 2. **Install in development mode**:
@@ -182,4 +324,4 @@ For AI assistants (like Claude Code) working with this repository, see [CLAUDE.m
 
 ## Contributing
 
-Contributions are encouraged! If you find a bug, submit an "Issue" on the tab above.  Please understand that this is still under heavy development and should not be used for any production level of work.
+Contributions are encouraged! If you find a bug, submit an "Issue" on the tab above.  **Please understand that this is still under heavy development and should not be used for any production level of work.**

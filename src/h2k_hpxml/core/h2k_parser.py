@@ -71,7 +71,7 @@ def get_composite_rval(composite_dict, wall_core="C"):
     # wall_core = 0.116 RSI for concrete, 0.417 RSI for wood, which is subtracted before the effective R-value is returned
     # this calculation aligns with h2k's calculation method
     wall_core_rval = 0.116 * 5.678 if wall_core == "C" else 0.417 * 5.678
-    rval = 0
+    rval = 0.0
 
     section_list = composite_dict.get("Composite", {}).get("Section", [])
 
@@ -79,9 +79,9 @@ def get_composite_rval(composite_dict, wall_core="C"):
         rval = get_number_field(composite_dict, "composite_nom_r_value")
     else:
         section_list = section_list if isinstance(section_list, list) else [section_list]
-        percentage = 0
-        totPercentage = 0
-        sumQuotient = 0
+        percentage = 0.0
+        totPercentage = 0.0
+        sumQuotient = 0.0
 
         for section in section_list:
             if "@percentage" in section.keys():

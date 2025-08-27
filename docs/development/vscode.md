@@ -62,13 +62,13 @@ For more examples and ideas, visit:
 
 ## Development Workflow
 
-### Clone H2K_HPXML Repository into a DevContainer
+### Clone H2K-HPXML Repository into a DevContainer
 This will create a container workspace and clone all the source code for openstudio-standards required for development.
 1. Hit Ctrl+Shift+P to bring up the command pallet on the top of vscode.
 1. Start to type "Dev Containers" and select " Dev Containers: Clone Repository in Container Volume"
-1. Enter the URL for the h2k_hpxml repository. For the main branch use:
+1. Enter the URL for the h2k-hpxml repository. For the main branch use:
 ```
-https://github.com/canmet-energy/h2k_hpxml
+https://github.com/canmet-energy/h2k-hpxml
 ```
 1. Wait a few minutes for the container to be created and to clone the source-code.
 

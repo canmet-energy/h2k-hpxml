@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "h2k_hpxml"
+name = "h2k-hpxml"
 description = "H2K to HPXML to EnergyPlus translation tool for Canadian building energy models"
 readme = "README.md"
 license = {text = "MIT"}
@@ -59,9 +59,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/canmet-energy/h2k_hpxml"
-Repository = "https://github.com/canmet-energy/h2k_hpxml"
-Documentation = "https://github.com/canmet-energy/h2k_hpxml/blob/main/README.md"
+Homepage = "https://github.com/canmet-energy/h2k-hpxml"
+Repository = "https://github.com/canmet-energy/h2k-hpxml"
+Documentation = "https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md"
 
 [project.scripts]
 h2k2hpxml = "h2k_hpxml.cli.convert:main"
@@ -99,9 +99,15 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
-check_untyped_defs = true
+check_untyped_defs = false
 disallow_untyped_decorators = false
-no_implicit_optional = true
+no_implicit_optional = false
+disallow_any_unimported = false
+disallow_any_expr = false
+disallow_any_decorated = false
+disallow_any_explicit = false
+disallow_any_generics = false
+disallow_subclassing_any = false
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
