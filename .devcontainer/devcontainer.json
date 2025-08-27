@@ -3,10 +3,9 @@
 {
 	"name": "H2K_HPXML",
 	"build": {
-		"dockerfile": "./Dockerfile",
-		"args": {
-			"IS_DEVCONTAINER": "true"
-		}
+		"dockerfile": "../Dockerfile",
+		"target": "development",
+		"context": ".."
 	},
 	"containerEnv": {
 		"NODE_TLS_REJECT_UNAUTHORIZED": "0"

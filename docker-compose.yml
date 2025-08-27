@@ -1,14 +1,21 @@
-# Docker Compose configuration for H2K-HPXML development and testing
-# This file provides convenient ways to run the h2k-hpxml tools with volume mounts
+# Docker Compose configuration for H2K-HPXML development and production
+# This file provides convenient ways to build and run both development and production environments
 
 version: '3.8'
 
 services:
-  # Main h2k-hpxml service
+  # Production service - optimized for deployment
   h2k-hpxml:
     build:
       context: .
       dockerfile: Dockerfile
+      # Uses default target (production)
+      args:
+        - UBUNTU_VERSION=22.04
+        - PYTHON_VERSION=3.12
+        - OPENSTUDIO_VERSION=3.9.0
+        - OPENSTUDIO_SHA=c77fbb9569
+        - OPENSTUDIO_HPXML_VERSION=v1.9.1
     image: canmet/h2k-hpxml:latest
     container_name: h2k-hpxml
     volumes:
@@ -25,6 +32,42 @@ services:
     command: ["bash"]
     stdin_open: true
     tty: true
+
+  # Development service - includes dev tools and VS Code support  
+  h2k-hpxml-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        - UBUNTU_VERSION=22.04
+        - PYTHON_VERSION=3.12
+        - OPENSTUDIO_VERSION=3.9.0
+        - OPENSTUDIO_SHA=c77fbb9569
+        - OPENSTUDIO_HPXML_VERSION=v1.9.1
+    image: canmet/h2k-hpxml:dev
+    container_name: h2k-hpxml-dev
+    volumes:
+      - .:/workspaces/h2k_hpxml
+      - /var/run/docker.sock:/var/run/docker.sock
+      # AWS credentials support (uncomment if needed)
+      # - ~/.aws:/home/vscode/.aws:ro
+    working_dir: /workspaces/h2k_hpxml
+    user: vscode
+    stdin_open: true
+    tty: true
+    ports:
+      - "8080:8080"  # Claude Code Auth
+      - "8000:8000"  # Development Server  
+      - "3000:3000"  # Web App
+    environment:
+      - NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+      - SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+      - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+      - AWS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    profiles:
+      - dev  # Use 'docker-compose --profile dev up' to run this service
 
   # Service for batch processing multiple files
   batch-convert:
@@ -65,26 +108,43 @@ volumes:
 
 # Usage Examples:
 #
-# 1. Interactive development shell:
+# Production Environment:
+# 1. Interactive production shell:
 #    docker-compose run --rm h2k-hpxml
 #
 # 2. Convert single file:
 #    docker-compose run --rm h2k-hpxml h2k2hpxml /data/examples/WizardHouse.h2k
 #
-# 3. Batch processing (create input/ and output/ directories first):
+# 3. Check dependencies:
+#    docker-compose run --rm h2k-hpxml h2k-deps --check-only
+#
+# Development Environment:
+# 4. Interactive development shell with dev tools:
+#    docker-compose --profile dev run --rm h2k-hpxml-dev
+#
+# 5. Start development container in background:
+#    docker-compose --profile dev up -d h2k-hpxml-dev
+#
+# Batch Processing:
+# 6. Batch processing (create input/ and output/ directories first):
 #    docker-compose --profile batch run --rm batch-convert \
 #      bash -c 'for file in /input/*.h2k; do h2k2hpxml "$file" --output "/output/$(basename "$file" .h2k).xml"; done'
 #
-# 4. Resilience analysis:
+# 7. Resilience analysis:
 #    docker-compose --profile resilience run --rm resilience \
 #      h2k-resilience /input/house.h2k --scenarios "outage_typical_year"
 #
-# 5. Check dependencies:
-#    docker-compose run --rm h2k-hpxml h2k-deps --check-only
+# Building:
+# 8. Build production image:
+#    docker-compose build h2k-hpxml
 #
-# 6. Build image locally:
-#    docker-compose build
+# 9. Build development image:
+#    docker-compose build h2k-hpxml-dev
 #
-# 7. Clean up:
-#    docker-compose down
-#    docker volume rm h2k-hpxml_h2k-config  # Remove config volume if needed
+# 10. Build both images:
+#     docker-compose build
+#
+# Clean up:
+# 11. Stop and remove containers:
+#     docker-compose down
+#     docker volume rm h2k-hpxml_h2k-config  # Remove config volume if needed
