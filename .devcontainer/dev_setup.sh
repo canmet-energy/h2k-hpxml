@@ -1,317 +1,84 @@
 #!/bin/bash
-set -e  # Exit on any error
+# Modular devcontainer setup orchestrator
+# This script coordinates the execution of individual setup modules
 
-# --- Helper Functions ---
-log_info() { echo "ℹ️ $1"; }
-log_success() { echo "✅ $1"; }
-log_warning() { echo "⚠️ $1"; }
-log_step() { echo "🚀 $1"; }
+# Exit on any error
+set -e
 
-install_certificates() {
-    # Check if we're on NRCAN network
-    if [ "$(curl -k -o /dev/null -s -w "%{http_code}" "https://intranet.nrcan.gc.ca/")" -ge 200 ] && \
-       [ "$(curl -o /dev/null -s -w "%{http_code}" "https://intranet.nrcan.gc.ca/")" -lt 400 ]; then
-        log_step "NRCAN network detected - installing certificates..."
-        log_step "Cloning NRCAN certificates repository..."
-        git clone https://github.com/canmet-energy/linux_nrcan_certs.git
-        log_step "Installing NRCAN certificates..."
-        cd linux_nrcan_certs
-        ./install_nrcan_certs.sh >/dev/null 2>&1
-        cd ..
-        log_step "Cleaning up..."
-        rm -fr linux_nrcan_certs
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 
-        log_step "Reloading certificate store..."
-        sudo update-ca-certificates >/dev/null 2>&1
-        
-        log_success "NRCAN certificates installed"
-        NRCAN_NETWORK=true
-    else
-        log_info "Standard network detected - using default certificates"
-        NRCAN_NETWORK=false
-    fi
+# Source common utilities
+source "$SCRIPTS_DIR/common.sh"
 
-    # Set certificate environment variables for immediate use
-    if [ -f "/etc/ssl/certs/ca-certificates.crt" ]; then
-        log_info "Setting SSL certificate environment variables..."
-        export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
-        export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-        export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-        export AWS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-    fi
-}
-
-install_nodejs() {
-    log_step "Installing Node.js and tools..."
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - >/dev/null 2>&1
-    sudo apt-get install -y nodejs python3-pip >/dev/null 2>&1
-    log_success "Node.js installed"
-}
-
-install_uv() {
-    log_step "Installing uv (Python package manager)..."
-    
-    # Simplified uv installation with fallbacks
-    if [[ "$(which python3)" == "/venv/"* ]] || [[ -n "$VIRTUAL_ENV" ]]; then
-        sudo -H pip3 install uv >/dev/null 2>&1 || log_warning "uv installation failed, continuing..."
-    else
-        pip3 install --user uv >/dev/null 2>&1 || \
-        pip install --user uv >/dev/null 2>&1 || \
-        python3 -m pip install --user uv >/dev/null 2>&1 || \
-        python -m pip install --user uv >/dev/null 2>&1 || \
-        log_warning "uv installation failed"
-    fi
-}
-
-setup_python_venv() {
-    # Find available Python command
-    for cmd in "/venv/bin/python" "python3" "python"; do
-        if command -v $cmd >/dev/null 2>&1; then
-            PYTHON_CMD=$cmd
-            break
-        fi
-    done
-    
-    if [ -n "$PYTHON_CMD" ]; then
-        log_step "Setting up Python virtual environment using $PYTHON_CMD..."
-        $PYTHON_CMD -m venv ./.venv && PYTHON_VENV_CREATED=true
-        log_success "Python virtual environment created"
-        
-        # Install packages from pyproject.toml or requirements.txt
-        if [ -f "pyproject.toml" ]; then
-            log_info "Installing Python packages from pyproject.toml..."
-            
-            # Find pip in venv or system
-            for pip_cmd in "./.venv/bin/pip" "./.venv/bin/pip3" "pip3" "pip"; do
-                if [ -f "$pip_cmd" ] || command -v $pip_cmd >/dev/null 2>&1; then
-                    PIP_CMD=$pip_cmd
-                    break
-                fi
-            done
-            
-            if [ -z "$PIP_CMD" ]; then
-                PIP_CMD="$PYTHON_CMD -m pip"
-            fi
-            
-            log_info "Using pip command: $PIP_CMD"
-            
-            # Install the project in editable mode with all dependencies
-            $PIP_CMD install --upgrade pip setuptools wheel
-            $PIP_CMD install -e . 
-            
-            # Install optional dependencies if they exist
-            if grep -q "project.optional-dependencies" pyproject.toml; then
-                log_info "Installing optional dependencies..."
-                # Try to install common optional dependency groups that exist in the file
-                for group in "dev" "test" "gui" "all"; do
-                    if grep -A 20 "project.optional-dependencies" pyproject.toml | grep -q "^$group = "; then
-                        log_info "Installing [$group] dependencies..."
-                        $PIP_CMD install -e ".[$group]" || log_warning "Failed to install [$group] dependencies"
-                    fi
-                done
-            fi
-            
-            log_success "Python packages installed from pyproject.toml"
-            
-        elif [ -f "requirements.txt" ]; then
-            log_info "Installing Python packages from requirements.txt..."
-            
-            # Find pip in venv or system
-            for pip_cmd in "./.venv/bin/pip" "./.venv/bin/pip3" "pip3" "pip"; do
-                if [ -f "$pip_cmd" ] || command -v $pip_cmd >/dev/null 2>&1; then
-                    PIP_CMD=$pip_cmd
-                    break
-                fi
-            done
-            
-            if [ -z "$PIP_CMD" ]; then
-                PIP_CMD="$PYTHON_CMD -m pip"
-            fi
-            
-            log_info "Using pip command: $PIP_CMD"
-            $PIP_CMD install --upgrade pip setuptools wheel
-            $PIP_CMD install -r requirements.txt
-            log_success "Python packages installed from requirements.txt"
-            
-        else
-            log_info "No pyproject.toml or requirements.txt found, skipping Python package installation"
-        fi
-    else
-        log_warning "No Python installation found, skipping virtual environment setup"
-    fi
-}
-
-install_vscode_mcp_servers() {
-    log_step "Setting up VS Code MCP servers..."
-    
-    # Create .vscode directory in home for global VS Code MCP configuration
-    mkdir -p $HOME/.vscode
-    
-    # Create VS Code MCP configuration
-    cat > $HOME/.vscode/mcp.json << 'EOF'
-{
-  "servers": {
-    "serena": {
-      "type": "stdio",
-      "command": "uv",
-      "args": ["tool", "run", "--python", "3.12", "--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant", "--project", "."]
-    },
-    "awslabs-ccapi-mcp-server": {
-      "type": "stdio",
-      "command": "uv",
-      "args": ["tool", "run", "--python", "3.12", "--from", "awslabs.ccapi-mcp-server@latest", "awslabs.ccapi-mcp-server", "--readonly"],
-      "env": {
-        "DEFAULT_TAGS": "enabled",
-        "SECURITY_SCANNING": "enabled",
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      }
-    }
-  }
-}
-EOF
-    
-    log_success "VS Code MCP configuration created at $HOME/.vscode/mcp.json"
-}
-
-install_claude() {
-    log_step "Installing Claude..."
-    
-    # Ensure certificate environment variables are set for npm
-    export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
-    export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-    export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-    export AWS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-    
-    log_info "Installing Claude CLI with certificate support..."
-    
-    # Try installation with certificates
-    if ! sudo -E NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt npm install -g @anthropic-ai/claude-code; then
-        log_warning "Claude installation failed with certificates. Trying with --unsafe-perm..."
-        
-        # Try with --unsafe-perm
-        if ! sudo -E NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt npm install -g @anthropic-ai/claude-code --unsafe-perm; then
-            log_warning "Installation with --unsafe-perm failed. Trying with strict-ssl disabled..."
-            
-            # Try with strict-ssl disabled as last resort
-            if ! sudo -E NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt npm install -g @anthropic-ai/claude-code --unsafe-perm --strict-ssl=false; then
-                log_warning "Claude installation failed with all methods. Please check certificate configuration."
-                return 1
-            else
-                log_success "Claude installed with strict-ssl disabled"
-            fi
-        else
-            log_success "Claude installed with --unsafe-perm"
-        fi
-    else
-        log_success "Claude installed successfully with certificates"
-    fi
-    
-    # Verify installation
-    if ! command -v claude >/dev/null 2>&1; then
-        log_warning "Claude command not found after installation. Check npm configuration."
-        return 1
-    else
-        CLAUDE_VERSION=$(claude --version 2>/dev/null || echo 'version unknown')
-        log_success "Claude installed successfully ($CLAUDE_VERSION)"
-    fi
-    
-    # Set certificate environment variables in .bashrc for persistence
-    log_info "Adding certificate environment variables to .bashrc..."
-    echo 'export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt' >> /home/vscode/.bashrc
-    echo 'export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt' >> /home/vscode/.bashrc
-    echo 'export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt' >> /home/vscode/.bashrc
-    echo 'export AWS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt' >> /home/vscode/.bashrc
-    rm -rf $HOME/.config/claude-code/auth.json
-    log_success "Claude installed"
-}
-
-install_claude_mcp() {
-    if [ "$INSTALL_CLAUDE" != true ]; then
-        return
-    fi
-    
-    log_step "Configuring MCP servers for Claude..."
-    
-    # Configure Serena MCP server for Claude
-    log_info "Adding Serena MCP server to Claude configuration..."
-    if claude mcp add serena -- uv tool run --python 3.12 --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)" 2>/dev/null; then
-        log_success "Serena MCP server added to Claude"
-    else
-        log_info "Serena MCP server already exists in Claude configuration"
-    fi
-    
-    # Configure AWS MCP server if AWS credentials are available
-    if [ "$AWS_MOUNTED" = true ]; then
-        log_info "Adding AWS MCP server to Claude configuration..."
-        if claude mcp add awslabs-ccapi-mcp-server \
-          -e DEFAULT_TAGS=enabled \
-          -e SECURITY_SCANNING=enabled \
-          -e FASTMCP_LOG_LEVEL=ERROR \
-          -- uv tool run --python 3.12 --from awslabs.ccapi-mcp-server@latest awslabs.ccapi-mcp-server --readonly 2>/dev/null; then
-            log_success "AWS MCP server added to Claude"
-        else
-            log_info "AWS MCP server already exists in Claude configuration"
-        fi
-    fi
-    
-    # Verify MCP server configuration
-    log_info "Verifying MCP server configuration..."
-    if command -v claude >/dev/null 2>&1; then
-        MCP_SERVERS=$(claude mcp list 2>/dev/null | grep -E "serena|awslabs" | wc -l)
-        if [ "$MCP_SERVERS" -gt 0 ]; then
-            log_success "MCP servers configured successfully"
-        else
-            log_warning "No MCP servers found. You may need to configure them manually."
-        fi
-    fi
-}
-
-verify_aws_credentials() {
-    log_step "Setting up AWS credentials..."
-    
-    # Check if credentials are mounted and working
-    if [ -d "$HOME/.aws" ] && [ "$(ls -A $HOME/.aws 2>/dev/null)" ]; then
-        log_info "AWS credentials found"
-        # Test if credentials work
-        if aws sts get-caller-identity >/dev/null 2>&1; then
-            AWS_ACCOUNT=$(aws sts get-caller-identity --query 'Account' --output text 2>/dev/null)
-            AWS_USER=$(aws sts get-caller-identity --query 'Arn' --output text 2>/dev/null | rev | cut -d'/' -f1 | rev)
-            AWS_REGION=$(aws configure get region 2>/dev/null || echo "not-set")
-            
-            log_success "AWS credentials are valid"
-            log_info "Connected to AWS Account: $AWS_ACCOUNT"
-            log_info "User: $AWS_USER"
-            log_info "Region: $AWS_REGION"
-            
-            AWS_MOUNTED=true
-        else
-            log_warning "AWS credentials found but not working - check your configuration"
-            AWS_MOUNTED=false
-        fi
-    else
-        log_info "No AWS credentials found in $HOME/.aws If you're not using AWS, ignore this message."
-        AWS_MOUNTED=false
-    fi
-}
-
-# --- Main Script ---
 # Parse command line arguments
 INSTALL_CLAUDE=false
+INSTALL_NODEJS=false
+INSTALL_AWS=false
+INSTALL_MCP=false
+INSTALL_ALL=false
+SKIP_PYTHON=false
 
 # Function to show usage
 show_usage() {
     echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Modular devcontainer setup script"
+    echo ""
     echo "Options:"
-    echo "  --claude    Install Claude with MCP support"
-    echo "  -h, --help  Show this help message"
+    echo "  --all           Install everything (equivalent to --claude --nodejs --aws --mcp)"
+    echo "  --claude        Install Claude CLI with MCP support"
+    echo "  --nodejs        Install Node.js (required for Claude)"
+    echo "  --aws           Verify and configure AWS credentials"
+    echo "  --mcp           Configure MCP servers for VS Code and Claude"
+    echo "  --skip-python   Skip Python environment setup"
+    echo "  -h, --help      Show this help message"
+    echo ""
+    echo "Default behavior (no flags):"
+    echo "  - Install certificates (always)"
+    echo "  - Setup Python environment (unless --skip-python)"
+    echo "  - Configure basic MCP servers"
+    echo ""
+    echo "Examples:"
+    echo "  $0                    # Basic setup (certificates + Python + MCP)"
+    echo "  $0 --claude           # Full Claude development setup"
+    echo "  $0 --all              # Install everything"
+    echo "  $0 --nodejs --mcp     # Just Node.js and MCP servers"
     exit 1
 }
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
+        --all)
+            INSTALL_ALL=true
+            INSTALL_CLAUDE=true
+            INSTALL_NODEJS=true
+            INSTALL_AWS=true
+            INSTALL_MCP=true
+            shift
+            ;;
         --claude)
             INSTALL_CLAUDE=true
+            INSTALL_NODEJS=true  # Claude requires Node.js
+            INSTALL_MCP=true     # Claude benefits from MCP
+            shift
+            ;;
+        --nodejs)
+            INSTALL_NODEJS=true
+            shift
+            ;;
+        --aws)
+            INSTALL_AWS=true
+            shift
+            ;;
+        --mcp)
+            INSTALL_MCP=true
+            shift
+            ;;
+        --skip-python)
+            SKIP_PYTHON=true
             shift
             ;;
         -h|--help)
@@ -324,53 +91,150 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-log_step "Starting devcontainer setup..."
-if [ "$INSTALL_CLAUDE" = true ]; then
-    log_info "Claude MCP support will be installed"
-else
-    log_info "Skipping Claude MCP installation (use --claude to enable)"
+# If no specific options were given, enable default behavior
+if [ "$INSTALL_CLAUDE" = false ] && [ "$INSTALL_NODEJS" = false ] && [ "$INSTALL_AWS" = false ]; then
+    INSTALL_MCP=true  # Default: install basic MCP servers
 fi
 
-# Initialize variables
-PYTHON_VENV_CREATED=false
-RUBY_BUNDLE_INSTALLED=false
-AWS_MOUNTED=false
+# Initialize status variables
+export CERTIFICATES_INSTALLED=false
+export AWS_MOUNTED=false
+export PYTHON_VENV_CREATED=false
+export NODEJS_INSTALLED=false
+export CLAUDE_INSTALLED=false
+export VSCODE_MCP_CONFIGURED=false
+export CLAUDE_MCP_CONFIGURED=false
 
-# Setup stages
-install_certificates
-verify_aws_credentials
-install_vscode_mcp_servers
+# Main setup flow
+main() {
+    log_step "Starting modular devcontainer setup..."
+    
+    # Display configuration
+    if [ "$INSTALL_ALL" = true ]; then
+        log_info "Full installation requested (all components)"
+    else
+        log_info "Selected components:"
+        [ "$SKIP_PYTHON" = false ] && echo "   - Python environment"
+        [ "$INSTALL_NODEJS" = true ] && echo "   - Node.js"
+        [ "$INSTALL_CLAUDE" = true ] && echo "   - Claude CLI"
+        [ "$INSTALL_AWS" = true ] && echo "   - AWS credentials"
+        [ "$INSTALL_MCP" = true ] && echo "   - MCP servers"
+        if [ "$DOCKER_BUILD_CONTEXT" = true ]; then
+            echo "   - Certificates (deferred to runtime)"
+        else
+            echo "   - Certificates (always)"
+        fi
+    fi
+    
+    # 1. Certificate setup (skip during Docker build, install at runtime)
+    if [ "$DOCKER_BUILD_CONTEXT" = true ]; then
+        log_step "Step 1: Certificate setup - SKIPPED (Docker build context)"
+        log_info "Certificates will be installed during postCreateCommand"
+        export NRCAN_NETWORK=false
+    else
+        log_step "Step 1: Certificate setup"
+        source "$SCRIPTS_DIR/certificates.sh"
+        install_certificates
+    fi
+    
+    # 2. Verify AWS credentials if requested
+    if [ "$INSTALL_AWS" = true ]; then
+        log_step "Step 2: AWS credentials verification"
+        source "$SCRIPTS_DIR/aws.sh"
+        verify_aws_credentials
+    fi
+    
+    # 3. Setup Python environment (unless skipped)
+    if [ "$SKIP_PYTHON" = false ]; then
+        log_step "Step 3: Python environment setup"
+        source "$SCRIPTS_DIR/python_env.sh"
+        configure_pip  # Configure pip for corporate network before installing uv
+        install_uv
+        setup_python_venv
+        
+        # Ensure uv is in PATH for subsequent steps
+        export PATH="$HOME/.local/bin:$PATH"
+    else
+        log_info "Step 3: Skipping Python environment setup"
+    fi
+    
+    # 4. Install Node.js if requested (skip if already installed via Dockerfile)
+    if [ "$INSTALL_NODEJS" = true ]; then
+        if command -v node >/dev/null 2>&1; then
+            local node_version=$(node --version 2>/dev/null)
+            log_info "Node.js already installed: $node_version"
+            log_success "Node.js installation verified"
+            export NODEJS_INSTALLED=true
+        else
+            log_step "Step 4: Node.js installation"
+            source "$SCRIPTS_DIR/nodejs.sh"
+            install_nodejs
+        fi
+    fi
+    
+    # 5. Install Claude CLI if requested
+    if [ "$INSTALL_CLAUDE" = true ]; then
+        if [ "$NODEJS_INSTALLED" != true ] && [ "$INSTALL_NODEJS" != true ]; then
+            log_error "Claude requires Node.js, but Node.js installation was not requested"
+            log_info "Please run with --nodejs or --claude flags"
+            return 1
+        fi
+        
+        log_step "Step 5: Claude CLI installation"
+        source "$SCRIPTS_DIR/claude.sh"
+        install_claude
+        setup_claude_environment
+    fi
+    
+    # 6. Setup MCP servers if requested
+    if [ "$INSTALL_MCP" = true ]; then
+        log_step "Step 6: MCP server configuration"
+        source "$SCRIPTS_DIR/mcp.sh"
+        install_vscode_mcp_servers
+        
+        # Only install Claude MCP if Claude is installed
+        if [ "$CLAUDE_INSTALLED" = true ]; then
+            install_claude_mcp
+        fi
+        
+        verify_mcp_setup
+    fi
+    
+    # Summary
+    display_summary
+}
 
-# Install Claude and tools if requested
-if [ "$INSTALL_CLAUDE" = true ]; then
-    install_nodejs
-    install_uv
-    install_claude
-    install_claude_mcp
-fi
+display_summary() {
+    log_step "Setup Summary"
+    log_success "Devcontainer setup complete!"
+    
+    echo ""
+    log_info "Installed components:"
+    echo "   ✅ SSL certificates configured"
+    
+    [ "$AWS_MOUNTED" = true ] && echo "   ✅ AWS credentials verified" || echo "   ⏭️  AWS credentials not configured"
+    [ "$PYTHON_VENV_CREATED" = true ] && echo "   ✅ Python virtual environment created (./.venv)" || echo "   ⏭️  Python environment skipped or already existed"
+    [ "$NODEJS_INSTALLED" = true ] && echo "   ✅ Node.js and npm installed" || echo "   ⏭️  Node.js not installed"
+    [ "$CLAUDE_INSTALLED" = true ] && echo "   ✅ Claude CLI installed" || echo "   ⏭️  Claude CLI not installed"
+    [ "$VSCODE_MCP_CONFIGURED" = true ] && echo "   ✅ VS Code MCP servers configured" || echo "   ⏭️  VS Code MCP not configured"
+    [ "$CLAUDE_MCP_CONFIGURED" = true ] && echo "   ✅ Claude MCP servers configured" || echo "   ⏭️  Claude MCP not configured"
+    
+    echo ""
+    log_info "Available tools:"
+    echo "   - VS Code with MCP servers (code analysis, AWS resources)"
+    echo "   - GitHub Copilot for code completion"
+    [ "$PYTHON_VENV_CREATED" = true ] && echo "   - Python virtual environment: source ./.venv/bin/activate"
+    [ "$CLAUDE_INSTALLED" = true ] && echo "   - Claude CLI: claude auth (to authenticate)"
+    
+    echo ""
+    log_info "Individual components can be run separately:"
+    echo "   - $SCRIPTS_DIR/certificates.sh    # Certificate management"
+    echo "   - $SCRIPTS_DIR/aws.sh             # AWS credentials"
+    echo "   - $SCRIPTS_DIR/python_env.sh      # Python environment"
+    echo "   - $SCRIPTS_DIR/nodejs.sh          # Node.js installation"
+    echo "   - $SCRIPTS_DIR/claude.sh          # Claude CLI"
+    echo "   - $SCRIPTS_DIR/mcp.sh             # MCP server configuration"
+}
 
-# setup_aws_mcp
-setup_python_venv
-
-# Summary
-log_step "Devcontainer setup complete!"
-
-log_info "You can now use:"
-echo "   - VS Code with standalone MCP servers (Serena for code analysis)"
-if [ "$AWS_MOUNTED" = true ]; then
-    echo "   - VS Code with AWS MCP server for AWS resource management"
-fi
-echo "   - GitHub Copilot for code completion"
-if [ "$PYTHON_VENV_CREATED" = true ]; then
-    echo "   - Python virtual environment at ./.venv"
-fi
-if [ "$RUBY_BUNDLE_INSTALLED" = true ]; then
-    echo "   - Ruby gems in ./vendor/bundle"
-fi
-
-log_info "MCP Configuration:"
-echo "   - VS Code MCP config: .vscode/mcp.json"
-if [ "$INSTALL_CLAUDE" = true ]; then
-    echo "   - Claude Desktop/Code with the same MCP servers"
-    echo "   - Both VS Code and Claude use the same MCP servers independently"
-fi
+# Run main function
+main "$@"

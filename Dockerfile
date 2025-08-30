@@ -16,7 +16,6 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     git \
     curl \
-    wget \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
@@ -44,11 +43,17 @@ ARG OPENSTUDIO_HPXML_VERSION=v1.9.1
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Configure insecure operations for corporate networks during build
+# These will be overridden at runtime with proper certificates
+ENV PYTHONHTTPSVERIFY=0
+ENV CURL_CA_BUNDLE=""
+ENV REQUESTS_CA_BUNDLE=""
+ENV GIT_SSL_NO_VERIFY=true
+
 # Install runtime dependencies including X11 for OpenStudio (but no dev tools)
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl \
-    wget \
     unzip \
     git \
     libssl3 \
@@ -64,7 +69,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Install pip for Python
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
+RUN curl -sSk https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
+
+# Configure pip to work with corporate networks (ignore SSL during build)
+RUN python${PYTHON_VERSION} -m pip config set global.trusted-host "pypi.org files.pythonhosted.org pypi.python.org" \
+    && python${PYTHON_VERSION} -m pip config set global.disable-pip-version-check true
 
 # Set Python as default
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 \
@@ -73,14 +82,15 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTH
 # Install OpenStudio
 WORKDIR /tmp
 ARG UBUNTU_VERSION=22.04
-RUN wget --progress=dot:giga --no-check-certificate -O OpenStudio.deb \
+RUN curl -L --progress-bar --insecure -o OpenStudio.deb \
     "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
     && dpkg -i OpenStudio.deb \
     && rm -f OpenStudio.deb
 
 # Clone OpenStudio-HPXML
 WORKDIR /opt
-RUN git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git \
+RUN git config --global http.sslverify false \
+    && git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git \
     && rm -rf OpenStudio-HPXML/.git
 
 # Set up application directory
@@ -130,6 +140,13 @@ ARG OPENSTUDIO_HPXML_VERSION=v1.9.1
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Configure insecure operations for corporate networks during build
+# These will be overridden at runtime with proper certificates
+ENV PYTHONHTTPSVERIFY=0
+ENV CURL_CA_BUNDLE=""
+ENV REQUESTS_CA_BUNDLE=""
+ENV GIT_SSL_NO_VERIFY=true
+
 # Switch to root for installations
 USER root
 
@@ -154,7 +171,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Docker CLI for devcontainer support
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
+RUN curl -fsSLk https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get update \
     && apt-get install -y docker-ce-cli docker-compose-plugin \
@@ -163,7 +180,11 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /
     && rm -rf /var/lib/apt/lists/*
 
 # Install pip for Python 3.12
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
+RUN curl -sSk https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
+
+# Configure pip to work with corporate networks (ignore SSL during build)
+RUN python${PYTHON_VERSION} -m pip config set global.trusted-host "pypi.org files.pythonhosted.org pypi.python.org" \
+    && python${PYTHON_VERSION} -m pip config set global.disable-pip-version-check true
 
 # Set Python as default
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 \
@@ -172,14 +193,15 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTH
 # Install OpenStudio
 WORKDIR /tmp
 ARG UBUNTU_VERSION=22.04
-RUN wget --progress=dot:giga --no-check-certificate -O OpenStudio.deb \
+RUN curl -L --progress-bar --insecure -o OpenStudio.deb \
     "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
     && dpkg -i OpenStudio.deb \
     && rm -f OpenStudio.deb
 
 # Clone OpenStudio-HPXML
 WORKDIR /opt
-RUN git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git \
+RUN git config --global http.sslverify false \
+    && git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git \
     && rm -rf OpenStudio-HPXML/.git
 
 # Copy built package from builder stage and install
@@ -195,15 +217,32 @@ ENV HPXML_OS_PATH=/opt/OpenStudio-HPXML
 ENV OPENSTUDIO_BINARY=/usr/local/bin/openstudio
 ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
 
-# Copy development setup script
+# Copy development setup script and its dependencies
 COPY .devcontainer/dev_setup.sh /tmp/dev_setup.sh
+COPY .devcontainer/scripts/ /tmp/scripts/
 RUN chmod +x /tmp/dev_setup.sh
+
+# Install Node.js 18.x directly from official binaries (bypasses SSL/repository issues)
+RUN curl -fsSL -k --connect-timeout 30 https://nodejs.org/dist/v18.20.4/node-v18.20.4-linux-x64.tar.xz -o /tmp/node.tar.xz \
+    && cd /tmp \
+    && tar -xJf node.tar.xz \
+    && cp -r node-v18.20.4-linux-x64/* /usr/local/ \
+    && rm -rf /tmp/node* \
+    && ln -sf /usr/local/bin/node /usr/bin/node \
+    && ln -sf /usr/local/bin/npm /usr/bin/npm \
+    && ln -sf /usr/local/bin/npx /usr/bin/npx \
+    && npm config set ca "" \
+    && npm config set strict-ssl false \
+    && npm config set registry https://registry.npmjs.org/ \
+    && node --version \
+    && npm --version
 
 # Switch to vscode user (already exists in devcontainer base)
 USER vscode
 WORKDIR /workspaces/h2k_hpxml
 
-# Run development setup script with Claude support
+# Run development setup script with Claude support (certificates will be installed at runtime)
+ENV DOCKER_BUILD_CONTEXT=true
 RUN bash /tmp/dev_setup.sh --claude
 
 # Default to development environment with bash

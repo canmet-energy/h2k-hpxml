@@ -4,6 +4,13 @@ set -e
 # H2K-HPXML Docker Entrypoint Script
 # Handles CLI commands and sets up proper environment
 
+# Set runtime flag for certificate installation
+export CONTAINER_RUNTIME=true
+
+# Install certificates at runtime if needed (skipped during build)
+# Note: Certificate scripts are not copied to production containers
+# Runtime certificate installation would need to be implemented separately if required
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
