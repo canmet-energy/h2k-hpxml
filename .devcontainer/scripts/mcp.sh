@@ -19,12 +19,12 @@ install_vscode_mcp_servers() {
     "serena": {
       "type": "stdio",
       "command": "uv",
-      "args": ["tool", "run", "--python", "3.12", "--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant", "--project", "."]
+      "args": ["tool", "run", "--python", "3.10", "--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant", "--project", "."]
     },
     "awslabs-ccapi-mcp-server": {
       "type": "stdio",
       "command": "uv",
-      "args": ["tool", "run", "--python", "3.12", "--from", "awslabs.ccapi-mcp-server@latest", "awslabs.ccapi-mcp-server", "--readonly"],
+      "args": ["tool", "run", "--python", "3.10", "--from", "awslabs.ccapi-mcp-server@latest", "awslabs.ccapi-mcp-server", "--readonly"],
       "env": {
         "DEFAULT_TAGS": "enabled",
         "SECURITY_SCANNING": "enabled",
@@ -51,7 +51,7 @@ install_claude_mcp() {
     
     # Configure Serena MCP server for Claude
     log_info "Adding Serena MCP server to Claude configuration..."
-    if claude mcp add serena -- uv tool run --python 3.12 --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)" 2>/dev/null; then
+    if claude mcp add serena -- uv tool run --python 3.10 --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)" 2>/dev/null; then
         log_success "Serena MCP server added to Claude"
     else
         log_info "Serena MCP server already exists in Claude configuration or failed to add"
@@ -64,7 +64,7 @@ install_claude_mcp() {
           -e DEFAULT_TAGS=enabled \
           -e SECURITY_SCANNING=enabled \
           -e FASTMCP_LOG_LEVEL=ERROR \
-          -- uv tool run --python 3.12 --from awslabs.ccapi-mcp-server@latest awslabs.ccapi-mcp-server --readonly 2>/dev/null; then
+          -- uv tool run --python 3.10 --from awslabs.ccapi-mcp-server@latest awslabs.ccapi-mcp-server --readonly 2>/dev/null; then
             log_success "AWS MCP server added to Claude"
         else
             log_info "AWS MCP server already exists in Claude configuration or failed to add"
@@ -110,7 +110,7 @@ verify_mcp_setup() {
     
     # Test Serena MCP server availability (non-blocking)
     log_info "Testing Serena MCP server availability..."
-    if timeout 10 uv tool run --python 3.12 --from git+https://github.com/oraios/serena serena --help >/dev/null 2>&1; then
+    if timeout 10 uv tool run --python 3.10 --from git+https://github.com/oraios/serena serena --help >/dev/null 2>&1; then
         log_success "Serena MCP server is accessible"
     else
         log_warning "Serena MCP server test timed out or failed (may work in actual usage)"
