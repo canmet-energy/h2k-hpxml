@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install uv - download binary directly to bypass SSL issues
 RUN curl -LsSfk --insecure --connect-timeout 30 -o /tmp/uv.tar.gz \
-        "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
+    "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
     && cd /tmp \
     && tar -xzf uv.tar.gz \
     && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/ \
@@ -61,10 +61,6 @@ ARG UBUNTU_VERSION
 
 # Environment Configuration
 ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONHTTPSVERIFY=0 \
-    CURL_CA_BUNDLE="" \
-    REQUESTS_CA_BUNDLE="" \
-    GIT_SSL_NO_VERIFY=true \
     UV_INSECURE_HOST="pypi.org files.pythonhosted.org github.com" \
     UV_NATIVE_TLS=true
 
@@ -83,12 +79,9 @@ RUN apt-get update && apt-get install -y \
     # X11 libraries for OpenStudio
     libx11-6 \
     libxext6 \
-    # Configure insecure HTTPS for corporate networks
-    && echo 'Acquire::https::Verify-Peer "false";' > /etc/apt/apt.conf.d/99no-check-certificate \
-    && echo 'Acquire::https::Verify-Host "false";' >> /etc/apt/apt.conf.d/99no-check-certificate \
     # Install uv - standalone Python manager
     && curl -LsSfk --insecure --connect-timeout 30 -o /tmp/uv.tar.gz \
-        "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
+    "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
     && cd /tmp && tar -xzf uv.tar.gz \
     && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/ \
     && chmod +x /usr/local/bin/uv && rm -rf /tmp/uv* \
@@ -99,11 +92,10 @@ RUN apt-get update && apt-get install -y \
 # Install OpenStudio and OpenStudio-HPXML
 WORKDIR /tmp
 RUN curl -L --progress-bar --insecure -o OpenStudio.deb \
-        "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
+    "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
     && dpkg -i OpenStudio.deb \
     && rm -f OpenStudio.deb \
     # Clone OpenStudio-HPXML
-    && git config --global http.sslverify false \
     && cd /opt \
     && git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git \
     && rm -rf OpenStudio-HPXML/.git
@@ -160,10 +152,6 @@ ARG UBUNTU_VERSION
 
 # Environment Configuration
 ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONHTTPSVERIFY=0 \
-    CURL_CA_BUNDLE="" \
-    REQUESTS_CA_BUNDLE="" \
-    GIT_SSL_NO_VERIFY=true \
     UV_INSECURE_HOST="pypi.org files.pythonhosted.org github.com" \
     UV_NATIVE_TLS=true
 
@@ -188,12 +176,9 @@ RUN apt-get update && apt-get install -y \
     # X11 libraries for OpenStudio
     libx11-6 \
     libxext6 \
-    # Configure insecure HTTPS for corporate networks
-    && echo 'Acquire::https::Verify-Peer "false";' > /etc/apt/apt.conf.d/99no-check-certificate \
-    && echo 'Acquire::https::Verify-Host "false";' >> /etc/apt/apt.conf.d/99no-check-certificate \
     # Install uv - standalone Python manager
     && curl -LsSfk --insecure --connect-timeout 30 -o /tmp/uv.tar.gz \
-        "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
+    "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
     && cd /tmp && tar -xzf uv.tar.gz \
     && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/ \
     && chmod +x /usr/local/bin/uv && rm -rf /tmp/uv* \
@@ -212,11 +197,10 @@ RUN curl -fsSLk https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o 
 # Install OpenStudio, OpenStudio-HPXML, and application
 WORKDIR /tmp
 RUN curl -L --progress-bar --insecure -o OpenStudio.deb \
-        "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
+    "https://github.com/NREL/OpenStudio/releases/download/v${OPENSTUDIO_VERSION}/OpenStudio-${OPENSTUDIO_VERSION}+${OPENSTUDIO_SHA}-Ubuntu-${UBUNTU_VERSION}-x86_64.deb" \
     && dpkg -i OpenStudio.deb \
     && rm -f OpenStudio.deb \
     # Clone OpenStudio-HPXML
-    && git config --global http.sslverify false \
     && cd /opt \
     && git clone --depth 1 --branch ${OPENSTUDIO_HPXML_VERSION} https://github.com/NREL/OpenStudio-HPXML.git \
     && rm -rf OpenStudio-HPXML/.git
@@ -275,7 +259,7 @@ CMD ["/bin/bash"]
 # METADATA
 # ===================================================================
 LABEL maintainer="CANMET Energy <canmet-energy@nrcan-rncan.gc.ca>" \
-      description="H2K to HPXML to EnergyPlus translation tool for Canadian building energy models" \
-      org.opencontainers.image.source="https://github.com/canmet-energy/h2k-hpxml" \
-      org.opencontainers.image.documentation="https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md" \
-      org.opencontainers.image.licenses="MIT"
+    description="H2K to HPXML to EnergyPlus translation tool for Canadian building energy models" \
+    org.opencontainers.image.source="https://github.com/canmet-energy/h2k-hpxml" \
+    org.opencontainers.image.documentation="https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md" \
+    org.opencontainers.image.licenses="MIT"
