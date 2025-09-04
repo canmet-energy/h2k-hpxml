@@ -5,7 +5,6 @@
 # GLOBAL BUILD ARGUMENTS
 # ===================================================================
 ARG UBUNTU_VERSION=22.04
-ARG PYTHON_VERSION=3.12
 ARG OPENSTUDIO_VERSION=3.9.0
 ARG OPENSTUDIO_SHA=c77fbb9569
 ARG OPENSTUDIO_HPXML_VERSION=v1.9.1
@@ -13,7 +12,7 @@ ARG OPENSTUDIO_HPXML_VERSION=v1.9.1
 # ===================================================================
 # BUILDER STAGE - Build Python package
 # ===================================================================
-FROM python:${PYTHON_VERSION}-slim AS builder
+FROM ubuntu:${UBUNTU_VERSION} AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -21,19 +20,33 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     unzip \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Set up Python environment
+# Install uv - download binary directly to bypass SSL issues
+RUN curl -LsSfk --insecure --connect-timeout 30 -o /tmp/uv.tar.gz \
+        "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
+    && cd /tmp \
+    && tar -xzf uv.tar.gz \
+    && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/ \
+    && chmod +x /usr/local/bin/uv \
+    && rm -rf /tmp/uv*
+
+# Set up build environment
 WORKDIR /app
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir build wheel
+
+# Configure uv for corporate networks
+ENV UV_INSECURE_HOST="pypi.org files.pythonhosted.org github.com" \
+    UV_NATIVE_TLS=true
 
 # Copy source code and build the package
 COPY src/ ./src/
 COPY README.md CLAUDE.md ./
 # Set version for setuptools_scm since we don't have git metadata in Docker context
 ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_H2K_HPXML=1.0.0
-RUN python -m build
+# uv automatically detects Python version from pyproject.toml and builds the package
+RUN uv build
 
 # ===================================================================
 # PRODUCTION STAGE - Minimal runtime image
@@ -41,7 +54,6 @@ RUN python -m build
 FROM ubuntu:${UBUNTU_VERSION} AS production
 
 # Re-declare ARGs needed in this stage
-ARG PYTHON_VERSION
 ARG OPENSTUDIO_VERSION
 ARG OPENSTUDIO_SHA
 ARG OPENSTUDIO_HPXML_VERSION
@@ -52,16 +64,18 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONHTTPSVERIFY=0 \
     CURL_CA_BUNDLE="" \
     REQUESTS_CA_BUNDLE="" \
-    GIT_SSL_NO_VERIFY=true
+    GIT_SSL_NO_VERIFY=true \
+    UV_INSECURE_HOST="pypi.org files.pythonhosted.org github.com" \
+    UV_NATIVE_TLS=true
 
-# Install system dependencies and Python
+# Install system dependencies (no Python needed!)
 RUN apt-get update && apt-get install -y \
     # Basic utilities
     curl \
     git \
     ruby \
-    software-properties-common \
     unzip \
+    ca-certificates \
     # Runtime libraries
     libgfortran5 \
     libgomp1 \
@@ -72,20 +86,12 @@ RUN apt-get update && apt-get install -y \
     # Configure insecure HTTPS for corporate networks
     && echo 'Acquire::https::Verify-Peer "false";' > /etc/apt/apt.conf.d/99no-check-certificate \
     && echo 'Acquire::https::Verify-Host "false";' >> /etc/apt/apt.conf.d/99no-check-certificate \
-    # Add Python PPA and install specific version
-    && add-apt-repository ppa:deadsnakes/ppa -y \
-    && apt-get update \
-    && apt-get install -y \
-        python${PYTHON_VERSION} \
-        python${PYTHON_VERSION}-dev \
-        python${PYTHON_VERSION}-venv \
-        python3-pip \
-    # Set up Python symlinks and pip
-    && ln -sf /usr/bin/python${PYTHON_VERSION} /usr/bin/python3 \
-    && ln -sf /usr/bin/python${PYTHON_VERSION} /usr/bin/python \
-    && python${PYTHON_VERSION} -m ensurepip --upgrade \
-    && python${PYTHON_VERSION} -m pip config set global.trusted-host "pypi.org files.pythonhosted.org pypi.python.org" \
-    && python${PYTHON_VERSION} -m pip config set global.disable-pip-version-check true \
+    # Install uv - standalone Python manager
+    && curl -LsSfk --insecure --connect-timeout 30 -o /tmp/uv.tar.gz \
+        "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
+    && cd /tmp && tar -xzf uv.tar.gz \
+    && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/ \
+    && chmod +x /usr/local/bin/uv && rm -rf /tmp/uv* \
     # Cleanup
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
@@ -105,20 +111,31 @@ RUN curl -L --progress-bar --insecure -o OpenStudio.deb \
 # Install application and configure
 WORKDIR /opt
 COPY --from=builder /app/dist/*.whl ./
-RUN pip install --no-cache-dir *.whl \
-    && rm -f *.whl \
-    # Set up configuration
-    && mkdir -p /app/config/templates \
-    # Create non-root user
+COPY --from=builder /app/pyproject.toml ./
+# Create directories and non-root user first  
+RUN mkdir -p /app/config/templates \
     && useradd -m -u 1000 h2kuser \
-    && chown -R h2kuser:h2kuser /app
+    && chown -R h2kuser:h2kuser /app \
+    && chown h2kuser:h2kuser *.whl *.toml
+
+# Switch to h2kuser and install Python packages
+USER h2kuser
+RUN PYTHON_VERSION=$(grep "requires-python" pyproject.toml | grep -o "[0-9]\+\.[0-9]\+" | head -1) \
+    && echo "Installing Python $PYTHON_VERSION from pyproject.toml" \
+    && uv python install $PYTHON_VERSION \
+    && uv venv /app/.venv --python $PYTHON_VERSION \
+    && . /app/.venv/bin/activate && uv pip install *.whl
+
+# Switch back to root for final setup
+USER root
+RUN rm -f /opt/*.whl /opt/*.toml
 
 COPY config/defaults/conversionconfig.template.ini /app/config/templates/
 
 # Configure runtime environment
 ENV HPXML_OS_PATH=/opt/OpenStudio-HPXML \
     OPENSTUDIO_BINARY=/usr/local/bin/openstudio \
-    PYTHONPATH=/usr/local/lib/python3/site-packages
+    PATH="/app/.venv/bin:$PATH"
 
 # Set up entrypoint and switch to non-root user
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -136,7 +153,6 @@ CMD ["h2k2hpxml", "--help"]
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-${UBUNTU_VERSION} AS development
 
 # Re-declare ARGs needed in this stage
-ARG PYTHON_VERSION
 ARG OPENSTUDIO_VERSION
 ARG OPENSTUDIO_SHA
 ARG OPENSTUDIO_HPXML_VERSION
@@ -147,16 +163,17 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONHTTPSVERIFY=0 \
     CURL_CA_BUNDLE="" \
     REQUESTS_CA_BUNDLE="" \
-    GIT_SSL_NO_VERIFY=true
+    GIT_SSL_NO_VERIFY=true \
+    UV_INSECURE_HOST="pypi.org files.pythonhosted.org github.com" \
+    UV_NATIVE_TLS=true
 
-# Install system dependencies, Python, and development tools
+# Install system dependencies and development tools (no Python needed!)
 RUN apt-get update && apt-get install -y \
     # APT and repository tools
     apt-transport-https \
     ca-certificates \
     gnupg \
     lsb-release \
-    software-properties-common \
     # Basic utilities
     curl \
     git \
@@ -174,30 +191,23 @@ RUN apt-get update && apt-get install -y \
     # Configure insecure HTTPS for corporate networks
     && echo 'Acquire::https::Verify-Peer "false";' > /etc/apt/apt.conf.d/99no-check-certificate \
     && echo 'Acquire::https::Verify-Host "false";' >> /etc/apt/apt.conf.d/99no-check-certificate \
-    # Add Python PPA and install specific version
-    && add-apt-repository ppa:deadsnakes/ppa -y \
-    && apt-get update \
-    && apt-get install -y \
-        python${PYTHON_VERSION} \
-        python${PYTHON_VERSION}-dev \
-        python${PYTHON_VERSION}-venv \
-        python3-pip \
+    # Install uv - standalone Python manager
+    && curl -LsSfk --insecure --connect-timeout 30 -o /tmp/uv.tar.gz \
+        "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
+    && cd /tmp && tar -xzf uv.tar.gz \
+    && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/ \
+    && chmod +x /usr/local/bin/uv && rm -rf /tmp/uv* \
+    # Cleanup
     && rm -rf /var/lib/apt/lists/*
 
-# Install Docker CLI and configure Python
+# Install Docker CLI (Python managed by uv)
 RUN curl -fsSLk https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get update \
     && apt-get install -y docker-ce-cli docker-compose-plugin \
     && groupadd -f docker \
     && usermod -aG docker vscode \
-    && rm -rf /var/lib/apt/lists/* \
-    # Set up Python symlinks and pip
-    && ln -sf /usr/bin/python${PYTHON_VERSION} /usr/bin/python3 \
-    && ln -sf /usr/bin/python${PYTHON_VERSION} /usr/bin/python \
-    && python${PYTHON_VERSION} -m ensurepip --upgrade \
-    && python${PYTHON_VERSION} -m pip config set global.trusted-host "pypi.org files.pythonhosted.org pypi.python.org" \
-    && python${PYTHON_VERSION} -m pip config set global.disable-pip-version-check true
+    && rm -rf /var/lib/apt/lists/*
 
 # Install OpenStudio, OpenStudio-HPXML, and application
 WORKDIR /tmp
@@ -213,7 +223,18 @@ RUN curl -L --progress-bar --insecure -o OpenStudio.deb \
 
 # Install application
 COPY --from=builder /app/dist/*.whl /tmp/
-RUN pip install --no-cache-dir /tmp/*.whl && rm -f /tmp/*.whl
+COPY --from=builder /app/pyproject.toml /tmp/
+# Ensure /app exists and setup permissions
+RUN mkdir -p /app && chown -R vscode:vscode /app
+# Switch to vscode user for Python installation
+USER vscode
+RUN PYTHON_VERSION=$(grep "requires-python" /tmp/pyproject.toml | grep -o "[0-9]\+\.[0-9]\+" | head -1) \
+    && echo "Installing Python $PYTHON_VERSION from pyproject.toml" \
+    && uv python install $PYTHON_VERSION \
+    && uv venv /app/.venv --python $PYTHON_VERSION \
+    && . /app/.venv/bin/activate && uv pip install /tmp/*.whl
+USER root
+RUN rm -f /tmp/*.whl /tmp/*.toml
 
 # Set up configuration and environment
 RUN mkdir -p /app/config/templates
@@ -221,7 +242,7 @@ COPY config/defaults/conversionconfig.template.ini /app/config/templates/
 
 ENV HPXML_OS_PATH=/opt/OpenStudio-HPXML \
     OPENSTUDIO_BINARY=/usr/local/bin/openstudio \
-    PYTHONPATH=/usr/local/lib/python${PYTHON_VERSION}/site-packages
+    PATH="/app/.venv/bin:$PATH"
 
 # Install Node.js and configure development environment
 COPY .devcontainer/dev_setup.sh /tmp/dev_setup.sh
