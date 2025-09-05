@@ -137,9 +137,9 @@
 			<ClimateandRiskZones>
 				<WeatherStation>
 					<SystemIdentifier id="WeatherStation"/>
-					<Name>/OpenStudio-HPXML/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020</Name>
+					<Name>/workspaces/h2k-hpxml/src/h2k_hpxml/_deps/OpenStudio-HPXML/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020</Name>
 					<extension>
-						<EPWFilePath>/OpenStudio-HPXML/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020.epw</EPWFilePath>
+						<EPWFilePath>/workspaces/h2k-hpxml/src/h2k_hpxml/_deps/OpenStudio-HPXML/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020.epw</EPWFilePath>
 					</extension>
 				</WeatherStation>
 			</ClimateandRiskZones>

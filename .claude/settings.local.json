@@ -12,7 +12,8 @@
       "Bash(sed:*)",
       "Bash(curl:*)",
       "Bash(chmod:*)",
-      "Bash(./docker/test_container.sh:*)"
+      "Bash(./docker/test_container.sh:*)",
+      "Read(//app/.venv/lib/python3.12/site-packages/h2k_hpxml/**)"
     ],
     "deny": [],
     "ask": [],

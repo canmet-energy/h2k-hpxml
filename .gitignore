@@ -234,3 +234,6 @@ config/conversionconfig.test.ini
 !config/templates/
 !config/defaults/
 !config/**/*.template.ini
+
+# Don't include src_deps
+src/h2k_hpxml/_deps/
