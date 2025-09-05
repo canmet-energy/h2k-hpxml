@@ -19,7 +19,7 @@ This is the H2K-HPXML translation tool - a Canadian government project (CMHC/NRC
 #### Local Development
 ```bash
 # Install in development mode
-pip install -e .
+uv pip install -e .
 
 # Setup configuration and dependencies
 h2k-deps --setup
@@ -59,7 +59,7 @@ pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translatio
 ### Code Quality
 ```bash
 # Install development dependencies first
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 
 # Formatting and linting
 black src/ tests/                    # Auto-format code
@@ -213,8 +213,8 @@ All Docker containers include pre-installed OpenStudio and dependencies, elimina
 
 ### Installation Issues
 - **OpenStudio not found**: Run `h2k-deps --auto-install` or use Docker containers
-- **Missing dependencies**: Ensure you installed with `pip install -e ".[dev]"` for development
-- **Config file issues**: Check `~/.h2k-config/conversionconfig.ini` exists
+- **Missing dependencies**: Ensure you installed with `uv pip install -e ".[dev]"` for development (or `pip install -e ".[dev]"` if not using uv)
+- **Config file issues**: Check `config/conversionconfig.ini` exists in project root
 
 ### Testing Issues
 - **Golden file mismatches**: Expected when output format changes. Review changes carefully before running `--run-baseline`

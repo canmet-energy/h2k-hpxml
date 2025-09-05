@@ -89,8 +89,10 @@ cd linux_nrcan_certs && ./install_nrcan_certs.sh && cd .. && rm -fr linux_nrcan_
 This will install the package and all python dependencies.
 1. In the terminal, enter:
 ```bash
-pip install -e .
+uv pip install -e .
 ```
+
+> **Note**: If you don't have `uv` installed, you can use pip: `pip install -e .`
 
 ### Configure Development Environment
 After installing the package, set up your development configuration:

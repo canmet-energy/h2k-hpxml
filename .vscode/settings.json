@@ -1,5 +1,5 @@
 {
-    "python.defaultInterpreterPath": "./venv/bin/python",
+    "python.defaultInterpreterPath": "./.venv/bin/python",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": false,
@@ -46,5 +46,49 @@
     },
     "files.watcherExclude": {
         "**/__pycache__/**": true
+    },
+    "python.terminal.activateEnvironment": false,
+    "python.terminal.activateEnvInCurrentTerminal": false,
+    "terminal.integrated.profiles.linux": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+        },
+        "uv-shell": {
+            "path": "bash",
+            "icon": "terminal-bash",
+            "args": [],
+            "env": {
+                "UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
+            }
+        }
+    },
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "icon": "terminal-powershell"
+        },
+        "uv-shell": {
+            "path": "powershell.exe",
+            "icon": "terminal-powershell",
+            "args": [],
+            "env": {
+                "UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
+            }
+        }
+    },
+    "terminal.integrated.profiles.osx": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+        },
+        "uv-shell": {
+            "path": "bash",
+            "icon": "terminal-bash",
+            "args": [],
+            "env": {
+                "UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
+            }
+        }
     }
 }

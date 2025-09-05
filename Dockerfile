@@ -251,7 +251,6 @@ RUN chmod +x /tmp/dev_setup.sh \
 USER vscode
 WORKDIR /workspaces/h2k_hpxml
 ENV DOCKER_BUILD_CONTEXT=true
-RUN bash /tmp/dev_setup.sh --claude
 
 CMD ["/bin/bash"]
 

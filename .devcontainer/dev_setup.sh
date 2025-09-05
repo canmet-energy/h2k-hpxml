@@ -147,13 +147,14 @@ main() {
     # 3. Setup Python environment (unless skipped)
     if [ "$SKIP_PYTHON" = false ]; then
         log_step "Step 3: Python environment setup"
-        source "$SCRIPTS_DIR/python_env.sh"
-        configure_pip  # Configure pip for corporate network before installing uv
-        install_uv
-        setup_python_venv
-        
-        # Ensure uv is in PATH for subsequent steps
-        export PATH="$HOME/.local/bin:$PATH"
+        log_info "Python environment should be setup via devcontainer postCreateCommand"
+        # Check if uv is available
+        if command -v uv >/dev/null 2>&1; then
+            log_success "uv is available"
+            export PATH="$HOME/.local/bin:$PATH"
+        else
+            log_warning "uv not found - Python packages may not be properly installed"
+        fi
     else
         log_info "Step 3: Skipping Python environment setup"
     fi
@@ -230,7 +231,6 @@ display_summary() {
     log_info "Individual components can be run separately:"
     echo "   - $SCRIPTS_DIR/certificates.sh    # Certificate management"
     echo "   - $SCRIPTS_DIR/aws.sh             # AWS credentials"
-    echo "   - $SCRIPTS_DIR/python_env.sh      # Python environment"
     echo "   - $SCRIPTS_DIR/nodejs.sh          # Node.js installation"
     echo "   - $SCRIPTS_DIR/claude.sh          # Claude CLI"
     echo "   - $SCRIPTS_DIR/mcp.sh             # MCP server configuration"

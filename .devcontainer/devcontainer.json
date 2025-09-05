@@ -8,7 +8,9 @@
 		"context": ".."
 	},
 	"containerEnv": {
-		"NODE_TLS_REJECT_UNAUTHORIZED": "0"
+		"NODE_TLS_REJECT_UNAUTHORIZED": "0",
+		"UV_PROJECT_ENVIRONMENT": "${containerWorkspaceFolder}/.venv",
+		"UV_PYTHON_PREFERENCE": "managed"
 	},
 	"customizations": {
 		"vscode": {
@@ -40,7 +42,22 @@
 				"editor.formatOnSave": true,
 				"editor.codeActionsOnSave": {
 					"source.organizeImports": "explicit"
-				}
+				},
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "bash",
+						"icon": "terminal-bash"
+					},
+					"uv-shell": {
+						"path": "bash",
+						"icon": "terminal-bash",
+						"args": [],
+						"env": {
+							"UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
+						}
+					}
+				},
+				"terminal.integrated.defaultProfile.linux": "uv-shell"
 			}
 		}
 	},
@@ -48,7 +65,9 @@
 		"NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt",
 		"SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
 		"REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
-		"AWS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt"
+		"AWS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
+		"UV_INSECURE_HOST": "pypi.org files.pythonhosted.org github.com",
+		"UV_NATIVE_TLS": "true"
 	},
 	"forwardPorts": [
 		8080,
@@ -78,7 +97,7 @@
 		// Docker socket for Docker-in-Docker support
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
-	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh",
+	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh; uv pip install -e .",
 	"containerUser": "vscode",
 	"remoteUser": "vscode"
 }

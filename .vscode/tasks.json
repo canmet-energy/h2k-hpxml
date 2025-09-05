@@ -1,0 +1,178 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "UV: Run Current Python File",
+            "type": "shell",
+            "command": "uv run python ${file}",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Run All Tests",
+            "type": "shell",
+            "command": "uv run pytest",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Run Current Test File",
+            "type": "shell",
+            "command": "uv run pytest ${file}",
+            "group": "test",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Install Dependencies",
+            "type": "shell",
+            "command": "uv pip install -e .",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Install Dev Dependencies",
+            "type": "shell",
+            "command": "uv pip install -e '.[dev]'",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Sync Dependencies",
+            "type": "shell",
+            "command": "uv pip sync requirements.txt",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Create Virtual Environment",
+            "type": "shell",
+            "command": "uv venv",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: H2K to HPXML Conversion",
+            "type": "shell",
+            "command": "uv run h2k2hpxml ${input:h2kFile}",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Run Resilience Analysis",
+            "type": "shell",
+            "command": "uv run h2k-resilience ${input:h2kFile}",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Check Dependencies",
+            "type": "shell",
+            "command": "uv run h2k-deps --check-only",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Format with Black",
+            "type": "shell",
+            "command": "uv run black src/ tests/",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Lint with Ruff",
+            "type": "shell",
+            "command": "uv run ruff check src/ tests/",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "UV: Type Check with Mypy",
+            "type": "shell",
+            "command": "uv run mypy src/h2k_hpxml/core/",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "h2kFile",
+            "type": "promptString",
+            "description": "Path to H2K file",
+            "default": "${workspaceFolder}/examples/WizardHouse.h2k"
+        }
+    ]
+}

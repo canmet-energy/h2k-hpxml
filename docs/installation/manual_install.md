@@ -25,8 +25,11 @@ h2k-deps --setup
 
 # Running the translator
 1. Install the package and dependencies:
-   - For development: `pip install -e .` (installs package in editable mode with all dependencies)
-   - For production: `pip install .` (installs package with all dependencies)
+   - For development: `uv pip install -e .` (installs package in editable mode with all dependencies)
+   - For production: `uv pip install .` (installs package with all dependencies)
+   
+   > **Note**: If you don't have `uv` installed, you can install it with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+   > Alternatively, you can use pip: `pip install -e .` (development) or `pip install .` (production)
 2. Check and install external dependencies: `h2k-deps --check-only` or `h2k-deps --auto-install`
 3. Use the CLI tools:
    - `h2k2hpxml <h2k_file>` - Convert H2K files to HPXML format

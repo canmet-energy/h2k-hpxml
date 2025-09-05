@@ -16,13 +16,13 @@ This data could be used to better understand thermal safety measures (overheatin
 HPXML, or Home Performance eXtensible Markup Language, is a standardized data format designed for the residential energy efficiency industry. It enables consistent data collection, sharing, and analysis across different software systems, tools, and stakeholders involved in home energy performance. Developed by the Building Performance Institute (BPI) and managed by the National Renewable Energy Laboratory (NREL), HPXML provides a common structure for information about home energy audits, improvements, and performance metrics. By using HPXML, organizations can streamline processes, improve data accuracy, and easily integrate with energy efficiency programs, certifications, and incentives. More information on the HPXML standard can be found [here](https://hpxml-guide.readthedocs.io/en/latest/overview.html)
 
 ## Roadmap
-The overall goal of this project is to have full support of all H2K features translated to OS/EnergyPlus via HPXML format. We have taken an incremental approach to release the translator as we add funtionality. This allows researchers and stakeholders to use, and evaluate the translation capabilities as we develop them.
+The overall goal of this project is to have full support of all H2K features translated to OS/EnergyPlus via HPXML format. We have taken an incremental approach to release the translator as we add functionality. This allows researchers and stakeholders to use, and evaluate the translation capabilities as we develop them.
 
 The timeline is as follows:
 
 | Phase | Description | Target Completion Date | Status |  |
 |---|---|---|---|---|
-| 1 | Loads Translations. This includes schedules, occupancy, plug loads, envelope charecteristics & climate file mapping. Default fixed HVAC  |Summer 2024| Completed & available for use. Presentation comparing results available [here](docs/presentations/H2k-HPXML-20240214-V2.pdf)|
+| 1 | Loads Translations. This includes schedules, occupancy, plug loads, envelope characteristics & climate file mapping. Default fixed HVAC  |Summer 2024| Completed & available for use. Presentation comparing results available [here](docs/presentations/H2k-HPXML-20240214-V2.pdf)|
 | 2 | HVAC Systems. This includes all systems and fuel types.|Spring 2025| Completed - Beta Testing. Report and presentation comparing results available [here](docs/reports/H2k-HPXML-Systems-Report.pdf) and [here](docs/presentations/H2k-HPXML-EPlus-Systems-Update-20250326.pdf)|
 | 3 | Multi-Urban Residential Buildings | TBD | Not Started |
 
@@ -32,12 +32,15 @@ Here is a [list](docs/status/status.md) of the current completed sections relate
 
 ## Installation & Setup
 
-### Quick Start (pip install)
+### Quick Start (uv install)
 
 1. **Install the package**:
    ```bash
-   pip install h2k-hpxml
+   uv pip install h2k-hpxml
    ```
+   
+   > **Note**: If you don't have `uv` installed, you can install it with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+   > Alternatively, you can use pip: `pip install h2k-hpxml`
 
 2. **Initial setup** (creates user configuration with auto-detected dependencies):
    ```bash
@@ -255,8 +258,10 @@ For development work, we also provide a comprehensive development container. Ins
 
 2. **Install in development mode**:
    ```bash
-   pip install -e .
+   uv pip install -e .
    ```
+   
+   > **Note**: If you don't have `uv`, use pip: `pip install -e .`
 
 3. **Setup development configuration**:
    ```bash

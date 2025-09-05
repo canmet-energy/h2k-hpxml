@@ -121,7 +121,7 @@ verify_mcp_setup() {
     # Check if uv is available (required for MCP servers)
     if ! command -v uv >/dev/null 2>&1; then
         log_warning "uv not found - MCP servers may not work properly"
-        log_info "Run python_env.sh to install uv"
+        log_info "Install uv manually if needed"
         return 1
     else
         log_info "uv is available for MCP server execution"
