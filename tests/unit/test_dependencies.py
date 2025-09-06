@@ -899,7 +899,13 @@ class TestWindowsIntegration:
 
 
 class TestDownloadURLValidation:
-    """Integration tests to verify actual download URLs are accessible."""
+    """
+    Integration tests to verify actual download URLs are accessible.
+    
+    These tests use the same SSL configuration as the production installer 
+    (SSL verification bypassed) to ensure consistent behavior in corporate 
+    networks and development environments with certificate interception.
+    """
 
     @pytest.fixture
     def manager(self):
@@ -908,16 +914,30 @@ class TestDownloadURLValidation:
     def _check_url_accessible(self, url, timeout=10):
         """
         Check if a URL is accessible without downloading the full file.
+        
+        Uses the same SSL configuration as the production installer to handle
+        corporate networks with self-signed certificates or SSL interception.
 
         Returns:
             tuple: (is_accessible, status_info)
         """
+        import ssl
+        
         try:
+            # Create SSL context that doesn't verify certificates (matches installer.py behavior)
+            # This is necessary for corporate networks and development environments
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            
             # Use HEAD request to check if URL exists without downloading
             request = urllib.request.Request(url, method="HEAD")
             request.add_header("User-Agent", "h2k_hpxml-test/1.0")
 
-            with urllib.request.urlopen(request, timeout=timeout) as response:
+            # Create opener with SSL context (matches production installer)
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx))
+            
+            with opener.open(request, timeout=timeout) as response:
                 return (
                     True,
                     f"Status: {response.status}, Size: {response.headers.get('content-length', 'unknown')} bytes",

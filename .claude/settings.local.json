@@ -18,7 +18,8 @@
       "Read(//opt/**)",
       "Read(//home/vscode/.config/h2k_hpxml/**)",
       "Bash(strace:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(pytest:*)"
     ],
     "deny": [],
     "ask": [],

@@ -18,7 +18,12 @@ import urllib.error
 
 # Package-relative paths
 PACKAGE_DIR = Path(__file__).parent
-DEPS_DIR = PACKAGE_DIR / "_deps"
+# Use environment variable for deps directory if set (for Docker)
+# This allows Docker containers to store deps in a persistent location
+if os.environ.get('H2K_DEPS_DIR'):
+    DEPS_DIR = Path(os.environ['H2K_DEPS_DIR'])
+else:
+    DEPS_DIR = PACKAGE_DIR / "_deps"
 OPENSTUDIO_HPXML_DIR = DEPS_DIR / "OpenStudio-HPXML"
 OPENSTUDIO_DIR = DEPS_DIR / "openstudio"
 

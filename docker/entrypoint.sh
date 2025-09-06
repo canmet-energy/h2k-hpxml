@@ -39,11 +39,8 @@ setup_config() {
         # Copy template and configure paths
         cp /app/config/templates/conversionconfig.template.ini "$config_file"
         
-        # Update paths in the config file for Docker environment
-        sed -i "s|hpxml_os_path = .*|hpxml_os_path = ${HPXML_OS_PATH}|g" "$config_file"
-        sed -i "s|openstudio_binary = .*|openstudio_binary = ${OPENSTUDIO_BINARY}|g" "$config_file"
-        
-        # Set working directory paths
+        # The Python package will auto-detect OpenStudio and HPXML paths
+        # Just set working directory paths
         sed -i "s|source_h2k_path = .*|source_h2k_path = /data|g" "$config_file"
         sed -i "s|output_hpxml_path = .*|output_hpxml_path = /data/output|g" "$config_file"
         sed -i "s|output_workflows_path = .*|output_workflows_path = /data/output/workflows|g" "$config_file"
@@ -145,6 +142,30 @@ Configuration:
 EOF
 }
 
+# Function to ensure dependencies are installed
+ensure_dependencies() {
+    log_info "Checking dependencies..."
+    
+    # Check if dependencies are already installed
+    if [ -d "/app/deps/OpenStudio-HPXML" ] && [ -d "/app/deps/openstudio" ]; then
+        log_success "Dependencies already installed"
+        return 0
+    fi
+    
+    log_warning "Dependencies not found. Installing on first run..."
+    log_info "This may take a few minutes for the first container run."
+    
+    # Import h2k_hpxml which triggers ensure_dependencies()
+    python -c "import h2k_hpxml" || {
+        log_error "Failed to install dependencies"
+        log_info "You may need to run 'h2k-deps --auto-install' manually"
+        return 1
+    }
+    
+    log_success "Dependencies installed successfully"
+    return 0
+}
+
 # Main entrypoint logic
 main() {
     log_info "H2K-HPXML Docker Container Starting..."
@@ -153,6 +174,13 @@ main() {
     fix_permissions
     setup_config
     setup_output_dirs
+    
+    # Ensure dependencies are installed
+    ensure_dependencies || {
+        log_error "Dependency installation failed"
+        log_info "Try running: docker run --rm -v /app/deps:/app/deps canmet/h2k-hpxml h2k-deps --auto-install"
+        exit 1
+    }
     
     # If no arguments provided, show help
     if [ $# -eq 0 ]; then
@@ -172,10 +200,9 @@ main() {
             exec /bin/bash
             ;;
         "h2k-deps")
-            log_info "Dependencies are pre-configured in this Docker container!"
-            log_success "All required dependencies (OpenStudio, OpenStudio-HPXML) are installed and ready"
-            log_info "No dependency management needed - you can use h2k2hpxml and h2k-resilience directly"
-            exit 0
+            log_info "Running h2k-deps command..."
+            # Let the Python package handle dependency management
+            exec h2k-deps "${@:2}"
             ;;
     esac
     
