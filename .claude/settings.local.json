@@ -13,7 +13,12 @@
       "Bash(curl:*)",
       "Bash(chmod:*)",
       "Bash(./docker/test_container.sh:*)",
-      "Read(//app/.venv/lib/python3.12/site-packages/h2k_hpxml/**)"
+      "Read(//app/.venv/lib/python3.12/site-packages/h2k_hpxml/**)",
+      "Bash(git config:*)",
+      "Read(//opt/**)",
+      "Read(//home/vscode/.config/h2k_hpxml/**)",
+      "Bash(strace:*)",
+      "Bash(uv run:*)"
     ],
     "deny": [],
     "ask": [],

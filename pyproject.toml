@@ -76,6 +76,13 @@ where = ["src"]
 
 [tool.setuptools_scm]
 
+# H2K-HPXML Dependency Versions
+# Single source of truth for OpenStudio and OpenStudio-HPXML versions
+[tool.h2k-hpxml.dependencies]
+openstudio_version = "3.9.0"
+openstudio_sha = "c77fbb9569"
+openstudio_hpxml_version = "v1.9.1"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

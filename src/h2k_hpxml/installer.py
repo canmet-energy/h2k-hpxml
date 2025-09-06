@@ -10,6 +10,7 @@ import platform
 import shutil
 import zipfile
 import tarfile
+import tomllib
 from pathlib import Path
 from urllib.request import urlretrieve
 import ssl
@@ -21,14 +22,61 @@ DEPS_DIR = PACKAGE_DIR / "_deps"
 OPENSTUDIO_HPXML_DIR = DEPS_DIR / "OpenStudio-HPXML"
 OPENSTUDIO_DIR = DEPS_DIR / "openstudio"
 
-# Dependency URLs
-OPENSTUDIO_HPXML_URL = "https://github.com/NREL/OpenStudio-HPXML/releases/download/v1.9.1/OpenStudio-HPXML-v1.9.1.zip"
 
-OPENSTUDIO_URLS = {
-    "Windows": "https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+c77fbb9569-Windows.exe",
-    "Linux": "https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+c77fbb9569-Ubuntu-22.04-x86_64.tar.gz",
-    "Darwin": "https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+c77fbb9569-Darwin-x86_64.tar.gz"
-}
+def get_dependency_versions():
+    """Read dependency versions from pyproject.toml."""
+    # Find pyproject.toml (go up from src/h2k_hpxml/installer.py to project root)
+    pyproject_path = PACKAGE_DIR.parent.parent / "pyproject.toml"
+    
+    if not pyproject_path.exists():
+        raise FileNotFoundError(
+            f"pyproject.toml not found at {pyproject_path}. "
+            "Dependency versions must be defined in [tool.h2k-hpxml.dependencies] section."
+        )
+    
+    try:
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+    except Exception as e:
+        raise RuntimeError(f"Failed to parse pyproject.toml: {e}")
+    
+    dependencies = data.get("tool", {}).get("h2k-hpxml", {}).get("dependencies")
+    if not dependencies:
+        raise ValueError(
+            "Missing [tool.h2k-hpxml.dependencies] section in pyproject.toml. "
+            "Please add openstudio_version, openstudio_sha, and openstudio_hpxml_version."
+        )
+    
+    # Validate required keys
+    required_keys = ["openstudio_version", "openstudio_sha", "openstudio_hpxml_version"]
+    missing_keys = [key for key in required_keys if key not in dependencies]
+    if missing_keys:
+        raise ValueError(
+            f"Missing required dependency versions in pyproject.toml: {missing_keys}. "
+            f"Required keys: {required_keys}"
+        )
+    
+    return dependencies
+
+
+def get_openstudio_hpxml_url():
+    """Get OpenStudio-HPXML download URL with current version."""
+    versions = get_dependency_versions()
+    version = versions["openstudio_hpxml_version"]
+    return f"https://github.com/NREL/OpenStudio-HPXML/releases/download/{version}/OpenStudio-HPXML-{version}.zip"
+
+
+def get_openstudio_urls():
+    """Get OpenStudio download URLs for all platforms with current version."""
+    versions = get_dependency_versions()
+    os_version = versions["openstudio_version"]
+    os_sha = versions["openstudio_sha"]
+    
+    return {
+        "Windows": f"https://github.com/NREL/OpenStudio/releases/download/v{os_version}/OpenStudio-{os_version}+{os_sha}-Windows.exe",
+        "Linux": f"https://github.com/NREL/OpenStudio/releases/download/v{os_version}/OpenStudio-{os_version}+{os_sha}-Ubuntu-22.04-x86_64.tar.gz",
+        "Darwin": f"https://github.com/NREL/OpenStudio/releases/download/v{os_version}/OpenStudio-{os_version}+{os_sha}-Darwin-x86_64.tar.gz"
+    }
 
 
 def get_deps_status():
@@ -81,8 +129,10 @@ def install_openstudio_hpxml(force=False):
     DEPS_DIR.mkdir(parents=True, exist_ok=True)
     
     # Download zip file
+    versions = get_dependency_versions()
+    hpxml_version = versions["openstudio_hpxml_version"]
     zip_path = DEPS_DIR / "OpenStudio-HPXML.zip"
-    if not download_file(OPENSTUDIO_HPXML_URL, zip_path, "OpenStudio-HPXML v1.9.1"):
+    if not download_file(get_openstudio_hpxml_url(), zip_path, f"OpenStudio-HPXML {hpxml_version}"):
         return False
     
     # Extract
@@ -111,22 +161,25 @@ def install_openstudio(force=False):
         return True
     
     system = platform.system()
-    if system not in OPENSTUDIO_URLS:
+    openstudio_urls = get_openstudio_urls()
+    if system not in openstudio_urls:
         print(f"Unsupported platform: {system}")
         return False
     
-    print(f"Installing OpenStudio for {system}...")
+    versions = get_dependency_versions()
+    os_version = versions["openstudio_version"]
+    print(f"Installing OpenStudio {os_version} for {system}...")
     DEPS_DIR.mkdir(parents=True, exist_ok=True)
     OPENSTUDIO_DIR.mkdir(parents=True, exist_ok=True)
     
-    url = OPENSTUDIO_URLS[system]
+    url = openstudio_urls[system]
     
     if system == "Windows":
         # Windows .exe installer - we can try to extract it with 7zip or similar
         # For now, download and provide instructions
         exe_path = DEPS_DIR / "OpenStudio-installer.exe"
         print("  Note: Windows installer requires extraction")
-        if not download_file(url, exe_path, f"OpenStudio 3.9.0 for Windows"):
+        if not download_file(url, exe_path, f"OpenStudio {os_version} for Windows"):
             return False
         print(f"  Downloaded to: {exe_path}")
         print(f"  Please extract to: {OPENSTUDIO_DIR}")
@@ -135,7 +188,7 @@ def install_openstudio(force=False):
         
     else:  # Linux/Mac - tar.gz files
         tar_path = DEPS_DIR / "openstudio.tar.gz"
-        if not download_file(url, tar_path, f"OpenStudio 3.9.0 for {system}"):
+        if not download_file(url, tar_path, f"OpenStudio {os_version} for {system}"):
             return False
         
         try:
@@ -147,7 +200,7 @@ def install_openstudio(force=False):
             
             # Find the extracted folder (it has a hash in the name)
             extracted_dirs = [d for d in DEPS_DIR.iterdir() 
-                            if d.is_dir() and d.name.startswith("OpenStudio-3.9")]
+                            if d.is_dir() and d.name.startswith(f"OpenStudio-{os_version}")]
             
             if extracted_dirs:
                 # Move contents to our standard location
@@ -195,11 +248,13 @@ def ensure_dependencies():
 def get_openstudio_path():
     """Get path to OpenStudio executable - bundled or system."""
     system = platform.system()
+    versions = get_dependency_versions()
+    os_version = versions["openstudio_version"]
     
     # First check for bundled OpenStudio in _deps
-    # The structure is different after extraction: usr/local/openstudio-3.9.0/bin/openstudio
+    # The structure is different after extraction: usr/local/openstudio-{version}/bin/openstudio
     bundled_paths = [
-        OPENSTUDIO_DIR / "usr" / "local" / "openstudio-3.9.0" / "bin" / "openstudio",
+        OPENSTUDIO_DIR / "usr" / "local" / f"openstudio-{os_version}" / "bin" / "openstudio",
         OPENSTUDIO_DIR / "bin" / "openstudio.exe" if system == "Windows" else OPENSTUDIO_DIR / "bin" / "openstudio"
     ]
     

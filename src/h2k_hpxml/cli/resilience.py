@@ -27,6 +27,16 @@ from h2k_hpxml.utils.dependencies import safe_echo
 
 def get_openstudio_binary_path():
     """Get the OpenStudio binary path for the current platform."""
+    # First try to get from installer (bundled dependencies)
+    try:
+        from ..installer import get_openstudio_path
+        bundled_path = get_openstudio_path()
+        if bundled_path and os.path.exists(bundled_path):
+            return bundled_path
+    except ImportError:
+        pass
+    
+    # Then try DependencyManager for backward compatibility
     dep_manager = DependencyManager()
 
     # Try to find OpenStudio binary in common locations
