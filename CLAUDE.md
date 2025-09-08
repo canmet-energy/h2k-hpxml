@@ -72,8 +72,18 @@ black --check src/ tests/ && ruff check src/ tests/ && mypy src/h2k_hpxml/core/
 
 ### Main CLI Tools
 ```bash
-# H2K to HPXML conversion
+# H2K to HPXML conversion (single file)
 h2k2hpxml input.h2k [--output output.xml]
+
+# H2K to HPXML conversion (entire folder - parallel processing) 
+h2k2hpxml /path/to/h2k/files/
+# Note: Automatically uses (CPU cores - 1) threads for parallel processing
+
+# Advanced conversion options
+h2k2hpxml input.h2k --debug --hourly ALL --do-not-sim
+
+# Show credits
+h2k2hpxml --credits
 
 # Resilience analysis
 h2k-resilience input.h2k [--scenarios SCENARIOS]
@@ -94,6 +104,8 @@ The core translation follows this flow:
    - **Enclosure Components** (`core/processors/enclosure.py`) - Walls, windows, doors, etc.
    - **Systems & Loads** (`core/processors/systems.py`) - HVAC, DHW, lighting, appliances
 4. **HPXML Assembly** (`core/hpxml_assembly.py`) - Final XML generation with mode-specific adjustments
+
+**Performance Note**: When processing folders, the CLI uses `concurrent.futures.ThreadPoolExecutor` with (CPU cores - 1) threads to process multiple H2K files in parallel, dramatically improving batch processing performance.
 
 ### Key Modules
 

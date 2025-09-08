@@ -257,15 +257,7 @@ def _handle_processing_error(filepath, dest_hpxml_path, error, traceback_str):
     return str(error)
 
 
-@click.group(context_settings=CONTEXT_SETTINGS)
-@click.version_option(version="1.7.0.1.1")
-def cli():
-    """H2K to HPXML conversion and simulation tool."""
-    pass
-
-
-@cli.command(help="People that worked on this.")
-def credits():
+def show_credits():
     """Display credits for the H2K to HPXML team."""
     print(Fore.GREEN + "H2K to HPXML Team" + Style.RESET_ALL)
     colors = [Fore.RED, Fore.GREEN, Fore.MAGENTA, Fore.CYAN, Fore.YELLOW, Fore.BLUE]
@@ -280,20 +272,21 @@ def credits():
         print(random.choice(colors) + pyfiglet.figlet_format(name) + Fore.RESET)
 
 
-@cli.command(help="Convert and Simulate H2K file to OS/E+.")
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.version_option(version="1.7.0.1.1")
+@click.argument('input', required=False, type=click.Path())
 @click.option(
-    "--input_path",
-    "-i",
-    default=os.path.join("/shared"),
-    help="h2k file or folder containing h2k files.",
+    '--output',
+    '-o',
+    help=(
+        'Path to output hpxml files. By default it is the same as the '
+        'input path with a folder named output created inside it.'
+    ),
 )
 @click.option(
-    "--output_path",
-    "-o",
-    help=(
-        "Path to output hpxml files. By default it is the same as the "
-        "input path with a folder named output created inside it."
-    ),
+    '--credits',
+    is_flag=True,
+    help='Show credits for the H2K to HPXML team.'
 )
 @click.option(
     "--timestep",
@@ -377,9 +370,10 @@ def credits():
 @click.option(
     "--do-not-sim", is_flag=True, default=False, help="Convert only, do not run simulation"
 )
-def run(
-    input_path,
-    output_path,
+def cli(
+    input,
+    output,
+    credits,
     timestep,
     daily,
     hourly,
@@ -393,41 +387,34 @@ def run(
     do_not_sim,
 ):
     """
+    H2K to HPXML conversion and simulation tool.
+    
+    INPUT: H2K file or directory containing H2K files to process
+    
     Convert H2K files to HPXML format and optionally run OpenStudio simulations.
-
-    This function processes single H2K files or directories containing multiple
-    H2K files. It converts them to HPXML format using the h2ktohpxml translator,
-    then optionally runs OpenStudio simulations with configurable output options.
-
-    Processing is done concurrently using ThreadPoolExecutor for improved
-    performance. Results and errors are logged to markdown files for review.
-
-    Args:
-        input_path (str): Path to H2K file or directory containing H2K files
-        output_path (str): Path to output HPXML files. If None, creates 'output'
-            folder in same directory as input
-        timestep (tuple): Timestep output types to request from simulation
-        daily (tuple): Daily output types to request from simulation
-        hourly (tuple): Hourly output types to request from simulation
-        monthly (tuple): Monthly output types to request from simulation
-        add_component_loads (bool): Whether to add component loads to simulation
-        debug (bool): Enable debug mode with extra file outputs
-        skip_validation (bool): Skip Schema/Schematron validation for speed
-        output_format (str): Result format - 'csv', 'json', 'msgpack', 'csv_dview'
-        add_stochastic_schedules (bool): Add detailed stochastic occupancy schedules
-        add_timeseries_output_variable (tuple): Additional timeseries output variables
-        do_not_sim (bool): If True, only convert to HPXML without running simulation
-
-    Raises:
-        ValueError: If multiple output frequency options are provided simultaneously
-        SystemExit: If no H2K files found or invalid input path provided
-
-    Notes:
-        - Only one of hourly, monthly, or timestep output options can be used
-        - Requires OpenStudio to be installed for simulations
-        - Configuration read from conversionconfig.ini file
-        - Results written to processing_results.md in output directory
+    This tool can process single files or entire directories of H2K files.
+    
+    Examples:
+        h2k2hpxml input.h2k
+        h2k2hpxml /path/to/h2k/files/
+        h2k2hpxml input.h2k --output output.xml --debug
+        h2k2hpxml --credits
     """
+    
+    # Handle credits flag
+    if credits:
+        show_credits()
+        return
+    
+    # Show help if no input provided
+    if not input:
+        ctx = click.get_current_context()
+        click.echo(ctx.get_help())
+        return
+    
+    # Use input as input_path and output as output_path for compatibility with existing code
+    input_path = input
+    output_path = output
 
     # Ensure only one of hourly, monthly or timeseries options is provided
     if sum(bool(x) for x in [hourly, monthly, timestep]) > 1:

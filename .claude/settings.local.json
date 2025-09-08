@@ -31,7 +31,11 @@
       "mcp__serena__search_for_pattern",
       "mcp__serena__list_dir",
       "mcp__serena__find_file",
-      "Bash(where h2k2hpxml)"
+      "Bash(where h2k2hpxml)",
+      "Bash(pip show:*)",
+      "Bash(uv pip list:*)",
+      "Read(//tmp/test_new_cli_folder/**)",
+      "Read(//tmp/test_simulation/WizardHouse/run/**)"
     ],
     "deny": [],
     "ask": [],
