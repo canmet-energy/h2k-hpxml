@@ -47,27 +47,64 @@ Here is a [list](docs/status/status.md) of the current completed sections relate
 
 ## Installation & Setup
 
-### Quick Start (uv install)
+### Quick Start
+
+#### Windows 11 Installation
+
+1. **Install uv** (Python package manager):
+   ```powershell
+   # Open PowerShell as Administrator and run:
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+2. **Install the package**:
+   ```powershell
+   uv pip install h2k-hpxml
+   ```
+   
+   > **Alternative**: If you prefer using pip instead of uv:
+   > ```powershell
+   > pip install h2k-hpxml
+   > ```
+
+#### Linux/Mac Installation
 
 1. **Install the package**:
    ```bash
    uv pip install h2k-hpxml
    ```
    
-   > **Note**: If you don't have `uv` installed, you can install it with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-   > Alternatively, you can use pip: `pip install h2k-hpxml`
+   > **Note**: If you don't have `uv` installed, you can install it with:
+   > ```bash
+   > curl -LsSf https://astral.sh/uv/install.sh | sh
+   > ```
+   > 
+   > **Alternative**: You can also use pip: `pip install h2k-hpxml`
 
-2. **Initial setup** (creates user configuration with auto-detected dependencies):
+#### Common Setup Steps (All Platforms)
+
+1. **Initial setup** (creates user configuration with auto-detected dependencies):
    ```bash
    h2k-deps --setup
    ```
 
-3. **Verify installation**:
+2. **Verify installation**:
    ```bash
    h2k-deps --check-only
    ```
 
-4. **Convert your first H2K file**:
+3. **Convert your first H2K file**:
+   
+   **Windows:**
+   ```powershell
+   # Single file
+   h2k2hpxml C:\path\to\your\file.h2k
+   
+   # Or entire folder (processes all .h2k files in parallel)
+   h2k2hpxml C:\path\to\h2k\folder\
+   ```
+   
+   **Linux/Mac:**
    ```bash
    # Single file
    h2k2hpxml path/to/your/file.h2k

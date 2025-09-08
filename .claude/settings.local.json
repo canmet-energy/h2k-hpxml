@@ -35,7 +35,8 @@
       "Bash(pip show:*)",
       "Bash(uv pip list:*)",
       "Read(//tmp/test_new_cli_folder/**)",
-      "Read(//tmp/test_simulation/WizardHouse/run/**)"
+      "Read(//tmp/test_simulation/WizardHouse/run/**)",
+      "Bash(git rev-parse:*)"
     ],
     "deny": [],
     "ask": [],
