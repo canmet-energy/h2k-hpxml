@@ -26,7 +26,12 @@
       "Read(//app/deps/openstudio/**)",
       "Read(//home/vscode/.local/share/**)",
       "Read(//app/deps/**)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__list_dir",
+      "mcp__serena__find_file",
+      "Bash(where h2k2hpxml)"
     ],
     "deny": [],
     "ask": [],
