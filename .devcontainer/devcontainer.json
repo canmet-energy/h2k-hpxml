@@ -3,8 +3,7 @@
 {
 	"name": "H2K_HPXML",
 	"build": {
-		"dockerfile": "../Dockerfile",
-		"target": "development",
+		"dockerfile": "./Dockerfile",
 		"context": ".."
 	},
 	"containerEnv": {
@@ -97,7 +96,7 @@
 		// Docker socket for Docker-in-Docker support
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
-	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh; uv pip install -e .",
+	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh; uv venv --clear ; uv pip install -e .",
 	"containerUser": "vscode",
 	"remoteUser": "vscode"
 }

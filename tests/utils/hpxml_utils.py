@@ -25,7 +25,8 @@ def normalize_paths_for_comparison(xml_content: str) -> str:
     Normalize file paths in XML content for cross-platform comparison.
 
     This function standardizes OpenStudio-HPXML paths to remove platform-specific
-    differences like drive letters (C:/) and mixed path separators.
+    differences like drive letters (C:/) and mixed path separators, and normalizes
+    workspace directory naming differences.
 
     Args:
         xml_content: Raw XML content as string
@@ -40,6 +41,12 @@ def normalize_paths_for_comparison(xml_content: str) -> str:
     # Pattern matches: C:/OpenStudio-HPXML/... or D:/OpenStudio-HPXML/...
     normalized_content = re.sub(
         r"[A-Z]:/OpenStudio-HPXML/", "/OpenStudio-HPXML/", normalized_content
+    )
+    
+    # Normalize workspace directory paths that may vary between environments
+    # Pattern matches: /workspaces/h2k-hpxml/ or /workspaces/h2k_hpxml/
+    normalized_content = re.sub(
+        r"/workspaces/h2k[-_]hpxml/", "/workspaces/h2k_hpxml/", normalized_content
     )
 
     return normalized_content

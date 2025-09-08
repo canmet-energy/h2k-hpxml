@@ -180,7 +180,7 @@ class ConfigManager:
         """Validate that configured paths exist or can be created."""
         paths_to_check = [
             ("source_h2k_path", True),  # Must exist
-            ("hpxml_os_path", True),  # Must exist
+            ("hpxml_os_path", False),  # Will be auto-detected if not configured
             ("dest_hpxml_path", False),  # Can be created
         ]
 
@@ -302,7 +302,25 @@ class ConfigManager:
     @property
     def hpxml_os_path(self):
         """OpenStudio-HPXML installation directory."""
-        return self.get_path("paths", "hpxml_os_path")
+        configured_path = self.get_path("paths", "hpxml_os_path")
+        
+        # If configured path exists and is valid, use it
+        if configured_path and Path(configured_path).exists():
+            return configured_path
+        
+        # Otherwise, try to get the path from the installer
+        try:
+            from ..installer import get_openstudio_hpxml_path
+            auto_path = get_openstudio_hpxml_path()
+            if auto_path:
+                logger.debug(f"Using auto-detected OpenStudio-HPXML path: {auto_path}")
+                return auto_path
+        except Exception as e:
+            logger.debug(f"Could not auto-detect OpenStudio-HPXML path: {e}")
+        
+        # Return the configured path even if it doesn't exist
+        # (will fail validation later if needed)
+        return configured_path
 
     @property
     def dest_hpxml_path(self):
@@ -312,7 +330,31 @@ class ConfigManager:
     @property
     def openstudio_binary(self):
         """Path to OpenStudio binary."""
-        return self.get("paths", "openstudio_binary")
+        configured_path = self.get("paths", "openstudio_binary")
+        
+        # If configured path exists and is valid, use it
+        if configured_path and Path(configured_path).exists():
+            return configured_path
+        
+        # Otherwise, try to get the path from the installer
+        try:
+            from ..installer import get_openstudio_path
+            auto_path = get_openstudio_path()
+            if auto_path:
+                logger.debug(f"Using auto-detected OpenStudio binary: {auto_path}")
+                return auto_path
+        except Exception as e:
+            logger.debug(f"Could not auto-detect OpenStudio binary: {e}")
+        
+        # Fall back to system openstudio if available
+        import shutil
+        system_path = shutil.which("openstudio")
+        if system_path:
+            logger.debug(f"Using system OpenStudio binary: {system_path}")
+            return system_path
+        
+        # Return the configured path even if it doesn't exist
+        return configured_path or "openstudio"
 
     @property
     def simulation_flags(self):
