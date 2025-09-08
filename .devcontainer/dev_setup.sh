@@ -16,7 +16,7 @@ source "$SCRIPTS_DIR/common.sh"
 INSTALL_CLAUDE=false
 INSTALL_NODEJS=false
 INSTALL_AWS=false
-INSTALL_MCP=false
+INSTALL_VSCODE_MCP=false
 INSTALL_ALL=false
 SKIP_PYTHON=false
 
@@ -27,24 +27,24 @@ show_usage() {
     echo "Modular devcontainer setup script"
     echo ""
     echo "Options:"
-    echo "  --all           Install everything (equivalent to --claude --nodejs --aws --mcp)"
+    echo "  --all           Install everything (equivalent to --claude --nodejs --aws --vscode-mcp)"
     echo "  --claude        Install Claude CLI with MCP support"
     echo "  --nodejs        Install Node.js (required for Claude)"
     echo "  --aws           Verify and configure AWS credentials"
-    echo "  --mcp           Configure MCP servers for VS Code and Claude"
+    echo "  --vscode-mcp    Configure MCP servers for VS Code"
     echo "  --skip-python   Skip Python environment setup"
     echo "  -h, --help      Show this help message"
     echo ""
     echo "Default behavior (no flags):"
     echo "  - Install certificates (always)"
     echo "  - Setup Python environment (unless --skip-python)"
-    echo "  - Configure basic MCP servers"
+    echo "  - Configure VS Code MCP servers"
     echo ""
     echo "Examples:"
-    echo "  $0                    # Basic setup (certificates + Python + MCP)"
+    echo "  $0                    # Basic setup (certificates + Python + VS Code MCP)"
     echo "  $0 --claude           # Full Claude development setup"
     echo "  $0 --all              # Install everything"
-    echo "  $0 --nodejs --mcp     # Just Node.js and MCP servers"
+    echo "  $0 --nodejs --vscode-mcp # Just Node.js and VS Code MCP servers"
     exit 1
 }
 
@@ -56,13 +56,13 @@ while [[ $# -gt 0 ]]; do
             INSTALL_CLAUDE=true
             INSTALL_NODEJS=true
             INSTALL_AWS=true
-            INSTALL_MCP=true
+            INSTALL_VSCODE_MCP=true
             shift
             ;;
         --claude)
             INSTALL_CLAUDE=true
             INSTALL_NODEJS=true  # Claude requires Node.js
-            INSTALL_MCP=true     # Claude benefits from MCP
+            INSTALL_VSCODE_MCP=true # Claude benefits from VS Code MCP
             shift
             ;;
         --nodejs)
@@ -73,8 +73,8 @@ while [[ $# -gt 0 ]]; do
             INSTALL_AWS=true
             shift
             ;;
-        --mcp)
-            INSTALL_MCP=true
+        --vscode-mcp)
+            INSTALL_VSCODE_MCP=true
             shift
             ;;
         --skip-python)
@@ -93,7 +93,7 @@ done
 
 # If no specific options were given, enable default behavior
 if [ "$INSTALL_CLAUDE" = false ] && [ "$INSTALL_NODEJS" = false ] && [ "$INSTALL_AWS" = false ]; then
-    INSTALL_MCP=true  # Default: install basic MCP servers
+    INSTALL_VSCODE_MCP=true  # Default: install VS Code MCP servers
 fi
 
 # Initialize status variables
@@ -118,7 +118,7 @@ main() {
         [ "$INSTALL_NODEJS" = true ] && echo "   - Node.js"
         [ "$INSTALL_CLAUDE" = true ] && echo "   - Claude CLI"
         [ "$INSTALL_AWS" = true ] && echo "   - AWS credentials"
-        [ "$INSTALL_MCP" = true ] && echo "   - MCP servers"
+        [ "$INSTALL_VSCODE_MCP" = true ] && echo "   - VS Code MCP servers"
         if [ "$DOCKER_BUILD_CONTEXT" = true ]; then
             echo "   - Certificates (deferred to runtime)"
         else
@@ -185,20 +185,15 @@ main() {
         source "$SCRIPTS_DIR/claude.sh"
         install_claude
         setup_claude_environment
+        setup_claude_mcp_servers
     fi
     
-    # 6. Setup MCP servers if requested
-    if [ "$INSTALL_MCP" = true ]; then
-        log_step "Step 6: MCP server configuration"
-        source "$SCRIPTS_DIR/mcp.sh"
+    # 6. Setup VS Code MCP servers if requested
+    if [ "$INSTALL_VSCODE_MCP" = true ]; then
+        log_step "Step 6: VS Code MCP server configuration"
+        source "$SCRIPTS_DIR/vscode_mcp.sh"
         install_vscode_mcp_servers
-        
-        # Only install Claude MCP if Claude is installed
-        if [ "$CLAUDE_INSTALLED" = true ]; then
-            install_claude_mcp
-        fi
-        
-        verify_mcp_setup
+        verify_vscode_mcp_setup
     fi
     
     # Summary
@@ -233,7 +228,7 @@ display_summary() {
     echo "   - $SCRIPTS_DIR/aws.sh             # AWS credentials"
     echo "   - $SCRIPTS_DIR/nodejs.sh          # Node.js installation"
     echo "   - $SCRIPTS_DIR/claude.sh          # Claude CLI"
-    echo "   - $SCRIPTS_DIR/mcp.sh             # MCP server configuration"
+    echo "   - $SCRIPTS_DIR/vscode_mcp.sh      # VS Code MCP server configuration"
 }
 
 # Run main function

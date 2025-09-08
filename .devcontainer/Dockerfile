@@ -35,6 +35,12 @@ RUN apt-get update && apt-get install -y \
     && cd /tmp && tar -xzf uv.tar.gz \
     && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/ \
     && chmod +x /usr/local/bin/uv && rm -rf /tmp/uv* \
+    # Install GitHub CLI (insecure for corporate networks)
+    && curl -fsSLk --insecure https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y gh \
     # Cleanup
     && rm -rf /var/lib/apt/lists/*
 
