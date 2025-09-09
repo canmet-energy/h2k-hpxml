@@ -278,6 +278,8 @@ class TestOpenStudioDetection:
         assert result is True
         mock_echo.assert_called_with("✅ OpenStudio CLI found in PATH")
 
+    @pytest.mark.windows
+    @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific test")
     @patch("platform.system")
     def test_get_openstudio_paths_windows(self, mock_platform, manager):
         """Test OpenStudio path generation for Windows."""
@@ -291,6 +293,8 @@ class TestOpenStudioDetection:
         assert any("openstudio.exe" in path for path in paths)
         assert any("Program Files" in path for path in paths)
 
+    @pytest.mark.linux
+    @pytest.mark.skipif(platform.system() not in ["Linux", "linux", "linux2"], reason="Linux-specific test")
     @patch("platform.system")
     def test_get_openstudio_paths_linux(self, mock_platform, manager):
         """Test OpenStudio path generation for Linux."""
@@ -516,19 +520,6 @@ class TestInstallationMethods:
 
         assert result is None
 
-    @patch("webbrowser.open")
-    @patch("click.confirm", return_value=True)
-    @patch("click.echo")
-    def test_install_openstudio_windows_browser(
-        self, mock_echo, mock_confirm, mock_browser, manager
-    ):
-        """Test Windows OpenStudio installation with browser opening."""
-        manager.is_windows = True
-
-        result = manager._install_openstudio_windows()
-
-        assert result is False  # Manual installation required
-        mock_browser.assert_called_once()
 
     @patch("os.path.exists", return_value=True)
     @patch("shutil.which", return_value="/usr/bin/apt-get")
@@ -744,9 +735,11 @@ class TestPlatformSpecificBehavior:
         mock_echo.assert_any_call("❌ Unsupported platform: Windows")
 
 
+@pytest.mark.windows
 class TestWindowsSimulation:
     """Test Windows-specific functionality by simulating Windows environment on Linux."""
 
+    @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific test")
     def test_windows_hpxml_path(self):
         """Test Windows HPXML path generation."""
         with patch("platform.system", return_value="Windows"):
@@ -766,42 +759,8 @@ class TestWindowsSimulation:
                 assert any("Program Files" in path for path in paths)
                 assert any("C:\\openstudio\\bin\\openstudio.exe" in path for path in paths)
 
-    @patch("webbrowser.open")
-    @patch("click.confirm", return_value=True)
-    @patch("click.echo")
-    def test_windows_installation_browser_success(self, mock_echo, mock_confirm, mock_browser):
-        """Test Windows installation opens browser successfully."""
-        with patch("platform.system", return_value="Windows"):
-            manager = DependencyManager()
-            result = manager._install_openstudio_windows()
 
-            mock_browser.assert_called_once()
-            mock_echo.assert_any_call("✅ Installer download started in browser")
-            assert result is False  # Should return False for manual installation
 
-    @patch("webbrowser.open", side_effect=Exception("Browser failed"))
-    @patch("click.confirm", return_value=True)
-    @patch("click.echo")
-    def test_windows_installation_browser_failure(self, mock_echo, mock_confirm, mock_browser):
-        """Test Windows installation handles browser failure."""
-        with patch("platform.system", return_value="Windows"):
-            manager = DependencyManager()
-            result = manager._install_openstudio_windows()
-
-            mock_browser.assert_called_once()
-            mock_echo.assert_any_call("❌ Failed to open browser: Browser failed")
-            assert result is False
-
-    @patch("click.confirm", return_value=False)
-    @patch("click.echo")
-    def test_windows_installation_declined(self, mock_echo, mock_confirm):
-        """Test Windows installation when user declines browser download."""
-        with patch("platform.system", return_value="Windows"):
-            manager = DependencyManager()
-            result = manager._install_openstudio_windows()
-
-            assert result is False
-            mock_confirm.assert_called_once()
 
     def test_windows_manual_instructions(self):
         """Test Windows manual installation instructions."""

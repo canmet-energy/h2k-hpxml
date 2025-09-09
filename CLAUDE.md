@@ -52,6 +52,12 @@ pytest tests/unit/                    # Unit tests only
 pytest tests/integration/             # Integration tests only
 pytest --run-baseline                 # Generate baseline data (WARNING: overwrites golden files)
 
+# Generate baseline data (alternative method)
+uv run python tools/generate_baseline_data.py  # Direct script execution
+
+# Clean up cache files and temporary data (cross-platform)
+uv run python tools/cleanup.py              # Removes __pycache__, tool caches, temp files
+
 # Run single test
 pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translation_modes -v
 ```
@@ -61,13 +67,14 @@ pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translatio
 # Install development dependencies first
 uv pip install -e ".[dev]"
 
-# Formatting and linting
+# Code quality (cross-platform)
+uv run python tools/quality.py             # Run all quality checks
+uv run python tools/quality.py --fix       # Auto-fix formatting and linting issues
+
+# Individual tools (if needed)
 black src/ tests/                    # Auto-format code
 ruff check src/ tests/               # Linting
 mypy src/h2k_hpxml/core/            # Type checking (note: type hints were removed from most files)
-
-# Run all quality checks
-black --check src/ tests/ && ruff check src/ tests/ && mypy src/h2k_hpxml/core/
 ```
 
 ### Main CLI Tools
@@ -151,6 +158,7 @@ The core translation follows this flow:
 - **Regression tests**: Compare against baseline "golden files" 
 - **Resilience tests**: CLI functionality testing
 - Use `--run-baseline` flag to regenerate golden files (use with caution)
+- Alternative: `uv run python tools/generate_baseline_data.py` for direct baseline generation
 
 ### Empty Files to Keep
 - `src/h2k_hpxml/analysis/__init__.py` - Required for package structure (analysis/annual.py is imported)
@@ -183,7 +191,21 @@ Critical external dependencies:
 - **OpenStudio-HPXML** (v1.9.1) - NREL's HPXML implementation 
 - **EnergyPlus** - Simulation engine (managed via OpenStudio)
 
-Managed via `h2k-deps` command which auto-detects and installs on Windows/Linux.
+Managed via `h2k-deps` command which auto-detects and installs on Windows/Linux:
+
+#### Windows Installation (Portable)
+- **No admin rights required** - Uses portable tar.gz installation
+- **Installation location**: `%LOCALAPPDATA%\OpenStudio-3.9.0`
+- **Fallback location**: `%USERPROFILE%\OpenStudio` if LOCALAPPDATA not writable
+- **Size**: ~500MB extracted
+- **Automatic PATH setup**: Optional PowerShell command provided
+- **Uninstall**: Simply delete the installation folder
+
+#### Linux Installation
+- **Ubuntu/Debian**: Downloads and installs .deb package
+- **Other Linux**: Extracts tar.gz to `/usr/local/openstudio`
+- **Requires sudo**: For system-wide installation
+
 **Note**: Docker images have all dependencies pre-installed.
 
 ## Docker Support
@@ -225,6 +247,9 @@ All Docker containers include pre-installed OpenStudio and dependencies, elimina
 
 ### Installation Issues
 - **OpenStudio not found**: Run `h2k-deps --auto-install` or use Docker containers
+  - **Windows**: Now uses portable tar.gz installation (no admin rights required)
+  - **Installation location**: `%LOCALAPPDATA%\OpenStudio-3.9.0` or `%USERPROFILE%\OpenStudio`
+  - **No admin privileges needed**: Portable installation extracts to user directory
 - **Missing dependencies**: Ensure you installed with `uv pip install -e ".[dev]"` for development (or `pip install -e ".[dev]"` if not using uv)
 - **Config file issues**: Check `config/conversionconfig.ini` exists in project root
 

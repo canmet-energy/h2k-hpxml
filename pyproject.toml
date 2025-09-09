@@ -98,6 +98,9 @@ markers = [
     "slow: tests that take a long time to run",
     "baseline: tests for generating baseline data (use with --run-baseline flag)",
     "integration: integration tests that check external services and URLs",
+    "windows: Windows-specific tests",
+    "linux: Linux-specific tests",
+    "cross_platform: Tests that run on all platforms",
 ]
 
 [tool.mypy]

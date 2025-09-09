@@ -395,14 +395,14 @@ class DependencyManager:
         return paths
 
     def _get_windows_paths(self):
-        """Get Windows-specific OpenStudio paths with user-writable alternatives."""
+        """Get Windows-specific OpenStudio paths with user-writable alternatives and portable installations."""
         paths = []
         program_files_dirs = [
             os.environ.get("PROGRAMFILES", r"C:\Program Files"),
             os.environ.get("PROGRAMFILES(X86)", r"C:\Program Files (x86)"),
         ]
 
-        # System-wide Program Files installations
+        # System-wide Program Files installations (MSI-based)
         for pf_dir in program_files_dirs:
             paths.extend(
                 [
@@ -424,12 +424,13 @@ class DependencyManager:
             ]
         )
 
-        # User-specific installations
+        # User-specific installations (both MSI and portable)
         user_profile = os.environ.get("USERPROFILE", os.path.expanduser("~"))
         local_appdata = os.environ.get(
             "LOCALAPPDATA", os.path.join(user_profile, "AppData", "Local")
         )
 
+        # Legacy user installations (MSI-based)
         paths.extend(
             [
                 os.path.join(user_profile, "openstudio", "bin", "openstudio.exe"),
@@ -443,7 +444,27 @@ class DependencyManager:
             ]
         )
 
-        return paths
+        # Portable installations (tar.gz based) - PRIORITY PATHS
+        # These are checked first as they're the new preferred installation method
+        portable_paths = [
+            # Version-specific portable installation (our default location)
+            os.path.join(local_appdata, 
+                        f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}", 
+                        "bin", "openstudio.exe"),
+            # Generic portable installation in LOCALAPPDATA
+            os.path.join(local_appdata, "OpenStudio", "bin", "openstudio.exe"),
+            # User profile installation
+            os.path.join(user_profile, "OpenStudio", "bin", "openstudio.exe"),
+            # h2k_hpxml managed installation
+            os.path.join(str(self._get_user_data_dir()), "OpenStudio", "bin", "openstudio.exe"),
+            # Alternative locations with build hash
+            os.path.join(local_appdata,
+                        f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}+{self.OPENSTUDIO_BUILD_HASH}",
+                        "bin", "openstudio.exe"),
+        ]
+
+        # Prioritize portable installations by putting them first
+        return portable_paths + paths
 
     def _get_linux_paths(self):
         """Get Linux-specific OpenStudio paths with user-writable alternatives."""
@@ -659,32 +680,104 @@ class DependencyManager:
             return False
 
     def _install_openstudio_windows(self):
-        """Install OpenStudio on Windows by opening browser to installer."""
-        installer_url = (
+        """Install OpenStudio on Windows using portable tar.gz (no admin rights required)."""
+        tarball_url = (
             f"{self.OPENSTUDIO_BASE_URL}/"
             f"v{self.REQUIRED_OPENSTUDIO_VERSION}/"
             f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}+"
-            f"{self.OPENSTUDIO_BUILD_HASH}-Windows.exe"
+            f"{self.OPENSTUDIO_BUILD_HASH}-Windows.tar.gz"
         )
 
-        click.echo(f"Windows OpenStudio installer: {installer_url}")
-        click.echo("\n⚠️  Automatic installation on Windows requires administrator privileges.")
-        click.echo("Please download and run the installer manually, or grant administrator access.")
+        # Default to user's local app data (no admin needed)
+        default_install_dir = Path(os.environ.get("LOCALAPPDATA", 
+                                                   os.path.expanduser("~/AppData/Local")))
+        install_dir = default_install_dir / f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}"
+        
+        # Alternative locations if preferred
+        if not self._has_write_access(default_install_dir):
+            install_dir = Path(os.environ.get("USERPROFILE", os.path.expanduser("~"))) / "OpenStudio"
+            if not self._has_write_access(install_dir.parent):
+                install_dir = self._get_user_data_dir() / "OpenStudio"
 
-        if click.confirm("Download installer automatically?"):
-            try:
-                import webbrowser
-
-                webbrowser.open(installer_url)
-                click.echo("✅ Installer download started in browser")
-                click.echo("Please run the installer and restart this application.")
-                return False
-            except Exception as e:
-                click.echo(f"❌ Failed to open browser: {e}")
-                click.echo(f"Please manually download: {installer_url}")
-                return False
-
-        return False
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                tarball_path = os.path.join(temp_dir, "openstudio.tar.gz")
+                
+                click.echo(f"Downloading OpenStudio portable version...")
+                click.echo(f"URL: {tarball_url}")
+                click.echo(f"Installing to: {install_dir}")
+                
+                urllib.request.urlretrieve(tarball_url, tarball_path)
+                
+                # Remove existing installation if present
+                if install_dir.exists():
+                    click.echo(f"Removing existing installation: {install_dir}")
+                    shutil.rmtree(install_dir)
+                
+                # Create installation directory
+                install_dir.parent.mkdir(parents=True, exist_ok=True)
+                
+                # Extract tar.gz file
+                click.echo(f"Extracting OpenStudio...")
+                import tarfile
+                with tarfile.open(tarball_path, 'r:gz') as tar:
+                    # Extract to a temporary location first to handle nested folder structure
+                    extract_temp_dir = os.path.join(temp_dir, "extracted")
+                    os.makedirs(extract_temp_dir, exist_ok=True)
+                    tar.extractall(extract_temp_dir)
+                    
+                    # Find the extracted OpenStudio folder (may have build hash in name)
+                    extracted_folders = [
+                        d for d in Path(extract_temp_dir).iterdir() 
+                        if d.is_dir() and "OpenStudio" in d.name
+                    ]
+                    
+                    if not extracted_folders:
+                        raise Exception("No OpenStudio folder found in extracted archive")
+                    
+                    source_folder = extracted_folders[0]
+                    
+                    # Move to final installation location
+                    shutil.copytree(source_folder, install_dir)
+                
+                # Verify installation
+                binary_path = install_dir / "bin" / "openstudio.exe"
+                if not binary_path.exists():
+                    raise Exception(f"OpenStudio binary not found at {binary_path}")
+                
+                # Test that the binary works
+                try:
+                    result = subprocess.run([str(binary_path), "--version"], 
+                                          capture_output=True, text=True, timeout=30)
+                    if result.returncode != 0:
+                        raise Exception(f"OpenStudio binary test failed: {result.stderr}")
+                    click.echo(f"✅ OpenStudio binary verified: {result.stdout.strip()}")
+                except subprocess.TimeoutExpired:
+                    click.echo("⚠️ OpenStudio binary test timed out, but installation appears successful")
+                
+                click.echo(f"✅ OpenStudio installed successfully to: {install_dir}")
+                
+                # Provide PATH instructions
+                bin_path = install_dir / "bin"
+                click.echo(f"\n📝 To add OpenStudio to your PATH (optional):")
+                click.echo(f"   1. Open System Properties > Environment Variables")
+                click.echo(f"   2. Edit the 'Path' variable for your user")
+                click.echo(f"   3. Add: {bin_path}")
+                click.echo(f"\n   Or run in PowerShell as Administrator:")
+                click.echo(f'   [Environment]::SetEnvironmentVariable("Path", $env:Path + ";{bin_path}", [EnvironmentVariableTarget]::User)')
+                
+                return True
+                
+        except Exception as e:
+            click.echo(f"❌ OpenStudio installation failed: {e}")
+            # Clean up partial installation
+            if install_dir.exists():
+                try:
+                    shutil.rmtree(install_dir)
+                    click.echo(f"🧹 Cleaned up partial installation at {install_dir}")
+                except Exception as cleanup_error:
+                    click.echo(f"⚠️ Failed to clean up {install_dir}: {cleanup_error}")
+            return False
 
     def _install_openstudio_linux(self):
         """Install OpenStudio on Linux using appropriate package manager."""
@@ -1354,18 +1447,94 @@ class DependencyManager:
             return False
 
     def _uninstall_openstudio_windows(self):
-        """Uninstall OpenStudio on Windows."""
-        click.echo("🪟 Windows OpenStudio uninstall:")
-        click.echo("   • Go to Windows Settings > Apps & Features")
-        click.echo("   • Search for 'OpenStudio' and uninstall")
-        click.echo("   • Or use Control Panel > Programs and Features")
-
-        if self.interactive:
-            click.echo("\n⏳ Please uninstall OpenStudio using Windows settings...")
-            input("Press Enter when OpenStudio has been uninstalled...")
-
-        # Check if still installed
-        return not self._check_openstudio()
+        """Uninstall OpenStudio on Windows (both installer and portable versions)."""
+        uninstalled_any = False
+        
+        # Check for portable installations first
+        user_profile = os.environ.get("USERPROFILE", os.path.expanduser("~"))
+        local_appdata = os.environ.get("LOCALAPPDATA", 
+                                      os.path.join(user_profile, "AppData", "Local"))
+        
+        portable_paths = [
+            # Version-specific portable installation (our default location)
+            Path(local_appdata) / f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}",
+            # Generic portable installation in LOCALAPPDATA
+            Path(local_appdata) / "OpenStudio",
+            # User profile installation
+            Path(user_profile) / "OpenStudio",
+            # h2k_hpxml managed installation
+            self._get_user_data_dir() / "OpenStudio",
+            # Alternative locations with build hash
+            Path(local_appdata) / f"OpenStudio-{self.REQUIRED_OPENSTUDIO_VERSION}+{self.OPENSTUDIO_BUILD_HASH}",
+        ]
+        
+        click.echo("🔍 Checking for portable OpenStudio installations...")
+        
+        for path in portable_paths:
+            if path.exists():
+                try:
+                    # Verify it's actually an OpenStudio installation
+                    binary_path = path / "bin" / "openstudio.exe"
+                    if binary_path.exists():
+                        click.echo(f"📁 Found portable installation: {path}")
+                        shutil.rmtree(path)
+                        click.echo(f"✅ Removed portable installation: {path}")
+                        uninstalled_any = True
+                    else:
+                        click.echo(f"⏭️ Skipping {path} (not an OpenStudio installation)")
+                except Exception as e:
+                    click.echo(f"⚠️ Failed to remove {path}: {e}")
+        
+        if not uninstalled_any:
+            click.echo("ℹ️ No portable OpenStudio installations found")
+        
+        # Check if there are still MSI installations present
+        msi_found = False
+        program_files_dirs = [
+            os.environ.get("PROGRAMFILES", r"C:\Program Files"),
+            os.environ.get("PROGRAMFILES(X86)", r"C:\Program Files (x86)"),
+        ]
+        
+        for pf_dir in program_files_dirs:
+            msi_paths = [
+                Path(pf_dir) / "OpenStudio",
+                Path(pf_dir) / f"OpenStudio {self.REQUIRED_OPENSTUDIO_VERSION}",
+            ]
+            
+            for msi_path in msi_paths:
+                if msi_path.exists():
+                    msi_found = True
+                    break
+            
+            if msi_found:
+                break
+        
+        # Show MSI uninstall instructions if MSI installations found
+        if msi_found:
+            click.echo("\n🪟 MSI-based OpenStudio installation detected:")
+            click.echo("   To uninstall MSI installations:")
+            click.echo("   • Go to Windows Settings > Apps & Features")
+            click.echo("   • Search for 'OpenStudio' and uninstall")
+            click.echo("   • Or use Control Panel > Programs and Features")
+            
+            if self.interactive:
+                click.echo("\n⏳ Please uninstall MSI-based OpenStudio using Windows settings...")
+                input("Press Enter when done (or if you want to keep the MSI installation)...")
+        
+        # Final check - see if OpenStudio is still detected
+        still_installed = self._check_openstudio()
+        
+        if not still_installed:
+            if uninstalled_any or msi_found:
+                click.echo("✅ OpenStudio uninstallation completed successfully!")
+            return True
+        else:
+            if uninstalled_any:
+                click.echo("✅ Portable installations removed, but other OpenStudio installations remain")
+                return True
+            else:
+                click.echo("⚠️ OpenStudio is still detected. Manual removal may be required.")
+                return False
 
     def _uninstall_openstudio_linux(self):
         """Uninstall OpenStudio on Linux."""

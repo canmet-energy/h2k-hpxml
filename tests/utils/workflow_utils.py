@@ -61,17 +61,12 @@ def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tu
         Tuple of (success, stdout, stderr)
     """
     try:
-        # Construct the command with cross-platform Python executable
-        python_exe = get_python_executable()
+        # Use the entry point command directly (more reliable than module path)
         cmd = [
-            python_exe,
-            "-m",
-            "h2k_hpxml.cli.convert",
-            "run",
-            "--input_path",
+            "h2k2hpxml",
             input_path,
-            "--output_path",
-            output_dir,
+            "--output",
+            output_dir
         ]
 
         if debug:
