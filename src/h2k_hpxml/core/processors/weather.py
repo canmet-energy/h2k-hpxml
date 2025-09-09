@@ -14,7 +14,7 @@ from ...utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def process_weather_data(h2k_dict, hpxml_dict, translation_mode):
+def process_weather_data(h2k_dict, hpxml_dict, translation_mode, config_manager):
     """
     Process weather data and update HPXML weather station information.
 
@@ -22,6 +22,7 @@ def process_weather_data(h2k_dict, hpxml_dict, translation_mode):
         h2k_dict: Parsed H2K dictionary
         hpxml_dict: Parsed HPXML dictionary
         translation_mode: Translation mode ('SOC' or 'ASHRAE140')
+        config_manager: ConfigManager instance for weather configuration
 
     Returns:
         None: Modifies hpxml_dict in place
@@ -66,7 +67,7 @@ def process_weather_data(h2k_dict, hpxml_dict, translation_mode):
                     f"Weather information incomplete in H2K file. Region: {weather_region}, Location: {weather_location}"
                 )
 
-            weather_file = weather.get_cwec_file(weather_region, weather_location)
+            weather_file = weather.get_cwec_file(weather_region, weather_location, config_manager=config_manager)
 
         # Log the weather location for diagnostics
         weather_location = obj.get_val(

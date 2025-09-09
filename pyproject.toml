@@ -50,11 +50,7 @@ test = [
 ]
 dev = [
     "pytest==8.3.3",
-    "mypy>=1.0.0",
-    "types-requests",
-    "types-PyYAML",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
+    "pytest-xdist>=3.0.0",
     "pre-commit>=3.0.0",
 ]
 

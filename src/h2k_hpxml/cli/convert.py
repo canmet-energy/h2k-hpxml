@@ -36,12 +36,13 @@ def get_openstudio_binary_path() -> str:
     # First try to get from installer (bundled dependencies)
     try:
         from ..installer import get_openstudio_path
+
         bundled_path = get_openstudio_path()
         if bundled_path and os.path.exists(bundled_path):
             return bundled_path
     except ImportError:
         pass
-    
+
     # Then try DependencyManager for backward compatibility
     dep_manager = DependencyManager()
 
@@ -274,20 +275,16 @@ def show_credits():
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.version_option(version="1.7.0.1.1")
-@click.argument('input', required=False, type=click.Path())
+@click.argument("input", required=False, type=click.Path())
 @click.option(
-    '--output',
-    '-o',
+    "--output",
+    "-o",
     help=(
-        'Path to output hpxml files. By default it is the same as the '
-        'input path with a folder named output created inside it.'
+        "Path to output hpxml files. By default it is the same as the "
+        "input path with a folder named output created inside it."
     ),
 )
-@click.option(
-    '--credits',
-    is_flag=True,
-    help='Show credits for the H2K to HPXML team.'
-)
+@click.option("--credits", is_flag=True, help="Show credits for the H2K to HPXML team.")
 @click.option(
     "--timestep",
     multiple=True,
@@ -388,30 +385,30 @@ def cli(
 ):
     """
     H2K to HPXML conversion and simulation tool.
-    
+
     INPUT: H2K file or directory containing H2K files to process
-    
+
     Convert H2K files to HPXML format and optionally run OpenStudio simulations.
     This tool can process single files or entire directories of H2K files.
-    
+
     Examples:
         h2k2hpxml input.h2k
         h2k2hpxml /path/to/h2k/files/
         h2k2hpxml input.h2k --output output.xml --debug
         h2k2hpxml --credits
     """
-    
+
     # Handle credits flag
     if credits:
         show_credits()
         return
-    
+
     # Show help if no input provided
     if not input:
         ctx = click.get_current_context()
         click.echo(ctx.get_help())
         return
-    
+
     # Use input as input_path and output as output_path for compatibility with existing code
     input_path = input
     output_path = output

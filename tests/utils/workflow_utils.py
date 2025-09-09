@@ -62,12 +62,7 @@ def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tu
     """
     try:
         # Use the entry point command directly (more reliable than module path)
-        cmd = [
-            "h2k2hpxml",
-            input_path,
-            "--output",
-            output_dir
-        ]
+        cmd = ["h2k2hpxml", input_path, "--output", output_dir]
 
         if debug:
             cmd.append("--debug")

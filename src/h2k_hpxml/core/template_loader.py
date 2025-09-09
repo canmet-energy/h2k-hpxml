@@ -10,8 +10,6 @@ import xmltodict
 
 from ..exceptions import ConfigurationError
 from ..exceptions import H2KParsingError
-from ..types import H2KDict
-from ..types import HPXMLDict
 from ..utils.logging import get_logger
 
 # Get logger for this module

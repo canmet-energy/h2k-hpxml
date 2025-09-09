@@ -5,7 +5,6 @@ This module defines common type aliases used throughout the codebase
 to improve type safety and code documentation.
 """
 
-from pathlib import Path
 
 # Configuration types
 ConfigDict = dict

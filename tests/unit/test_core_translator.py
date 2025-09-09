@@ -181,8 +181,8 @@ class TestH2KToHPXML:
                                     mock_weather.assert_called_once()
                                     weather_args = mock_weather.call_args[0]
                                     assert (
-                                        len(weather_args) == 3
-                                    )  # h2k_dict, hpxml_dict, translation_mode
+                                        len(weather_args) == 4
+                                    )  # h2k_dict, hpxml_dict, translation_mode, config_manager
                                     assert weather_args[2] == test_mode
 
                                     # Verify translation_mode passed to finalize

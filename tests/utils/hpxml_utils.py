@@ -42,13 +42,13 @@ def normalize_paths_for_comparison(xml_content: str) -> str:
     normalized_content = re.sub(
         r"[A-Z]:/OpenStudio-HPXML/", "/OpenStudio-HPXML/", normalized_content
     )
-    
+
     # Normalize workspace directory paths that may vary between environments
     # Pattern matches: /workspaces/h2k-hpxml/ or /workspaces/h2k_hpxml/
     normalized_content = re.sub(
         r"/workspaces/h2k[-_]hpxml/", "/workspaces/h2k_hpxml/", normalized_content
     )
-    
+
     # Normalize weather file paths to just basename - this is the key fix for cross-environment testing
     # Pattern matches any path ending with OpenStudio-HPXML/weather/filename
     # Examples:
@@ -57,9 +57,7 @@ def normalize_paths_for_comparison(xml_content: str) -> str:
     #   C:/OpenStudio-HPXML/weather/file.epw
     # All become: WEATHER_FILE/filename
     normalized_content = re.sub(
-        r'[^<>]*OpenStudio-HPXML/weather/([^<>/]+)',
-        r'WEATHER_FILE/\1',
-        normalized_content
+        r"[^<>]*OpenStudio-HPXML/weather/([^<>/]+)", r"WEATHER_FILE/\1", normalized_content
     )
 
     return normalized_content

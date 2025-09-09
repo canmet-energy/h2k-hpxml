@@ -6,8 +6,6 @@ from pathlib import Path
 
 from ..core import data_utils as obj
 from ..core import h2k_parser as h2k
-from ..types import ComponentDict
-from ..types import H2KDict
 
 # Get logger for this module
 logger = logging.getLogger(__name__)
@@ -78,9 +76,7 @@ class ValidationHelper:
     """Utility class for common validation patterns."""
 
     @staticmethod
-    def validate_r_value(
-        component, r_value_field, component_label, model_data
-    ):
+    def validate_r_value(component, r_value_field, component_label, model_data):
         """
         Validate R-value and add warning if invalid.
 
@@ -211,9 +207,7 @@ class ErrorHandlingPatterns:
     """Common error handling patterns."""
 
     @staticmethod
-    def safe_get_nested_value(
-        data, path, default=None, separator=","
-    ):
+    def safe_get_nested_value(data, path, default=None, separator=","):
         """
         Safely get nested dictionary value with path notation.
 
@@ -239,9 +233,7 @@ class ErrorHandlingPatterns:
             return default
 
     @staticmethod
-    def safe_numeric_conversion(
-        value, conversion_type=float, default=0.0
-    ):
+    def safe_numeric_conversion(value, conversion_type=float, default=0.0):
         """
         Safely convert value to numeric type.
 

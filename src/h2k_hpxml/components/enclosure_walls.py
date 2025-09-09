@@ -2,8 +2,6 @@ import functools
 
 from ..core import data_utils as obj
 from ..core import h2k_parser as h2k
-from ..types import ComponentDict
-from ..types import H2KDict
 from .enclosure_doors import get_doors
 from .enclosure_rim_joists import get_rim_joists
 from .enclosure_windows import get_windows

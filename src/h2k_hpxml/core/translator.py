@@ -6,12 +6,9 @@ Inputs: h2k string in xml format, config class instance to handle config params
 Outputs: hpxml string
 """
 
-
-from ..types import ConfigDict
 from ..types import H2KDict
 from ..types import HPXMLDict
 from ..types import TranslationMode
-from ..types import TranslationResult
 from ..utils.logging import get_logger
 from . import model as Model
 from .hpxml_assembly import finalize_hpxml_output as _finalize_hpxml_output
@@ -64,7 +61,10 @@ def h2ktohpxml(h2k_string="", config=None):
     _process_building_details(h2k_dict, hpxml_dict, model_data)
 
     # ================ 3. Process weather data ================
-    _process_weather_data(h2k_dict, hpxml_dict, translation_mode)
+    # Create ConfigManager for weather processing
+    from ..config import ConfigManager
+    config_manager = ConfigManager()
+    _process_weather_data(h2k_dict, hpxml_dict, translation_mode, config_manager)
 
     # ================ 7. Process enclosure components ================
     _process_enclosure_components(h2k_dict, hpxml_dict, model_data, add_test_wall)

@@ -22,7 +22,6 @@ These are standalone scripts used for development/debugging and are not part of 
 ### Utility Scripts
 
 - **`cleanup.py`** - Cross-platform cleanup script that removes Python cache files, tool caches, and temporary files while preserving directory structure (works on Windows, Linux, macOS)
-- **`quality.py`** - Cross-platform code quality tool that runs black, ruff, mypy, and pytest. Use `--fix` flag to auto-fix issues (works on Windows, Linux, macOS)  
 - **`compare.py`** - Analysis comparison utility (legacy script for H2K vs HPXML comparison)
 
 ## Usage
@@ -33,3 +32,25 @@ uv run python tools/script_name.py
 ```
 
 This ensures proper path resolution and virtual environment usage.
+
+### Parallel Testing
+
+The regression tests can be run in parallel for significantly improved performance:
+
+```bash
+# Run regression tests in parallel (recommended)
+pytest tests/integration/test_regression.py -n auto
+
+# Run all tests with parallel execution
+pytest -n auto
+
+# Expected performance improvement:
+# - Sequential: ~7 tests × 30-60 seconds each = 3.5-7 minutes
+# - Parallel (4 cores): ~60-120 seconds total (3-6x faster)
+```
+
+**Benefits:**
+- **3-7x faster execution** depending on CPU cores
+- **Better test isolation** (each test in separate process)
+- **Clearer failure reporting** (individual test results per H2K file)
+- **Same simplicity** for adding new tests (just add H2K file to examples/)

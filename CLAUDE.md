@@ -52,6 +52,11 @@ pytest tests/unit/                    # Unit tests only
 pytest tests/integration/             # Integration tests only
 pytest --run-baseline                 # Generate baseline data (WARNING: overwrites golden files)
 
+# Run tests in parallel (faster execution)
+pytest -n auto                       # Auto-detect number of CPU cores
+pytest -n 4                          # Use 4 parallel workers
+pytest tests/integration/test_regression.py -n auto  # Parallel regression tests only
+
 # Generate baseline data (alternative method)
 uv run python tools/generate_baseline_data.py  # Direct script execution
 
@@ -67,14 +72,13 @@ pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translatio
 # Install development dependencies first
 uv pip install -e ".[dev]"
 
-# Code quality (cross-platform)
-uv run python tools/quality.py             # Run all quality checks
-uv run python tools/quality.py --fix       # Auto-fix formatting and linting issues
-
-# Individual tools (if needed)
-black src/ tests/                    # Auto-format code
-ruff check src/ tests/               # Linting
-mypy src/h2k_hpxml/core/            # Type checking (note: type hints were removed from most files)
+# Testing
+pytest                              # Run all tests
+pytest tests/unit/                  # Unit tests only
+pytest tests/integration/           # Integration tests only
+pytest -n auto                     # Run tests in parallel (faster)
+pytest -v                          # Verbose output
+pytest -x                          # Stop on first failure
 ```
 
 ### Main CLI Tools

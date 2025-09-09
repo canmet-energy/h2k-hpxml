@@ -6,7 +6,6 @@ error handling and more informative error messages throughout the system.
 """
 
 
-
 class H2KHPXMLError(Exception):
     """Base exception class for all H2K-HPXML application errors.
 
@@ -73,9 +72,7 @@ class HPXMLGenerationError(H2KHPXMLError):
     or HPXML format violations.
     """
 
-    def __init__(
-        self, message, component=None, h2k_data=None
-    ):
+    def __init__(self, message, component=None, h2k_data=None):
         """Initialize HPXML generation error.
 
         Args:
@@ -103,9 +100,7 @@ class ConfigurationError(H2KHPXMLError):
     missing required settings, or contains conflicting values.
     """
 
-    def __init__(
-        self, message, config_key=None, config_value=None
-    ):
+    def __init__(self, message, config_key=None, config_value=None):
         """Initialize configuration error.
 
         Args:

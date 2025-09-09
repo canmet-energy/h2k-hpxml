@@ -30,12 +30,13 @@ def get_openstudio_binary_path():
     # First try to get from installer (bundled dependencies)
     try:
         from ..installer import get_openstudio_path
+
         bundled_path = get_openstudio_path()
         if bundled_path and os.path.exists(bundled_path):
             return bundled_path
     except ImportError:
         pass
-    
+
     # Then try DependencyManager for backward compatibility
     dep_manager = DependencyManager()
 
@@ -580,6 +581,8 @@ class ResilienceProcessor:
                 weather_region=weather_info["state"],
                 weather_location=weather_info["city"],
                 weather_folder=weather_folder,
+                weather_vintage="CWEC2020",  # Explicit values since no config_manager
+                weather_library="historic",
             )
             cwec_path = f"{cwec_path_base}.epw"
 

@@ -1,5 +1,3 @@
-
-
 def get_val(obj, path):
     """Get a value from a nested dictionary using a comma-separated path.
 

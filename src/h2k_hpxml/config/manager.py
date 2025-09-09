@@ -303,21 +303,22 @@ class ConfigManager:
     def hpxml_os_path(self):
         """OpenStudio-HPXML installation directory."""
         configured_path = self.get_path("paths", "hpxml_os_path")
-        
+
         # If configured path exists and is valid, use it
         if configured_path and Path(configured_path).exists():
             return configured_path
-        
+
         # Otherwise, try to get the path from the installer
         try:
             from ..installer import get_openstudio_hpxml_path
+
             auto_path = get_openstudio_hpxml_path()
             if auto_path:
                 logger.debug(f"Using auto-detected OpenStudio-HPXML path: {auto_path}")
                 return auto_path
         except Exception as e:
             logger.debug(f"Could not auto-detect OpenStudio-HPXML path: {e}")
-        
+
         # Return the configured path even if it doesn't exist
         # (will fail validation later if needed)
         return configured_path
@@ -331,28 +332,30 @@ class ConfigManager:
     def openstudio_binary(self):
         """Path to OpenStudio binary."""
         configured_path = self.get("paths", "openstudio_binary")
-        
+
         # If configured path exists and is valid, use it
         if configured_path and Path(configured_path).exists():
             return configured_path
-        
+
         # Otherwise, try to get the path from the installer
         try:
             from ..installer import get_openstudio_path
+
             auto_path = get_openstudio_path()
             if auto_path:
                 logger.debug(f"Using auto-detected OpenStudio binary: {auto_path}")
                 return auto_path
         except Exception as e:
             logger.debug(f"Could not auto-detect OpenStudio binary: {e}")
-        
+
         # Fall back to system openstudio if available
         import shutil
+
         system_path = shutil.which("openstudio")
         if system_path:
             logger.debug(f"Using system OpenStudio binary: {system_path}")
             return system_path
-        
+
         # Return the configured path even if it doesn't exist
         return configured_path or "openstudio"
 

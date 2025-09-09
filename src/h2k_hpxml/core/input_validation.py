@@ -4,11 +4,8 @@ Input validation for H2K to HPXML translation.
 This module provides validation functions for H2K input files and configuration parameters.
 """
 
-
 from ..exceptions import ConfigurationError
 from ..exceptions import H2KParsingError
-from ..types import ConfigDict
-from ..types import TranslationMode
 from ..utils.logging import get_logger
 
 # Get logger for this module

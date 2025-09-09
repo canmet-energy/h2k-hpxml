@@ -6,10 +6,7 @@ import requests
 from filelock import FileLock
 from unidecode import unidecode
 
-from ..config import ConfigManager
-
-# Load configuration using ConfigManager
-config_manager = ConfigManager()
+# ConfigManager will be passed as parameter to functions that need it
 
 prov_terr_codes = {
     "BRITISH COLUMBIA": "BC",
@@ -31,10 +28,28 @@ prov_terr_codes = {
 def get_cwec_file(
     weather_region="ONTARIO",
     weather_location="LONDON",
-    weather_folder=os.path.join(str(config_manager.hpxml_os_path), "weather"),
-    weather_vintage=config_manager.weather_vintage,
-    weather_library=config_manager.weather_library,
+    weather_folder=None,
+    weather_vintage=None,
+    weather_library=None,
+    config_manager=None,
 ):
+    # Use config_manager for defaults if provided
+    if config_manager:
+        if weather_folder is None:
+            weather_folder = os.path.join(str(config_manager.hpxml_os_path), "weather")
+        if weather_vintage is None:
+            weather_vintage = config_manager.weather_vintage
+        if weather_library is None:
+            weather_library = config_manager.weather_library
+
+    # Ensure we have required values
+    if weather_folder is None:
+        raise ValueError("weather_folder must be provided either directly or via config_manager")
+    if weather_vintage is None:
+        weather_vintage = "CWEC2020"  # Default fallback
+    if weather_library is None:
+        weather_library = "historic"  # Default fallback
+
     if not weather_region:
         raise ValueError("Weather region is not defined in the h2k file")
     if not weather_location:

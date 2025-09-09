@@ -294,7 +294,9 @@ class TestOpenStudioDetection:
         assert any("Program Files" in path for path in paths)
 
     @pytest.mark.linux
-    @pytest.mark.skipif(platform.system() not in ["Linux", "linux", "linux2"], reason="Linux-specific test")
+    @pytest.mark.skipif(
+        platform.system() not in ["Linux", "linux", "linux2"], reason="Linux-specific test"
+    )
     @patch("platform.system")
     def test_get_openstudio_paths_linux(self, mock_platform, manager):
         """Test OpenStudio path generation for Linux."""
@@ -412,14 +414,14 @@ class TestInstallationMethods:
     @patch("h2k_hpxml.utils.dependencies.DependencyManager._install_to_target")
     @patch("h2k_hpxml.utils.dependencies.DependencyManager._create_target_directory")
     @patch("h2k_hpxml.utils.dependencies.DependencyManager._remove_existing_installation")
-    @patch("urllib.request.urlretrieve")
+    @patch("h2k_hpxml.utils.dependencies.download_file")
     @patch("zipfile.ZipFile")
     @patch("click.echo")
     def test_install_openstudio_hpxml_success(
         self,
         mock_echo,
         mock_zipfile,
-        mock_urlretrieve,
+        mock_download_file,
         mock_remove,
         mock_create_dir,
         mock_install_target,
@@ -427,6 +429,9 @@ class TestInstallationMethods:
         manager,
     ):
         """Test successful OpenStudio-HPXML installation."""
+        # Mock download_file to return True (success)
+        mock_download_file.return_value = True
+        
         mock_zip_context = Mock()
         mock_zipfile.return_value.__enter__ = Mock(return_value=mock_zip_context)
         mock_zipfile.return_value.__exit__ = Mock(return_value=None)
@@ -445,19 +450,21 @@ class TestInstallationMethods:
                     result = manager._install_openstudio_hpxml()
 
         assert result is True
-        # Verify the correct URL is used
+        # Verify download_file was called with correct URL
         expected_url = "https://github.com/NREL/OpenStudio-HPXML/releases/download/v1.9.1/OpenStudio-HPXML-v1.9.1.zip"
-        mock_urlretrieve.assert_called_once_with(expected_url, mock_urlretrieve.call_args[0][1])
+        mock_download_file.assert_called_once()
+        call_args = mock_download_file.call_args[0]
+        assert call_args[0] == expected_url  # URL should be first argument
         mock_update_config.assert_called_once()
 
-    @patch("urllib.request.urlretrieve", side_effect=Exception("Network error"))
+    @patch("h2k_hpxml.utils.dependencies.download_file", return_value=False)
     @patch("click.echo")
-    def test_install_openstudio_hpxml_failure(self, mock_echo, mock_urlretrieve, manager):
+    def test_install_openstudio_hpxml_failure(self, mock_echo, mock_download_file, manager):
         """Test OpenStudio-HPXML installation failure."""
         result = manager._install_openstudio_hpxml()
 
         assert result is False
-        mock_echo.assert_any_call("❌ OpenStudio-HPXML installation failed: Network error")
+        mock_echo.assert_any_call("❌ OpenStudio-HPXML installation failed: Download failed")
 
     @patch("h2k_hpxml.utils.dependencies.DependencyManager._find_all_config_files")
     @patch("h2k_hpxml.utils.dependencies.DependencyManager._update_single_config_file")
@@ -519,7 +526,6 @@ class TestInstallationMethods:
         result = manager._find_config_file()
 
         assert result is None
-
 
     @patch("os.path.exists", return_value=True)
     @patch("shutil.which", return_value="/usr/bin/apt-get")
@@ -759,9 +765,6 @@ class TestWindowsSimulation:
                 assert any("Program Files" in path for path in paths)
                 assert any("C:\\openstudio\\bin\\openstudio.exe" in path for path in paths)
 
-
-
-
     def test_windows_manual_instructions(self):
         """Test Windows manual installation instructions."""
         with patch("platform.system", return_value="Windows"):
@@ -860,9 +863,9 @@ class TestWindowsIntegration:
 class TestDownloadURLValidation:
     """
     Integration tests to verify actual download URLs are accessible.
-    
-    These tests use the same SSL configuration as the production installer 
-    (SSL verification bypassed) to ensure consistent behavior in corporate 
+
+    These tests use the same SSL configuration as the production installer
+    (SSL verification bypassed) to ensure consistent behavior in corporate
     networks and development environments with certificate interception.
     """
 
@@ -873,7 +876,7 @@ class TestDownloadURLValidation:
     def _check_url_accessible(self, url, timeout=10):
         """
         Check if a URL is accessible without downloading the full file.
-        
+
         Uses the same SSL configuration as the production installer to handle
         corporate networks with self-signed certificates or SSL interception.
 
@@ -881,21 +884,21 @@ class TestDownloadURLValidation:
             tuple: (is_accessible, status_info)
         """
         import ssl
-        
+
         try:
             # Create SSL context that doesn't verify certificates (matches installer.py behavior)
             # This is necessary for corporate networks and development environments
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
-            
+
             # Use HEAD request to check if URL exists without downloading
             request = urllib.request.Request(url, method="HEAD")
             request.add_header("User-Agent", "h2k_hpxml-test/1.0")
 
             # Create opener with SSL context (matches production installer)
             opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx))
-            
+
             with opener.open(request, timeout=timeout) as response:
                 return (
                     True,
