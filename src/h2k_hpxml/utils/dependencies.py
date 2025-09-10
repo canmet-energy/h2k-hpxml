@@ -196,12 +196,13 @@ class DependencyManager:
     def _get_user_data_dir(self):
         """Get platform-appropriate user data directory without external dependencies."""
         if self.is_windows:
-            appdata = os.environ.get("APPDATA", os.path.expanduser("~/AppData/Roaming"))
-            return Path(appdata) / "h2k_hpxml"
+            # Use LOCALAPPDATA for consistency with OpenStudio CLI (not APPDATA/Roaming)
+            localappdata = os.environ.get("LOCALAPPDATA", os.path.expanduser("~/AppData/Local"))
+            return Path(localappdata)
         else:
             # Linux/Unix: use XDG_DATA_HOME or ~/.local/share
             xdg_data = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
-            return Path(xdg_data) / "h2k_hpxml"
+            return Path(xdg_data)
 
     def _has_write_access(self, path):
         """Check if we have write access to a directory."""
@@ -226,7 +227,7 @@ class DependencyManager:
         Supports environment variables and custom paths:
         1. Custom path provided in constructor
         2. OPENSTUDIO_HPXML_PATH environment variable
-        3. Platform-appropriate user directory (consistent with OpenStudio CLI)
+        3. Platform-appropriate user directory with version (consistent with OpenStudio CLI)
 
         Returns:
             Path: Default installation path for OpenStudio-HPXML
@@ -240,12 +241,12 @@ class DependencyManager:
         if env_path:
             return Path(env_path)
 
-        # 3. Use user-writable locations (consistent with OpenStudio CLI pattern)
+        # 3. Use versioned user-writable locations (consistent with OpenStudio CLI pattern)
         if self.is_windows:
-            # User-specific location (consistent with OpenStudio CLI)
-            return self._get_user_data_dir() / "OpenStudio-HPXML"
+            # User-specific location with version (consistent with OpenStudio CLI)
+            return self._get_user_data_dir() / f"OpenStudio-HPXML-{self.REQUIRED_HPXML_VERSION}"
         else:
-            return Path.home() / ".local" / "share" / "OpenStudio-HPXML"
+            return self._get_user_data_dir() / f"OpenStudio-HPXML-{self.REQUIRED_HPXML_VERSION}"
 
     def validate_all(self):
         """
