@@ -363,7 +363,12 @@ class DependencyManager:
             click.echo("✅ OpenStudio CLI found in PATH")
             return True
 
-        click.echo("⚠️  OpenStudio CLI not found")
+        # Show expected installation path for consistency with HPXML
+        expected_paths = self._get_openstudio_paths()
+        if expected_paths:
+            click.echo(f"❌ OpenStudio CLI not found (expected: {expected_paths[0]})")
+        else:
+            click.echo("❌ OpenStudio CLI not found (not in PATH)")
         return False
 
     def _test_binary_path(self, path):
@@ -542,7 +547,7 @@ class DependencyManager:
             hpxml_path = self.default_hpxml_path
 
         if not hpxml_path.exists():
-            click.echo(f"❌ OpenStudio-HPXML not found at: {hpxml_path}")
+            click.echo(f"❌ OpenStudio-HPXML not found (expected: {hpxml_path})")
             return False
 
         # Check for required workflow script
