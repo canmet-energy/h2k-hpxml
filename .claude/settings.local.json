@@ -50,7 +50,16 @@
       "Bash(done)",
       "Bash(time pytest:*)",
       "Bash(time python -m pytest:*)",
-      "mcp__serena__insert_after_symbol"
+      "mcp__serena__insert_after_symbol",
+      "Read(//usr/local/openstudio-3.9.0/bin/**)",
+      "Read(//usr/local/openstudio-3.9.0/**)",
+      "Bash(dpkg:*)",
+      "Bash(apt-cache depends:*)",
+      "Bash(ldd:*)",
+      "Bash(wget:*)",
+      "Bash(tar:*)",
+      "Bash(/home/vscode/.local/share/OpenStudio-3.9.0/bin/openstudio --version)",
+      "Bash(/home/vscode/.local/share/OpenStudio-3.9.0/EnergyPlus/energyplus --version)"
     ],
     "deny": [],
     "ask": [],

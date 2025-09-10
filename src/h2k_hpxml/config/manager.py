@@ -360,6 +360,41 @@ class ConfigManager:
         return configured_path or "openstudio"
 
     @property
+    def energyplus_binary(self):
+        """Path to EnergyPlus binary."""
+        configured_path = self.get("paths", "energyplus_binary")
+
+        # If configured path exists and is valid, use it
+        if configured_path and Path(configured_path).exists():
+            return configured_path
+
+        # Otherwise, try to derive from OpenStudio installation
+        try:
+            from ..utils.dependencies import get_openstudio_path
+
+            openstudio_path = get_openstudio_path()
+            if openstudio_path:
+                # EnergyPlus is bundled in OpenStudio at /EnergyPlus/energyplus
+                openstudio_base = Path(openstudio_path).parent.parent  # Remove /bin/openstudio
+                energyplus_path = openstudio_base / "EnergyPlus" / "energyplus"
+                if energyplus_path.exists():
+                    logger.debug(f"Using EnergyPlus bundled with OpenStudio: {energyplus_path}")
+                    return str(energyplus_path)
+        except Exception as e:
+            logger.debug(f"Could not auto-detect EnergyPlus binary: {e}")
+
+        # Fall back to system energyplus if available
+        import shutil
+
+        system_path = shutil.which("energyplus")
+        if system_path:
+            logger.debug(f"Using system EnergyPlus binary: {system_path}")
+            return system_path
+
+        # Return the configured path even if it doesn't exist
+        return configured_path or "energyplus"
+
+    @property
     def simulation_flags(self):
         """OpenStudio-HPXML simulation flags."""
         return self.get("simulation", "flags", "")
@@ -462,6 +497,7 @@ class ConfigManager:
         minimal_config.set("paths", "source_h2k_path", "examples")
         minimal_config.set("paths", "hpxml_os_path", "")
         minimal_config.set("paths", "openstudio_binary", "")
+        minimal_config.set("paths", "energyplus_binary", "")
         minimal_config.set("paths", "dest_hpxml_path", "output/hpxml/")
         minimal_config.set("paths", "dest_compare_data", "output/comparisons/")
         minimal_config.set("paths", "workflow_temp_path", "output/workflows/")
