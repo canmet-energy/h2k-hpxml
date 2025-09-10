@@ -1,36 +1,33 @@
-import configparser
 import json
 import os
 import subprocess
 import sys
-from configparser import NoOptionError
-from configparser import NoSectionError
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from h2k_hpxml.analysis import annual
 from h2k_hpxml.core.translator import h2ktohpxml
+from h2k_hpxml.config.manager import ConfigManager
 
-config = configparser.ConfigParser()
-config.read("conversionconfig.ini")
+# Use ConfigManager instead of direct INI parsing
+config = ConfigManager()
 
-source_h2k_path = config.get("paths", "source_h2k_path")
-hpxml_os_path = config.get("paths", "hpxml_os_path")
-dest_hpxml_path = config.get("paths", "dest_hpxml_path")
-dest_compare_data = config.get("paths", "dest_compare_data")
+source_h2k_path = str(config.source_h2k_path)
+hpxml_os_path = str(config.hpxml_os_path)
+dest_hpxml_path = str(config.dest_hpxml_path)
 
+# Get dest_compare_data from config or use default
 try:
-    flags = config.get("simulation", "flags")
+    dest_compare_data = str(config.dest_compare_data)
+except AttributeError:
+    dest_compare_data = "./output/compare"
 
-except (NoOptionError, NoSectionError):
-    flags = ""
+# Get simulation flags
+flags = getattr(config, 'flags', '')
 print("flags", flags)
 
-
-try:
-    translation_mode = config.get("translation", "mode")
-except (NoOptionError, NoSectionError):
-    translation_mode = "SOC"
+# Get translation mode
+translation_mode = getattr(config, 'translation_mode', 'SOC')
 
 
 # Determine whether to process as folder or single file
@@ -92,11 +89,11 @@ for filepath in h2k_files:
         result = run_hpxml_os(hpxml_filename, dest_hpxml_path)
 
         print(result)
-        os_results = annual.read_os_results(f"{hpxml_os_path}{dest_hpxml_path}", return_type="dict")
+        os_results = annual.read_os_results(f"{hpxml_os_path}/{dest_hpxml_path}", return_type="dict")
 
         if (os_results.get("Energy Use: Total (MBtu)", 0) == 0) & (translation_mode != "ASHRAE140"):
             # no results generated, check logs
-            with open(f"{hpxml_os_path}{dest_hpxml_path}run/run.log", encoding="utf-8") as f:
+            with open(f"{hpxml_os_path}/{dest_hpxml_path}/run/run.log", encoding="utf-8") as f:
                 logs_string = f.read()
 
             compare_dict_out[h2k_filename] = logs_string

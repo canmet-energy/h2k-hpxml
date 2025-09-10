@@ -8,8 +8,8 @@ import subprocess
 import time
 from pathlib import Path
 
-from ..config import ConfigManager
-from ..utils.logging import get_logger
+from ...config import ConfigManager
+from ...utils.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -213,7 +213,7 @@ class SimulationUtilities:
             Path to OpenStudio binary
         """
         try:
-            from ..utils.dependencies import DependencyManager
+            from ...utils.dependencies import DependencyManager
 
             dep_manager = DependencyManager()
 
