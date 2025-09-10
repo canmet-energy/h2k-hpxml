@@ -223,10 +223,10 @@ class DependencyManager:
         """
         Get platform-appropriate default OpenStudio-HPXML installation path.
 
-        Supports environment variables and user-writable fallbacks:
+        Supports environment variables and custom paths:
         1. Custom path provided in constructor
         2. OPENSTUDIO_HPXML_PATH environment variable
-        3. System default with user fallback if no write access
+        3. Platform-appropriate user directory (consistent with OpenStudio CLI)
 
         Returns:
             Path: Default installation path for OpenStudio-HPXML
@@ -240,23 +240,12 @@ class DependencyManager:
         if env_path:
             return Path(env_path)
 
-        # 3. Use platform-appropriate defaults with user fallback
+        # 3. Use user-writable locations (consistent with OpenStudio CLI pattern)
         if self.is_windows:
-            system_path = Path("C:/OpenStudio-HPXML")
-            user_path = self._get_user_data_dir() / "OpenStudio-HPXML"
+            # User-specific location (consistent with OpenStudio CLI)
+            return self._get_user_data_dir() / "OpenStudio-HPXML"
         else:
-            system_path = Path("/OpenStudio-HPXML")
-            user_path = Path.home() / ".local" / "share" / "OpenStudio-HPXML"
-
-        # Return system path if it exists and is readable, or if we have write access to create it
-        if system_path.exists():
-            if os.access(str(system_path), os.R_OK):
-                return system_path
-        elif self._has_write_access(system_path.parent):
-            return system_path
-
-        # Fallback to user-writable path
-        return user_path
+            return Path.home() / ".local" / "share" / "OpenStudio-HPXML"
 
     def validate_all(self):
         """
