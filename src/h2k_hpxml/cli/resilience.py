@@ -153,6 +153,20 @@ def resilience(
         clothing_factor_winter (float): Winter clothing insulation factor
         run_simulation (bool): Whether to run OpenStudio simulations
     """
+    import os
+    import sys
+    
+    # Prevent auto-install when running h2k-resilience CLI
+    os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
+    
+    # Check dependencies and provide helpful message if missing
+    from h2k_hpxml.utils.dependencies import DependencyManager
+    dep_manager = DependencyManager()
+    if not dep_manager.check_only():
+        click.echo("❌ Missing required dependencies!")
+        click.echo("Run 'h2k-deps --auto-install' to install them.")
+        sys.exit(1)
+    
     try:
         # Check for OpenStudio availability
         if not OPENSTUDIO_AVAILABLE:

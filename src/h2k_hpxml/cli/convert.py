@@ -397,6 +397,17 @@ def cli(
         h2k2hpxml input.h2k --output output.xml --debug
         h2k2hpxml --credits
     """
+    
+    # Prevent auto-install when running h2k2hpxml CLI
+    os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
+    
+    # Check dependencies and provide helpful message if missing
+    if not credits:  # Skip dependency check for credits display
+        dep_manager = DependencyManager()
+        if not dep_manager.check_only():
+            click.echo("❌ Missing required dependencies!")
+            click.echo("Run 'h2k-deps --auto-install' to install them.")
+            sys.exit(1)
 
     # Handle credits flag
     if credits:

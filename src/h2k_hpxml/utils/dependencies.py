@@ -40,6 +40,10 @@ from pathlib import Path
 import click
 from packaging import version
 
+# Prevent auto-install when this module is imported (for CLI usage)
+# This must be set BEFORE any h2k_hpxml imports that might trigger __init__.py
+os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
+
 # Download function with SSL context support
 def download_file(url, dest_path, desc=""):
     """Download file with progress indicator."""
@@ -1755,8 +1759,8 @@ def validate_dependencies(
         skip_deps (bool): Skip all dependency validation. Default: False
         check_only (bool): Only check dependencies, don't install.
             Default: False
-        auto_install (bool): Automatically install missing dependencies
-            without prompts. Default: False
+        auto_install (bool): Automatically install missing dependencies.
+            Default: False
         hpxml_path (str|Path): Custom OpenStudio-HPXML installation path.
             Default: None (use environment variables or defaults)
         openstudio_path (str|Path): Custom OpenStudio installation path.
@@ -1771,7 +1775,7 @@ def validate_dependencies(
         >>> validate_dependencies()
 
         >>> # Automatic installation with custom paths
-        >>> validate_dependencies(auto_install=True, hpxml_path="/custom/hpxml")
+        >>> validate_dependencies(auto_install=True, interactive=False, hpxml_path="/custom/hpxml")
 
         >>> # Check only, no installation
         >>> validate_dependencies(check_only=True)
@@ -1792,6 +1796,10 @@ def validate_dependencies(
 
 def main():
     """Main entry point for standalone dependency checking."""
+    import os
+    # Prevent auto-install when running h2k-deps CLI
+    os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
+    
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -1799,13 +1807,13 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s --check-only           # Only check dependencies
-  %(prog)s --auto-install         # Automatically install missing deps
+  %(prog)s                        # Check dependencies and prompt to install if missing
+  %(prog)s --check-only           # Only check dependencies, don't install
+  %(prog)s --install-quiet        # Install missing dependencies without prompts
   %(prog)s --setup                # Set up user configuration from template
   %(prog)s --update-config        # Update all config files with detected paths
   %(prog)s --update-config --global   # Update user config files only
   %(prog)s --uninstall            # Uninstall OpenStudio and OpenStudio-HPXML
-  %(prog)s --non-interactive      # Don't prompt for installation
         """,
     )
 
@@ -1813,12 +1821,9 @@ Examples:
         "--check-only", action="store_true", help="Only check dependencies, don't install"
     )
     parser.add_argument(
-        "--non-interactive", action="store_true", help="Don't prompt for installation"
+        "--install-quiet", action="store_true", help="Install missing dependencies without prompts"
     )
     parser.add_argument("--skip-deps", action="store_true", help="Skip dependency validation")
-    parser.add_argument(
-        "--auto-install", action="store_true", help="Automatically install missing dependencies"
-    )
     parser.add_argument(
         "--uninstall",
         action="store_true",
@@ -1856,7 +1861,7 @@ Examples:
     # Handle setup option
     if args.setup:
         manager = DependencyManager(
-            interactive=not args.non_interactive,
+            interactive=True,  # Setup is always interactive
             hpxml_path=args.hpxml_path,
             openstudio_path=args.openstudio_path,
         )
@@ -1868,7 +1873,7 @@ Examples:
     # Handle uninstall option
     elif args.uninstall:
         manager = DependencyManager(
-            interactive=not args.non_interactive,
+            interactive=True,  # Uninstall is always interactive for safety
             hpxml_path=args.hpxml_path,
             openstudio_path=args.openstudio_path,
         )
@@ -1897,14 +1902,29 @@ Examples:
         else:
             click.echo("❌ Failed to update configuration file")
     else:
-        success = validate_dependencies(
-            interactive=not args.non_interactive,
-            skip_deps=args.skip_deps,
-            check_only=args.check_only,
-            auto_install=args.auto_install,
-            hpxml_path=args.hpxml_path,
-            openstudio_path=args.openstudio_path,
-        )
+        # Determine mode: check-only, install-quiet, or interactive (default)
+        if args.check_only:
+            success = validate_dependencies(
+                check_only=True,
+                hpxml_path=args.hpxml_path,
+                openstudio_path=args.openstudio_path,
+            )
+        elif args.install_quiet:
+            success = validate_dependencies(
+                interactive=False,
+                auto_install=True,
+                skip_deps=args.skip_deps,
+                hpxml_path=args.hpxml_path,
+                openstudio_path=args.openstudio_path,
+            )
+        else:
+            # Default interactive mode
+            success = validate_dependencies(
+                interactive=True,
+                skip_deps=args.skip_deps,
+                hpxml_path=args.hpxml_path,
+                openstudio_path=args.openstudio_path,
+            )
 
     import sys
 
