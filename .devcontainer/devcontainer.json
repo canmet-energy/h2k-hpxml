@@ -96,7 +96,7 @@
 		// Docker socket for Docker-in-Docker support
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
-	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh; uv venv --clear ; uv pip install -e .",
+	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh; uv venv --clear ; uv pip install -e '.[dev]'",
 	"containerUser": "vscode",
 	"remoteUser": "vscode"
 }
