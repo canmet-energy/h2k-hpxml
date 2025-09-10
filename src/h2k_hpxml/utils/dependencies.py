@@ -27,8 +27,11 @@ Example:
 Author: h2k_hpxml development team
 """
 
-import configparser
+# CRITICAL: Set this FIRST before any imports to prevent auto-install in __init__.py
 import os
+os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
+
+import configparser
 import platform
 import shutil
 import subprocess
@@ -40,9 +43,6 @@ from pathlib import Path
 import click
 from packaging import version
 
-# Prevent auto-install when this module is imported (for CLI usage)
-# This must be set BEFORE any h2k_hpxml imports that might trigger __init__.py
-os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
 
 # Download function with SSL context support
 def download_file(url, dest_path, desc=""):
