@@ -59,12 +59,12 @@ Here is a [list](docs/status/status.md) of the current completed sections relate
 
 2. **Install the package**:
    ```powershell
-   uv pip install h2k-hpxml
+   uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
    ```
    
    > **Alternative**: If you prefer using pip instead of uv:
    > ```powershell
-   > pip install h2k-hpxml
+   > pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
    > ```
 
 #### Linux/Mac Installation
