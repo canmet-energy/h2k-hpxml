@@ -9,9 +9,8 @@ __version__ = "1.7.0.1.1"
 
 # Auto-install dependencies on first import
 try:
-    from .installer import ensure_dependencies
-
-    ensure_dependencies()
+    from .utils.dependencies import validate_dependencies
+    validate_dependencies(interactive=False, auto_install=True)
 except Exception:
     # Don't fail package import if dependency check fails
     pass

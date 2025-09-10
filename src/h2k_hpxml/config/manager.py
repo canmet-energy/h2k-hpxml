@@ -310,7 +310,7 @@ class ConfigManager:
 
         # Otherwise, try to get the path from the installer
         try:
-            from ..installer import get_openstudio_hpxml_path
+            from ..utils.dependencies import get_openstudio_hpxml_path
 
             auto_path = get_openstudio_hpxml_path()
             if auto_path:
@@ -339,7 +339,7 @@ class ConfigManager:
 
         # Otherwise, try to get the path from the installer
         try:
-            from ..installer import get_openstudio_path
+            from ..utils.dependencies import get_openstudio_path
 
             auto_path = get_openstudio_path()
             if auto_path:

@@ -49,7 +49,8 @@
       "Bash(fi)",
       "Bash(done)",
       "Bash(time pytest:*)",
-      "Bash(time python -m pytest:*)"
+      "Bash(time python -m pytest:*)",
+      "mcp__serena__insert_after_symbol"
     ],
     "deny": [],
     "ask": [],

@@ -40,7 +40,38 @@ from pathlib import Path
 import click
 from packaging import version
 
-from ..installer import download_file
+# Download function with SSL context support
+def download_file(url, dest_path, desc=""):
+    """Download file with progress indicator."""
+    print(f"Downloading {desc or url}...")
+
+    # Create SSL context that doesn't verify certificates (for corporate networks)
+    # In production, you might want to make this configurable
+    import ssl
+    import urllib.request
+    from urllib.request import urlretrieve
+
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
+    try:
+
+        def download_progress(block_num, block_size, total_size):
+            downloaded = block_num * block_size
+            percent = min(downloaded * 100 / total_size, 100) if total_size > 0 else 0
+            print(f"  Progress: {percent:.1f}%", end="\r")
+
+        # Create opener with SSL context
+        opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx))
+        urllib.request.install_opener(opener)
+
+        urlretrieve(url, dest_path, reporthook=download_progress)
+        print(f"\n  ✓ Downloaded to {dest_path}")
+        return True
+    except urllib.error.URLError as e:
+        print(f"\n  ✗ Download failed: {e}")
+        return False
 
 
 def safe_echo(message, **kwargs):
@@ -1878,6 +1909,41 @@ Examples:
     import sys
 
     sys.exit(0 if success else 1)
+
+# Compatibility functions for legacy installer.py imports
+def get_openstudio_path():
+    """Get path to OpenStudio executable - bundled or system."""
+    import platform
+    import shutil
+    
+    # Use DependencyManager to find OpenStudio
+    manager = DependencyManager()
+    paths = manager._get_openstudio_paths()
+    
+    # Check each potential path
+    for path in paths:
+        if Path(path).exists():
+            return str(path)
+    
+    # Fallback to system installation
+    system_path = shutil.which("openstudio")
+    if system_path:
+        return system_path
+    
+    # No OpenStudio found
+    return None
+
+
+def get_openstudio_hpxml_path():
+    """Get path to OpenStudio-HPXML installation."""
+    # Use DependencyManager to find HPXML path
+    manager = DependencyManager()
+    hpxml_path = manager.default_hpxml_path
+    
+    if hpxml_path.exists():
+        return str(hpxml_path)
+    
+    return None
 
 
 if __name__ == "__main__":
