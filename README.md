@@ -17,7 +17,7 @@
 
 ## Background
 
-NRCan/CMHC is investigating energy use in Canada’s existing housing stock and exploring policy measures to enhance energy efficiency and affordability for Canadians. The primary tool used to evaluate building energy performance in Canada is NRCan’s Hot2000 (H2K) software. H2K is a building energy simulator that estimates the annual energy consumption of homes across Canada. NRCan has also developed a comprehensive database of archetypes representing housing across the country, using over 30 years of data from the EnerGuide for housing program. This location-specific database includes more than 6,000 archetypes, each reflecting regional housing characteristics.
+NRCan/CMHC is investigating energy use in Canada's existing housing stock and exploring policy measures to enhance energy efficiency and affordability for Canadians. The primary tool used to evaluate building energy performance in Canada is NRCan's Hot2000 (H2K) software. H2K is a building energy simulator that estimates the annual energy consumption of homes across Canada. NRCan has also developed a comprehensive database of archetypes representing housing across the country, using over 30 years of data from the EnerGuide for housing program. This location-specific database includes more than 6,000 archetypes, each reflecting regional housing characteristics.
 
 However, H2K has some limitations, including the inability to provide hourly energy data.  H2K only produces annual energy estimates. This lack of hourly resolution restricts its capacity to support analyses of modern energy conservation measures, such as thermal and electrical storage technologies, renewable energy, advanced building automation, and other innovative solutions. Furthermore, H2K cannot assess the effects of time-of-use (TOU) electricity rates or peak demand on housing affordability.
 
@@ -47,7 +47,9 @@ Here is a [list](docs/status/status.md) of the current completed sections relate
 
 ## Installation & Setup
 
-### Quick Start
+### Quick Start: uv Install
+
+**uv** is a fast Python package installer and resolver (10-100x faster than pip). It also manages Python versions automatically.
 
 #### Windows 11 Installation
 
@@ -57,29 +59,67 @@ Here is a [list](docs/status/status.md) of the current completed sections relate
    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
    ```
 
-2. **Install the package**:
+2. **Create and activate a virtual environment** (uv automatically installs Python 3.12+ if needed):
+   ```powershell
+   # Create environment with correct Python version
+   uv venv h2k-env --python 3.12
+   
+   # Activate it (commands will be added to PATH)
+   h2k-env\Scripts\activate
+   ```
+
+3. **Install the package**:
    ```powershell
    uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
    ```
-   
-   > **Alternative**: If you prefer using pip instead of uv:
-   > ```powershell
-   > pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-   > ```
 
 #### Linux/Mac Installation
 
-1. **Install the package**:
+1. **Install uv** (if not already installed):
    ```bash
-   uv pip install h2k-hpxml
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
+
+2. **Create and activate a virtual environment** (uv automatically installs Python 3.12+ if needed):
+   ```bash
+   # Create environment with correct Python version
+   uv venv h2k-env --python 3.12
    
-   > **Note**: If you don't have `uv` installed, you can install it with:
-   > ```bash
-   > curl -LsSf https://astral.sh/uv/install.sh | sh
-   > ```
-   > 
-   > **Alternative**: You can also use pip: `pip install h2k-hpxml`
+   # Activate it (commands will be added to PATH)
+   source h2k-env/bin/activate
+   ```
+
+3. **Install the package**:
+   ```bash
+   uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+   ```
+
+#### Alternative: Global Installation (Advanced Users)
+
+For system-wide installation where commands are available everywhere:
+
+```bash
+# Install globally (use with caution - may conflict with other packages)
+uv pip install --system git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+```
+
+#### Alternative: Traditional pip Installation
+
+If you prefer using pip instead of uv:
+
+**Windows:**
+```powershell
+python -m venv h2k-env
+h2k-env\Scripts\activate
+pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+```
+
+**Linux/Mac:**
+```bash
+python -m venv h2k-env
+source h2k-env/bin/activate
+pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+```
 
 #### Common Setup Steps (All Platforms)
 
@@ -112,6 +152,8 @@ Here is a [list](docs/status/status.md) of the current completed sections relate
    # Or entire folder (processes all .h2k files in parallel)
    h2k2hpxml path/to/h2k/folder/
    ```
+
+**Note:** After installation and activation, all commands (`h2k2hpxml`, `h2k-resilience`, `h2k-deps`) are directly available without needing `uv run` or other prefixes. To use them in future sessions, just activate the environment again.
 
 ### Interactive Demo
 
@@ -235,24 +277,33 @@ For development work, we also provide a comprehensive development container. Ins
    cd h2k-hpxml
    ```
 
-2. **Install in development mode**:
+2. **Create development environment with uv**:
    ```bash
-   uv pip install -e .
-   ```
+   # Create virtual environment with correct Python version
+   uv venv h2k-dev --python 3.12
    
-   > **Note**: If you don't have `uv`, use pip: `pip install -e .`
+   # Activate environment
+   source h2k-dev/bin/activate  # Linux/Mac
+   # or
+   h2k-dev\Scripts\activate     # Windows
+   ```
 
-3. **Setup development configuration**:
+3. **Install in development mode**:
+   ```bash
+   uv pip install -e '.[dev]'
+   ```
+
+4. **Setup development configuration**:
    ```bash
    h2k-deps --setup
    ```
 
-4. **Install dependencies automatically**:
+5. **Install dependencies automatically**:
    ```bash
    h2k-deps --auto-install
    ```
 
-5. **Run tests to verify setup**:
+6. **Run tests to verify setup**:
    ```bash
    pytest tests/unit/
    ```
