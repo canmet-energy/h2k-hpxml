@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://h2k-hpxml.api/schemas/envelope",
+  "title": "Building Envelope",
+  "description": "Building enclosure components including walls, windows, doors, roof, and insulation",
+  "type": "object",
+  "properties": {
+    "Enclosure": {
+      "type": "object",
+      "title": "Enclosure",
+      "description": "",
+      "x-processor": "enclosure",
+      "x-field-path": "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure"
+    },
+    "ConditionedFloorArea": {
+      "type": "string",
+      "title": "Conditionedfloorarea",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "enclosure",
+      "x-field-path": "building_const_dict → ConditionedFloorArea"
+    },
+    "NumberofConditionedFloorsAboveGrade": {
+      "type": "string",
+      "title": "Numberofconditionedfloorsabovegrade",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_const_dict → NumberofConditionedFloorsAboveGrade"
+    },
+    "NumberofConditionedFloors": {
+      "type": "string",
+      "title": "Numberofconditionedfloors",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_const_dict → NumberofConditionedFloors"
+    },
+    "ConditionedBuildingVolume": {
+      "type": "string",
+      "title": "Conditionedbuildingvolume",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_const_dict → ConditionedBuildingVolume"
+    }
+  },
+  "required": []
+}

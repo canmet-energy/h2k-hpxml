@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://h2k-hpxml.api/schemas/hvac",
+  "title": "HVAC Systems",
+  "description": "Heating, cooling, ventilation systems and distribution equipment",
+  "type": "object",
+  "properties": {
+    "Systems": {
+      "type": "object",
+      "title": "Systems",
+      "description": "",
+      "x-processor": "systems",
+      "x-field-path": "hpxml_dict → HPXML → Building → BuildingDetails → Systems"
+    },
+    "AirInfiltration": {
+      "type": "object",
+      "title": "Airinfiltration",
+      "description": "",
+      "x-processor": "systems",
+      "x-field-path": "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration"
+    },
+    "Appliances": {
+      "type": "string",
+      "title": "Appliances",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "systems",
+      "x-field-path": "hpxml_dict → HPXML → Building → BuildingDetails → Appliances"
+    },
+    "Lighting": {
+      "type": "string",
+      "title": "Lighting",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "systems",
+      "x-field-path": "hpxml_dict → HPXML → Building → BuildingDetails → Lighting"
+    },
+    "MiscLoads": {
+      "type": "string",
+      "title": "Miscloads",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "systems",
+      "x-field-path": "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads"
+    }
+  },
+  "required": []
+}

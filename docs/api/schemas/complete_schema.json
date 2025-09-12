@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://h2k-hpxml.api/schemas/complete",
+  "title": "H2K-HPXML Complete Building Model",
+  "description": "Complete schema for H2K to HPXML building energy model translation",
+  "type": "object",
+  "properties": {
+    "environment": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://h2k-hpxml.api/schemas/environment",
+      "title": "Environment & Site",
+      "description": "Weather data, site conditions, building orientation, and geographic information",
+      "type": "object",
+      "properties": {},
+      "required": []
+    },
+    "envelope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://h2k-hpxml.api/schemas/envelope",
+      "title": "Building Envelope",
+      "description": "Building enclosure components including walls, windows, doors, roof, and insulation",
+      "type": "object",
+      "properties": {},
+      "required": []
+    },
+    "loads": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://h2k-hpxml.api/schemas/loads",
+      "title": "Loads & Occupancy",
+      "description": "Internal loads from occupancy, appliances, lighting, and equipment usage patterns",
+      "type": "object",
+      "properties": {},
+      "required": []
+    },
+    "hvac": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://h2k-hpxml.api/schemas/hvac",
+      "title": "HVAC Systems",
+      "description": "Heating, cooling, ventilation systems and distribution equipment",
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "required": []
+}

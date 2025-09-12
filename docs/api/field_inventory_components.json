@@ -1,0 +1,140 @@
+{
+  "metadata": {
+    "generated_by": "analyze_hpxml_fields.py",
+    "total_fields": 8,
+    "processors_analyzed": [
+      "system_heating_secondary",
+      "ashrae140_mode"
+    ],
+    "domains": [
+      "Environment",
+      "Envelope",
+      "Loads",
+      "HVAC",
+      "Miscellaneous"
+    ]
+  },
+  "fields": {
+    "hpxml_dict → HPXML → SoftwareInfo": {
+      "field_path": "hpxml_dict → HPXML → SoftwareInfo",
+      "data_type": "dict",
+      "processor": "ashrae140_mode",
+      "line_number": 14,
+      "context": "hpxml_dict[\"HPXML\"][\"SoftwareInfo\"] = {\"extension\": {\"ApplyASHRAE140Assumptions\": \"true\"}}",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → Site": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → Site",
+      "data_type": "dict",
+      "processor": "ashrae140_mode",
+      "line_number": 17,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"BuildingSummary\"][\"Site\"] = {",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy → NumberofResidents": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy → NumberofResidents",
+      "data_type": "int",
+      "processor": "ashrae140_mode",
+      "line_number": 23,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"BuildingSummary\"][\"BuildingOccupancy\"][",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → Systems": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → Systems",
+      "data_type": "dict",
+      "processor": "ashrae140_mode",
+      "line_number": 36,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"Systems\"] = {",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration → AirInfiltrationMeasurement → BuildingAirLeakage": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration → AirInfiltrationMeasurement → BuildingAirLeakage",
+      "data_type": "dict",
+      "processor": "ashrae140_mode",
+      "line_number": 56,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"Enclosure\"][\"AirInfiltration\"][",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads",
+      "data_type": "dict",
+      "processor": "ashrae140_mode",
+      "line_number": 94,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"MiscLoads\"] = {",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "furnace_dict → HeatingSystemType": {
+      "field_path": "furnace_dict → HeatingSystemType",
+      "data_type": "dict",
+      "processor": "system_heating_secondary",
+      "line_number": 168,
+      "context": "furnace_dict[\"HeatingSystemType\"] = {",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "boiler_dict → HeatingSystemType": {
+      "field_path": "boiler_dict → HeatingSystemType",
+      "data_type": "dict",
+      "processor": "system_heating_secondary",
+      "line_number": 204,
+      "context": "boiler_dict[\"HeatingSystemType\"] = {",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    }
+  },
+  "domains": {
+    "Environment": [
+      "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → Site"
+    ],
+    "Envelope": [],
+    "Loads": [
+      "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy → NumberofResidents"
+    ],
+    "HVAC": [
+      "hpxml_dict → HPXML → Building → BuildingDetails → Systems",
+      "furnace_dict → HeatingSystemType",
+      "boiler_dict → HeatingSystemType"
+    ],
+    "Miscellaneous": [
+      "hpxml_dict → HPXML → SoftwareInfo",
+      "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration → AirInfiltrationMeasurement → BuildingAirLeakage",
+      "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads"
+    ]
+  },
+  "processors": {
+    "ashrae140_mode": [
+      "hpxml_dict → HPXML → SoftwareInfo",
+      "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → Site",
+      "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy → NumberofResidents",
+      "hpxml_dict → HPXML → Building → BuildingDetails → Systems",
+      "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration → AirInfiltrationMeasurement → BuildingAirLeakage",
+      "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads"
+    ],
+    "system_heating_secondary": [
+      "furnace_dict → HeatingSystemType",
+      "boiler_dict → HeatingSystemType"
+    ]
+  }
+}

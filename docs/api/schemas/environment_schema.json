@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://h2k-hpxml.api/schemas/environment",
+  "title": "Environment & Site",
+  "description": "Weather data, site conditions, building orientation, and geographic information",
+  "type": "object",
+  "properties": {
+    "Name": {
+      "type": "string",
+      "title": "Name",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "weather",
+      "x-field-path": "weather_dict → Name"
+    },
+    "EPWFilePath": {
+      "type": "string",
+      "title": "Epwfilepath",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "weather",
+      "x-field-path": "weather_dict → extension → EPWFilePath"
+    },
+    "AzimuthOfFrontOfHome": {
+      "type": "string",
+      "title": "Azimuthoffrontofhome",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_sum_site_dict → AzimuthOfFrontOfHome"
+    },
+    "ShieldingofHome": {
+      "type": "string",
+      "title": "Shieldingofhome",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_sum_site_dict → ShieldingofHome"
+    },
+    "Conductivity": {
+      "type": "string",
+      "title": "Conductivity",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_sum_site_dict → Soil → Conductivity"
+    }
+  },
+  "required": []
+}

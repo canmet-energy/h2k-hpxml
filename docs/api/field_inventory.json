@@ -1,0 +1,289 @@
+{
+  "metadata": {
+    "generated_by": "analyze_hpxml_fields.py",
+    "total_fields": 19,
+    "processors_analyzed": [
+      "weather",
+      "systems",
+      "building",
+      "enclosure"
+    ],
+    "domains": [
+      "Environment",
+      "Envelope",
+      "Loads",
+      "HVAC",
+      "Miscellaneous"
+    ]
+  },
+  "fields": {
+    "weather_dict → Name": {
+      "field_path": "weather_dict → Name",
+      "data_type": "unknown",
+      "processor": "weather",
+      "line_number": 80,
+      "context": "weather_dict[\"Name\"] = weather_file",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "weather_dict → extension → EPWFilePath": {
+      "field_path": "weather_dict → extension → EPWFilePath",
+      "data_type": "unknown",
+      "processor": "weather",
+      "line_number": 81,
+      "context": "weather_dict[\"extension\"][\"EPWFilePath\"] = f\"{weather_file}.epw\"",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → Systems": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → Systems",
+      "data_type": "dict",
+      "processor": "systems",
+      "line_number": 52,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"Systems\"] = {",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration",
+      "data_type": "dict",
+      "processor": "systems",
+      "line_number": 70,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"Enclosure\"][\"AirInfiltration\"] = {",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → Appliances": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → Appliances",
+      "data_type": "unknown",
+      "processor": "systems",
+      "line_number": 78,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"Appliances\"] = appliance_result",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → Lighting": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → Lighting",
+      "data_type": "unknown",
+      "processor": "systems",
+      "line_number": 81,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"Lighting\"] = get_lighting(",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads",
+      "data_type": "unknown",
+      "processor": "systems",
+      "line_number": 89,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"MiscLoads\"] = get_plug_loads(",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure",
+      "data_type": "dict",
+      "processor": "enclosure",
+      "line_number": 101,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"Enclosure\"] = {",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_const_dict → ConditionedFloorArea": {
+      "field_path": "building_const_dict → ConditionedFloorArea",
+      "data_type": "unknown",
+      "processor": "enclosure",
+      "line_number": 135,
+      "context": "building_const_dict[\"ConditionedFloorArea\"] = ag_heated_floor_area + bg_heated_floor_area",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_sum_site_dict → AzimuthOfFrontOfHome": {
+      "field_path": "building_sum_site_dict → AzimuthOfFrontOfHome",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 84,
+      "context": "building_sum_site_dict[\"AzimuthOfFrontOfHome\"] = h2k.get_selection_field(",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_sum_site_dict → ShieldingofHome": {
+      "field_path": "building_sum_site_dict → ShieldingofHome",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 89,
+      "context": "building_sum_site_dict[\"ShieldingofHome\"] = h2k.get_selection_field(",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_sum_site_dict → Soil → Conductivity": {
+      "field_path": "building_sum_site_dict → Soil → Conductivity",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 94,
+      "context": "building_sum_site_dict[\"Soil\"][\"Conductivity\"] = h2k.get_selection_field(",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy": {
+      "field_path": "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy",
+      "data_type": "dict",
+      "processor": "building",
+      "line_number": 100,
+      "context": "hpxml_dict[\"HPXML\"][\"Building\"][\"BuildingDetails\"][\"BuildingSummary\"][",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_const_dict → ResidentialFacilityType": {
+      "field_path": "building_const_dict → ResidentialFacilityType",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 114,
+      "context": "building_const_dict[\"ResidentialFacilityType\"] = res_facility_type",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_const_dict → NumberofConditionedFloorsAboveGrade": {
+      "field_path": "building_const_dict → NumberofConditionedFloorsAboveGrade",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 118,
+      "context": "building_const_dict[\"NumberofConditionedFloorsAboveGrade\"] = num_ag_storeys",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_const_dict → NumberofConditionedFloors": {
+      "field_path": "building_const_dict → NumberofConditionedFloors",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 125,
+      "context": "building_const_dict[\"NumberofConditionedFloors\"] = num_tot_storeys",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_const_dict → NumberofBedrooms": {
+      "field_path": "building_const_dict → NumberofBedrooms",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 129,
+      "context": "building_const_dict[\"NumberofBedrooms\"] = num_bedrooms",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_const_dict → NumberofBathrooms": {
+      "field_path": "building_const_dict → NumberofBathrooms",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 140,
+      "context": "building_const_dict[\"NumberofBathrooms\"] = max(num_bathrooms, 1)",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    },
+    "building_const_dict → ConditionedBuildingVolume": {
+      "field_path": "building_const_dict → ConditionedBuildingVolume",
+      "data_type": "unknown",
+      "processor": "building",
+      "line_number": 144,
+      "context": "building_const_dict[\"ConditionedBuildingVolume\"] = house_volume",
+      "is_required": false,
+      "default_value": null,
+      "validation_rules": [],
+      "description": ""
+    }
+  },
+  "domains": {
+    "Environment": [
+      "weather_dict → Name",
+      "weather_dict → extension → EPWFilePath",
+      "building_sum_site_dict → AzimuthOfFrontOfHome",
+      "building_sum_site_dict → ShieldingofHome",
+      "building_sum_site_dict → Soil → Conductivity"
+    ],
+    "Envelope": [],
+    "Loads": [
+      "hpxml_dict → HPXML → Building → BuildingDetails → Appliances",
+      "hpxml_dict → HPXML → Building → BuildingDetails → Lighting",
+      "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy",
+      "building_const_dict → ResidentialFacilityType",
+      "building_const_dict → NumberofBedrooms",
+      "building_const_dict → NumberofBathrooms"
+    ],
+    "HVAC": [
+      "hpxml_dict → HPXML → Building → BuildingDetails → Systems"
+    ],
+    "Miscellaneous": [
+      "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration",
+      "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads",
+      "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure",
+      "building_const_dict → ConditionedFloorArea",
+      "building_const_dict → NumberofConditionedFloorsAboveGrade",
+      "building_const_dict → NumberofConditionedFloors",
+      "building_const_dict → ConditionedBuildingVolume"
+    ]
+  },
+  "processors": {
+    "weather": [
+      "weather_dict → Name",
+      "weather_dict → extension → EPWFilePath"
+    ],
+    "systems": [
+      "hpxml_dict → HPXML → Building → BuildingDetails → Systems",
+      "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure → AirInfiltration",
+      "hpxml_dict → HPXML → Building → BuildingDetails → Appliances",
+      "hpxml_dict → HPXML → Building → BuildingDetails → Lighting",
+      "hpxml_dict → HPXML → Building → BuildingDetails → MiscLoads"
+    ],
+    "enclosure": [
+      "hpxml_dict → HPXML → Building → BuildingDetails → Enclosure",
+      "building_const_dict → ConditionedFloorArea"
+    ],
+    "building": [
+      "building_sum_site_dict → AzimuthOfFrontOfHome",
+      "building_sum_site_dict → ShieldingofHome",
+      "building_sum_site_dict → Soil → Conductivity",
+      "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy",
+      "building_const_dict → ResidentialFacilityType",
+      "building_const_dict → NumberofConditionedFloorsAboveGrade",
+      "building_const_dict → NumberofConditionedFloors",
+      "building_const_dict → NumberofBedrooms",
+      "building_const_dict → NumberofBathrooms",
+      "building_const_dict → ConditionedBuildingVolume"
+    ]
+  }
+}

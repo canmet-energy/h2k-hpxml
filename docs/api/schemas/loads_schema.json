@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://h2k-hpxml.api/schemas/loads",
+  "title": "Loads & Occupancy",
+  "description": "Internal loads from occupancy, appliances, lighting, and equipment usage patterns",
+  "type": "object",
+  "properties": {
+    "BuildingOccupancy": {
+      "type": "object",
+      "title": "Buildingoccupancy",
+      "description": "",
+      "x-processor": "building",
+      "x-field-path": "hpxml_dict → HPXML → Building → BuildingDetails → BuildingSummary → BuildingOccupancy"
+    },
+    "ResidentialFacilityType": {
+      "type": "string",
+      "title": "Residentialfacilitytype",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_const_dict → ResidentialFacilityType"
+    },
+    "NumberofBedrooms": {
+      "type": "string",
+      "title": "Numberofbedrooms",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_const_dict → NumberofBedrooms"
+    },
+    "NumberofBathrooms": {
+      "type": "string",
+      "title": "Numberofbathrooms",
+      "description": "",
+      "minLength": 1,
+      "x-processor": "building",
+      "x-field-path": "building_const_dict → NumberofBathrooms"
+    }
+  },
+  "required": []
+}
