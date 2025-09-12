@@ -285,9 +285,17 @@ Contributions are encouraged! If you find a bug, submit an "Issue" on the tab ab
 
 For more detailed documentation, please see:
 
+### Installation & Testing
 - 📦 **[Installation Guide](docs/INSTALLATION.md)** - Detailed setup, configuration, and dependency management
+- ⚡ **[Quick Start with uv](docs/installation/quick_start_uv.md)** - Fast installation using the modern uv package manager (10-100x faster than pip)
+- 🧪 **[Installation Testing Guide](docs/installation/installation_test.md)** - Complete guide to verify your installation is working correctly
+- ✅ **[Post-Installation Testing](docs/installation/test_after_install.md)** - Step-by-step verification after package installation
+
+### Usage & Performance
 - 🐳 **[Docker Guide](docs/DOCKER.md)** - Complete Docker usage, deployment, and Docker Compose examples
 - ⚡ **[Performance Guide](docs/PERFORMANCE.md)** - Parallel processing, optimization, and batch processing
+
+### Development
 - 💻 **[Development Guide](docs/DEVELOPMENT.md)** - Development environment setup, testing, and contribution guidelines
 - 🔧 **[Configuration Guide](docs/development/configuration_system.md)** - Configuration system details
 - 📊 **[Status & Features](docs/status/status.md)** - Current implementation status and supported features

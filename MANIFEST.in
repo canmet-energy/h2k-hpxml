@@ -1,0 +1,23 @@
+# Include example H2K files for testing and demonstration
+include examples/*.h2k
+include examples/*.H2K
+recursive-include examples *.h2k
+recursive-include examples *.H2K
+
+# Include documentation and test files that users might need
+include README.md
+include LICENSE
+include CLAUDE.md
+include INSTALLATION_TEST.md
+include TEST_AFTER_INSTALL.md
+include QUICK_START_UV.md
+
+# Include test scripts for installation verification
+include test_installation.py
+include quick_test.py
+include smart_test.py
+include install_and_test.py
+
+# Include configuration templates
+recursive-include config *.ini
+recursive-include config *.template.ini

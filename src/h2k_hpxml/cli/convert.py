@@ -367,6 +367,9 @@ def show_credits():
 @click.option(
     "--do-not-sim", is_flag=True, default=False, help="Convert only, do not run simulation"
 )
+@click.option(
+    "--demo", is_flag=True, help="Run interactive demo / Exécuter la démo interactive"
+)
 def cli(
     input,
     output,
@@ -382,6 +385,7 @@ def cli(
     add_stochastic_schedules,
     add_timeseries_output_variable,
     do_not_sim,
+    demo,
 ):
     """
     H2K to HPXML conversion and simulation tool.
@@ -402,7 +406,7 @@ def cli(
     os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
     
     # Check dependencies and provide helpful message if missing
-    if not credits:  # Skip dependency check for credits display
+    if not credits and not demo:  # Skip dependency check for credits and demo
         dep_manager = DependencyManager()
         if not dep_manager.check_only():
             click.echo("❌ Missing required dependencies!")
@@ -412,6 +416,12 @@ def cli(
     # Handle credits flag
     if credits:
         show_credits()
+        return
+    
+    # Handle demo flag
+    if demo:
+        from .demo import run_interactive_demo
+        run_interactive_demo()
         return
 
     # Show help if no input provided

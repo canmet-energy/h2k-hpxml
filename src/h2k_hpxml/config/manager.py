@@ -157,7 +157,7 @@ class ConfigManager:
         """Validate required configuration sections and keys."""
         required_sections = ["paths", "simulation", "weather", "logging"]
         required_keys = {
-            "paths": ["source_h2k_path", "hpxml_os_path", "dest_hpxml_path"],
+            "paths": ["hpxml_os_path", "dest_hpxml_path"],
             "weather": ["weather_library", "weather_vintage"],
             "logging": ["log_level"],
         }
@@ -179,7 +179,6 @@ class ConfigManager:
     def _validate_paths(self):
         """Validate that configured paths exist or can be created."""
         paths_to_check = [
-            ("source_h2k_path", True),  # Must exist
             ("hpxml_os_path", False),  # Will be auto-detected if not configured
             ("dest_hpxml_path", False),  # Can be created
         ]
@@ -494,7 +493,7 @@ class ConfigManager:
 
         # Add required sections with minimal values
         minimal_config.add_section("paths")
-        minimal_config.set("paths", "source_h2k_path", "examples")
+        minimal_config.set("paths", "source_h2k_path", "")
         minimal_config.set("paths", "hpxml_os_path", "")
         minimal_config.set("paths", "openstudio_binary", "")
         minimal_config.set("paths", "energyplus_binary", "")
