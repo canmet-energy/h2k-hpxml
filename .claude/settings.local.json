@@ -61,7 +61,9 @@
       "Bash(/home/vscode/.local/share/OpenStudio-3.9.0/bin/openstudio --version)",
       "Bash(/home/vscode/.local/share/OpenStudio-3.9.0/EnergyPlus/energyplus --version)",
       "Bash(unzip:*)",
-      "Bash(uv build:*)"
+      "Bash(uv build:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)"
     ],
     "deny": [],
     "ask": [],

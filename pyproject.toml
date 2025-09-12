@@ -74,6 +74,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "h2k_hpxml.examples" = ["*.h2k", "*.H2K"]
+"h2k_hpxml.resources" = ["*.json"]
 
 [tool.setuptools_scm]
 

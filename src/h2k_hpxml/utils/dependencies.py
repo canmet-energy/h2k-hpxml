@@ -52,15 +52,70 @@ except ImportError:
 
 
 def _load_dependency_config():
-    """Load dependency configuration from pyproject.toml.
+    """Load dependency configuration from packaged JSON file or pyproject.toml fallback.
+    
+    First tries to load from packaged dependency_versions.json file.
+    Falls back to pyproject.toml for development environments.
     
     Raises:
-        RuntimeError: If pyproject.toml cannot be found or read, or if required 
+        RuntimeError: If neither config source can be found or read, or if required 
                      dependency configuration is missing.
     """
+    # First try to load from packaged JSON file
+    try:
+        import json
+        from importlib import resources
+        
+        # Try to load from package resources
+        try:
+            with resources.open_text('h2k_hpxml.resources', 'dependency_versions.json') as f:
+                config = json.load(f)
+                
+                # Validate required fields
+                required_fields = ["openstudio_version", "openstudio_sha", "openstudio_hpxml_version"]
+                missing_fields = [field for field in required_fields if field not in config]
+                
+                if missing_fields:
+                    raise RuntimeError(
+                        f"Missing required dependency configuration in packaged config: {', '.join(missing_fields)}"
+                    )
+                
+                return config
+                
+        except (FileNotFoundError, ImportError, AttributeError):
+            # Package resources not available or file not found, try alternative approach
+            pass
+            
+        # Try alternative resource loading for older Python versions
+        try:
+            import pkg_resources
+            resource_path = pkg_resources.resource_filename('h2k_hpxml', 'resources/dependency_versions.json')
+            if os.path.exists(resource_path):
+                with open(resource_path, 'r') as f:
+                    config = json.load(f)
+                    
+                    # Validate required fields
+                    required_fields = ["openstudio_version", "openstudio_sha", "openstudio_hpxml_version"]
+                    missing_fields = [field for field in required_fields if field not in config]
+                    
+                    if missing_fields:
+                        raise RuntimeError(
+                            f"Missing required dependency configuration in packaged config: {', '.join(missing_fields)}"
+                        )
+                    
+                    return config
+        except (ImportError, FileNotFoundError):
+            pass
+            
+    except Exception as e:
+        # Log the error but continue to fallback
+        pass
+    
+    # Fallback to pyproject.toml for development environments
     if tomllib is None:
         raise RuntimeError(
-            "TOML library not available. Install tomli for Python < 3.11: pip install tomli"
+            "TOML library not available and packaged config not found. "
+            "Install tomli for Python < 3.11: pip install tomli"
         )
     
     # Find pyproject.toml - walk up from this file to find project root
@@ -76,8 +131,8 @@ def _load_dependency_config():
     
     if pyproject_path is None:
         raise RuntimeError(
-            "Could not find pyproject.toml. Dependency versions must be defined in "
-            "[tool.h2k-hpxml.dependencies] section."
+            "Could not find dependency configuration. Neither packaged dependency_versions.json "
+            "nor pyproject.toml found. This may indicate a packaging issue."
         )
     
     try:
