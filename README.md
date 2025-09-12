@@ -113,6 +113,35 @@ Here is a [list](docs/status/status.md) of the current completed sections relate
    h2k2hpxml path/to/h2k/folder/
    ```
 
+### Interactive Demo
+
+New users can learn the conversion process with the interactive demo:
+
+**Windows:**
+```powershell
+# English demo
+h2k-demo
+
+# French demo  
+h2k-demo --lang fr
+```
+
+**Linux/Mac:**
+```bash
+# English demo
+h2k-demo
+
+# French demo
+h2k-demo --lang fr
+```
+
+The demo will:
+- Guide you through selecting an example H2K file
+- Show the exact command that will be run with all flags
+- Run a real conversion with hourly outputs
+- Display all generated output files in tree format with descriptions
+- Demonstrate the full workflow from H2K to EnergyPlus simulation results
+
 ### Configuration System
 
 The package uses a simple single-file configuration approach:

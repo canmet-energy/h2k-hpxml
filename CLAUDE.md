@@ -101,6 +101,10 @@ h2k2hpxml input.h2k --debug --hourly ALL --do-not-sim
 # Show credits
 h2k2hpxml --credits
 
+# Interactive demo (bilingual learning tool)
+h2k-demo                             # English demo with example files
+h2k-demo --lang fr                   # French demo interface
+
 # Resilience analysis
 h2k-resilience input.h2k [--scenarios SCENARIOS]
 
