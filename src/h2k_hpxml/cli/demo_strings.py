@@ -67,15 +67,83 @@ DEMO_STRINGS = {
             "h2k2hpxml file.h2k --do-not-sim"
         ],
         "help_command": "Need help? Run: h2k2hpxml --help",
-        "cleanup": "Clean up demo files?",
+        "demo_setup_explanation": "Demo setup: Created demo folder and copied {filename} for demonstration",
+        "hourly_all_explanation": "--hourly ALL: Export ALL available hourly energy variables (comprehensive data)",
+        "output_format_csv_explanation": "--output-format csv: Save results in spreadsheet-friendly CSV format",
+        "cleanup": "Delete demo output folder?",
         "cleanup_done": "Demo files cleaned up.",
-        "complete": "Conversion complete!",
+        "complete": "Conversion and simulation complete!",
         "press_enter": "Press Enter to continue...",
         "cancelled": "Demo cancelled.",
         "error": "An error occurred: {error}",
         "file_not_found": "File not found: {filename}",
         "size_kb": "{size} KB",
-        "size_mb": "{size} MB"
+        "size_mb": "{size} MB",
+        "checking_deps": "Checking dependencies...",
+        "deps_missing": "Missing dependencies. Please run: h2k-deps --auto-install",
+        "copying_file": "Copying {filename} to demo directory...",
+        "real_simulation": "This will run an actual simulation with hourly outputs (may take 2-3 minutes)",
+        "creating_demo_dir": "Created demo directory: h2k_demo_output/",
+        "simulation_complete": "Simulation completed successfully!",
+        "copy_file_step": "Copy {filename} to h2k_demo_output/ folder",
+        "run_simulation_step": "Run full EnergyPlus annual simulation",
+        "save_outputs_step": "Save all outputs in h2k_demo_output/{stem}/",
+        "copied_file": "Copied {filename} to demo directory",
+        "weather_file_exists": "Weather file already exists:",
+        "all_files_location": "All files are in: {location}",
+        "demo_files_location": "Demo files are in: {location}",
+        "file_descriptions": {
+            # HPXML and building model files
+            "xml_general": "HPXML building energy model (standardized home energy format)",
+            "in_xml": "Processed HPXML input file used by OpenStudio/EnergyPlus simulation", 
+            "in_idf": "EnergyPlus Input Data File - detailed building geometry and systems",
+            "in_osm": "OpenStudio Model file - 3D building geometry and HVAC systems",
+            
+            # Annual and summary results
+            "results_annual_csv": "Annual energy totals (heating, cooling, hot water, appliances)",
+            "results_annual_json": "Annual energy results in JSON format for data processing",
+            
+            # Time-series data
+            "results_timeseries_csv": "8,760 hours of energy data (heating, cooling, electricity, gas)",
+            "eplusout_hourly_msgpack": "Hourly simulation data in compressed binary format",
+            "eplusout_runperiod_msgpack": "Full year simulation data in compressed format", 
+            "eplusout_msgpack": "Complete EnergyPlus output data in binary format",
+            
+            # Financial/billing results
+            "results_bills_csv": "Annual utility bills and costs breakdown by fuel type",
+            "results_bills_monthly_csv": "Monthly utility bills with seasonal variations",
+            
+            # Design and load calculations  
+            "results_design_load_details_csv": "Peak heating/cooling loads for equipment sizing",
+            
+            # Simulation logs and diagnostics
+            "eplusout_err": "EnergyPlus warnings and errors - check for simulation issues",
+            "eplusout_end": "Simulation completion status indicator",
+            "run_log": "Processing log from HPXML to OpenStudio conversion",
+            "stderr_energyplus_log": "EnergyPlus error messages during simulation",
+            "stdout_energyplus_log": "EnergyPlus standard output during simulation",
+            
+            # Reports and tables
+            "eplustbl_htm": "EnergyPlus HTML report with detailed tables and summaries",
+            
+            # Source files
+            "h2k_file": "Original Hot2000 building energy model input file",
+            
+            # Fallbacks
+            "xml_fallback": "XML building model or configuration file",
+            "csv_fallback": "Energy data in spreadsheet format for analysis",
+            "json_fallback": "Structured energy data in JSON format",
+            "log_fallback": "Processing or simulation log with messages",
+            "sql_fallback": "SQLite database with detailed simulation results",
+            "err_fallback": "Error and warning messages from simulation",
+            "osm_fallback": "OpenStudio building model with 3D geometry",
+            "idf_fallback": "EnergyPlus input file with building definition",
+            "msgpack_fallback": "Compressed binary data from energy simulation",
+            "html_fallback": "HTML report with tables and charts",
+            "txt_fallback": "Text file with simulation data or logs",
+            "end_fallback": "Simulation completion status file",
+            "default_fallback": "Energy simulation output file"
+        }
     },
     "fr": {
         "welcome_title": "Démo Interactive H2K vers HPXML",
@@ -138,15 +206,83 @@ DEMO_STRINGS = {
             "h2k2hpxml fichier.h2k --do-not-sim"
         ],
         "help_command": "Besoin d'aide? Exécutez: h2k2hpxml --help",
-        "cleanup": "Nettoyer les fichiers de démo?",
+        "demo_setup_explanation": "Configuration démo: Dossier démo créé et {filename} copié pour démonstration",
+        "hourly_all_explanation": "--hourly ALL: Exporter TOUTES les variables énergétiques horaires disponibles (données complètes)",
+        "output_format_csv_explanation": "--output-format csv: Sauvegarder les résultats en format CSV compatible tableur",
+        "cleanup": "Supprimer le dossier de démo?",
         "cleanup_done": "Fichiers de démo nettoyés.",
-        "complete": "Conversion terminée!",
+        "complete": "Conversion et simulation terminées!",
         "press_enter": "Appuyez sur Entrée pour continuer...",
         "cancelled": "Démo annulée.",
         "error": "Une erreur s'est produite: {error}",
         "file_not_found": "Fichier non trouvé: {filename}",
         "size_kb": "{size} Ko",
-        "size_mb": "{size} Mo"
+        "size_mb": "{size} Mo",
+        "checking_deps": "Vérification des dépendances...",
+        "deps_missing": "Dépendances manquantes. Exécutez: h2k-deps --auto-install",
+        "copying_file": "Copie de {filename} vers le répertoire de démo...",
+        "real_simulation": "Ceci exécutera une vraie simulation avec sorties horaires (peut prendre 2-3 minutes)",
+        "creating_demo_dir": "Répertoire de démo créé: h2k_demo_output/",
+        "simulation_complete": "Simulation complétée avec succès!",
+        "copy_file_step": "Copier {filename} vers le dossier h2k_demo_output/",
+        "run_simulation_step": "Exécuter une simulation EnergyPlus annuelle complète",
+        "save_outputs_step": "Sauvegarder toutes les sorties dans h2k_demo_output/{stem}/",
+        "copied_file": "{filename} copié vers le répertoire de démo",
+        "weather_file_exists": "Le fichier météo existe déjà:",
+        "all_files_location": "Tous les fichiers sont dans: {location}",
+        "demo_files_location": "Les fichiers de démo sont dans: {location}",
+        "file_descriptions": {
+            # HPXML and building model files
+            "xml_general": "Modèle énergétique de bâtiment HPXML (format standard résidentiel)",
+            "in_xml": "Fichier d'entrée HPXML traité pour simulation OpenStudio/EnergyPlus",
+            "in_idf": "Fichier de données d'entrée EnergyPlus - géométrie et systèmes détaillés",
+            "in_osm": "Fichier modèle OpenStudio - géométrie 3D et systèmes CVC",
+            
+            # Annual and summary results
+            "results_annual_csv": "Totaux énergétiques annuels (chauffage, climatisation, eau chaude, appareils)",
+            "results_annual_json": "Résultats énergétiques annuels en format JSON pour traitement",
+            
+            # Time-series data
+            "results_timeseries_csv": "8 760 heures de données énergétiques (chauffage, climatisation, électricité, gaz)",
+            "eplusout_hourly_msgpack": "Données de simulation horaires en format binaire compressé",
+            "eplusout_runperiod_msgpack": "Données de simulation annuelle en format compressé",
+            "eplusout_msgpack": "Données complètes de sortie EnergyPlus en format binaire",
+            
+            # Financial/billing results
+            "results_bills_csv": "Factures et coûts annuels par type de combustible",
+            "results_bills_monthly_csv": "Factures mensuelles avec variations saisonnières",
+            
+            # Design and load calculations
+            "results_design_load_details_csv": "Charges de pointe chauffage/climatisation pour dimensionnement",
+            
+            # Simulation logs and diagnostics
+            "eplusout_err": "Avertissements et erreurs EnergyPlus - vérifier problèmes de simulation",
+            "eplusout_end": "Indicateur d'état de completion de simulation",
+            "run_log": "Journal de traitement de conversion HPXML vers OpenStudio",
+            "stderr_energyplus_log": "Messages d'erreur EnergyPlus durant simulation",
+            "stdout_energyplus_log": "Sortie standard EnergyPlus durant simulation",
+            
+            # Reports and tables
+            "eplustbl_htm": "Rapport HTML EnergyPlus avec tableaux et résumés détaillés",
+            
+            # Source files
+            "h2k_file": "Fichier d'entrée original de modèle énergétique Hot2000",
+            
+            # Fallbacks
+            "xml_fallback": "Modèle de bâtiment XML ou fichier de configuration",
+            "csv_fallback": "Données énergétiques en format tableur pour analyse",
+            "json_fallback": "Données énergétiques structurées en format JSON",
+            "log_fallback": "Journal de traitement ou simulation avec messages",
+            "sql_fallback": "Base de données SQLite avec résultats détaillés de simulation",
+            "err_fallback": "Messages d'erreur et avertissements de simulation",
+            "osm_fallback": "Modèle de bâtiment OpenStudio avec géométrie 3D",
+            "idf_fallback": "Fichier d'entrée EnergyPlus avec définition de bâtiment",
+            "msgpack_fallback": "Données binaires compressées de simulation énergétique",
+            "html_fallback": "Rapport HTML avec tableaux et graphiques",
+            "txt_fallback": "Fichier texte avec données ou journaux de simulation",
+            "end_fallback": "Fichier d'état de completion de simulation",
+            "default_fallback": "Fichier de sortie de simulation énergétique"
+        }
     }
 }
 

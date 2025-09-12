@@ -18,7 +18,6 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from rich.prompt import Prompt, Confirm
-from rich.syntax import Syntax
 
 from ..examples import get_examples_directory, list_example_files
 from .demo_strings import get_string, get_list
@@ -31,7 +30,7 @@ class H2KDemo:
     
     def __init__(self):
         self.lang = "en"
-        self.temp_dir: Optional[Path] = None
+        self.demo_dir: Optional[Path] = None
         self.selected_file: Optional[Path] = None
         self.output_files = []
         
@@ -103,202 +102,374 @@ class H2KDemo:
         """Display the command that will be run."""
         if not self.selected_file:
             return False
-            
-        cmd = f"h2k2hpxml {self.selected_file.name} --output demo_output/ --debug"
+        
+        # First, explain what the demo will set up
+        console.print(f"\n• {self.t('demo_setup_explanation').format(filename=self.selected_file.name)}")
+        
+        # Show the actual command with flags that will be used
+        cmd = f"h2k2hpxml h2k_demo_output/{self.selected_file.name} --hourly ALL --output-format csv"
         
         console.print(f"\n[bold]{self.t('command_preview')}[/bold]")
-        console.print(Panel(Syntax(cmd, "bash", theme="monokai"), border_style="dim"))
+        console.print(Panel(f"[cyan]{cmd}[/cyan]", border_style="dim"))
         
-        # Explain what the command does
+        # Explain what the command does (without demo setup)
         console.print(f"\n{self.t('command_explanation')}")
-        console.print(f"{self.t('convert_explanation').format(filename=self.selected_file.name)}")
-        console.print(f"{self.t('output_explanation')}")
-        console.print(f"{self.t('debug_explanation')}")
+        console.print(f"{self.t('convert_explanation').format(filename=self.selected_file.name)}")  # No bullet - string already has one
+        console.print(f"• {self.t('run_simulation_step')}")
+        console.print(f"• {self.t('save_outputs_step').format(stem=self.selected_file.stem)}")
+        console.print(f"• {self.t('hourly_all_explanation')}")
+        console.print(f"• {self.t('output_format_csv_explanation')}")
         
         return Confirm.ask(f"\n{self.t('confirm_run')}", default=True)
         
     def simulate_conversion(self) -> bool:
-        """Simulate the conversion process with progress display."""
-        # Create temp directory
+        """Run actual H2K to HPXML conversion with full EnergyPlus simulation."""
+        import logging
+        
+        # Suppress INFO messages during demo for cleaner output
+        # Target the specific h2k_hpxml loggers
+        h2k_logger = logging.getLogger("h2k_hpxml")
+        original_h2k_level = h2k_logger.level
+        h2k_logger.setLevel(logging.WARNING)
+        
+        # Also suppress the root logger just in case
+        root_logger = logging.getLogger()
+        original_root_level = root_logger.level
+        root_logger.setLevel(logging.WARNING)
+        
         try:
-            self.temp_dir = Path(tempfile.mkdtemp(prefix="h2k_demo_"))
-            console.print(f"\n[dim]Using temporary directory: {self.temp_dir}[/dim]")
-        except Exception as e:
-            console.print(f"[red]{self.t('error').format(error=str(e))}[/red]")
-            return False
-        
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(complete_style="green", finished_style="green"),
-            console=console
-        ) as progress:
+            # Create demo output directory in current working directory
+            try:
+                self.demo_dir = Path.cwd() / "h2k_demo_output"
+                self.demo_dir.mkdir(exist_ok=True)
+                console.print(f"\n[dim]{self.t('creating_demo_dir')}[/dim]")
+            except Exception as e:
+                console.print(f"[red]{self.t('error').format(error=str(e))}[/red]")
+                return False
+
+            # Check for dependencies first
+            console.print(f"\n[yellow]{self.t('checking_deps')}[/yellow]")
+            try:
+                from ..utils.dependencies import validate_dependencies
+                if not validate_dependencies(check_only=True, interactive=False, skip_deps=False):
+                    console.print(f"[red]{self.t('deps_missing')}[/red]")
+                    return False
+            except Exception as e:
+                console.print(f"[yellow]Warning: Could not validate dependencies: {e}[/yellow]")
             
-            # Conversion steps with realistic timing
-            steps = [
-                ("converting", 25, 1.0),
-                ("parsing", 15, 0.8),
-                ("hvac", 15, 0.7),
-                ("weather", 10, 0.5),
-                ("writing", 20, 0.6),
-                ("simulation", 15, 1.2)
-            ]
+            # Copy H2K file to demo directory
+            try:
+                local_h2k_file = self.demo_dir / self.selected_file.name
+                shutil.copy2(self.selected_file, local_h2k_file)
+                console.print(f"[dim]{self.t('copied_file').format(filename=self.selected_file.name)}[/dim]")
+            except Exception as e:
+                console.print(f"[red]{self.t('error').format(error=str(e))}[/red]")
+                return False
+
+            # Import conversion functions
+            try:
+                from ..cli.convert import _convert_h2k_to_hpxml, _run_simulation, _build_simulation_flags
+                from ..config.manager import ConfigManager
+            except ImportError as e:
+                console.print(f"[red]Import error: {e}[/red]")
+                return False
+
+            success = True
             
-            task = progress.add_task(
-                f"[cyan]{self.t('converting')}",
-                total=100
-            )
-            
-            for step_key, advance, sleep_time in steps:
-                progress.update(task, description=f"[cyan]{self.t(step_key)}")
-                time.sleep(sleep_time)
-                progress.update(task, advance=advance)
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(complete_style="green", finished_style="green"),
+                console=console
+            ) as progress:
                 
-        # Simulate creating output files
-        self._simulate_output_files()
+                # Step 1: Convert H2K to HPXML
+                task = progress.add_task(f"[cyan]{self.t('converting')}[/cyan]", total=2)
+                
+                try:
+                    hpxml_path = _convert_h2k_to_hpxml(
+                        str(local_h2k_file),
+                        str(self.demo_dir)
+                    )
+                    progress.update(task, advance=1)
+                    console.print(f"[green]✓ HPXML created: {hpxml_path}[/green]")
+                    
+                except Exception as e:
+                    console.print(f"[red]✗ Conversion failed: {e}[/red]")
+                    return False
+                
+                # Step 2: Run EnergyPlus simulation
+                progress.update(task, description=f"[cyan]{self.t('simulation')}[/cyan]")
+                
+                try:
+                    # Get configuration
+                    config = ConfigManager()
+                    hpxml_os_path = config.get("paths", "hpxml_os_path")
+                    ruby_hpxml_path = os.path.join(hpxml_os_path, "workflow", "run_simulation.rb")
+                    
+                    # Build simulation flags (with hourly outputs to showcase capabilities)
+                    flags = _build_simulation_flags(
+                        add_component_loads=True,
+                        debug=False,
+                        skip_validation=False,
+                        output_format="csv",
+                        timestep=(),     # Empty tuple - no timestep outputs
+                        daily=(),        # Empty tuple - no daily outputs
+                        hourly=("ALL",), # Request ALL hourly outputs for demo
+                        monthly=(),      # Empty tuple - no monthly outputs
+                        add_stochastic_schedules=False,
+                        add_timeseries_output_variable=()
+                    )
+                    
+                    # Run simulation
+                    status, error_msg = _run_simulation(
+                        hpxml_path,
+                        ruby_hpxml_path,
+                        hpxml_os_path, 
+                        flags
+                    )
+                    
+                    progress.update(task, advance=1)
+                    
+                    if status == "Success":
+                        console.print(f"[green]✓ {self.t('simulation_complete')}[/green]")
+                    else:
+                        console.print(f"[red]✗ Simulation failed: {error_msg}[/red]")
+                        success = False
+                        
+                except Exception as e:
+                    console.print(f"[red]✗ Simulation error: {e}[/red]")
+                    success = False
+            
+            # Collect actual output files
+            self._collect_output_files()
+            
+            if success:
+                console.print(f"[green]✓ {self.t('complete')}[/green]")
+            
+            return success
+            
+        finally:
+            # Restore original logging levels
+            h2k_logger.setLevel(original_h2k_level)
+            root_logger.setLevel(original_root_level)
         
-        console.print(f"[green]✓ {self.t('complete')}[/green]")
-        return True
-        
-    def _simulate_output_files(self) -> None:
-        """Create simulated output files for demonstration."""
-        if not self.temp_dir:
+    def _collect_output_files(self) -> None:
+        """Collect actual generated output files."""
+        if not self.demo_dir or not self.selected_file:
             return
             
-        output_dir = self.temp_dir / "demo_output"
-        output_dir.mkdir(exist_ok=True)
+        output_dir = self.demo_dir / self.selected_file.stem
+        if not output_dir.exists():
+            return
         
-        # Create sample files
-        files_to_create = [
-            ("output.xml", 245 * 1024, self._sample_xml_content()),
-            ("run.sql", 1200 * 1024, "SQLite format 3\n-- Simulation results database"),
-            ("results_annual.csv", 12 * 1024, self._sample_csv_content()),
+        # Collect important files
+        file_patterns = [
+            "*.xml",  # HPXML file
+            "run/results_annual.csv",
+            "run/results_annual.json", 
+            "run/results_timeseries.csv",
+            "run/eplusout.sql",
+            "run/in.xml",
+            "run/in.osm",
+            "run/eplusout.err"
         ]
         
-        for filename, size, content in files_to_create:
-            file_path = output_dir / filename
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(content)
-                # Pad with spaces to approximate size
-                remaining = max(0, size - len(content.encode('utf-8')))
-                f.write(" " * remaining)
-            self.output_files.append(file_path)
+        for pattern in file_patterns:
+            for file_path in output_dir.glob(pattern):
+                if file_path.is_file():
+                    self.output_files.append(file_path)
     
-    def _sample_xml_content(self) -> str:
-        """Generate sample HPXML content."""
-        return '''<?xml version="1.0" encoding="UTF-8"?>
-<HPXML xmlns="http://hpxmlonline.com/2019/10" schemaVersion="3.0">
-  <XMLTransactionHeaderInformation>
-    <XMLType>HPXML</XMLType>
-    <XMLGeneratedBy>h2k-hpxml</XMLGeneratedBy>
-    <CreatedDateAndTime>2024-01-01T00:00:00</CreatedDateAndTime>
-  </XMLTransactionHeaderInformation>
-  <SoftwareInfo>
-    <SoftwareName>H2K-HPXML</SoftwareName>
-  </SoftwareInfo>
-  <Building>
-    <Site>
-      <SiteID id="site1"/>
-      <Address>
-        <StateCode>ON</StateCode>
-        <ZipCode>K1A 0A3</ZipCode>
-      </Address>
-    </Site>
-    <BuildingSummary>
-      <BuildingConstruction>
-        <ResidentialFacilityType>single-family detached</ResidentialFacilityType>
-        <NumberofConditionedFloors>2</NumberofConditionedFloors>
-        <NumberofConditionedFloorsAboveGrade>2</NumberofConditionedFloorsAboveGrade>
-        <ConditionedFloorArea>2000</ConditionedFloorArea>
-        <BuildingVolume>16000</BuildingVolume>
-      </BuildingConstruction>
-    </BuildingSummary>
-  </Building>
-</HPXML>'''
-
-    def _sample_csv_content(self) -> str:
-        """Generate sample CSV content."""
-        return '''Output,Value,Unit
-Fuel Use: Electricity: Total,45.2,MBtu
-Fuel Use: Natural Gas: Total,89.7,MBtu
-End Use: Electricity: Heating,12.3,MBtu
-End Use: Electricity: Cooling,8.5,MBtu
-End Use: Electricity: Hot Water,15.1,MBtu
-End Use: Electricity: Lighting,5.8,MBtu
-End Use: Electricity: Plug Loads,7.2,MBtu
-End Use: Natural Gas: Heating,85.4,MBtu
-End Use: Natural Gas: Hot Water,4.3,MBtu
-Peak Electricity,8.2,kW
-Peak Natural Gas,45.1,kBtu/hr
-Total CO2e Emissions,12.5,tonnes
-Energy Cost,2450,CAD'''
         
     def tour_output_files(self) -> None:
-        """Show and explain output files."""
+        """Show and explain output files in tree format."""
         console.print(f"\n[bold]{self.t('output_tour')}:[/bold]\n")
         
-        # Create table of output files
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column(self.t('file_header'), style="cyan", width=25)
-        table.add_column(self.t('size_header'), style="yellow", width=10)
-        table.add_column(self.t('description_header'), style="white")
+        if not self.output_files:
+            console.print("[yellow]No output files were generated.[/yellow]")
+            return
         
-        files = [
-            ("output.xml", "245 KB", self.t('file_description.xml')),
-            ("run.sql", "1.2 MB", self.t('file_description.sql')),
-            ("results_annual.csv", "12 KB", self.t('file_description.csv')),
-        ]
+        # Show tree structure of output directory
+        self._display_directory_tree()
         
-        for name, size, desc in files:
-            table.add_row(name, size, desc)
+        # Show demo directory location
+        console.print(f"\n[dim]{self.t('all_files_location').format(location=self.demo_dir.relative_to(Path.cwd()))}[/dim]")
+
+    def _display_directory_tree(self) -> None:
+        """Display output directory structure in tree format with full filenames."""
+        if not self.demo_dir or not self.demo_dir.exists():
+            return
             
-        console.print(table)
+        console.print(f"[bold cyan]{self.demo_dir.name}/[/bold cyan]")
         
-        # Offer to explore files
-        if self.output_files and Confirm.ask(f"\n{self.t('explore_file')}", default=False):
-            self._explore_files()
-    
-    def _explore_files(self) -> None:
-        """Allow user to explore generated files."""
-        while True:
-            console.print(f"\n[bold]Files available:[/bold]")
-            for i, file_path in enumerate(self.output_files, 1):
-                console.print(f"[{i}] {file_path.name}")
+        # Collect and sort all files and directories
+        items = []
+        for item in self.demo_dir.iterdir():
+            if item.is_file():
+                items.append(('file', item))
+            elif item.is_dir():
+                items.append(('dir', item))
+        
+        # Sort: directories first, then files, both alphabetically
+        items.sort(key=lambda x: (x[0] == 'file', x[1].name.lower()))
+        
+        for i, (item_type, item_path) in enumerate(items):
+            is_last = i == len(items) - 1
+            prefix = "└── " if is_last else "├── "
             
-            choice = Prompt.ask(
-                "Select file to view",
-                choices=[str(i) for i in range(1, len(self.output_files)+1)] + ["q"],
-                default="q"
-            )
+            if item_type == 'file':
+                # Display file with size and description
+                try:
+                    size_bytes = item_path.stat().st_size
+                    size_str = self._format_file_size(size_bytes)
+                    
+                    # Get localized description
+                    desc = self._get_localized_file_description(item_path.name)
+                    
+                    console.print(f"{prefix}[green]{item_path.name}[/green] [dim]({size_str})[/dim] [yellow]- {desc}[/yellow]")
+                except Exception:
+                    console.print(f"{prefix}[green]{item_path.name}[/green]")
             
-            if choice.lower() == "q":
-                break
+            elif item_type == 'dir':
+                # Display directory and its contents
+                console.print(f"{prefix}[bold blue]{item_path.name}/[/bold blue]")
                 
-            file_path = self.output_files[int(choice)-1]
-            self._show_file_content(file_path)
+                # Show directory contents with proper tree indentation
+                self._display_directory_contents(
+                    item_path, 
+                    indent="    " if is_last else "│   "
+                )
     
-    def _show_file_content(self, file_path: Path) -> None:
-        """Show content of a file."""
-        console.print(f"\n[bold]{self.t('view_file').format(filename=file_path.name)}[/bold]")
-        console.print(f"{self.t('sample_content')}")
-        
+    def _display_directory_contents(self, dir_path, indent=""):
+        """Display contents of a directory with tree formatting."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()[:10]  # First 10 lines
-                content = ''.join(lines).strip()
+            # Get all items in directory
+            items = []
+            for item in dir_path.iterdir():
+                if item.is_file():
+                    items.append(('file', item))
+                elif item.is_dir():
+                    items.append(('dir', item))
+            
+            # Sort: directories first, then files, both alphabetically  
+            items.sort(key=lambda x: (x[0] == 'file', x[1].name.lower()))
+            
+            for i, (item_type, item_path) in enumerate(items):
+                is_last = i == len(items) - 1
+                prefix = f"{indent}└── " if is_last else f"{indent}├── "
                 
-            # Syntax highlighting based on file extension
-            if file_path.suffix == '.xml':
-                console.print(Syntax(content, "xml", theme="monokai"))
-            elif file_path.suffix == '.csv':
-                console.print(Syntax(content, "csv", theme="monokai"))
-            else:
-                console.print(content)
+                if item_type == 'file':
+                    try:
+                        size_bytes = item_path.stat().st_size
+                        size_str = self._format_file_size(size_bytes)
+                        
+                        # Get localized description
+                        desc = self._get_localized_file_description(item_path.name)
+                        
+                        console.print(f"{prefix}[green]{item_path.name}[/green] [dim]({size_str})[/dim] [yellow]- {desc}[/yellow]")
+                    except Exception:
+                        console.print(f"{prefix}[green]{item_path.name}[/green]")
                 
+                elif item_type == 'dir':
+                    console.print(f"{prefix}[bold blue]{item_path.name}/[/bold blue]")
+                    
+                    # Recursively display subdirectory contents
+                    sub_indent = indent + ("    " if is_last else "│   ")
+                    self._display_directory_contents(item_path, sub_indent)
+                    
         except Exception as e:
-            console.print(f"[red]Error reading file: {e}[/red]")
+            console.print(f"{indent}[dim]Error reading directory: {e}[/dim]")
+    
+    def _format_file_size(self, size_bytes):
+        """Format file size in human readable format."""
+        if size_bytes < 1024:
+            return f"{size_bytes} B"
+        elif size_bytes < 1024 * 1024:
+            return f"{size_bytes // 1024} KB"
+        elif size_bytes < 1024 * 1024 * 1024:
+            return f"{size_bytes // (1024 * 1024)} MB"
+        else:
+            return f"{size_bytes // (1024 * 1024 * 1024)} GB"
+    
+    def _get_localized_file_description(self, filename):
+        """Get localized description for a file based on its name or extension."""
+        # Get file descriptions dictionary for current language
+        file_descriptions = self.t("file_descriptions")
         
-        input(f"\n{self.t('press_enter')}")
+        # Check for specific filename patterns first
+        filename_lower = filename.lower()
+        
+        # Specific file mappings
+        if ".xml" in filename_lower:
+            if "in.xml" == filename_lower:
+                return file_descriptions.get("in_xml", "XML file")
+            else:
+                return file_descriptions.get("xml_general", "XML file")
+        elif "in.idf" == filename_lower:
+            return file_descriptions.get("in_idf", "IDF file")
+        elif "in.osm" == filename_lower:
+            return file_descriptions.get("in_osm", "OSM file")
+        elif "results_annual.csv" == filename_lower:
+            return file_descriptions.get("results_annual_csv", "Annual results")
+        elif "results_annual.json" == filename_lower:
+            return file_descriptions.get("results_annual_json", "Annual results JSON")
+        elif "results_timeseries.csv" == filename_lower:
+            return file_descriptions.get("results_timeseries_csv", "Timeseries data")
+        elif "eplusout_hourly.msgpack" == filename_lower:
+            return file_descriptions.get("eplusout_hourly_msgpack", "Hourly data")
+        elif "eplusout_runperiod.msgpack" == filename_lower:
+            return file_descriptions.get("eplusout_runperiod_msgpack", "Run period data")
+        elif "eplusout.msgpack" == filename_lower:
+            return file_descriptions.get("eplusout_msgpack", "EnergyPlus output")
+        elif "results_bills.csv" == filename_lower:
+            return file_descriptions.get("results_bills_csv", "Bills data")
+        elif "results_bills_monthly.csv" == filename_lower:
+            return file_descriptions.get("results_bills_monthly_csv", "Monthly bills")
+        elif "results_design_load_details.csv" == filename_lower:
+            return file_descriptions.get("results_design_load_details_csv", "Design loads")
+        elif "eplusout.err" == filename_lower:
+            return file_descriptions.get("eplusout_err", "Error log")
+        elif "eplusout.end" == filename_lower:
+            return file_descriptions.get("eplusout_end", "Completion status")
+        elif "run.log" == filename_lower:
+            return file_descriptions.get("run_log", "Processing log")
+        elif "stderr-energyplus.log" == filename_lower:
+            return file_descriptions.get("stderr_energyplus_log", "Error messages")
+        elif "stdout-energyplus.log" == filename_lower:
+            return file_descriptions.get("stdout_energyplus_log", "Standard output")
+        elif "eplustbl.htm" == filename_lower:
+            return file_descriptions.get("eplustbl_htm", "HTML report")
+        elif filename_lower.endswith('.h2k'):
+            return file_descriptions.get("h2k_file", "H2K file")
+        
+        # Fallback to extension-based descriptions
+        elif filename.endswith('.xml'):
+            return file_descriptions.get("xml_fallback", "XML file")
+        elif filename.endswith('.csv'):
+            return file_descriptions.get("csv_fallback", "CSV file")
+        elif filename.endswith('.json'):
+            return file_descriptions.get("json_fallback", "JSON file")
+        elif filename.endswith('.log'):
+            return file_descriptions.get("log_fallback", "Log file")
+        elif filename.endswith('.sql'):
+            return file_descriptions.get("sql_fallback", "Database file")
+        elif filename.endswith('.err'):
+            return file_descriptions.get("err_fallback", "Error log")
+        elif filename.endswith('.osm'):
+            return file_descriptions.get("osm_fallback", "OpenStudio model")
+        elif filename.endswith('.idf'):
+            return file_descriptions.get("idf_fallback", "EnergyPlus input")
+        elif filename.endswith('.msgpack'):
+            return file_descriptions.get("msgpack_fallback", "Binary data")
+        elif filename.endswith('.htm') or filename.endswith('.html'):
+            return file_descriptions.get("html_fallback", "HTML report")
+        elif filename.endswith('.txt'):
+            return file_descriptions.get("txt_fallback", "Text file")
+        elif filename.endswith('.end'):
+            return file_descriptions.get("end_fallback", "Status file")
+        else:
+            return file_descriptions.get("default_fallback", "Output file")
+    
         
     def show_next_steps(self) -> None:
         """Display what to try next."""
@@ -324,14 +495,18 @@ Energy Cost,2450,CAD'''
         console.print(f"\n[dim]{self.t('help_command')}[/dim]")
         
     def cleanup(self) -> None:
-        """Clean up temp files."""
-        if self.temp_dir and self.temp_dir.exists():
-            if Confirm.ask(f"\n{self.t('cleanup')}", default=True):
+        """Clean up demo files."""
+        if self.demo_dir and self.demo_dir.exists():
+            console.print(f"\n[dim]{self.t('demo_files_location').format(location=self.demo_dir.relative_to(Path.cwd()))}[/dim]")
+            if Confirm.ask(f"{self.t('cleanup')}", default=False):
                 try:
-                    shutil.rmtree(self.temp_dir)
+                    shutil.rmtree(self.demo_dir)
                     console.print(f"[dim]{self.t('cleanup_done')}[/dim]")
                 except Exception as e:
-                    console.print(f"[yellow]Warning: Could not clean up {self.temp_dir}: {e}[/yellow]")
+                    console.print(f"[yellow]Warning: Could not clean up {self.demo_dir}: {e}[/yellow]")
+            else:
+                console.print("[green]Demo files kept for your exploration![/green]")
+                console.print(f"[dim]To remove later: rm -rf {self.demo_dir.relative_to(Path.cwd())}[/dim]")
 
 
 def run_interactive_demo() -> None:

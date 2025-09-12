@@ -117,11 +117,24 @@ def _build_simulation_flags(
         ("--daily", daily),
     ]
     for option, values in repeated_options:
-        flags += " " + " ".join(f"{option} {v}" for v in values)
+        # Safety check: ensure values is iterable and not None
+        if values is None:
+            continue
+        # Convert single values or non-iterables to tuples
+        if not hasattr(values, '__iter__') or isinstance(values, str):
+            values = (values,) if values else ()
+        # Only add flags if values is not empty
+        if values:
+            flags += " " + " ".join(f"{option} {v}" for v in values)
 
     if add_stochastic_schedules:
         flags += " --add-stochastic-schedules"
+    
+    # Safety check for add_timeseries_output_variable
     if add_timeseries_output_variable:
+        # Ensure it's iterable and not None
+        if not hasattr(add_timeseries_output_variable, '__iter__') or isinstance(add_timeseries_output_variable, str):
+            add_timeseries_output_variable = (add_timeseries_output_variable,)
         flags += " " + " ".join(
             f"--add-timeseries-output-variable {v}" for v in add_timeseries_output_variable
         )

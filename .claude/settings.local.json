@@ -63,7 +63,10 @@
       "Bash(unzip:*)",
       "Bash(uv build:*)",
       "Bash(source:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(./workflow/run_simulation.rb:*)",
+      "Bash(echo:*)",
+      "Bash(timeout 3s uv run:*)"
     ],
     "deny": [],
     "ask": [],

@@ -121,13 +121,16 @@ def run_full_workflow(
     input_path: Union[str, Path],
     output_path: Optional[Union[str, Path]] = None,
     simulate: bool = True,
-    timestep: int = 10,
     output_format: str = "csv",
     add_component_loads: bool = True,
     debug: bool = False,
     skip_validation: bool = False,
     add_stochastic_schedules: bool = False,
     add_timeseries_output_variable: Optional[List[str]] = None,
+    hourly_outputs: Optional[List[str]] = None,
+    daily_outputs: Optional[List[str]] = None,
+    monthly_outputs: Optional[List[str]] = None,
+    timestep_outputs: Optional[List[str]] = None,
     max_workers: Optional[int] = None,
     **kwargs,
 ) -> Dict[str, Any]:
@@ -142,13 +145,16 @@ def run_full_workflow(
         output_path: Path for output files. If None, creates 'output' folder
                     in same directory as input
         simulate: Whether to run EnergyPlus simulation after conversion
-        timestep: Simulation timestep in minutes (default: 10)
         output_format: Output format for results ("csv", "json", "msgpack")
         add_component_loads: Whether to include component loads in output
         debug: Enable debug mode with extra outputs
         skip_validation: Skip Schema/Schematron validation for speed
         add_stochastic_schedules: Add detailed stochastic occupancy schedules
         add_timeseries_output_variable: Additional timeseries output variables
+        hourly_outputs: List of hourly output categories (e.g., ['total', 'fuels'])
+        daily_outputs: List of daily output categories (e.g., ['total', 'fuels'])
+        monthly_outputs: List of monthly output categories (e.g., ['total', 'fuels'])
+        timestep_outputs: List of timestep output categories (e.g., ['total', 'fuels'])
         max_workers: Number of concurrent workers (default: CPU count - 1)
         **kwargs: Additional options passed to the workflow
 
@@ -170,7 +176,8 @@ def run_full_workflow(
         >>> results = run_full_workflow(
         ...     'house.h2k',
         ...     simulate=True,
-        ...     output_format='csv'
+        ...     output_format='csv',
+        ...     hourly_outputs=['total', 'fuels']  # Request hourly total and fuel outputs
         ... )
         >>> print(f"Converted: {results['successful_conversions']} files")
     """
@@ -183,6 +190,14 @@ def run_full_workflow(
     # Set defaults for optional parameters
     if add_timeseries_output_variable is None:
         add_timeseries_output_variable = []
+    if hourly_outputs is None:
+        hourly_outputs = []
+    if daily_outputs is None:
+        daily_outputs = []
+    if monthly_outputs is None:
+        monthly_outputs = []
+    if timestep_outputs is None:
+        timestep_outputs = []
 
     # Build simulation flags
     flags = _build_simulation_flags(
@@ -190,10 +205,10 @@ def run_full_workflow(
         debug=debug,
         skip_validation=skip_validation,
         output_format=output_format,
-        timestep=timestep if timestep != 10 else None,  # Only pass if not default
-        daily=(),  # Not exposed in API for simplicity
-        hourly=(),  # Not exposed in API for simplicity
-        monthly=(),  # Not exposed in API for simplicity
+        timestep=tuple(timestep_outputs),
+        daily=tuple(daily_outputs),
+        hourly=tuple(hourly_outputs),
+        monthly=tuple(monthly_outputs),
         add_stochastic_schedules=add_stochastic_schedules,
         add_timeseries_output_variable=tuple(add_timeseries_output_variable),
     )

@@ -19,7 +19,7 @@ Example:
         validate_dependencies()
 
         # Automatic installation without prompts
-        validate_dependencies(auto_install=True)
+        validate_dependencies(install_quiet=True)
 
         # Check only, no installation
         validate_dependencies(check_only=True)
@@ -263,7 +263,7 @@ class DependencyManager:
         OPENSTUDIO_BUILD_HASH (str): OpenStudio build hash (loaded from pyproject.toml)
         interactive (bool): Whether to prompt user for installation choices
         skip_deps (bool): Whether to skip all dependency validation
-        auto_install (bool): Whether to automatically install missing deps
+        install_quiet (bool): Whether to automatically install missing deps
     """
 
     # GitHub release URLs
@@ -274,7 +274,7 @@ class DependencyManager:
         self,
         interactive=True,
         skip_deps=False,
-        auto_install=False,
+        install_quiet=False,
         hpxml_path=None,
         openstudio_path=None,
     ):
@@ -286,7 +286,7 @@ class DependencyManager:
                 Default: True
             skip_deps (bool): Skip all dependency validation.
                 Default: False
-            auto_install (bool): Automatically install missing dependencies
+            install_quiet (bool): Automatically install missing dependencies
                 without user prompts. Default: False
             hpxml_path (str|Path): Custom OpenStudio-HPXML installation path.
                 Overrides environment variables and defaults. Default: None
@@ -295,7 +295,7 @@ class DependencyManager:
         """
         self.interactive = interactive
         self.skip_deps = skip_deps
-        self.auto_install = auto_install
+        self.install_quiet = install_quiet
 
         # Load dependency configuration from pyproject.toml
         self._config = _load_dependency_config()
@@ -425,8 +425,8 @@ class DependencyManager:
             return True
 
         # Handle missing dependencies
-        if self.auto_install:
-            return self._handle_auto_install(openstudio_ok, hpxml_ok)
+        if self.install_quiet:
+            return self._handle_install_quiet(openstudio_ok, hpxml_ok)
         elif self.interactive:
             return self._handle_interactive_install(openstudio_ok, hpxml_ok)
         else:
@@ -723,7 +723,7 @@ class DependencyManager:
 
         return None
 
-    def _handle_auto_install(self, openstudio_ok, hpxml_ok):
+    def _handle_install_quiet(self, openstudio_ok, hpxml_ok):
         """Handle automatic installation of missing dependencies."""
         click.echo("🔄 Auto-installing missing dependencies...")
 
@@ -770,7 +770,7 @@ class DependencyManager:
                 return False
 
             if choice == 1:
-                return self._handle_auto_install(openstudio_ok, hpxml_ok)
+                return self._handle_install_quiet(openstudio_ok, hpxml_ok)
             elif choice == 2:
                 self._show_manual_instructions(missing)
                 return False
@@ -1489,6 +1489,18 @@ class DependencyManager:
                     if config_file.exists() and str(config_file) not in config_files:
                         config_files.append(str(config_file))
 
+        # Also include user configuration files
+        try:
+            from ..config.manager import ConfigManager
+            config_manager = ConfigManager(auto_create=False)
+            user_config_dir = config_manager._get_user_config_path()
+            user_config_file = user_config_dir / "config.ini"
+            if user_config_file.exists() and str(user_config_file) not in config_files:
+                config_files.append(str(user_config_file))
+        except Exception:
+            # User config not found or error accessing it, continue with project configs only
+            pass
+
         return config_files
 
     def _detect_openstudio_binary(self):
@@ -2142,7 +2154,7 @@ def validate_dependencies(
     interactive=True,
     skip_deps=False,
     check_only=False,
-    auto_install=False,
+    install_quiet=False,
     hpxml_path=None,
     openstudio_path=None,
 ):
@@ -2155,7 +2167,7 @@ def validate_dependencies(
         skip_deps (bool): Skip all dependency validation. Default: False
         check_only (bool): Only check dependencies, don't install.
             Default: False
-        auto_install (bool): Automatically install missing dependencies.
+        install_quiet (bool): Automatically install missing dependencies.
             Default: False
         hpxml_path (str|Path): Custom OpenStudio-HPXML installation path.
             Default: None (use environment variables or defaults)
@@ -2171,7 +2183,7 @@ def validate_dependencies(
         >>> validate_dependencies()
 
         >>> # Automatic installation with custom paths
-        >>> validate_dependencies(auto_install=True, interactive=False, hpxml_path="/custom/hpxml")
+        >>> validate_dependencies(install_quiet=True, interactive=False, hpxml_path="/custom/hpxml")
 
         >>> # Check only, no installation
         >>> validate_dependencies(check_only=True)
@@ -2179,7 +2191,7 @@ def validate_dependencies(
     manager = DependencyManager(
         interactive=interactive,
         skip_deps=skip_deps,
-        auto_install=auto_install,
+        install_quiet=install_quiet,
         hpxml_path=hpxml_path,
         openstudio_path=openstudio_path,
     )
@@ -2308,7 +2320,7 @@ Examples:
         elif args.install_quiet:
             success = validate_dependencies(
                 interactive=False,
-                auto_install=True,
+                install_quiet=True,
                 skip_deps=args.skip_deps,
                 hpxml_path=args.hpxml_path,
                 openstudio_path=args.openstudio_path,

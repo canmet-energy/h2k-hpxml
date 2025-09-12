@@ -65,6 +65,11 @@ uv run python tools/cleanup.py              # Removes __pycache__, tool caches, 
 
 # Run single test
 pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translation_modes -v
+
+# Test interactive demo (cross-platform)
+python3 scripts/test_demo.py           # Cross-platform demo test with scripted input
+python3 scripts/test_demo.py --cleanup # Clean up demo test files
+pytest tests/integration/test_demo.py  # Pytest integration tests for demo
 ```
 
 ### Code Quality
