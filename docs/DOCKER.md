@@ -49,10 +49,6 @@ docker run --rm \
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
   h2k-resilience /data/house.h2k
 
-# With specific scenarios
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
-  h2k-resilience /data/house.h2k --scenarios "outage_typical_year,thermal_autonomy_extreme_year"
-
 # With custom parameters
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
   h2k-resilience /data/input.h2k \
@@ -65,9 +61,6 @@ docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
 ### Getting Help
 
 ```bash
-# Docker usage help
-docker run --rm canmet/h2k-hpxml help
-
 # H2K conversion help
 docker run --rm canmet/h2k-hpxml h2k2hpxml --help
 
@@ -139,21 +132,7 @@ h2k-deps --check-only
 
 ## Building the Docker Image Locally
 
-```bash
-# Clone repository
-git clone https://github.com/canmet-energy/h2k-hpxml.git
-cd h2k-hpxml
-
-# Build Docker image
-docker build -t canmet/h2k-hpxml .
-
-# Test the locally built image
-docker run --rm canmet/h2k-hpxml help
-
-# Build with specific tags
-docker build -t canmet/h2k-hpxml:dev .
-docker build -t canmet/h2k-hpxml:v1.0.0 .
-```
+There is currently no root Dockerfile in this repository. Use the published Docker images from Docker Hub (canmet/h2k-hpxml) or the VS Code DevContainer for development.
 
 ## Docker Compose (Batch Processing)
 

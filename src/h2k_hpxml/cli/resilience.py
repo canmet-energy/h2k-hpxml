@@ -126,7 +126,7 @@ SUMMER_END_DEFAULT = (8, 31)  # August 31st
     default=False,
     help="Run the OpenStudio simulations for all scenarios (default: False)",
 )
-@click.version_option(version="1.0.0")
+@click.version_option(package_name="h2k-hpxml")
 def resilience(
     h2k_path,
     outage_days,

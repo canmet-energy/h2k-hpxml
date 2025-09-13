@@ -23,7 +23,8 @@
 				"mechatroner.rainbow-csv",
 				"janisdd.vscode-edit-csv",
 				"qwtel.sqlite-viewer",
-				"ms-toolsai.jupyter"
+				"ms-toolsai.jupyter",
+				"openai.chatgpt"
 			],
 			"settings": {
 				"files.associations": {

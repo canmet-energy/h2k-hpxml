@@ -6,8 +6,13 @@ models to US DOE's HPXML format for EnergyPlus simulation.
 """
 
 import os
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
 
-__version__ = "1.7.0.1.1"
+try:
+    __version__ = _pkg_version("h2k-hpxml")
+except PackageNotFoundError:
+    # Fallback for running from source without an installed distribution
+    __version__ = "1.7.0.1.1"
 
 # Check dependencies on first import (unless disabled by CLI tools)
 if os.environ.get('H2K_SKIP_AUTO_INSTALL') != '1':

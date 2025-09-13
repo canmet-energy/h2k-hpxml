@@ -287,7 +287,7 @@ def show_credits():
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
-@click.version_option(version="1.7.0.1.1")
+@click.version_option(package_name="h2k-hpxml")
 @click.argument("input", required=False, type=click.Path())
 @click.option(
     "--output",

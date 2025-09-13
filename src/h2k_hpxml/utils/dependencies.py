@@ -1253,8 +1253,9 @@ class DependencyManager:
 
         # Create user config from template without interfering with project discovery
         try:
-            # Create a temporary ConfigManager to get the user config path
-            temp_config = ConfigManager(auto_create=False)
+            # Bootstrap a ConfigManager that is allowed to auto-create config
+            # so we don't fail when no config exists yet
+            temp_config = ConfigManager(auto_create=True)
             user_config_path = temp_config._get_user_config_path()
             user_config_path.mkdir(parents=True, exist_ok=True)
 
@@ -1270,6 +1271,12 @@ class DependencyManager:
                 self._copy_template_with_path_updates(template_path, user_config_file)
                 click.echo(f"✅ User configuration created from template at: {user_config_file}")
                 click.echo(f"✅ Template source: {template_path.name}")
+                # Ensure additional derived paths (e.g., EnergyPlus) are populated
+                try:
+                    self._update_user_config_file(user_config_file)
+                except Exception:
+                    # Non-fatal: leave template-copied config as-is
+                    pass
             else:
                 # Create minimal config if no template found
                 temp_config._create_minimal_config(user_config_file)

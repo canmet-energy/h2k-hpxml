@@ -233,7 +233,8 @@ h2k2hpxml input.h2k --do-not-sim
 h2k2hpxml --credits
 
 # Resilience analysis
-h2k-resilience input.h2k [--scenarios SCENARIOS]
+h2k-resilience input.h2k [--run-simulation] [--outage-days N] [--output-path PATH] \
+  [--clothing-factor-summer F] [--clothing-factor-winter F]
 
 # Dependency management
 h2k-deps [--setup] [--check-only] [--auto-install]

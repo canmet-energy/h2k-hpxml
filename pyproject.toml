@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -24,6 +24,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 requires-python = ">=3.12,<3.14"
+version = "1.7.0.1.1"
 dependencies = [
     "numpy==1.26.2",
     "pandas>=2.2.0",
@@ -43,7 +44,6 @@ dependencies = [
     "openstudio==3.9.0",
     "rich>=13.0.0",
 ]
-dynamic = ["version"]
 
 [project.optional-dependencies]
 test = [
@@ -76,8 +76,7 @@ where = ["src"]
 "h2k_hpxml.examples" = ["*.h2k", "*.H2K"]
 "h2k_hpxml.resources" = ["*.json"]
 
-[tool.setuptools_scm]
-
+# Removed setuptools_scm; using static version in [project]
 # H2K-HPXML Dependency Versions
 # Single source of truth for OpenStudio and OpenStudio-HPXML versions
 [tool.h2k-hpxml.dependencies]
