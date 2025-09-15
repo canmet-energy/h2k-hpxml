@@ -29,8 +29,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          # Tags the image with the branch name. e.g., canmet-energy/h2k-hpxml:my-feature-branch
+          # Tags the image with the branch name. e.g., canmet/h2k-hpxml:my-feature-branch
           # If the branch is 'main', it also adds the 'latest' tag.
           tags: |
-            canmet-energy/h2k-hpxml:${{ steps.extract_branch.outputs.branch_name }}
-            ${{ github.ref == 'refs/heads/main' && 'canmet-energy/h2k-hpxml:latest' || '' }}
+            canmet/h2k-hpxml:${{ steps.extract_branch.outputs.branch_name }}
+            ${{ github.ref == 'refs/heads/main' && 'canmet/h2k-hpxml:latest' || '' }}
