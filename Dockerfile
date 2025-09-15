@@ -9,7 +9,8 @@
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    UV_NATIVE_TLS=true
+  UV_NATIVE_TLS=true \
+  UV_INSECURE_HOST="pypi.org files.pythonhosted.org github.com"
 
 # Install system dependencies required by OpenStudio CLI and general tooling
 # Notes:
@@ -18,28 +19,28 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # - unzip and curl for downloads performed by h2k-deps
 # - build-essential, git in case native wheels or builds are needed during installation
 RUN apt-get update && apt-get install -y \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    curl \
-    git \
-    ruby \
-    unzip \
-    build-essential \
-    libgfortran5 \
-    libgomp1 \
-    libssl3 \
-    libx11-6 \
-    libxext6 \
-    libxrender1 \
-    libfontconfig1 \
-    libglu1-mesa \
+  apt-transport-https \
+  ca-certificates \
+  gnupg \
+  lsb-release \
+  curl \
+  git \
+  ruby \
+  unzip \
+  build-essential \
+  libgfortran5 \
+  libgomp1 \
+  libssl3 \
+  libx11-6 \
+  libxext6 \
+  libxrender1 \
+  libfontconfig1 \
+  libglu1-mesa \
   && rm -rf /var/lib/apt/lists/*
 
 # Install uv (Python and package manager)
-RUN curl -fsSL --connect-timeout 30 -o /tmp/uv.tar.gz \
-      https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz \
+RUN curl -fsSLk --connect-timeout 30 -o /tmp/uv.tar.gz \
+  https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz \
   && cd /tmp \
   && tar -xzf uv.tar.gz \
   && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv \
@@ -102,6 +103,6 @@ VOLUME ["/data"]
 CMD ["h2k2hpxml", "--help"]
 
 LABEL org.opencontainers.image.title="H2K-HPXML" \
-      org.opencontainers.image.description="H2K to HPXML to EnergyPlus translation tool with OpenStudio CLI runtime deps" \
-      org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/canmet-energy/h2k-hpxml"
+  org.opencontainers.image.description="H2K to HPXML to EnergyPlus translation tool with OpenStudio CLI runtime deps" \
+  org.opencontainers.image.licenses="MIT" \
+  org.opencontainers.image.source="https://github.com/canmet-energy/h2k-hpxml"
