@@ -73,6 +73,38 @@ Here is a [list](docs/status/status.md) of the current completed sections relate
    uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
    ```
 
+4. **Setup dependencies and PATH** (automatic):
+   ```powershell
+   # This will check/install dependencies and automatically set up PATH
+   h2k-deps
+   ```
+
+   The setup will:
+   - ✅ Install missing OpenStudio/OpenStudio-HPXML dependencies
+   - ✅ Automatically add h2k2hpxml to your Windows PATH
+   - 🧹 Remove any old h2k2hpxml PATH entries (from previous installations)
+   - 📢 Inform you when PATH has been updated
+
+   **Manual PATH setup (if needed):**
+   ```powershell
+   h2k-deps --add-to-path  # Manually clean up and add to PATH
+   ```
+
+   **⚠️ IMPORTANT**: After setup, **start a new terminal session** for PATH changes to take effect.
+
+   **Complete workflow example:**
+   ```powershell
+   # 1. Install and setup
+   uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+   h2k-deps
+
+   # 2. CLOSE this terminal and open a NEW one
+
+   # 3. Test that it works
+   h2k2hpxml --help        # Should work from any directory
+   h2k2hpxml --demo        # Run the interactive demo
+   ```
+
 #### Linux/Mac Installation
 
 1. **Install uv** (if not already installed):

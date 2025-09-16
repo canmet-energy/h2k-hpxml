@@ -422,6 +422,11 @@ class DependencyManager:
 
         if openstudio_ok and hpxml_ok:
             click.echo("✅ All dependencies satisfied!")
+
+            # Offer PATH setup for Windows users (only if interactive)
+            if self.interactive:
+                self._offer_windows_path_setup()
+
             return True
 
         # Handle missing dependencies
@@ -741,6 +746,10 @@ class DependencyManager:
 
         if success:
             click.echo("\n✅ All dependencies installed successfully!")
+
+            # Offer PATH setup for Windows users
+            self._offer_windows_path_setup()
+
             # Re-validate to confirm installation
             return self._check_openstudio() and self._check_openstudio_hpxml()
 
@@ -2156,6 +2165,113 @@ class DependencyManager:
         except Exception as e:
             click.echo(f"⚠️  Failed to update conversionconfig.ini: {e}")
 
+    def _offer_windows_path_setup(self):
+        """Automatically add h2k2hpxml to Windows PATH and clean up old entries."""
+        import platform
+
+        # Only run on Windows
+        if platform.system() != 'Windows':
+            return
+
+        click.echo("\n🔧 Setting up Windows PATH...")
+
+        try:
+            # Get current scripts directory
+            import sys
+            import os
+            if hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
+                # Virtual environment
+                scripts_dir = os.path.join(sys.prefix, 'Scripts')
+            else:
+                # Global installation
+                scripts_dir = os.path.join(sys.prefix, 'Scripts')
+
+            h2k_exe = os.path.join(scripts_dir, 'h2k2hpxml.exe')
+            if not os.path.exists(h2k_exe):
+                click.echo("⚠️  h2k2hpxml.exe not found, skipping PATH setup")
+                return
+
+            # Clean up old PATH entries and add new one
+            if self._cleanup_and_update_windows_path(scripts_dir):
+                click.echo("✅ h2k2hpxml added to PATH successfully!")
+                click.echo("")
+                click.echo("🔄 IMPORTANT: Start a new terminal session for PATH changes to take effect")
+                click.echo("   After restarting your terminal, you can use 'h2k2hpxml' from any directory")
+            else:
+                click.echo("⚠️  Could not update PATH automatically")
+                click.echo("   You can run 'h2k-deps --add-to-path' to try again")
+
+        except Exception as e:
+            click.echo(f"⚠️  PATH setup failed: {e}")
+
+    def _cleanup_and_update_windows_path(self, new_scripts_dir):
+        """Clean up old h2k2hpxml PATH entries and add the current one."""
+        try:
+            import subprocess
+
+            # Get current user PATH
+            result = subprocess.run(
+                ['powershell', '-Command',
+                 '[Environment]::GetEnvironmentVariable("Path", "User")'],
+                capture_output=True,
+                text=True
+            )
+
+            if result.returncode != 0:
+                return False
+
+            current_path = result.stdout.strip()
+            if not current_path:
+                current_path = ""
+
+            # Split PATH into components
+            path_components = [p.strip() for p in current_path.split(';') if p.strip()]
+
+            # Remove any existing h2k2hpxml entries (look for Scripts directories with h2k2hpxml.exe)
+            cleaned_components = []
+            removed_old = []
+
+            for component in path_components:
+                h2k_exe_in_component = os.path.join(component, 'h2k2hpxml.exe')
+                if os.path.exists(h2k_exe_in_component) and component != new_scripts_dir:
+                    # This is an old h2k2hpxml installation
+                    removed_old.append(component)
+                    continue
+                cleaned_components.append(component)
+
+            # Add the new scripts directory if not already present
+            new_scripts_dir_normalized = new_scripts_dir.replace('/', '\\')
+            if new_scripts_dir_normalized not in cleaned_components:
+                cleaned_components.append(new_scripts_dir_normalized)
+
+            # Reconstruct PATH
+            new_path = ';'.join(cleaned_components)
+
+            # Update user PATH
+            ps_script = f"""
+            [Environment]::SetEnvironmentVariable('Path', '{new_path}', 'User')
+            """
+
+            result = subprocess.run(
+                ['powershell', '-Command', ps_script],
+                capture_output=True,
+                text=True
+            )
+
+            success = result.returncode == 0
+
+            # Inform user about cleanup
+            if removed_old:
+                click.echo(f"🧹 Removed old h2k2hpxml PATH entries:")
+                for old_path in removed_old:
+                    click.echo(f"   - {old_path}")
+
+            return success
+
+        except Exception as e:
+            click.echo(f"Error updating PATH: {e}")
+            return False
+
 
 def validate_dependencies(
     interactive=True,
@@ -2225,6 +2341,7 @@ Examples:
   %(prog)s                        # Check dependencies and prompt to install if missing
   %(prog)s --check-only           # Only check dependencies, don't install
   %(prog)s --install-quiet        # Install missing dependencies without prompts
+  %(prog)s --add-to-path          # Add h2k2hpxml to PATH and clean up old entries (Windows only)
   %(prog)s --setup                # Set up user configuration from template
   %(prog)s --update-config        # Update all config files with detected paths
   %(prog)s --update-config --global   # Update user config files only
@@ -2270,11 +2387,34 @@ Examples:
     parser.add_argument(
         "--openstudio-path", type=str, metavar="PATH", help="Custom OpenStudio installation path"
     )
+    parser.add_argument(
+        "--add-to-path",
+        action="store_true",
+        help="Add h2k2hpxml to Windows PATH and clean up old entries (Windows only)"
+    )
+    parser.add_argument(
+        "--auto-install",
+        action="store_true",
+        help="Automatically install missing dependencies without prompts"
+    )
 
     args = parser.parse_args()
 
+    # Handle add-to-path option (Windows only)
+    if args.add_to_path:
+        import platform
+        if platform.system() != 'Windows':
+            click.echo("ℹ️  --add-to-path is for Windows only.")
+            click.echo("On Linux/Mac, h2k2hpxml should already be accessible after installation.")
+            return
+
+        # Use the integrated PATH setup from DependencyManager
+        manager = DependencyManager(interactive=False)
+        manager._offer_windows_path_setup()
+        return
+
     # Handle setup option
-    if args.setup:
+    elif args.setup:
         manager = DependencyManager(
             interactive=True,  # Setup is always interactive
             hpxml_path=args.hpxml_path,
