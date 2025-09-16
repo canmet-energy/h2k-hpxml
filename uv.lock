@@ -101,6 +101,7 @@ wheels = [
 
 [[package]]
 name = "h2k-hpxml"
+version = "1.7.0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "click" },

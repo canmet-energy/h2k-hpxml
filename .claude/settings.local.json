@@ -69,7 +69,8 @@
       "Bash(timeout 3s uv run:*)",
       "mcp__serena__activate_project",
       "mcp__serena__think_about_collected_information",
-      "Bash(PYTHONPATH=/workspaces/h2k_hpxml/src python3 tools/test_schema_generation.py)"
+      "Bash(PYTHONPATH=/workspaces/h2k_hpxml/src python3 tools/test_schema_generation.py)",
+      "Read(//tmp/**)"
     ],
     "deny": [],
     "ask": [],

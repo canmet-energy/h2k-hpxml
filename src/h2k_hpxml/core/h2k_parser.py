@@ -5,15 +5,70 @@ import os
 from ..utils import units
 from . import data_utils as obj
 
-resources_folder = os.path.join(os.path.dirname(__file__), "..", "resources")
-with open(os.path.join(resources_folder, "config_selection.json"), encoding="utf-8") as f:
-    selection_config = json.load(f)
 
-with open(os.path.join(resources_folder, "config_numeric.json"), encoding="utf-8") as f:
-    numeric_config = json.load(f)
+def _load_resource_json(resource_name):
+    """
+    Load a JSON resource file using multiple strategies for compatibility.
 
-with open(os.path.join(resources_folder, "config_foundations.json"), encoding="utf-8") as f:
-    foundation_config = json.load(f)
+    Args:
+        resource_name: Name of the JSON file in the resources folder
+
+    Returns:
+        dict: Parsed JSON content
+
+    Raises:
+        RuntimeError: If the resource cannot be loaded
+    """
+    json_content = None
+
+    # Strategy 1: Try importlib.resources (Python 3.7+, works with installed packages)
+    try:
+        from importlib import resources
+        try:
+            with resources.open_text('h2k_hpxml.resources', resource_name) as f:
+                json_content = json.load(f)
+        except (FileNotFoundError, ImportError, AttributeError):
+            pass
+    except ImportError:
+        pass
+
+    # Strategy 2: Try pkg_resources for pip installations
+    if json_content is None:
+        try:
+            import pkg_resources
+            resource_path = pkg_resources.resource_filename('h2k_hpxml', f'resources/{resource_name}')
+            if os.path.exists(resource_path):
+                with open(resource_path, 'r', encoding="utf-8") as f:
+                    json_content = json.load(f)
+        except (ImportError, FileNotFoundError):
+            pass
+
+    # Strategy 3: Fallback to relative path (for development)
+    if json_content is None:
+        resources_folder = os.path.join(os.path.dirname(__file__), "..", "resources")
+        resource_path = os.path.join(resources_folder, resource_name)
+        if os.path.exists(resource_path):
+            try:
+                with open(resource_path, encoding="utf-8") as f:
+                    json_content = json.load(f)
+            except (OSError, json.JSONDecodeError) as e:
+                raise RuntimeError(f"Failed to load resource {resource_name}: {e}")
+
+    if json_content is None:
+        raise RuntimeError(
+            f"Resource file '{resource_name}' not found. Tried:\n"
+            "1. importlib.resources (package installation)\n"
+            "2. pkg_resources (pip installation)\n"
+            "3. Relative path (development mode)"
+        )
+
+    return json_content
+
+
+# Load configuration files at module level
+selection_config = _load_resource_json("config_selection.json")
+numeric_config = _load_resource_json("config_numeric.json")
+foundation_config = _load_resource_json("config_foundations.json")
 
 
 def get_selection_field(h2k_dict=None, field_key=""):

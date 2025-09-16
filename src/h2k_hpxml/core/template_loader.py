@@ -32,19 +32,58 @@ def load_and_parse_templates(h2k_string):
     """
     logger.info("Loading and parsing templates")
 
-    # Load template HPXML file
-    base_hpxml_path = os.path.join(
-        os.path.dirname(__file__), "..", "resources", "template_base.xml"
-    )
+    # Load template HPXML file using multiple strategies for compatibility
+    base_hpxml = None
+    base_hpxml_path = None
 
-    if not os.path.exists(base_hpxml_path):
-        raise ConfigurationError(f"Base HPXML template not found at: {base_hpxml_path}")
-
+    # Strategy 1: Try importlib.resources (Python 3.7+, works with installed packages)
     try:
-        with open(base_hpxml_path, encoding="utf-8") as f:
-            base_hpxml = f.read()
-    except OSError as e:
-        raise ConfigurationError(f"Failed to read base HPXML template: {e}")
+        from importlib import resources
+        try:
+            with resources.open_text('h2k_hpxml.resources', 'template_base.xml') as f:
+                base_hpxml = f.read()
+                base_hpxml_path = "h2k_hpxml.resources/template_base.xml"
+                logger.debug("Loaded template using importlib.resources")
+        except (FileNotFoundError, ImportError, AttributeError):
+            pass
+    except ImportError:
+        pass
+
+    # Strategy 2: Try pkg_resources for pip installations
+    if base_hpxml is None:
+        try:
+            import pkg_resources
+            resource_path = pkg_resources.resource_filename('h2k_hpxml', 'resources/template_base.xml')
+            if os.path.exists(resource_path):
+                with open(resource_path, 'r', encoding="utf-8") as f:
+                    base_hpxml = f.read()
+                    base_hpxml_path = resource_path
+                    logger.debug(f"Loaded template using pkg_resources from {resource_path}")
+        except (ImportError, FileNotFoundError):
+            pass
+
+    # Strategy 3: Fallback to relative path (for development)
+    if base_hpxml is None:
+        base_hpxml_path = os.path.join(
+            os.path.dirname(__file__), "..", "resources", "template_base.xml"
+        )
+        if os.path.exists(base_hpxml_path):
+            try:
+                with open(base_hpxml_path, encoding="utf-8") as f:
+                    base_hpxml = f.read()
+                    logger.debug(f"Loaded template using relative path from {base_hpxml_path}")
+            except OSError as e:
+                raise ConfigurationError(f"Failed to read base HPXML template: {e}")
+
+    # If all strategies failed, raise an error
+    if base_hpxml is None:
+        raise ConfigurationError(
+            "Base HPXML template not found. Tried:\n"
+            "1. importlib.resources (package installation)\n"
+            "2. pkg_resources (pip installation)\n"
+            "3. Relative path (development mode)\n"
+            "Please ensure the package is properly installed."
+        )
 
     # Parse H2K XML
     try:

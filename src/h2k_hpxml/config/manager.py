@@ -276,12 +276,28 @@ class ConfigManager:
         Returns:
             Absolute path to resource file
         """
-        # Get package root directory
+        resource_path = None
+
+        # Strategy 1: Try pkg_resources for pip installations
+        try:
+            import pkg_resources
+            resource_path = Path(pkg_resources.resource_filename('h2k_hpxml', f'resources/{resource_name}'))
+            if resource_path.exists():
+                return resource_path
+        except (ImportError, FileNotFoundError):
+            pass
+
+        # Strategy 2: Fallback to relative path (for development)
         package_root = Path(__file__).parent.parent
         resource_path = package_root / "resources" / resource_name
 
         if not resource_path.exists():
-            raise ConfigurationError(f"Resource file not found: {resource_name}")
+            raise ConfigurationError(
+                f"Resource file not found: {resource_name}\n"
+                "Tried:\n"
+                "1. pkg_resources (pip installation)\n"
+                "2. Relative path (development mode)"
+            )
 
         return resource_path
 
