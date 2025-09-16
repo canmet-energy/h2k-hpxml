@@ -423,8 +423,8 @@ class DependencyManager:
         if openstudio_ok and hpxml_ok:
             click.echo("✅ All dependencies satisfied!")
 
-            # Offer PATH setup for Windows users (only if interactive)
-            if self.interactive:
+            # Offer PATH setup for Windows users (interactive or install_quiet)
+            if self.interactive or self.install_quiet:
                 self._offer_windows_path_setup()
 
             return True
@@ -2340,7 +2340,7 @@ def main():
 Examples:
   %(prog)s                        # Check dependencies and prompt to install if missing
   %(prog)s --check-only           # Only check dependencies, don't install
-  %(prog)s --install-quiet        # Install missing dependencies without prompts
+  %(prog)s --install-quiet        # Install missing dependencies and setup PATH (no prompts)
   %(prog)s --add-to-path          # Add h2k2hpxml to PATH and clean up old entries (Windows only)
   %(prog)s --setup                # Set up user configuration from template
   %(prog)s --update-config        # Update all config files with detected paths
@@ -2353,7 +2353,7 @@ Examples:
         "--check-only", action="store_true", help="Only check dependencies, don't install"
     )
     parser.add_argument(
-        "--install-quiet", action="store_true", help="Install missing dependencies without prompts"
+        "--install-quiet", action="store_true", help="Install missing dependencies and setup PATH without prompts"
     )
     parser.add_argument("--skip-deps", action="store_true", help="Skip dependency validation")
     parser.add_argument(
