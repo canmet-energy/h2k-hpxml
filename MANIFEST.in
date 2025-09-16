@@ -21,3 +21,8 @@ include install_and_test.py
 # Include configuration templates
 recursive-include config *.ini
 recursive-include config *.template.ini
+
+# Include resources directory (REQUIRED for package to work)
+recursive-include src/h2k_hpxml/resources *
+include src/h2k_hpxml/resources/template_base.xml
+include src/h2k_hpxml/resources/*.json

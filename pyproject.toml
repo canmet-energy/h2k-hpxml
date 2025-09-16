@@ -74,7 +74,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "h2k_hpxml.examples" = ["*.h2k", "*.H2K"]
-"h2k_hpxml.resources" = ["*.json"]
+"h2k_hpxml.resources" = ["*.json", "*.xml", "template_base.xml", "**/*.json", "**/*.epw", "**/*.zip"]
 
 # Removed setuptools_scm; using static version in [project]
 # H2K-HPXML Dependency Versions
