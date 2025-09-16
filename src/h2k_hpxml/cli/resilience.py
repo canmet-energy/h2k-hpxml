@@ -652,9 +652,13 @@ class ResilienceProcessor:
     def get_ewy_file(self, weather_region, weather_location, weather_folder, ewy_filename):
         """Download and extract EWY weather file similar to get_cwec_file."""
         import zipfile
+        import urllib3
 
         import requests
         from filelock import FileLock
+
+        # Suppress SSL warnings for weather file downloads
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         # Check if EPW file already exists
         epw_file = os.path.join(weather_folder, f"{ewy_filename[:-4]}.epw")
