@@ -52,7 +52,7 @@ docker run --rm hello-world
 #### First Test
 ```bash
 # Test the container
-docker run --rm canmet/h2k-hpxml h2k-hpxml --help
+docker run --rm canmet/h2k-hpxml:refactor h2k-hpxml --help
 
 # Should show help text - confirms Docker and container work correctly
 ```
@@ -62,37 +62,37 @@ docker run --rm canmet/h2k-hpxml h2k-hpxml --help
 **Linux/Mac:**
 ```bash
 # Convert H2K file in your current directory
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/your_file.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-hpxml /data/your_file.h2k
 
 # Convert entire folder (parallel processing)
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-hpxml /data/
 ```
 
 **Windows PowerShell:**
 ```powershell
 # Convert H2K file in current directory
-docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml h2k-hpxml /data/your_file.h2k
+docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/your_file.h2k
 
 # Convert entire folder
-docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml h2k-hpxml /data/
+docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/
 ```
 
 **Windows Command Prompt:**
 ```cmd
 # Convert H2K file in current directory
-docker run --rm -v "%cd%:/data" canmet/h2k-hpxml h2k-hpxml /data/your_file.h2k
+docker run --rm -v "%cd%:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/your_file.h2k
 
 # Convert entire folder
-docker run --rm -v "%cd%:/data" canmet/h2k-hpxml h2k-hpxml /data/
+docker run --rm -v "%cd%:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/
 ```
 
 #### Resilience Analysis
 ```bash
 # Linux/Mac
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-resilience /data/your_file.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-resilience /data/your_file.h2k
 
 # Windows PowerShell
-docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml h2k-resilience /data/your_file.h2k
+docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml:refactor h2k-resilience /data/your_file.h2k
 ```
 
 ## Docker Usage Examples
@@ -101,31 +101,31 @@ docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml h2k-resilience /data/your_fil
 
 ```bash
 # Basic conversion - process file in current directory
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-hpxml /data/input.h2k
 
 # Process entire folder (uses parallel processing)
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-hpxml /data/
 
 # Specify output location
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor \
   h2k-hpxml /data/input.h2k --output /data/output.xml
 
 # Use separate input/output directories (Windows example)
 docker run --rm \
   -v "C:\path\to\input":/input:ro \
   -v "C:\path\to\output":/output \
-  canmet/h2k-hpxml h2k-hpxml /input/house.h2k --output /output/house.xml
+  canmet/h2k-hpxml:refactor h2k-hpxml /input/house.h2k --output /output/house.xml
 ```
 
 ### Resilience Analysis
 
 ```bash
 # Basic resilience analysis
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor \
   h2k-resilience /data/house.h2k
 
 # With custom parameters
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor \
   h2k-resilience /data/input.h2k \
   --outage-days 10 \
   --clothing-factor-summer 0.6 \
@@ -137,13 +137,13 @@ docker run --rm -v $(pwd):/data canmet/h2k-hpxml \
 
 ```bash
 # H2K conversion help
-docker run --rm canmet/h2k-hpxml h2k-hpxml --help
+docker run --rm canmet/h2k-hpxml:refactor h2k-hpxml --help
 
 # Resilience analysis help
-docker run --rm canmet/h2k-hpxml h2k-resilience --help
+docker run --rm canmet/h2k-hpxml:refactor h2k-resilience --help
 
 # Show version
-docker run --rm canmet/h2k-hpxml h2k-hpxml --version
+docker run --rm canmet/h2k-hpxml:refactor h2k-hpxml --version
 ```
 
 ## Docker Configuration
@@ -187,11 +187,11 @@ wsl --set-default-version 2
 #### Performance Tips for Windows
 ```powershell
 # Use WSL 2 paths for better performance
-docker run --rm -v "\\wsl$\Ubuntu\home\user\h2k_files:/data" canmet/h2k-hpxml h2k-hpxml /data/
+docker run --rm -v "\\wsl$\Ubuntu\home\user\h2k_files:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/
 
 # Or map network drive for easier access
 net use Z: \\wsl$\Ubuntu\home\user\h2k_files
-docker run --rm -v "Z:/:/data" canmet/h2k-hpxml h2k-hpxml /data/
+docker run --rm -v "Z:/:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/
 ```
 
 ## Advantages of Docker Approach
@@ -223,7 +223,7 @@ docker run --rm \
   -v /home/user/h2k_files:/input:ro \
   -v /home/user/results:/output \
   -v /home/user/configs:/config \
-  canmet/h2k-hpxml h2k-hpxml /input/house.h2k --output /output/house.xml
+  canmet/h2k-hpxml:refactor h2k-hpxml /input/house.h2k --output /output/house.xml
 ```
 
 ### Environment Variables
@@ -231,18 +231,18 @@ docker run --rm \
 ```bash
 # Enable debug logging
 docker run --rm -e H2K_LOG_LEVEL=DEBUG -v $(pwd):/data \
-  canmet/h2k-hpxml h2k-hpxml /data/input.h2k
+  canmet/h2k-hpxml:refactor h2k-hpxml /data/input.h2k
 
 # Custom configuration path
 docker run --rm -e H2K_CONFIG_PATH=/data/custom_config.ini -v $(pwd):/data \
-  canmet/h2k-hpxml h2k-hpxml /data/input.h2k
+  canmet/h2k-hpxml:refactor h2k-hpxml /data/input.h2k
 ```
 
 ### Interactive Shell (Debugging)
 
 ```bash
 # Enter container with interactive shell
-docker run --rm -it -v $(pwd):/data canmet/h2k-hpxml bash
+docker run --rm -it -v $(pwd):/data canmet/h2k-hpxml:refactor bash
 
 # Then run commands inside container
 h2k-hpxml /data/input.h2k
@@ -286,7 +286,7 @@ For processing multiple files or automating workflows, use Docker Compose:
 version: '3.8'
 services:
   h2k-converter:
-    image: canmet/h2k-hpxml
+    image: canmet/h2k-hpxml:latest
     volumes:
       - ./h2k_files:/input:ro
       - ./results:/output
@@ -317,7 +317,7 @@ version: '3.8'
 services:
   # H2K to HPXML conversion service
   converter:
-    image: canmet/h2k-hpxml:latest
+    image: canmet/h2k-hpxml:refactor
     volumes:
       - ./input:/input:ro
       - ./output:/output
@@ -355,7 +355,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/h2k_files:/input:ro \
             -v ${{ github.workspace }}/output:/output \
-            canmet/h2k-hpxml h2k-hpxml /input/ --output /output/
+            canmet/h2k-hpxml:refactor h2k-hpxml /input/ --output /output/
       
       - name: Upload results
         uses: actions/upload-artifact@v2
