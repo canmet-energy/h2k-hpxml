@@ -251,7 +251,29 @@ h2k-deps --check-only
 
 ## Building the Docker Image Locally
 
-There is currently no root Dockerfile in this repository. Use the published Docker images from Docker Hub (canmet/h2k-hpxml) or the VS Code DevContainer for development.
+You can build the Docker image locally using the included Dockerfile in the repository root:
+
+```bash
+# Clone the repository
+git clone https://github.com/canmet-energy/h2k-hpxml.git
+cd h2k-hpxml
+
+# Build the Docker image
+docker build -t h2k-hpxml .
+
+# Run your locally built image
+docker run --rm -v $(pwd):/data h2k-hpxml h2k-hpxml /data/input.h2k
+```
+
+The Dockerfile includes:
+- Ubuntu 22.04 base with all required system libraries
+- Python 3.12 installed via uv
+- All h2k-hpxml CLI tools (h2k-hpxml, h2k-resilience, h2k-deps)
+- Pre-installed OpenStudio and OpenStudio-HPXML dependencies
+- Non-root user for security
+- Configured for production use
+
+For development, you may also use the VS Code DevContainer configuration in `.devcontainer/`.
 
 ## Docker Compose (Batch Processing)
 
