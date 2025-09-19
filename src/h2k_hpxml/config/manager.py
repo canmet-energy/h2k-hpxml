@@ -157,7 +157,7 @@ class ConfigManager:
         """Validate required configuration sections and keys."""
         required_sections = ["paths", "simulation", "weather", "logging"]
         required_keys = {
-            "paths": ["hpxml_os_path", "dest_hpxml_path"],
+            "paths": ["dest_hpxml_path"],  # Removed hpxml_os_path - now auto-detected
             "weather": ["weather_library", "weather_vintage"],
             "logging": ["log_level"],
         }
@@ -179,7 +179,8 @@ class ConfigManager:
     def _validate_paths(self):
         """Validate that configured paths exist or can be created."""
         paths_to_check = [
-            ("hpxml_os_path", False),  # Will be auto-detected if not configured
+            ("source_h2k_path", True),   # Input path must exist
+            # Removed ("hpxml_os_path", True) - now auto-detected, not in config
             ("dest_hpxml_path", False),  # Can be created
         ]
 
@@ -316,27 +317,16 @@ class ConfigManager:
 
     @property
     def hpxml_os_path(self):
-        """OpenStudio-HPXML installation directory."""
-        configured_path = self.get_path("paths", "hpxml_os_path")
-
-        # If configured path exists and is valid, use it
-        if configured_path and Path(configured_path).exists():
-            return configured_path
-
-        # Otherwise, try to get the path from the installer
-        try:
-            from ..utils.dependencies import get_openstudio_hpxml_path
-
-            auto_path = get_openstudio_hpxml_path()
-            if auto_path:
-                logger.debug(f"Using auto-detected OpenStudio-HPXML path: {auto_path}")
-                return auto_path
-        except Exception as e:
-            logger.debug(f"Could not auto-detect OpenStudio-HPXML path: {e}")
-
-        # Return the configured path even if it doesn't exist
-        # (will fail validation later if needed)
-        return configured_path
+        """OpenStudio-HPXML installation directory (auto-detected)."""
+        from ..utils.dependencies import get_hpxml_os_path
+        
+        hpxml_path = get_hpxml_os_path()
+        if hpxml_path:
+            logger.debug(f"Auto-detected OpenStudio-HPXML path: {hpxml_path}")
+            return hpxml_path
+            
+        logger.warning("OpenStudio-HPXML installation not found")
+        return None
 
     @property
     def dest_hpxml_path(self):
@@ -345,69 +335,43 @@ class ConfigManager:
 
     @property
     def openstudio_binary(self):
-        """Path to OpenStudio binary."""
-        configured_path = self.get("paths", "openstudio_binary")
-
-        # If configured path exists and is valid, use it
-        if configured_path and Path(configured_path).exists():
-            return configured_path
-
-        # Otherwise, try to get the path from the installer
-        try:
-            from ..utils.dependencies import get_openstudio_path
-
-            auto_path = get_openstudio_path()
-            if auto_path:
-                logger.debug(f"Using auto-detected OpenStudio binary: {auto_path}")
-                return auto_path
-        except Exception as e:
-            logger.debug(f"Could not auto-detect OpenStudio binary: {e}")
-
+        """Path to OpenStudio binary (auto-detected)."""
+        from ..utils.dependencies import get_openstudio_binary
+        
+        binary_path = get_openstudio_binary()
+        if binary_path:
+            logger.debug(f"Auto-detected OpenStudio binary: {binary_path}")
+            return binary_path
+            
         # Fall back to system openstudio if available
         import shutil
-
         system_path = shutil.which("openstudio")
         if system_path:
             logger.debug(f"Using system OpenStudio binary: {system_path}")
             return system_path
-
-        # Return the configured path even if it doesn't exist
-        return configured_path or "openstudio"
+            
+        logger.warning("OpenStudio binary not found")
+        return "openstudio"  # Fallback for error handling
 
     @property
     def energyplus_binary(self):
-        """Path to EnergyPlus binary."""
-        configured_path = self.get("paths", "energyplus_binary")
-
-        # If configured path exists and is valid, use it
-        if configured_path and Path(configured_path).exists():
-            return configured_path
-
-        # Otherwise, try to derive from OpenStudio installation
-        try:
-            from ..utils.dependencies import get_openstudio_path
-
-            openstudio_path = get_openstudio_path()
-            if openstudio_path:
-                # EnergyPlus is bundled in OpenStudio at /EnergyPlus/energyplus
-                openstudio_base = Path(openstudio_path).parent.parent  # Remove /bin/openstudio
-                energyplus_path = openstudio_base / "EnergyPlus" / "energyplus"
-                if energyplus_path.exists():
-                    logger.debug(f"Using EnergyPlus bundled with OpenStudio: {energyplus_path}")
-                    return str(energyplus_path)
-        except Exception as e:
-            logger.debug(f"Could not auto-detect EnergyPlus binary: {e}")
-
+        """Path to EnergyPlus binary (auto-detected)."""
+        from ..utils.dependencies import get_energyplus_binary
+        
+        energyplus_path = get_energyplus_binary()
+        if energyplus_path:
+            logger.debug(f"Auto-detected EnergyPlus binary: {energyplus_path}")
+            return energyplus_path
+            
         # Fall back to system energyplus if available
         import shutil
-
         system_path = shutil.which("energyplus")
         if system_path:
             logger.debug(f"Using system EnergyPlus binary: {system_path}")
             return system_path
-
-        # Return the configured path even if it doesn't exist
-        return configured_path or "energyplus"
+            
+        logger.warning("EnergyPlus binary not found")
+        return "energyplus"  # Fallback for error handling
 
     @property
     def simulation_flags(self):
@@ -509,10 +473,9 @@ class ConfigManager:
 
         # Add required sections with minimal values
         minimal_config.add_section("paths")
-        minimal_config.set("paths", "source_h2k_path", "")
-        minimal_config.set("paths", "hpxml_os_path", "")
-        minimal_config.set("paths", "openstudio_binary", "")
-        minimal_config.set("paths", "energyplus_binary", "")
+        minimal_config.set("paths", "source_h2k_path", "examples")
+        # Note: OpenStudio and OpenStudio-HPXML paths are automatically detected
+        # No configuration needed - removed hpxml_os_path, openstudio_binary, energyplus_binary
         minimal_config.set("paths", "dest_hpxml_path", "output/hpxml/")
         minimal_config.set("paths", "dest_compare_data", "output/comparisons/")
         minimal_config.set("paths", "workflow_temp_path", "output/workflows/")
@@ -532,7 +495,7 @@ class ConfigManager:
         with open(config_path, "w") as f:
             f.write("# H2K-HPXML Configuration\n")
             f.write("# Auto-generated minimal configuration\n")
-            f.write("# Use 'h2k-deps --update-config' to set OpenStudio paths\n\n")
+            f.write("# OpenStudio and OpenStudio-HPXML paths are automatically detected\n\n")
             minimal_config.write(f)
 
 

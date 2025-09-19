@@ -164,7 +164,7 @@ def resilience(
     dep_manager = DependencyManager()
     if not dep_manager.check_only():
         click.echo("❌ Missing required dependencies!")
-        click.echo("Run 'h2k-deps --auto-install' to install them.")
+        click.echo("Run 'h2k-deps --install-quiet' to install them.")
         sys.exit(1)
     
     try:

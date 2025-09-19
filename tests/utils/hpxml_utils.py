@@ -38,9 +38,9 @@ def normalize_paths_for_comparison(xml_content: str) -> str:
     normalized_content = xml_content.replace("\\", "/")
 
     # Replace Windows-style OpenStudio-HPXML paths with standard format
-    # Pattern matches: C:/OpenStudio-HPXML/... or D:/OpenStudio-HPXML/...
+    # Pattern matches: C:/OpenStudio-HPXML/... or D:/OpenStudio-HPXML/..., including versioned paths
     normalized_content = re.sub(
-        r"[A-Z]:/OpenStudio-HPXML/", "/OpenStudio-HPXML/", normalized_content
+        r"[A-Z]:/OpenStudio-HPXML[^/]*/", "/OpenStudio-HPXML/", normalized_content
     )
 
     # Normalize workspace directory paths that may vary between environments
@@ -50,14 +50,17 @@ def normalize_paths_for_comparison(xml_content: str) -> str:
     )
 
     # Normalize weather file paths to just basename - this is the key fix for cross-environment testing
-    # Pattern matches any path ending with OpenStudio-HPXML/weather/filename
+    # Pattern matches any path ending with OpenStudio-HPXML*/weather/filename (including versioned paths)
     # Examples:
     #   /app/deps/OpenStudio-HPXML/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020.epw
+    #   /home/vscode/.local/share/OpenStudio-HPXML-v1.9.1/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020.epw
     #   /workspaces/h2k-hpxml/src/h2k_hpxml/_deps/OpenStudio-HPXML/weather/file.epw
     #   C:/OpenStudio-HPXML/weather/file.epw
-    # All become: WEATHER_FILE/filename
+    # All become: WEATHER_FILE/filename (without .epw extension)
     normalized_content = re.sub(
-        r"[^<>]*OpenStudio-HPXML/weather/([^<>/]+)", r"WEATHER_FILE/\1", normalized_content
+        r"[^<>]*OpenStudio-HPXML[^/]*/weather/([^<>/]+?)(?:\.epw)?(?=<)", 
+        r"WEATHER_FILE/\1", 
+        normalized_content
     )
 
     return normalized_content

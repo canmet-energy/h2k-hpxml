@@ -362,7 +362,7 @@ def validate_dependencies() -> Dict[str, Any]:
                 "missing": ["Dependency validation failed"],
                 "recommendations": [
                     "Run h2k-deps --setup to configure dependencies",
-                    "Run h2k-deps --auto-install to install missing dependencies",
+                    "Run h2k-deps --install-quiet to install missing dependencies",
                 ],
             }
 

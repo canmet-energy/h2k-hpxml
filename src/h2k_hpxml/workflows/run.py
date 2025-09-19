@@ -8,57 +8,43 @@ from pathlib import Path
 
 
 def get_config_with_dependency_paths():
-    """Get configuration with dependency paths."""
+    """Get configuration with auto-detected dependency paths."""
     config = configparser.ConfigParser()
     config.read("conversionconfig.ini")
-
-    # Get paths from config file (maintained by dependencies.py)
-    try:
-        source_h2k_path = config.get("paths", "source_h2k_path")
-        hpxml_os_path = config.get("paths", "hpxml_os_path")
-        openstudio_binary = config.get("paths", "openstudio_binary")
-        dest_hpxml_path = config.get("paths", "dest_hpxml_path")
-    except (NoOptionError, NoSectionError) as e:
-        print(f"❌ Configuration file missing required sections: {e}")
-        print("Run 'h2k-deps' to set up dependencies and configuration")
-        sys.exit(1)
-
-    # Override with environment variables if set
-    hpxml_os_path = os.environ.get("OPENSTUDIO_HPXML_PATH", hpxml_os_path)
-    openstudio_binary = os.environ.get("OPENSTUDIO_PATH", openstudio_binary)
-
-    # If paths are empty or missing, update config with current detections
-    if not openstudio_binary.strip() or not hpxml_os_path.strip():
-        print("🔄 Configuration incomplete - updating with detected paths...")
-        from h2k_hpxml.utils.dependencies import DependencyManager
-
-        dep_manager = DependencyManager(interactive=False)
-        if not dep_manager.validate_all(check_only=True):
-            print("❌ Required dependencies not found. Run 'h2k-deps --auto-install' to install.")
-            sys.exit(1)
-
-        # Re-read updated config
-        config.read("conversionconfig.ini")
-        openstudio_binary = config.get("paths", "openstudio_binary", fallback="")
-        hpxml_os_path = config.get("paths", "hpxml_os_path", fallback="")
-
-    # Final validation
+    
+    # Auto-detect dependency paths
+    from h2k_hpxml.utils.dependencies import get_dependency_paths
+    
+    dependency_paths = get_dependency_paths()
+    openstudio_binary = dependency_paths['openstudio_binary']
+    hpxml_os_path = dependency_paths['hpxml_os_path']
+    
+    # Validate that dependencies are available
     if not openstudio_binary or not Path(openstudio_binary).exists():
         print(f"❌ OpenStudio binary not found: {openstudio_binary}")
-        print("Please run 'h2k-deps --update-config' to detect OpenStudio")
+        print("Please run 'h2k-deps --auto-install' to install OpenStudio")
         sys.exit(1)
-
+        
     if not hpxml_os_path or not Path(hpxml_os_path).exists():
         print(f"❌ OpenStudio-HPXML path not found: {hpxml_os_path}")
-        print("Please run 'h2k-deps --update-config' to detect OpenStudio-HPXML")
+        print("Please run 'h2k-deps --auto-install' to install OpenStudio-HPXML")
         sys.exit(1)
-
+    
+    # Get user preferences from config file
+    try:
+        source_h2k_path = config.get("paths", "source_h2k_path", fallback="examples")
+        dest_hpxml_path = config.get("paths", "dest_hpxml_path", fallback="output/hpxml/")
+    except (NoOptionError, NoSectionError) as e:
+        print(f"❌ Configuration file missing required sections: {e}")
+        print("Please check conversionconfig.ini exists and has proper structure")
+        sys.exit(1)
+    
     # Get simulation flags
     try:
-        flags = config.get("simulation", "flags")
+        flags = config.get("simulation", "flags", fallback="")
     except (NoOptionError, NoSectionError):
         flags = ""
-
+        
     return {
         "source_h2k_path": source_h2k_path,
         "hpxml_os_path": hpxml_os_path,

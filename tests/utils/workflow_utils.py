@@ -67,6 +67,10 @@ def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tu
         if debug:
             cmd.append("--debug")
 
+        # Add simulation flag to ensure EnergyPlus runs and creates SQL files
+        # Regression tests expect SQL files for energy validation
+        cmd.extend(["--hourly", "ALL"])
+
         # Set up environment with cross-platform PYTHONPATH
         env = os.environ.copy()
         current_pythonpath = env.get("PYTHONPATH", "")

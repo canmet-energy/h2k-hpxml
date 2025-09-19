@@ -164,37 +164,93 @@ def _load_dependency_config():
 
 
 # Download function with SSL context support
-def download_file(url, dest_path, desc=""):
-    """Download file with progress indicator."""
+def download_file(url, dest_path, desc="", max_retries=3):
+    """Download file with progress indicator, resume capability, and retry logic."""
     print(f"Downloading {desc or url}...")
 
     # Create SSL context that doesn't verify certificates (for corporate networks)
     # In production, you might want to make this configurable
     import ssl
     import urllib.request
-    from urllib.request import urlretrieve
+    import os
+    import time
+    from pathlib import Path
 
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
 
-    try:
+    dest_path = Path(dest_path)
+    temp_path = dest_path.with_suffix(dest_path.suffix + '.tmp')
 
-        def download_progress(block_num, block_size, total_size):
-            downloaded = block_num * block_size
-            percent = min(downloaded * 100 / total_size, 100) if total_size > 0 else 0
-            print(f"  Progress: {percent:.1f}%", end="\r")
+    for attempt in range(max_retries + 1):
+        try:
+            # Check if we have a partial download to resume
+            resume_byte_pos = 0
+            if temp_path.exists():
+                resume_byte_pos = temp_path.stat().st_size
+                if resume_byte_pos > 0:
+                    print(f"  Resuming download from {resume_byte_pos:,} bytes...")
 
-        # Create opener with SSL context
-        opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx))
-        urllib.request.install_opener(opener)
+            # Create request with Range header for resume
+            req = urllib.request.Request(url)
+            if resume_byte_pos > 0:
+                req.add_header('Range', f'bytes={resume_byte_pos}-')
 
-        urlretrieve(url, dest_path, reporthook=download_progress)
-        print(f"\n  ✓ Downloaded to {dest_path}")
-        return True
-    except urllib.error.URLError as e:
-        print(f"\n  ✗ Download failed: {e}")
-        return False
+            # Create opener with SSL context
+            opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx))
+
+            with opener.open(req) as response:
+                # Get total file size
+                content_range = response.headers.get('Content-Range')
+                if content_range and resume_byte_pos > 0:
+                    # Format: "bytes start-end/total"
+                    total_size = int(content_range.split('/')[-1])
+                else:
+                    total_size = int(response.headers.get('Content-Length', 0))
+                    if resume_byte_pos > 0:
+                        total_size += resume_byte_pos
+
+                # Open file in append mode if resuming, otherwise write mode
+                mode = 'ab' if resume_byte_pos > 0 else 'wb'
+
+                with open(temp_path, mode) as f:
+                    downloaded = resume_byte_pos
+                    chunk_size = 8192
+
+                    while True:
+                        chunk = response.read(chunk_size)
+                        if not chunk:
+                            break
+
+                        f.write(chunk)
+                        downloaded += len(chunk)
+
+                        # Show progress
+                        if total_size > 0:
+                            percent = min(downloaded * 100 / total_size, 100)
+                            print(f"  Progress: {percent:.1f}%", end="\r")
+
+            # Download completed successfully - move temp file to final location
+            if dest_path.exists():
+                dest_path.unlink()
+            temp_path.rename(dest_path)
+            print(f"\n  ✓ Downloaded to {dest_path}")
+            return True
+
+        except (urllib.error.URLError, OSError, IOError) as e:
+            if attempt < max_retries:
+                print(f"\n  ⚠ Download failed (attempt {attempt + 1}/{max_retries + 1}): {e}")
+                print(f"  Retrying in {2 ** attempt} seconds...")
+                time.sleep(2 ** attempt)  # Exponential backoff
+            else:
+                print(f"\n  ✗ Download failed after {max_retries + 1} attempts: {e}")
+                # Clean up temp file on final failure
+                if temp_path.exists():
+                    temp_path.unlink()
+                return False
+
+    return False
 
 
 def safe_echo(message, **kwargs):
@@ -2519,6 +2575,194 @@ def get_openstudio_hpxml_path():
         return str(hpxml_path)
     
     return None
+
+
+def get_openstudio_path_static():
+    """Get path to OpenStudio executable - static version without DependencyManager dependency."""
+    import platform
+    import shutil
+    import os
+    from pathlib import Path
+    
+    # Define required versions (constants from DependencyManager)
+    REQUIRED_OPENSTUDIO_VERSION = "3.9.0"
+    OPENSTUDIO_BUILD_HASH = "bb29e94a73"
+    
+    def get_user_data_dir():
+        """Get user data directory for current platform."""
+        if platform.system() == "Windows":
+            return Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~/AppData/Local")))
+        else:
+            return Path.home() / ".local" / "share"
+    
+    def get_windows_paths():
+        """Get Windows-specific OpenStudio paths."""
+        paths = []
+        program_files_dirs = [
+            os.environ.get("PROGRAMFILES", r"C:\Program Files"),
+            os.environ.get("PROGRAMFILES(X86)", r"C:\Program Files (x86)"),
+        ]
+
+        # System-wide Program Files installations (MSI-based)
+        for pf_dir in program_files_dirs:
+            paths.extend([
+                os.path.join(pf_dir, "OpenStudio", "bin", "openstudio.exe"),
+                os.path.join(pf_dir, f"OpenStudio {REQUIRED_OPENSTUDIO_VERSION}", "bin", "openstudio.exe"),
+            ])
+
+        # System-wide C:\ installations
+        paths.extend([
+            r"C:\openstudio\bin\openstudio.exe",
+            f"C:\\openstudio-{REQUIRED_OPENSTUDIO_VERSION}\\bin\\openstudio.exe",
+        ])
+
+        # User-specific installations
+        user_profile = os.environ.get("USERPROFILE", os.path.expanduser("~"))
+        local_appdata = os.environ.get("LOCALAPPDATA", os.path.join(user_profile, "AppData", "Local"))
+
+        # Legacy user installations (MSI-based)
+        paths.extend([
+            os.path.join(user_profile, "openstudio", "bin", "openstudio.exe"),
+            os.path.join(local_appdata, "OpenStudio", "bin", "openstudio.exe"),
+            os.path.join(local_appdata, f"OpenStudio-{REQUIRED_OPENSTUDIO_VERSION}", "bin", "openstudio.exe"),
+        ])
+
+        # Portable installations (tar.gz based) - PRIORITY PATHS
+        portable_paths = [
+            os.path.join(local_appdata, f"OpenStudio-{REQUIRED_OPENSTUDIO_VERSION}", "bin", "openstudio.exe"),
+            os.path.join(local_appdata, "OpenStudio", "bin", "openstudio.exe"),
+            os.path.join(user_profile, "OpenStudio", "bin", "openstudio.exe"),
+            os.path.join(str(get_user_data_dir()), "OpenStudio", "bin", "openstudio.exe"),
+            os.path.join(local_appdata, f"OpenStudio-{REQUIRED_OPENSTUDIO_VERSION}+{OPENSTUDIO_BUILD_HASH}", "bin", "openstudio.exe"),
+        ]
+
+        # Prioritize portable installations by putting them first
+        return portable_paths + paths
+    
+    def get_linux_paths():
+        """Get Linux-specific OpenStudio paths."""
+        user_data_dir = get_user_data_dir()
+        return [
+            f"/usr/local/openstudio-{REQUIRED_OPENSTUDIO_VERSION}/bin/openstudio",
+            "/usr/local/openstudio/bin/openstudio",
+            "/usr/bin/openstudio",
+            "/opt/openstudio/bin/openstudio",
+            f"/opt/openstudio-{REQUIRED_OPENSTUDIO_VERSION}/bin/openstudio",
+            str(user_data_dir / f"OpenStudio-{REQUIRED_OPENSTUDIO_VERSION}" / "bin" / "openstudio"),
+            str(user_data_dir / "OpenStudio" / "bin" / "openstudio"),
+        ]
+    
+    # Build list of potential OpenStudio paths
+    paths = []
+    is_windows = platform.system() == "Windows"
+    
+    # 1. Check environment variable
+    env_path = os.environ.get("OPENSTUDIO_PATH")
+    if env_path:
+        env_path = Path(env_path)
+        if is_windows:
+            paths.append(str(env_path / "bin" / "openstudio.exe"))
+        else:
+            paths.append(str(env_path / "bin" / "openstudio"))
+
+    # 2. Add platform-specific default paths
+    if is_windows:
+        paths.extend(get_windows_paths())
+    else:
+        paths.extend(get_linux_paths())
+
+    # Check each potential path
+    for path in paths:
+        if Path(path).exists():
+            return str(path)
+    
+    # Fallback to system installation
+    system_path = shutil.which("openstudio")
+    if system_path:
+        return system_path
+    
+    # No OpenStudio found
+    return None
+
+
+def get_openstudio_hpxml_path_static():
+    """Get path to OpenStudio-HPXML installation - static version without DependencyManager dependency."""
+    import platform
+    import os
+    from pathlib import Path
+    
+    # Define required version
+    REQUIRED_HPXML_VERSION = "v1.9.1"
+    
+    def get_user_data_dir():
+        """Get user data directory for current platform."""
+        if platform.system() == "Windows":
+            return Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~/AppData/Local")))
+        else:
+            return Path.home() / ".local" / "share"
+    
+    # 1. Check OPENSTUDIO_HPXML_PATH environment variable
+    env_path = os.environ.get("OPENSTUDIO_HPXML_PATH")
+    if env_path:
+        hpxml_path = Path(env_path)
+        if hpxml_path.exists():
+            return str(hpxml_path)
+
+    # 2. Use versioned user-writable locations (consistent with OpenStudio CLI pattern)
+    hpxml_path = get_user_data_dir() / f"OpenStudio-HPXML-{REQUIRED_HPXML_VERSION}"
+    if hpxml_path.exists():
+        return str(hpxml_path)
+    
+    return None
+
+
+def get_dependency_paths():
+    """
+    Get all dependency paths in a single call.
+    
+    Returns:
+        dict: Dictionary with keys 'openstudio_binary', 'hpxml_os_path', 'energyplus_binary'
+    """
+    openstudio_binary = get_openstudio_path_static()
+    hpxml_os_path = get_openstudio_hpxml_path_static()
+    
+    # EnergyPlus is bundled with OpenStudio
+    energyplus_binary = None
+    if openstudio_binary:
+        from pathlib import Path
+        openstudio_dir = Path(openstudio_binary).parent.parent
+        if Path(openstudio_binary).name == "openstudio.exe":
+            # Windows
+            energyplus_binary = str(openstudio_dir / "EnergyPlus" / "energyplus.exe")
+        else:
+            # Linux/Unix
+            energyplus_binary = str(openstudio_dir / "EnergyPlus" / "energyplus")
+        
+        # Verify EnergyPlus exists
+        if not Path(energyplus_binary).exists():
+            energyplus_binary = None
+    
+    return {
+        'openstudio_binary': openstudio_binary,
+        'hpxml_os_path': hpxml_os_path, 
+        'energyplus_binary': energyplus_binary
+    }
+
+
+def get_openstudio_binary():
+    """Get OpenStudio binary path (convenience function)."""
+    return get_openstudio_path_static()
+
+
+def get_hpxml_os_path():
+    """Get OpenStudio-HPXML installation path (convenience function).""" 
+    return get_openstudio_hpxml_path_static()
+
+
+def get_energyplus_binary():
+    """Get EnergyPlus binary path (convenience function)."""
+    paths = get_dependency_paths()
+    return paths['energyplus_binary']
 
 
 if __name__ == "__main__":
