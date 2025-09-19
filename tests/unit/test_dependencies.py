@@ -350,7 +350,6 @@ class TestInstallationMethods:
     # REMOVED: test_install_openstudio_linux - was causing actual OpenStudio installation damage
     # This test was creating real DependencyManager instances that triggered file system operations
 
-    @patch("h2k_hpxml.utils.dependencies.DependencyManager._update_config_file")
     @patch("h2k_hpxml.utils.dependencies.DependencyManager._install_to_target")
     @patch("h2k_hpxml.utils.dependencies.DependencyManager._create_target_directory")
     @patch("h2k_hpxml.utils.dependencies.DependencyManager._remove_existing_installation")
@@ -365,7 +364,6 @@ class TestInstallationMethods:
         mock_remove,
         mock_create_dir,
         mock_install_target,
-        mock_update_config,
         manager,
     ):
         """Test successful OpenStudio-HPXML installation."""
@@ -395,7 +393,6 @@ class TestInstallationMethods:
         mock_download_file.assert_called_once()
         call_args = mock_download_file.call_args[0]
         assert call_args[0] == expected_url  # URL should be first argument
-        mock_update_config.assert_called_once()
 
     @patch("h2k_hpxml.utils.dependencies.download_file", return_value=False)
     @patch("click.echo")
@@ -406,43 +403,8 @@ class TestInstallationMethods:
         assert result is False
         mock_echo.assert_any_call("❌ OpenStudio-HPXML installation failed: Download failed")
 
-    @patch("h2k_hpxml.utils.dependencies.DependencyManager._find_all_config_files")
-    @patch("h2k_hpxml.utils.dependencies.DependencyManager._update_single_config_file")
-    @patch("h2k_hpxml.utils.dependencies.DependencyManager._detect_openstudio_binary")
-    @patch("h2k_hpxml.utils.dependencies.DependencyManager._detect_hpxml_path")
-    @patch("click.echo")
-    def test_update_config_file_success(
-        self,
-        mock_echo,
-        mock_detect_hpxml,
-        mock_detect_binary,
-        mock_update_single,
-        mock_find_all,
-        manager,
-    ):
-        """Test successful config file update."""
-        mock_find_all.return_value = ["/path/to/conversionconfig.ini"]
-        mock_detect_hpxml.return_value = "/OpenStudio-HPXML/"
-        mock_detect_binary.return_value = "/usr/local/bin/openstudio"
-        mock_update_single.return_value = True
-
-        result = manager._update_config_file(Path("/OpenStudio-HPXML"))
-
-        assert result is True
-        mock_update_single.assert_called_once_with(
-            "/path/to/conversionconfig.ini", "/OpenStudio-HPXML/", "/usr/local/bin/openstudio"
-        )
-
-    @patch("h2k_hpxml.utils.dependencies.DependencyManager._find_all_config_files")
-    @patch("click.echo")
-    def test_update_config_file_not_found(self, mock_echo, mock_find_all, manager):
-        """Test config file update when file not found."""
-        mock_find_all.return_value = []
-
-        result = manager._update_config_file(Path("/OpenStudio-HPXML"))
-
-        assert result is False
-        mock_echo.assert_called_with("⚠️  No configuration files found, skipping config update")
+    # Removed test_update_config_file_success and test_update_config_file_not_found
+    # Config update functionality is deprecated - dependencies are now auto-detected
 
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.cwd")

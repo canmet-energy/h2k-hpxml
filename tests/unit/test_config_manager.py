@@ -305,9 +305,7 @@ log_level = INFO
         config_content = """
 [paths]
 source_h2k_path = /test/input
-hpxml_os_path = /test/openstudio
 dest_hpxml_path = /test/output
-openstudio_binary = /usr/bin/openstudio
 
 [simulation]
 flags = --debug --verbose
@@ -330,14 +328,15 @@ log_to_file = false
 
             # Test path properties
             assert str(config.source_h2k_path) == "/test/input"
-            # hpxml_os_path now auto-detects if configured path doesn't exist
-            # In test environment, it may auto-detect to actual installation path
-            hpxml_path = config.hpxml_os_path
-            assert hpxml_path is not None  # Should have some valid path
             assert str(config.dest_hpxml_path) == "/test/output"
-            # openstudio_binary also now auto-detects if configured binary doesn't exist
+
+            # hpxml_os_path and openstudio_binary are now auto-detected (not in config)
+            # In test environment with real OpenStudio installation, these should be found
+            hpxml_path = config.hpxml_os_path
+            assert hpxml_path is not None, "Should auto-detect HPXML installation path"
+
             openstudio_binary = config.openstudio_binary
-            assert openstudio_binary is not None  # Should have some valid binary path
+            assert openstudio_binary is not None, "Should auto-detect OpenStudio binary path"
 
             # Test other properties
             assert config.simulation_flags == "--debug --verbose"

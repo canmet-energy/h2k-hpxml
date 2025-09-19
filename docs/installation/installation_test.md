@@ -70,9 +70,11 @@ print("EnergyPlus path:", config.energyplus_binary)
 For convenience, you can run our automated test script:
 
 ```bash
-# Download and run the test script
-curl -O https://raw.githubusercontent.com/canmet-energy/h2k-hpxml/main/scripts/installation/test_installation.py
-python test_installation.py
+# For uv installations
+uv run h2k-deps --test-comprehensive
+
+# For pip installations
+h2k-deps --test-comprehensive
 ```
 
 This script will automatically test:

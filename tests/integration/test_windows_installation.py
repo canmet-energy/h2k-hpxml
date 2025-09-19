@@ -237,49 +237,24 @@ class TestWindowsInstallationWorkflow:
                 # Binary should have content
                 assert binary_path.read_text() == "mock binary"
 
-    def test_config_file_update_workflow(self):
-        """Test configuration file update workflow."""
+    def test_config_update_methods_stubbed(self):
+        """Test that config update methods are stubbed for backward compatibility."""
         dm = DependencyManager()
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".ini", delete=False) as temp_config:
-            # Create a minimal config file
-            temp_config.write(
-                """[paths]
-hpxml_os_path = 
-openstudio_binary = 
+        # Config update methods should exist but be stubbed out
+        assert hasattr(dm, '_update_single_config_file'), "Should have stubbed _update_single_config_file method"
+        assert hasattr(dm, '_update_config_file'), "Should have stubbed _update_config_file method"
 
-[simulation]
-mode = SOC
-"""
-            )
-            temp_config_path = temp_config.name
+        # Should be callable and return success (but do nothing)
+        result = dm._update_config_file()
+        assert result is True, "Should return True for backward compatibility"
 
-        try:
-            # Test config file parsing
-            import configparser
-
-            config = configparser.ConfigParser()
-            config.read(temp_config_path)
-
-            assert config.has_section("paths")
-            assert config.has_option("paths", "openstudio_binary")
-
-            # Test updating with a mock path
-            mock_binary_path = r"C:\Users\Test\AppData\Local\OpenStudio-3.9.0\bin\openstudio.exe"
-
-            success = dm._update_single_config_file(
-                temp_config_path, dm.default_hpxml_path, mock_binary_path
-            )
-
-            assert success, "Config file update should succeed"
-
-            # Verify the update
-            config.read(temp_config_path)
-            updated_binary = config.get("paths", "openstudio_binary")
-            assert updated_binary == mock_binary_path
-
-        finally:
-            Path(temp_config_path).unlink(missing_ok=True)
+        # _update_single_config_file should also be stubbed
+        mock_binary_path = r"C:\Users\Test\AppData\Local\OpenStudio-3.9.0\bin\openstudio.exe"
+        result = dm._update_single_config_file(
+            "dummy_path.ini", "dummy_hpxml_path", mock_binary_path
+        )
+        assert result is True, "Should return True for backward compatibility"
 
     def test_uninstall_detection_workflow(self):
         """Test uninstall detection workflow."""

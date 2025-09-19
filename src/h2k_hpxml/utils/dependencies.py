@@ -1397,115 +1397,37 @@ class DependencyManager:
 
     def _update_config_file(self, hpxml_path=None, user_only=False):
         """
-        Update configuration files with dependency installation paths.
+        DEPRECATED: Config files no longer store dependency paths.
+        
+        Dependencies are now auto-detected at runtime. This method is kept
+        for backward compatibility but does nothing.
 
         Args:
-            hpxml_path (Path, optional): Path to OpenStudio-HPXML installation.
-                                       If None, uses current default_hpxml_path
-            user_only (bool): If True, only update user config files
+            hpxml_path (Path, optional): Ignored - paths are auto-detected
+            user_only (bool): Ignored - no config updates needed
         """
-        if user_only:
-            return self._update_user_configs_only(hpxml_path)
-        else:
-            return self._update_all_config_files(hpxml_path)
+        click.echo("ℹ️  Configuration update skipped - dependency paths are now auto-detected")
+        return True  # Return success for backward compatibility
 
     def _update_user_configs_only(self, hpxml_path=None):
-        """Update only user configuration files."""
-        from ..config.manager import ConfigManager
-
-        # Find user config files
-        config_manager = ConfigManager(auto_create=False)
-        user_config_dir = config_manager._get_user_config_path()
-
-        if not user_config_dir.exists():
-            click.echo("⚠️  No user configuration directory found")
-            return False
-
-        user_config_files = []
-        for config_name in ["config.ini"]:
-            config_file = user_config_dir / config_name
-            if config_file.exists():
-                user_config_files.append(str(config_file))
-
-        if not user_config_files:
-            click.echo("⚠️  No user configuration files found")
-            return False
-
-        # Detect and prepare paths
-        openstudio_binary = self._detect_openstudio_binary()
-        detected_hpxml_path = self._detect_hpxml_path(hpxml_path)
-
-        updated_files = []
-        failed_files = []
-
-        # Update each user config file
-        for config_path in user_config_files:
-            try:
-                success = self._update_single_config_file(
-                    config_path, detected_hpxml_path, openstudio_binary
-                )
-                if success:
-                    updated_files.append(config_path)
-                else:
-                    failed_files.append(config_path)
-            except Exception as e:
-                click.echo(f"⚠️  Failed to update {config_path}: {e}")
-                failed_files.append(config_path)
-
-        # Report results
-        if updated_files:
-            click.echo(f"✅ Updated {len(updated_files)} user configuration file(s):")
-            for file_path in updated_files:
-                click.echo(f"   • {file_path}")
-
-        if failed_files:
-            click.echo(f"⚠️  Failed to update {len(failed_files)} user configuration file(s):")
-            for file_path in failed_files:
-                click.echo(f"   • {file_path}")
-
-        return len(updated_files) > 0
+        """
+        DEPRECATED: Config files no longer store dependency paths.
+        
+        This method is kept for backward compatibility but does nothing.
+        Dependencies are now auto-detected at runtime.
+        """
+        click.echo("ℹ️  User config updates skipped - dependency paths are auto-detected")
+        return True
 
     def _update_all_config_files(self, hpxml_path=None):
-        """Update all configuration files (project and user)."""
-        # Find all configuration files
-        config_files = self._find_all_config_files()
-        if not config_files:
-            click.echo("⚠️  No configuration files found, skipping config update")
-            return False
-
-        # Detect and prepare paths for all files
-        openstudio_binary = self._detect_openstudio_binary()
-        detected_hpxml_path = self._detect_hpxml_path(hpxml_path)
-
-        updated_files = []
-        failed_files = []
-
-        # Update each configuration file
-        for config_path in config_files:
-            try:
-                success = self._update_single_config_file(
-                    config_path, detected_hpxml_path, openstudio_binary
-                )
-                if success:
-                    updated_files.append(config_path)
-                else:
-                    failed_files.append(config_path)
-            except Exception as e:
-                click.echo(f"⚠️  Failed to update {config_path}: {e}")
-                failed_files.append(config_path)
-
-        # Report results
-        if updated_files:
-            click.echo(f"✅ Updated {len(updated_files)} configuration file(s):")
-            for file_path in updated_files:
-                click.echo(f"   • {file_path}")
-
-        if failed_files:
-            click.echo(f"⚠️  Failed to update {len(failed_files)} configuration file(s):")
-            for file_path in failed_files:
-                click.echo(f"   • {file_path}")
-
-        return len(updated_files) > 0
+        """
+        DEPRECATED: Config files no longer store dependency paths.
+        
+        This method is kept for backward compatibility but does nothing.
+        Dependencies are now auto-detected at runtime.
+        """
+        click.echo("ℹ️  Config file updates skipped - dependency paths are auto-detected")
+        return True
 
     def _update_user_config_file(self, user_config_file):
         """Update a specific user config file with detected paths."""
@@ -1604,66 +1526,14 @@ class DependencyManager:
         return None
 
     def _update_single_config_file(self, config_path, detected_hpxml_path, openstudio_binary):
-        """Update a single configuration file with detected paths."""
-        try:
-            # Read current config
-            config = configparser.ConfigParser()
-            config.read(config_path)
-
-            # Ensure paths section exists
-            if not config.has_section("paths"):
-                config.add_section("paths")
-
-            # Update OpenStudio-HPXML path
-            if detected_hpxml_path:
-                path_str = str(detected_hpxml_path).replace("\\", "/")
-                if not path_str.endswith("/"):
-                    path_str += "/"
-                config.set("paths", "hpxml_os_path", path_str)
-                click.echo(f"   Updated OpenStudio-HPXML path: {path_str}")
-            else:
-                click.echo("   ⚠️  OpenStudio-HPXML not found - keeping existing setting")
-
-            # Update OpenStudio binary path
-            if openstudio_binary:
-                config.set("paths", "openstudio_binary", openstudio_binary)
-                click.echo(f"   Updated OpenStudio binary path: {openstudio_binary}")
-            else:
-                # Clear the setting if not found
-                config.set("paths", "openstudio_binary", "")
-                click.echo("   ⚠️  OpenStudio binary not found - cleared setting")
-
-            # Update EnergyPlus binary path (derived from OpenStudio installation)
-            energyplus_binary = None
-            if openstudio_binary:
-                try:
-                    from pathlib import Path
-                    # EnergyPlus is bundled in OpenStudio at /EnergyPlus/energyplus
-                    openstudio_base = Path(openstudio_binary).parent.parent  # Remove /bin/openstudio
-                    energyplus_path = openstudio_base / "EnergyPlus" / "energyplus"
-                    if energyplus_path.exists():
-                        energyplus_binary = str(energyplus_path).replace("\\", "/")
-                        config.set("paths", "energyplus_binary", energyplus_binary)
-                        click.echo(f"   Updated EnergyPlus binary path: {energyplus_binary}")
-                    else:
-                        config.set("paths", "energyplus_binary", "")
-                        click.echo("   ⚠️  EnergyPlus binary not found in OpenStudio installation")
-                except Exception as e:
-                    config.set("paths", "energyplus_binary", "")
-                    click.echo(f"   ⚠️  Could not detect EnergyPlus path: {e}")
-            else:
-                config.set("paths", "energyplus_binary", "")
-                click.echo("   ⚠️  EnergyPlus binary path cleared (OpenStudio not found)")
-
-            # Write updated config
-            with open(config_path, "w") as config_file:
-                config.write(config_file)
-
-            return True
-
-        except Exception as e:
-            click.echo(f"   ⚠️  Error updating {config_path}: {e}")
-            return False
+        """
+        DEPRECATED: Config files no longer store dependency paths.
+        
+        This method is kept for backward compatibility in tests but does nothing.
+        Dependencies are now auto-detected at runtime.
+        """
+        click.echo(f"ℹ️  Skipping config update for {config_path} - dependency paths are auto-detected")
+        return True  # Return success for backward compatibility
 
     def _find_config_file(self):
         """
@@ -2381,6 +2251,207 @@ def validate_dependencies(
         return manager.validate_all()
 
 
+def test_quick_installation():
+    """Quick installation test - basic verification."""
+    import subprocess
+
+    click.echo("🧪 H2K-HPXML Quick Installation Test")
+    click.echo("=" * 40)
+
+    tests = []
+
+    # Test 1: Package import
+    try:
+        import h2k_hpxml
+        tests.append(("Package Import", True, "✅"))
+    except ImportError as e:
+        tests.append(("Package Import", False, f"❌ {e}"))
+
+    # Test 2: CLI tools
+    try:
+        from ..cli.convert import main as convert_main
+        tests.append(("CLI Tools", True, "✅"))
+    except ImportError as e:
+        tests.append(("CLI Tools", False, f"❌ {e}"))
+
+    # Test 3: Dependencies
+    try:
+        manager = DependencyManager()
+        deps_ok = manager.check_only()
+        if deps_ok:
+            tests.append(("Dependencies", True, "✅"))
+        else:
+            tests.append(("Dependencies", False, "❌ Missing dependencies"))
+    except Exception as e:
+        tests.append(("Dependencies", False, f"❌ {e}"))
+
+    # Test 4: Configuration
+    try:
+        from ..config.manager import ConfigManager
+        config = ConfigManager()
+        if config.openstudio_binary and config.hpxml_os_path:
+            tests.append(("Configuration", True, "✅"))
+        else:
+            tests.append(("Configuration", False, "❌ Missing paths"))
+    except Exception as e:
+        tests.append(("Configuration", False, f"❌ {e}"))
+
+    # Report results
+    all_passed = True
+    for test_name, passed, message in tests:
+        click.echo(f"{test_name:15}: {message}")
+        if not passed:
+            all_passed = False
+
+    click.echo("\n" + "=" * 40)
+    if all_passed:
+        click.echo("🎉 All quick tests passed!")
+        return True
+    else:
+        click.echo("⚠️  Some tests failed. Run 'h2k-deps --setup' or 'h2k-deps --auto-install'")
+        return False
+
+
+def test_smart_installation():
+    """Smart installation test - detects uv vs pip automatically."""
+    import subprocess
+    import shutil
+    from pathlib import Path
+
+    click.echo("🧪 H2K-HPXML Smart Installation Test")
+    click.echo("=" * 40)
+
+    # Detect runner
+    runner = "python"
+
+    # Check if uv is available
+    if shutil.which("uv"):
+        try:
+            # Check if we can run h2k-hpxml with uv
+            result = subprocess.run(["uv", "run", "python", "-c", "import h2k_hpxml"],
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                runner = "uv"
+        except:
+            pass
+
+    click.echo(f"🔍 Detected runner: {runner}")
+
+    # Run quick test first
+    if not test_quick_installation():
+        return False
+
+    # Test CLI commands with detected runner
+    click.echo("\n📋 Testing CLI Commands")
+    click.echo("-" * 20)
+
+    commands = [
+        ("h2k2hpxml --help", "Main CLI help"),
+        ("h2k-deps --check-only", "Dependencies check"),
+        ("h2k-resilience --help", "Resilience CLI help")
+    ]
+
+    all_passed = True
+    for cmd, description in commands:
+        try:
+            if runner == "uv" and not cmd.startswith("python"):
+                full_cmd = ["uv", "run"] + cmd.split()
+            else:
+                full_cmd = cmd.split()
+
+            result = subprocess.run(full_cmd, capture_output=True, text=True, timeout=30)
+            if result.returncode == 0:
+                click.echo(f"✅ {description}")
+            else:
+                click.echo(f"❌ {description} (exit code {result.returncode})")
+                all_passed = False
+        except Exception as e:
+            click.echo(f"❌ {description} ({e})")
+            all_passed = False
+
+    click.echo("\n" + "=" * 40)
+    if all_passed:
+        click.echo("🎉 Smart installation test passed!")
+        click.echo(f"📦 Using {runner} runner")
+        return True
+    else:
+        click.echo("⚠️  Some CLI tests failed.")
+        return False
+
+
+def test_comprehensive_installation():
+    """Comprehensive installation test with actual conversion."""
+    import tempfile
+    import shutil
+    from pathlib import Path
+
+    click.echo("🧪 H2K-HPXML Comprehensive Installation Test")
+    click.echo("=" * 50)
+
+    # Run smart test first
+    if not test_smart_installation():
+        click.echo("❌ Smart test failed, skipping conversion test")
+        return False
+
+    click.echo("\n🔄 Testing H2K to HPXML Conversion")
+    click.echo("-" * 30)
+
+    try:
+        # Get example files
+        from .. import get_example_files
+        examples = get_example_files()
+
+        if not examples:
+            click.echo("❌ No example files found")
+            return False
+
+        # Use first example
+        example_file = examples[0]
+        click.echo(f"📁 Using example: {example_file.name}")
+
+        # Create temp directory for test
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            output_file = temp_path / "test_output.xml"
+
+            # Test conversion using API
+            from ..api import convert_file
+
+            result = convert_file(
+                h2k_file=str(example_file),
+                output_file=str(output_file),
+                run_simulation=False  # Skip simulation for speed
+            )
+
+            if result.get("success", False):
+                click.echo("✅ H2K to HPXML conversion successful")
+
+                # Check output file
+                if output_file.exists() and output_file.stat().st_size > 0:
+                    size_kb = output_file.stat().st_size // 1024
+                    click.echo(f"✅ Output HPXML file created ({size_kb} KB)")
+
+                    # Basic validation - check if it's valid XML
+                    try:
+                        import xml.etree.ElementTree as ET
+                        ET.parse(output_file)
+                        click.echo("✅ Output XML is well-formed")
+                        return True
+                    except ET.ParseError as e:
+                        click.echo(f"❌ Output XML is malformed: {e}")
+                        return False
+                else:
+                    click.echo("❌ Output file not created or empty")
+                    return False
+            else:
+                click.echo(f"❌ Conversion failed: {result.get('error', 'Unknown error')}")
+                return False
+
+    except Exception as e:
+        click.echo(f"❌ Comprehensive test failed: {e}")
+        return False
+
+
 def main():
     """Main entry point for standalone dependency checking."""
     import os
@@ -2402,6 +2473,9 @@ Examples:
   %(prog)s --update-config        # Update all config files with detected paths
   %(prog)s --update-config --global   # Update user config files only
   %(prog)s --uninstall            # Uninstall OpenStudio and OpenStudio-HPXML
+  %(prog)s --test-quick            # Quick installation verification
+  %(prog)s --test-installation     # Smart installation test (auto-detects uv vs pip)
+  %(prog)s --test-comprehensive    # Comprehensive test with conversion
         """,
     )
 
@@ -2453,6 +2527,21 @@ Examples:
         action="store_true",
         help="Automatically install missing dependencies without prompts"
     )
+    parser.add_argument(
+        "--test-installation",
+        action="store_true",
+        help="Run smart installation test (auto-detects uv vs pip)"
+    )
+    parser.add_argument(
+        "--test-quick",
+        action="store_true",
+        help="Run quick installation verification"
+    )
+    parser.add_argument(
+        "--test-comprehensive",
+        action="store_true",
+        help="Run comprehensive installation test with conversion"
+    )
 
     args = parser.parse_args()
 
@@ -2468,6 +2557,20 @@ Examples:
         manager = DependencyManager(interactive=False)
         manager._offer_windows_path_setup()
         return
+
+    # Handle test options
+    elif args.test_quick:
+        success = test_quick_installation()
+        import sys
+        sys.exit(0 if success else 1)
+    elif args.test_installation:
+        success = test_smart_installation()
+        import sys
+        sys.exit(0 if success else 1)
+    elif args.test_comprehensive:
+        success = test_comprehensive_installation()
+        import sys
+        sys.exit(0 if success else 1)
 
     # Handle setup option
     elif args.setup:

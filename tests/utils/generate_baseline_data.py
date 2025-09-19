@@ -7,8 +7,8 @@ from datetime import datetime
 
 import pytest
 
-# Add project root to Python path so we can import tests.utils
-project_root = os.path.dirname(os.path.dirname(__file__))  # Go up one level from tools/
+# Add project root to Python path so we can import h2k_hpxml
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # Go up two levels from tests/utils/
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
@@ -17,8 +17,9 @@ src_path = os.path.join(project_root, "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
-from tests.utils import clean_for_baseline_generation  # noqa: E402
-from tests.utils import extract_annual_energy_data  # noqa: E402
+# Import from current directory (tests.utils)
+from . import clean_for_baseline_generation  # noqa: E402
+from . import extract_annual_energy_data  # noqa: E402
 
 
 @pytest.mark.baseline_generation

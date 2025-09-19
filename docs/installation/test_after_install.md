@@ -15,19 +15,14 @@ Follow these steps to verify everything is working correctly.
 ## Method 1: Smart Auto-Detection Test 🤖 (Recommended)
 
 ```bash
-# Download and run the smart test (auto-detects uv vs pip)
-curl -O https://raw.githubusercontent.com/canmet-energy/h2k-hpxml/main/scripts/installation/smart_test.py
-python smart_test.py
+# For uv installations
+uv run h2k-deps --test-installation
+
+# For pip installations
+h2k-deps --test-installation
 ```
 
-**OR** quick one-liner:
-
-```bash
-# For uv installations
-uv run python -c "import subprocess; result = subprocess.run(['uv', 'run', 'h2k-deps', '--check-only'], capture_output=True); print('✅ Working!' if result.returncode == 0 else '❌ Run: uv run h2k-deps --setup')"
-
-# For pip installations  
-python -c "import subprocess; result = subprocess.run(['h2k-deps', '--check-only'], capture_output=True); print('✅ Working!' if result.returncode == 0 else '❌ Run: h2k-deps --setup')"
+This command automatically detects whether you're using uv or pip and runs appropriate tests.
 ```
 
 ## Method 2: Step-by-Step Manual Test 📋
@@ -67,20 +62,24 @@ h2k2hpxml your_file.h2k --output test.xml --do-not-sim
 uv run h2k2hpxml your_file.h2k --output test.xml --do-not-sim
 ```
 
-## Method 3: Automated Test Scripts 🤖
+## Method 3: Alternative Test Commands 🧪
 
-### Quick Test (2 minutes)
+### Quick Test (30 seconds)
 ```bash
-# Copy this script and save as quick_test.py
-curl -O https://raw.githubusercontent.com/canmet-energy/h2k-hpxml/main/scripts/installation/quick_test.py
-python quick_test.py
+# For uv installations
+uv run h2k-deps --test-quick
+
+# For pip installations
+h2k-deps --test-quick
 ```
 
 ### Comprehensive Test (5-10 minutes)
 ```bash
-# Download full test script
-curl -O https://raw.githubusercontent.com/canmet-energy/h2k-hpxml/main/scripts/installation/test_installation.py
-python test_installation.py
+# For uv installations
+uv run h2k-deps --test-comprehensive
+
+# For pip installations
+h2k-deps --test-comprehensive
 ```
 
 ## Expected Success Output

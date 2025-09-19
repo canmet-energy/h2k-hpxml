@@ -221,7 +221,7 @@ def main():
     print("\nManual testing:")
     print("  uv run h2k2hpxml --demo")
     print("\nCleanup:")
-    print("  python scripts/test_demo.py --cleanup")
+    print("  python tests/utils/demo_test_automation.py --cleanup")
     
     return 0 if success else 1
 

@@ -56,9 +56,8 @@ uv run h2k-deps --auto-install
 # Quick test
 uv run h2k-deps --check-only
 
-# Full test (download and run)
-curl -O https://raw.githubusercontent.com/canmet-energy/h2k-hpxml/main/scripts/installation/smart_test.py
-uv run python smart_test.py
+# Full test (integrated command)
+uv run h2k-deps --test-installation
 ```
 
 ## Basic Usage Examples

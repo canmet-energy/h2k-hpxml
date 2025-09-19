@@ -51,7 +51,7 @@ pytest -n 4                          # Use 4 parallel workers
 pytest tests/integration/test_regression.py -n auto  # Parallel regression tests only
 
 # Generate baseline data (alternative method)
-uv run python tools/generate_baseline_data.py  # Direct script execution
+uv run python tests/utils/generate_baseline_data.py  # Direct script execution
 
 # Clean up cache files and temporary data (cross-platform)
 uv run python tools/cleanup.py              # Removes __pycache__, tool caches, temp files
@@ -60,9 +60,9 @@ uv run python tools/cleanup.py              # Removes __pycache__, tool caches, 
 pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translation_modes -v
 
 # Test interactive demo (cross-platform)
-python3 scripts/test_demo.py           # Cross-platform demo test with scripted input
-python3 scripts/test_demo.py --cleanup # Clean up demo test files
-pytest tests/integration/test_demo.py  # Pytest integration tests for demo
+python3 tests/utils/demo_test_automation.py           # Cross-platform demo test with scripted input
+python3 tests/utils/demo_test_automation.py --cleanup # Clean up demo test files
+pytest tests/integration/test_demo.py                 # Pytest integration tests for demo
 ```
 
 ### Code Quality
@@ -159,7 +159,7 @@ The project uses selective type hints across modules. Mypy is configured with re
 - **Regression tests**: Compare against baseline "golden files" 
 - **Resilience tests**: CLI functionality testing
 - Use `--run-baseline` flag to regenerate golden files (use with caution)
-- Alternative: `uv run python tools/generate_baseline_data.py` for direct baseline generation
+- Alternative: `uv run python tests/utils/generate_baseline_data.py` for direct baseline generation
 
 ### Empty Files to Keep
 - `src/h2k_hpxml/analysis/__init__.py` - Required for package structure (analysis/annual.py is imported)
