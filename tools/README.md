@@ -4,12 +4,12 @@ This directory contains various utilities and scripts for the h2k-hpxml project.
 
 ## Scripts
 
-### `generate_baseline_data.py` (moved to tests/utils/)
+### Baseline Data Generation (moved to tests/utils/)
 **Purpose**: Generate baseline "golden files" for regression testing
 **Usage**: `uv run python tests/utils/generate_baseline_data.py`
 **Warning**: Overwrites existing baseline files - use with caution
 **Alternative**: `pytest --run-baseline`
-**Note**: Moved to tests/utils/ since it's a test utility
+**Note**: Moved to `tests/utils/generate_baseline_data.py` since it's a test utility
 
 ### Test Scripts (`test_scripts/`)
 Development and debugging scripts created during implementation:

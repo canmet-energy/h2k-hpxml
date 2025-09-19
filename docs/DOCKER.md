@@ -1,23 +1,95 @@
 # Docker Guide for H2K-HPXML
 
-The easiest way to use h2k-hpxml without installing Python, OpenStudio, or other dependencies is through Docker.
+The easiest way to use h2k-hpxml without installing Python, OpenStudio, or other dependencies is through Docker. This approach works identically on Windows, Mac, and Linux with zero configuration required.
+
+## Why Use Docker?
+
+- ✅ **Zero Setup**: No Python, OpenStudio, or dependency installation required
+- ✅ **Universal**: Works identically on Windows, Mac, and Linux
+- ✅ **Consistent**: Same environment and results every time
+- ✅ **Isolated**: No conflicts with existing software
+- ✅ **Version-Controlled**: Reproducible builds with specific tool versions
+- ✅ **CI/CD Ready**: Easy integration into automated workflows
 
 ## Quick Start with Docker
 
 ### Prerequisites
-1. **Install Docker** on your machine ([Docker Desktop](https://www.docker.com/products/docker-desktop/))
+
+#### 1. Install Docker Desktop
+
+**Windows:**
+1. Download [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
+2. Run installer as Administrator
+3. Enable WSL 2 integration if prompted
+4. Restart computer when installation completes
+
+**Mac:**
+1. Download [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/)
+2. Drag Docker.app to Applications folder
+3. Launch Docker Desktop and follow setup prompts
+
+**Linux:**
+```bash
+# Ubuntu/Debian
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+#### 2. Verify Docker Installation
+
+```bash
+docker --version
+docker run --rm hello-world
+```
 
 ### Basic Usage
 
+#### First Test
+```bash
+# Test the container
+docker run --rm canmet/h2k-hpxml h2k2hpxml --help
+
+# Should show help text - confirms Docker and container work correctly
+```
+
+#### Convert Your Files
+
+**Linux/Mac:**
 ```bash
 # Convert H2K file in your current directory
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/your_file.h2k
 
 # Convert entire folder (parallel processing)
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/
+```
 
-# Resilience analysis
+**Windows PowerShell:**
+```powershell
+# Convert H2K file in current directory
+docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml h2k2hpxml /data/your_file.h2k
+
+# Convert entire folder
+docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml h2k2hpxml /data/
+```
+
+**Windows Command Prompt:**
+```cmd
+# Convert H2K file in current directory
+docker run --rm -v "%cd%:/data" canmet/h2k-hpxml h2k2hpxml /data/your_file.h2k
+
+# Convert entire folder
+docker run --rm -v "%cd%:/data" canmet/h2k-hpxml h2k2hpxml /data/
+```
+
+#### Resilience Analysis
+```bash
+# Linux/Mac
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-resilience /data/your_file.h2k
+
+# Windows PowerShell
+docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml h2k-resilience /data/your_file.h2k
 ```
 
 ## Docker Usage Examples
@@ -78,12 +150,56 @@ The Docker container automatically:
 - Creates configuration files in `/data/.h2k-config/` (preserved between runs)
 - Creates output directories as needed
 
+## Docker Desktop Configuration
+
+### Memory and CPU Settings
+
+For large batch processing, optimize Docker Desktop settings:
+
+**Windows/Mac (Docker Desktop):**
+1. Open Docker Desktop
+2. Go to Settings → Resources
+3. Recommended settings:
+   - **Memory**: 8GB+ (minimum 4GB)
+   - **CPUs**: Use all available cores
+   - **Disk Space**: 20GB+ for processing large batches
+
+### Windows-Specific Setup
+
+#### Enable WSL 2 (Recommended)
+```powershell
+# Enable WSL and Virtual Machine Platform
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-for-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+# Restart computer, then set WSL 2 as default
+wsl --set-default-version 2
+```
+
+#### File Sharing Configuration
+1. Open Docker Desktop → Settings → Resources → File Sharing
+2. Add drives you want to access (C:, D:, etc.)
+3. Apply & Restart
+
+#### Performance Tips for Windows
+```powershell
+# Use WSL 2 paths for better performance
+docker run --rm -v "\\wsl$\Ubuntu\home\user\h2k_files:/data" canmet/h2k-hpxml h2k2hpxml /data/
+
+# Or map network drive for easier access
+net use Z: \\wsl$\Ubuntu\home\user\h2k_files
+docker run --rm -v "Z:/:/data" canmet/h2k-hpxml h2k2hpxml /data/
+```
+
 ## Advantages of Docker Approach
 - ✅ No local Python/OpenStudio installation required
 - ✅ Consistent environment across Windows, Mac, and Linux
 - ✅ Automatic dependency management
 - ✅ Version-pinned for reproducibility
 - ✅ Easy to integrate into CI/CD pipelines
+- ✅ Instant updates with `docker pull`
+- ✅ No PATH or environment variable configuration
+- ✅ Portable - works on any machine with Docker
 
 ## Advanced Docker Usage
 
