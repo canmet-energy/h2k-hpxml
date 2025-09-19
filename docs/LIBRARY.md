@@ -23,23 +23,23 @@ Complete guide for using H2K-HPXML as a Python library in your research and anal
 # Create new project with uv (recommended)
 uv init my-energy-analysis
 cd my-energy-analysis
-uv add h2k-hpxml pandas numpy matplotlib
+uv add git+https://github.com/canmet-energy/h2k-hpxml.git@refactor pandas numpy matplotlib
 
 # Or add to existing project
-uv add h2k-hpxml
+uv add git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Traditional pip installation
-pip install h2k-hpxml
+pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```
 
 ### For Jupyter Notebooks
 
 ```bash
 # Install in notebook environment
-%pip install h2k-hpxml
+%pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Or with uv
-%pip install --upgrade-strategy eager h2k-hpxml
+%pip install --upgrade-strategy eager git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```
 
 ### Setup Dependencies

@@ -37,7 +37,7 @@ pip install uv
 
 **Global Installation (commands available everywhere):**
 ```bash
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```
 
 **Project Installation:**
@@ -45,10 +45,10 @@ uv tool install h2k-hpxml
 # Create new project
 uv init my-h2k-project
 cd my-h2k-project
-uv add h2k-hpxml
+uv add git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Or add to existing project
-uv add h2k-hpxml
+uv add git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```
 
 ### 3. Setup Dependencies
@@ -79,10 +79,10 @@ h2k2hpxml your_file.h2k
 
 ```bash
 # Install globally
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Update
-uv tool upgrade h2k-hpxml
+uv tool upgrade git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Uninstall
 uv tool uninstall h2k-hpxml
@@ -100,7 +100,7 @@ source h2k-env/bin/activate  # Linux/Mac
 h2k-env\Scripts\activate     # Windows
 
 # Install package
-uv pip install h2k-hpxml
+uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Use commands (only when environment is active)
 h2k2hpxml --help
@@ -118,7 +118,7 @@ source h2k-env/bin/activate  # Linux/Mac
 h2k-env\Scripts\activate     # Windows
 
 # Install package
-pip install h2k-hpxml
+pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```
 
 ### Method 4: Docker (Zero Setup)
@@ -156,7 +156,7 @@ docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
 
 3. **Install H2K-HPXML**:
    ```powershell
-   uv tool install h2k-hpxml
+   uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
    ```
 
 4. **Setup dependencies** (automatic OpenStudio installation):
@@ -211,7 +211,7 @@ h2k-deps --add-to-path
 
 2. **Install H2K-HPXML**:
    ```bash
-   uv tool install h2k-hpxml
+   uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
    ```
 
 3. **Setup dependencies**:
@@ -271,7 +271,7 @@ See the complete [Docker Guide](DOCKER.md) for full instructions.
 
 2. **Install H2K-HPXML**:
    ```bash
-   uv tool install h2k-hpxml
+   uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
    ```
 
 3. **Manual dependency setup** (required):
@@ -488,7 +488,7 @@ uv tool list
 
 # Reinstall if needed
 uv tool uninstall h2k-hpxml
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Check PATH
 echo $PATH | grep -i uv
@@ -544,11 +544,11 @@ uv venv --python 3.12
 #### 5. Network/Download issues
 
 ```bash
-# Use alternative mirrors
-pip install -i https://pypi.org/simple/ h2k-hpxml
+# Install from GitHub repository
+pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Or download manually and install offline
-pip install h2k-hpxml --no-index --find-links /path/to/wheels/
+pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor --no-index --find-links /path/to/wheels/
 ```
 
 ### Platform-Specific Issues
@@ -685,12 +685,12 @@ For environments without internet access:
 
 1. **Download packages** on connected machine:
    ```bash
-   pip download h2k-hpxml -d packages/
+   pip download git+https://github.com/canmet-energy/h2k-hpxml.git@refactor -d packages/
    ```
 
 2. **Transfer to offline machine** and install:
    ```bash
-   pip install h2k-hpxml --no-index --find-links packages/
+   pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor --no-index --find-links packages/
    ```
 
 3. **Manual dependency setup**:
@@ -703,13 +703,13 @@ For environments without internet access:
 # Using uv
 uv venv h2k-env --python 3.12
 source h2k-env/bin/activate
-uv pip install h2k-hpxml
+uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Using pyenv + virtualenv
 pyenv install 3.12.0
 pyenv virtualenv 3.12.0 h2k-env
 pyenv activate h2k-env
-pip install h2k-hpxml
+pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```
 
 ## Next Steps

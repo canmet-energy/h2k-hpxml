@@ -32,7 +32,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 ```bash
 # Global installation (commands available everywhere)
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Setup dependencies automatically (OpenStudio, EnergyPlus)
 h2k-deps --auto-install

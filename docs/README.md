@@ -16,7 +16,7 @@ The quickest way to learn H2K-HPXML:
 
 ```bash
 # Install and run demo
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 h2k-demo
 ```
 
@@ -129,7 +129,7 @@ The interactive demo guides you through the complete conversion process with rea
 
 ```bash
 # Installation (recommended method)
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 h2k-deps --auto-install
 
 # Basic usage

@@ -27,7 +27,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh  # Linux
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
 
 # Install H2K-HPXML globally
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Setup dependencies automatically
 h2k-deps --auto-install
@@ -409,7 +409,7 @@ which h2k2hpxml  # Should show path
 
 # If not found, reinstall
 uv tool uninstall h2k-hpxml
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Alternative: use Python module syntax
 python -m h2k_hpxml.cli.convert input.h2k
@@ -434,7 +434,7 @@ python -c "import h2k_hpxml; print('OK')"
 
 # Reinstall package
 uv tool uninstall h2k-hpxml
-uv tool install h2k-hpxml
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```
 
 ### Getting Help
