@@ -27,14 +27,18 @@
 				"openai.chatgpt"
 			],
 			"settings": {
+				// Copies ~/.gitconfig (and relevant includes) into the container
+				"dev.containers.copyGitConfig": true,
+				// Persists host credentials (e.g., Git Credential Manager) for Git in the container
+				"dev.containers.persistGitCredentials": true,
 				"files.associations": {
 					"*.h2k": "xml",
 					"*.hpxml": "xml",
 					"*.sql": "sqlite"
 				},
-				"python.terminal.activateEnvironment": false,
+				"python.terminal.activateEnvironment": true,
 				"python.defaultInterpreterPath": "./.venv/bin/python",
-				"python.terminal.activateEnvInCurrentTerminal": false,
+				"python.terminal.activateEnvInCurrentTerminal": true,
 				"python.terminal.executeInFileDir": false,
 				"python.formatting.provider": "black",
 				"python.linting.enabled": true,
@@ -47,17 +51,9 @@
 					"bash": {
 						"path": "bash",
 						"icon": "terminal-bash"
-					},
-					"uv-shell": {
-						"path": "bash",
-						"icon": "terminal-bash",
-						"args": [],
-						"env": {
-							"UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
-						}
 					}
 				},
-				"terminal.integrated.defaultProfile.linux": "uv-shell"
+				"terminal.integrated.defaultProfile.linux": "bash"
 			}
 		}
 	},
@@ -97,7 +93,7 @@
 		// Docker socket for Docker-in-Docker support
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
-	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh; uv venv --clear ; uv pip install -e '.[dev]'",
+	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh; uv venv --clear ; uv pip install -e '.[dev]' ; uv run h2k-deps --install-quiet && echo '# Auto-activate h2k-hpxml venv' >> ~/.bashrc && echo 'if [ -f \"/workspaces/h2k-hpxml/.venv/bin/activate\" ] && [ -z \"$VIRTUAL_ENV\" ]; then' >> ~/.bashrc && echo '    source \"/workspaces/h2k-hpxml/.venv/bin/activate\"' >> ~/.bashrc && echo '    echo \"🐍 Virtual environment activated: \\$(python --version)\"' >> ~/.bashrc && echo 'fi' >> ~/.bashrc",
 	"containerUser": "vscode",
 	"remoteUser": "vscode"
 }

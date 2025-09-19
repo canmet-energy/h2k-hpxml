@@ -90,5 +90,6 @@
                 "UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
             }
         }
-    }
+    },
+    "python.testing.unittestEnabled": false
 }
