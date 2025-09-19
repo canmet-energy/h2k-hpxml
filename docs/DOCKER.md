@@ -2,10 +2,13 @@
 
 The easiest way to use h2k-hpxml without installing Python, OpenStudio, or other dependencies is through Docker. This approach works identically on Windows, Mac, and Linux with zero configuration required.
 
+> 🍎 **macOS Users**: Docker is the **recommended** method for macOS since automatic dependency installation is not currently supported on macOS.
+
 ## Why Use Docker?
 
 - ✅ **Zero Setup**: No Python, OpenStudio, or dependency installation required
 - ✅ **Universal**: Works identically on Windows, Mac, and Linux
+- ✅ **macOS Compatible**: Only method currently supported for automatic setup on macOS
 - ✅ **Consistent**: Same environment and results every time
 - ✅ **Isolated**: No conflicts with existing software
 - ✅ **Version-Controlled**: Reproducible builds with specific tool versions

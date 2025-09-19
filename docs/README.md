@@ -25,9 +25,9 @@ The interactive demo guides you through the complete conversion process with rea
 ## 📚 Documentation by Audience
 
 ### 🔧 **End Users** (Building Analysts, Energy Modellers)
-- **[Installation Guide](INSTALLATION.md)** - Setup for Windows, Mac, Linux
+- **[Installation Guide](INSTALLATION.md)** - Setup for Windows, Linux (macOS: use Docker)
 - **[User Guide](USER_GUIDE.md)** - Complete CLI usage guide
-- **[Docker Guide](DOCKER.md)** - Zero-installation usage
+- **[Docker Guide](DOCKER.md)** - Zero-installation usage (required for macOS)
 - **[Troubleshooting](#troubleshooting)** - Common issues and solutions
 
 ### 🐍 **Python Developers** (Data Scientists, Researchers)
@@ -48,9 +48,10 @@ The interactive demo guides you through the complete conversion process with rea
 ## 📖 Core Documentation
 
 ### Installation & Setup
-- **[Installation Guide](INSTALLATION.md)** - Comprehensive setup for all platforms
-  - Quick start with uv (recommended)
-  - Platform-specific instructions (Windows, Linux, macOS)
+- **[Installation Guide](INSTALLATION.md)** - Comprehensive setup guide
+  - Quick start with uv (Windows, Linux)
+  - Platform-specific instructions
+  - macOS: Docker required (no automatic dependency support)
   - Dependency management with h2k-deps
   - Installation verification and testing
   - Troubleshooting common issues

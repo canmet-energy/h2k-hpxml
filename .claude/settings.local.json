@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(timeout:*)",
-      "Bash(PYTHONPATH=/workspaces/h2k-hpxml/src uv run python3 -c \"\nfrom h2k_hpxml.config.manager import ConfigManager\nprint(''Testing dependency detection consistency after cleanup...'')\nfor i in range(2):\n    config = ConfigManager()\n    print(f''Run {i+1}: OpenStudio binary found:'', bool(config.openstudio_binary and config.openstudio_binary != ''openstudio''))\n    print(f''Run {i+1}: HPXML path found:'', bool(config.hpxml_os_path))\n\")"
+      "WebSearch",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": [],

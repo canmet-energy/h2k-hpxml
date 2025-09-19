@@ -12,10 +12,16 @@ This tool translates Hot2000 (H2K) building energy models to HPXML format, enabl
 
 ### 1. Install uv (fast Python package manager)
 
-**Linux/Mac:**
+**Linux:**
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+
+**Mac:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+> ⚠️ **macOS Users**: Automatic dependency installation is not currently supported. Use [Docker instead](docs/DOCKER.md) for zero-setup usage.
 
 **Windows PowerShell:**
 ```powershell
@@ -63,7 +69,7 @@ h2k2hpxml --help
 ## Alternative Installation Methods
 
 ### 🐳 Docker (Zero Setup)
-Perfect if you don't want to install anything locally:
+Perfect if you don't want to install anything locally, or **required for macOS users**:
 ```bash
 # Convert a file using Docker
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k

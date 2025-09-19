@@ -14,11 +14,15 @@ Complete guide for using the H2K-HPXML command-line tools.
 
 ## Installation
 
-See the [Installation Guide](INSTALLATION.md) for detailed setup instructions. Quick start:
+See the [Installation Guide](INSTALLATION.md) for detailed setup instructions.
+
+> 🍎 **macOS Users**: Use [Docker](DOCKER.md) instead - automatic dependency installation is not supported on macOS.
+
+Quick start (Windows/Linux):
 
 ```bash
 # Install uv package manager
-curl -LsSf https://astral.sh/uv/install.sh | sh  # Linux/Mac
+curl -LsSf https://astral.sh/uv/install.sh | sh  # Linux
 # OR
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
 

@@ -249,11 +249,19 @@ uv venv --python 3.12
 
 ### macOS Installation
 
-#### Prerequisites
-- **macOS 11+** (Big Sur or later)
-- **Xcode Command Line Tools**: `xcode-select --install`
+> ⚠️ **Important**: Automatic dependency installation is **not currently supported** on macOS. OpenStudio and EnergyPlus must be installed manually, or use Docker for zero-setup usage.
 
-#### Step-by-Step
+#### Recommended: Use Docker (Zero Setup)
+
+```bash
+# Install Docker Desktop for Mac
+# Then use H2K-HPXML via Docker
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+```
+
+See the complete [Docker Guide](DOCKER.md) for full instructions.
+
+#### Manual Installation (Advanced Users)
 
 1. **Install uv**:
    ```bash
@@ -266,31 +274,43 @@ uv venv --python 3.12
    uv tool install h2k-hpxml
    ```
 
-3. **Setup dependencies**:
-   ```bash
-   h2k-deps --auto-install
-   ```
+3. **Manual dependency setup** (required):
+   - Download and install [OpenStudio 3.9.0](https://github.com/NREL/OpenStudio/releases/tag/v3.9.0) for macOS
+   - Download [OpenStudio-HPXML v1.9.1](https://github.com/NREL/OpenStudio-HPXML/releases/tag/v1.9.1)
+   - Configure paths manually:
+     ```bash
+     h2k-deps --setup
+     # Follow prompts to specify custom paths
+     ```
 
 4. **Test installation**:
    ```bash
-   h2k-deps --test-installation
-   h2k-demo
+   h2k-deps --check-only  # Verify dependencies
+   h2k-demo              # If dependencies are configured
    ```
 
 #### macOS Troubleshooting
 
-**Gatekeeper issues:**
+**Automatic installation not supported:**
 ```bash
-# If OpenStudio download is blocked
-sudo spctl --master-disable  # Temporarily disable Gatekeeper
-h2k-deps --auto-install
-sudo spctl --master-enable   # Re-enable Gatekeeper
+# h2k-deps --auto-install will show unsupported platform error
+# Use Docker instead for easiest setup
+docker run --rm canmet/h2k-hpxml h2k2hpxml --help
 ```
 
-**Permission issues:**
+**Manual OpenStudio setup:**
 ```bash
-# Ensure user has write permissions
-sudo chown -R $(whoami) /usr/local/openstudio-3.9.0
+# After manual OpenStudio installation, check if detected
+h2k-deps --check-only
+
+# If not detected, use interactive setup
+h2k-deps --setup
+```
+
+**Gatekeeper issues with manual installation:**
+```bash
+# Allow OpenStudio to run if blocked
+sudo xattr -rd com.apple.quarantine /path/to/openstudio-3.9.0/
 ```
 
 ## Dependency Management
@@ -343,9 +363,10 @@ sudo dpkg -i OpenStudio-3.9.0+bb9481519e-Ubuntu-20.04-x86_64.deb
 
 **macOS:**
 ```bash
-# Download and install .dmg from GitHub releases
-curl -LO https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+bb9481519e-Darwin-x86_64.dmg
-# Mount and install via GUI
+# Download .dmg from GitHub releases (manual installation required)
+# Visit: https://github.com/NREL/OpenStudio/releases/tag/v3.9.0
+# Look for macOS .dmg file in Assets section
+# Install via GUI, then configure with h2k-deps --setup
 ```
 
 #### OpenStudio-HPXML
@@ -580,21 +601,25 @@ sudo apt --fix-broken install
 
 #### macOS
 
-**Gatekeeper blocking OpenStudio:**
+**No automatic dependency installation:**
 ```bash
-# Allow OpenStudio to run
-sudo xattr -rd com.apple.quarantine /usr/local/openstudio-3.9.0/
+# This will fail on macOS
+h2k-deps --auto-install
+# Error: ❌ Unsupported platform: Darwin
 
-# Or temporarily disable Gatekeeper
-sudo spctl --master-disable
+# Recommended solution: Use Docker
+docker run --rm canmet/h2k-hpxml h2k2hpxml --help
 ```
 
-**Homebrew conflicts:**
+**Manual installation challenges:**
+- OpenStudio 3.9.0 may not have macOS releases
+- EnergyPlus compatibility issues
+- Complex manual configuration required
+
+**Best solution for macOS:**
 ```bash
-# Use isolated uv environment
-uv venv --python 3.12
-source .venv/bin/activate
-uv pip install h2k-hpxml
+# Use Docker for guaranteed compatibility
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
 ```
 
 ### Getting Help
