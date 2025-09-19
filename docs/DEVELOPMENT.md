@@ -54,7 +54,7 @@ code .
 # Run in VSCode terminal (should work immediately)
 h2k-deps --check-only
 pytest tests/unit/ -v
-h2k2hpxml --help
+h2k-hpxml --help
 ```
 
 ### 4. Start Developing
@@ -116,7 +116,7 @@ h2k-deps --auto-install
 
 # 5. Verify setup
 pytest tests/unit/
-h2k2hpxml --help
+h2k-hpxml --help
 ```
 
 #### VSCode Configuration (Manual Setup)
@@ -268,7 +268,7 @@ pytest tests/integration/ -v
 pytest tests/unit/test_components/test_walls.py -v
 
 # Test with real H2K files
-h2k2hpxml examples/WizardHouse.h2k --debug --do-not-sim
+h2k-hpxml examples/WizardHouse.h2k --debug --do-not-sim
 ```
 
 ### 4. Commit and Push
@@ -754,7 +754,7 @@ htop  # Linux/Mac
 
 # Use smaller test files
 cp examples/simple.h2k test_input.h2k
-h2k2hpxml test_input.h2k --debug
+h2k-hpxml test_input.h2k --debug
 
 # Profile memory usage
 pip install memory-profiler
@@ -777,11 +777,11 @@ def your_function():
 
 ```bash
 # Run with debug logging
-h2k2hpxml input.h2k --debug
+h2k-hpxml input.h2k --debug
 
 # Or set environment variable
 export H2K_LOG_LEVEL=DEBUG
-h2k2hpxml input.h2k
+h2k-hpxml input.h2k
 ```
 
 ### Performance Profiling

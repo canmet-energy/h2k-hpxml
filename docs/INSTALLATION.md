@@ -68,7 +68,7 @@ h2k-deps --test-installation
 h2k-demo
 
 # Or convert a file directly
-h2k2hpxml your_file.h2k
+h2k-hpxml your_file.h2k
 ```
 
 ## Installation Methods
@@ -103,7 +103,7 @@ h2k-env\Scripts\activate     # Windows
 uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Use commands (only when environment is active)
-h2k2hpxml --help
+h2k-hpxml --help
 ```
 
 ### Method 3: Traditional pip
@@ -127,7 +127,7 @@ pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 ```bash
 # Convert files using Docker
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 
 # See Docker Guide for complete instructions
 ```
@@ -220,7 +220,7 @@ h2k-deps --add-to-path
    sudo h2k-deps --auto-install
 
    # Alternative: Use Docker for no system modifications
-   docker run --rm canmet/h2k-hpxml h2k2hpxml --help
+   docker run --rm canmet/h2k-hpxml h2k-hpxml --help
    ```
 
 4. **Test installation**:
@@ -237,7 +237,7 @@ h2k-deps --add-to-path
 sudo h2k-deps --auto-install
 
 # Or use Docker for no system changes
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 ```
 
 **Python version issues:**
@@ -256,7 +256,7 @@ uv venv --python 3.12
 ```bash
 # Install Docker Desktop for Mac
 # Then use H2K-HPXML via Docker
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 ```
 
 See the complete [Docker Guide](DOCKER.md) for full instructions.
@@ -295,7 +295,7 @@ See the complete [Docker Guide](DOCKER.md) for full instructions.
 ```bash
 # h2k-deps --auto-install will show unsupported platform error
 # Use Docker instead for easiest setup
-docker run --rm canmet/h2k-hpxml h2k2hpxml --help
+docker run --rm canmet/h2k-hpxml h2k-hpxml --help
 ```
 
 **Manual OpenStudio setup:**
@@ -395,7 +395,7 @@ h2k-deps --setup
 python -c "import h2k_hpxml; print('✅ Package imported successfully')"
 
 # 2. Check CLI commands
-h2k2hpxml --help
+h2k-hpxml --help
 h2k-deps --help
 h2k-demo --help
 
@@ -466,20 +466,20 @@ The demo provides:
 
 ```bash
 # Test with example file (if you have access to source)
-h2k2hpxml examples/WizardHouse.h2k --do-not-sim
+h2k-hpxml examples/WizardHouse.h2k --do-not-sim
 
 # Test with your own file
-h2k2hpxml /path/to/your/file.h2k --output results.xml
+h2k-hpxml /path/to/your/file.h2k --output results.xml
 
 # Test batch processing
-h2k2hpxml /path/to/folder/ --output results/
+h2k-hpxml /path/to/folder/ --output results/
 ```
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### 1. "Command not found: h2k2hpxml"
+#### 1. "Command not found: h2k-hpxml"
 
 **uv tool installation:**
 ```bash
@@ -500,7 +500,7 @@ echo $PATH | grep -i uv
 python -m h2k_hpxml.cli.convert --help
 
 # Check if in PATH
-which h2k2hpxml
+which h2k-hpxml
 pip show h2k-hpxml
 ```
 
@@ -527,7 +527,7 @@ sudo h2k-deps --auto-install
 h2k-deps --setup  # Choose user directory
 
 # Alternative: Use Docker
-docker run --rm canmet/h2k-hpxml h2k2hpxml --help
+docker run --rm canmet/h2k-hpxml h2k-hpxml --help
 ```
 
 #### 4. Python version incompatibility
@@ -608,7 +608,7 @@ h2k-deps --auto-install
 # Error: ❌ Unsupported platform: Darwin
 
 # Recommended solution: Use Docker
-docker run --rm canmet/h2k-hpxml h2k2hpxml --help
+docker run --rm canmet/h2k-hpxml h2k-hpxml --help
 ```
 
 **Manual installation challenges:**
@@ -619,7 +619,7 @@ docker run --rm canmet/h2k-hpxml h2k2hpxml --help
 **Best solution for macOS:**
 ```bash
 # Use Docker for guaranteed compatibility
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 ```
 
 ### Getting Help
@@ -635,7 +635,7 @@ If issues persist:
    ```bash
    uv --version
    python --version
-   which h2k2hpxml
+   which h2k-hpxml
    ```
 
 3. **Report issue** with:
@@ -718,7 +718,7 @@ After successful installation:
 
 1. **Try the demo**: `h2k-demo`
 2. **Read the user guide**: [USER_GUIDE.md](USER_GUIDE.md)
-3. **Convert your files**: `h2k2hpxml your_file.h2k`
+3. **Convert your files**: `h2k-hpxml your_file.h2k`
 4. **Explore other tools**: `h2k-resilience`, `h2k-deps`
 5. **Use as library**: See [LIBRARY.md](LIBRARY.md)
 6. **Docker usage**: See [DOCKER.md](DOCKER.md)

@@ -38,41 +38,41 @@ h2k-deps --test-installation
 
 ## Command Reference
 
-### h2k2hpxml - Main Conversion Tool
+### h2k-hpxml - Main Conversion Tool
 
 Convert H2K files to HPXML format with optional EnergyPlus simulation.
 
 #### Basic Usage
 ```bash
 # Convert single file (with simulation)
-h2k2hpxml input.h2k
+h2k-hpxml input.h2k
 
 # Convert single file to specific output
-h2k2hpxml input.h2k --output results/house.xml
+h2k-hpxml input.h2k --output results/house.xml
 
 # Convert without running simulation (faster)
-h2k2hpxml input.h2k --do-not-sim
+h2k-hpxml input.h2k --do-not-sim
 
 # Convert entire folder (parallel processing)
-h2k2hpxml /path/to/h2k/files/
+h2k-hpxml /path/to/h2k/files/
 ```
 
 #### Advanced Options
 ```bash
 # Debug mode with verbose output
-h2k2hpxml input.h2k --debug
+h2k-hpxml input.h2k --debug
 
 # Generate hourly outputs for all end uses
-h2k2hpxml input.h2k --hourly ALL
+h2k-hpxml input.h2k --hourly ALL
 
 # Specify output format (xml, json)
-h2k2hpxml input.h2k --output-format json
+h2k-hpxml input.h2k --output-format json
 
 # Custom simulation mode
-h2k2hpxml input.h2k --mode ASHRAE140
+h2k-hpxml input.h2k --mode ASHRAE140
 
 # Combine options
-h2k2hpxml input.h2k --debug --hourly ALL --do-not-sim --output results/
+h2k-hpxml input.h2k --debug --hourly ALL --do-not-sim --output results/
 ```
 
 #### All Options
@@ -168,52 +168,52 @@ h2k-resilience input.h2k --output-path /path/to/results/
 
 ```bash
 # Quick conversion for review
-h2k2hpxml house.h2k --do-not-sim
+h2k-hpxml house.h2k --do-not-sim
 
 # Full analysis with hourly data
-h2k2hpxml house.h2k --hourly ALL
+h2k-hpxml house.h2k --hourly ALL
 
 # Debug problematic file
-h2k2hpxml problem_house.h2k --debug --do-not-sim
+h2k-hpxml problem_house.h2k --debug --do-not-sim
 ```
 
 ### Batch Processing
 
 ```bash
 # Process all H2K files in a directory
-h2k2hpxml /path/to/h2k/files/
+h2k-hpxml /path/to/h2k/files/
 
 # Process with custom output directory
-h2k2hpxml /path/to/h2k/files/ --output /path/to/results/
+h2k-hpxml /path/to/h2k/files/ --output /path/to/results/
 
 # Batch processing without simulation (much faster)
-h2k2hpxml /path/to/h2k/files/ --do-not-sim
+h2k-hpxml /path/to/h2k/files/ --do-not-sim
 
 # Debug batch processing
-h2k2hpxml /path/to/h2k/files/ --debug --do-not-sim
+h2k-hpxml /path/to/h2k/files/ --debug --do-not-sim
 ```
 
 ### Research Workflows
 
 ```bash
 # Generate HPXML files for external analysis
-h2k2hpxml archetype_folder/ --do-not-sim --output hpxml_files/
+h2k-hpxml archetype_folder/ --do-not-sim --output hpxml_files/
 
 # Full simulation with all hourly outputs
-h2k2hpxml archetype_folder/ --hourly ALL --output simulation_results/
+h2k-hpxml archetype_folder/ --hourly ALL --output simulation_results/
 
 # JSON output for data analysis
-h2k2hpxml archetype_folder/ --output-format json --output json_results/
+h2k-hpxml archetype_folder/ --output-format json --output json_results/
 ```
 
 ### Quality Assurance
 
 ```bash
 # Test specific translation mode
-h2k2hpxml test_house.h2k --mode ASHRAE140 --debug
+h2k-hpxml test_house.h2k --mode ASHRAE140 --debug
 
 # Validate dependencies before processing
-h2k-deps --check-only && h2k2hpxml large_batch/
+h2k-deps --check-only && h2k-hpxml large_batch/
 
 # Test with demo files
 h2k-demo --cleanup  # Clean previous runs
@@ -285,7 +285,7 @@ H2K-HPXML automatically uses parallel processing for folder inputs:
 
 ```bash
 # Automatically uses (CPU cores - 1) threads
-h2k2hpxml /path/to/100_h2k_files/
+h2k-hpxml /path/to/100_h2k_files/
 
 # Monitor system resources during processing
 htop  # Linux/Mac
@@ -297,13 +297,13 @@ htop  # Linux/Mac
 **For Large Batches:**
 ```bash
 # Skip simulation for HPXML-only generation (10x faster)
-h2k2hpxml large_batch/ --do-not-sim
+h2k-hpxml large_batch/ --do-not-sim
 
 # Use JSON output to reduce file I/O
-h2k2hpxml large_batch/ --output-format json
+h2k-hpxml large_batch/ --output-format json
 
 # Combine for maximum speed
-h2k2hpxml large_batch/ --do-not-sim --output-format json
+h2k-hpxml large_batch/ --do-not-sim --output-format json
 ```
 
 **System Requirements:**
@@ -379,11 +379,11 @@ Configuration can be overridden with environment variables:
 ```bash
 # Override OpenStudio path
 export H2K_OPENSTUDIO_BINARY=/custom/path/to/openstudio
-h2k2hpxml input.h2k
+h2k-hpxml input.h2k
 
 # Override simulation mode
 export H2K_SIMULATION_MODE=ASHRAE140
-h2k2hpxml input.h2k
+h2k-hpxml input.h2k
 ```
 
 ## Troubleshooting
@@ -402,10 +402,10 @@ h2k-deps --auto-install
 h2k-deps --setup
 ```
 
-#### "Command not found: h2k2hpxml"
+#### "Command not found: h2k-hpxml"
 ```bash
 # If using uv tool install
-which h2k2hpxml  # Should show path
+which h2k-hpxml  # Should show path
 
 # If not found, reinstall
 uv tool uninstall h2k-hpxml
@@ -418,7 +418,7 @@ python -m h2k_hpxml.cli.convert input.h2k
 #### "Conversion failed"
 ```bash
 # Run with debug mode
-h2k2hpxml problematic_file.h2k --debug
+h2k-hpxml problematic_file.h2k --debug
 
 # Check file format
 file problematic_file.h2k  # Should show XML data
@@ -442,13 +442,13 @@ uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 #### Built-in Help
 ```bash
 # Command help
-h2k2hpxml --help
+h2k-hpxml --help
 h2k-deps --help
 h2k-demo --help
 h2k-resilience --help
 
 # Show version and credits
-h2k2hpxml --credits
+h2k-hpxml --credits
 ```
 
 #### Test Commands
@@ -467,7 +467,7 @@ h2k-deps --test-installation
 ```bash
 # System information
 uv --version  # or python --version
-which h2k2hpxml
+which h2k-hpxml
 h2k-deps --check-only
 
 # Configuration file location
@@ -488,20 +488,20 @@ When using `--debug`, detailed logs are written to:
 #### Slow Conversion
 ```bash
 # Skip simulation for faster processing
-h2k2hpxml input.h2k --do-not-sim
+h2k-hpxml input.h2k --do-not-sim
 
 # Check system resources
 top  # Linux/Mac
 # or Task Manager on Windows
 
 # Process smaller batches
-h2k2hpxml batch_part1/ && h2k2hpxml batch_part2/
+h2k-hpxml batch_part1/ && h2k-hpxml batch_part2/
 ```
 
 #### Memory Issues
 ```bash
 # Process files individually instead of batch
-for file in *.h2k; do h2k2hpxml "$file"; done
+for file in *.h2k; do h2k-hpxml "$file"; done
 
 # Close other applications
 # Restart computer if necessary
@@ -518,7 +518,7 @@ If you continue to experience issues:
 When reporting issues, include:
 - Operating system and version
 - Python version (`python --version`)
-- H2K-HPXML version (`h2k2hpxml --credits`)
+- H2K-HPXML version (`h2k-hpxml --credits`)
 - Complete error output
 - Example H2K file (if possible)
 

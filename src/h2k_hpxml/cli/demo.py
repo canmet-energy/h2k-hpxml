@@ -2,7 +2,7 @@
 Interactive demo for H2K to HPXML conversion.
 
 This module provides an interactive, bilingual demo that guides users through
-the h2k2hpxml conversion process using real example files.
+the h2k-hpxml conversion process using real example files.
 """
 
 import tempfile
@@ -107,7 +107,7 @@ class H2KDemo:
         console.print(f"\n• {self.t('demo_setup_explanation').format(filename=self.selected_file.name)}")
         
         # Show the actual command with flags that will be used
-        cmd = f"h2k2hpxml h2k_demo_output/{self.selected_file.name} --hourly ALL --output-format csv"
+        cmd = f"h2k-hpxml h2k_demo_output/{self.selected_file.name} --hourly ALL --output-format csv"
         
         console.print(f"\n[bold]{self.t('command_preview')}[/bold]")
         console.print(Panel(f"[cyan]{cmd}[/cyan]", border_style="dim"))

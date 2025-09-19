@@ -54,16 +54,16 @@ The demo walks you through the complete conversion process using sample H2K file
 
 ```bash
 # Convert a single H2K file
-h2k2hpxml input.h2k
+h2k-hpxml input.h2k
 
 # Convert all H2K files in a folder (parallel processing)
-h2k2hpxml /path/to/h2k/files/
+h2k-hpxml /path/to/h2k/files/
 
 # Convert without running EnergyPlus simulation
-h2k2hpxml input.h2k --do-not-sim
+h2k-hpxml input.h2k --do-not-sim
 
 # Get help
-h2k2hpxml --help
+h2k-hpxml --help
 ```
 
 ## Alternative Installation Methods
@@ -72,7 +72,7 @@ h2k2hpxml --help
 Perfect if you don't want to install anything locally, or **required for macOS users**:
 ```bash
 # Convert a file using Docker
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 ```
 👉 **[Complete Docker guide](docs/DOCKER.md)**
 
@@ -120,5 +120,5 @@ Developed by NRCan/CMHC for advancing Canadian building energy analysis.
 
 ```bash
 # Show full credits
-h2k2hpxml --credits
+h2k-hpxml --credits
 ```

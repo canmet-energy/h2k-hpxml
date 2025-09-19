@@ -82,20 +82,20 @@ pytest -x                          # Stop on first failure
 ### Main CLI Tools
 ```bash
 # H2K to HPXML conversion (single file)
-h2k2hpxml input.h2k [--output output.xml]
+h2k-hpxml input.h2k [--output output.xml]
 
 # H2K to HPXML conversion (entire folder - parallel processing) 
-h2k2hpxml /path/to/h2k/files/
+h2k-hpxml /path/to/h2k/files/
 # Note: Automatically uses (CPU cores - 1) threads for parallel processing
 
 # Advanced conversion options
-h2k2hpxml input.h2k --debug --hourly ALL --do-not-sim
+h2k-hpxml input.h2k --debug --hourly ALL --do-not-sim
 
 # Show credits
-h2k2hpxml --credits
+h2k-hpxml --credits
 
 # Interactive demo (bilingual learning tool)
-h2k2hpxml --demo                     # Demo with example files (language selected interactively)
+h2k-hpxml --demo                     # Demo with example files (language selected interactively)
 
 # Resilience analysis
 h2k-resilience input.h2k [--run-simulation] [--outage-days N] \

@@ -3,7 +3,7 @@
 #   docker build -t h2k-hpxml .
 # - Installs OS libraries commonly required by OpenStudio CLI
 # - Installs Python via uv and sets up an isolated virtual environment
-# - Installs the h2k-hpxml package with entry points (h2k2hpxml, h2k-resilience, h2k-deps)
+# - Installs the h2k-hpxml package with entry points (h2k-hpxml, h2k-resilience, h2k-deps)
 # - Uses a non-root user so h2k-deps can install dependencies into user-writable locations
 
 FROM ubuntu:22.04
@@ -95,12 +95,12 @@ VOLUME ["/data"]
 
 # Default help; override with explicit command, e.g.:
 # Linux/Mac:
-#   docker run --rm -v $(pwd):/data h2k-hpxml h2k2hpxml /data/input.h2k
+#   docker run --rm -v $(pwd):/data h2k-hpxml h2k-hpxml /data/input.h2k
 # Windows (PowerShell):
-#   docker run --rm -v "${PWD}:/data" h2k-hpxml h2k2hpxml /data/input.h2k
+#   docker run --rm -v "${PWD}:/data" h2k-hpxml h2k-hpxml /data/input.h2k
 # Windows (cmd.exe):
-#   docker run --rm -v "%cd%:/data" h2k-hpxml h2k2hpxml /data/input.h2k
-CMD ["h2k2hpxml", "--help"]
+#   docker run --rm -v "%cd%:/data" h2k-hpxml h2k-hpxml /data/input.h2k
+CMD ["h2k-hpxml", "--help"]
 
 LABEL org.opencontainers.image.title="H2K-HPXML" \
   org.opencontainers.image.description="H2K to HPXML to EnergyPlus translation tool with OpenStudio CLI runtime deps" \

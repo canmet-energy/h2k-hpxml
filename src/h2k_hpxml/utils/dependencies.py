@@ -2092,7 +2092,7 @@ class DependencyManager:
             click.echo(f"⚠️  Failed to update conversionconfig.ini: {e}")
 
     def _offer_windows_path_setup(self):
-        """Automatically add h2k2hpxml to Windows PATH and clean up old entries."""
+        """Automatically add h2k-hpxml to Windows PATH and clean up old entries."""
         import platform
 
         # Only run on Windows
@@ -2112,17 +2112,17 @@ class DependencyManager:
                 # Global installation
                 scripts_dir = os.path.join(sys.prefix, 'Scripts')
 
-            h2k_exe = os.path.join(scripts_dir, 'h2k2hpxml.exe')
+            h2k_exe = os.path.join(scripts_dir, 'h2k-hpxml.exe')
             if not os.path.exists(h2k_exe):
-                click.echo("⚠️  h2k2hpxml.exe not found, skipping PATH setup")
+                click.echo("⚠️  h2k-hpxml.exe not found, skipping PATH setup")
                 return
 
             # Clean up old PATH entries and add new one
             if self._cleanup_and_update_windows_path(scripts_dir):
-                click.echo("✅ h2k2hpxml added to PATH successfully!")
+                click.echo("✅ h2k-hpxml added to PATH successfully!")
                 click.echo("")
                 click.echo("🔄 IMPORTANT: Start a new terminal session for PATH changes to take effect")
-                click.echo("   After restarting your terminal, you can use 'h2k2hpxml' from any directory")
+                click.echo("   After restarting your terminal, you can use 'h2k-hpxml' from any directory")
             else:
                 click.echo("⚠️  Could not update PATH automatically")
                 click.echo("   You can run 'h2k-deps --add-to-path' to try again")
@@ -2131,7 +2131,7 @@ class DependencyManager:
             click.echo(f"⚠️  PATH setup failed: {e}")
 
     def _cleanup_and_update_windows_path(self, new_scripts_dir):
-        """Clean up old h2k2hpxml PATH entries and add the current one."""
+        """Clean up old h2k-hpxml PATH entries and add the current one."""
         try:
             import subprocess
 
@@ -2153,14 +2153,14 @@ class DependencyManager:
             # Split PATH into components
             path_components = [p.strip() for p in current_path.split(';') if p.strip()]
 
-            # Remove any existing h2k2hpxml entries (look for Scripts directories with h2k2hpxml.exe)
+            # Remove any existing h2k-hpxml entries (look for Scripts directories with h2k-hpxml.exe)
             cleaned_components = []
             removed_old = []
 
             for component in path_components:
-                h2k_exe_in_component = os.path.join(component, 'h2k2hpxml.exe')
+                h2k_exe_in_component = os.path.join(component, 'h2k-hpxml.exe')
                 if os.path.exists(h2k_exe_in_component) and component != new_scripts_dir:
-                    # This is an old h2k2hpxml installation
+                    # This is an old h2k-hpxml installation
                     removed_old.append(component)
                     continue
                 cleaned_components.append(component)
@@ -2188,7 +2188,7 @@ class DependencyManager:
 
             # Inform user about cleanup
             if removed_old:
-                click.echo(f"🧹 Removed old h2k2hpxml PATH entries:")
+                click.echo(f"🧹 Removed old h2k-hpxml PATH entries:")
                 for old_path in removed_old:
                     click.echo(f"   - {old_path}")
 
@@ -2346,7 +2346,7 @@ def test_smart_installation():
     click.echo("-" * 20)
 
     commands = [
-        ("h2k2hpxml --help", "Main CLI help"),
+        ("h2k-hpxml --help", "Main CLI help"),
         ("h2k-deps --check-only", "Dependencies check"),
         ("h2k-resilience --help", "Resilience CLI help")
     ]
@@ -2468,7 +2468,7 @@ Examples:
   %(prog)s                        # Check dependencies and prompt to install if missing
   %(prog)s --check-only           # Only check dependencies, don't install
   %(prog)s --install-quiet        # Install missing dependencies and setup PATH (no prompts)
-  %(prog)s --add-to-path          # Add h2k2hpxml to PATH and clean up old entries (Windows only)
+  %(prog)s --add-to-path          # Add h2k-hpxml to PATH and clean up old entries (Windows only)
   %(prog)s --setup                # Set up user configuration from template
   %(prog)s --update-config        # Update all config files with detected paths
   %(prog)s --update-config --global   # Update user config files only
@@ -2520,7 +2520,7 @@ Examples:
     parser.add_argument(
         "--add-to-path",
         action="store_true",
-        help="Add h2k2hpxml to Windows PATH and clean up old entries (Windows only)"
+        help="Add h2k-hpxml to Windows PATH and clean up old entries (Windows only)"
     )
     parser.add_argument(
         "--auto-install",
@@ -2550,7 +2550,7 @@ Examples:
         import platform
         if platform.system() != 'Windows':
             click.echo("ℹ️  --add-to-path is for Windows only.")
-            click.echo("On Linux/Mac, h2k2hpxml should already be accessible after installation.")
+            click.echo("On Linux/Mac, h2k-hpxml should already be accessible after installation.")
             return
 
         # Use the integrated PATH setup from DependencyManager

@@ -27,9 +27,9 @@ def test_demo_with_scripted_input():
     try:
         # Determine command based on platform
         if sys.platform == "win32":
-            cmd = ["uv.exe", "run", "h2k2hpxml", "--demo"]
+            cmd = ["uv.exe", "run", "h2k-hpxml", "--demo"]
         else:
-            cmd = ["uv", "run", "h2k2hpxml", "--demo"]
+            cmd = ["uv", "run", "h2k-hpxml", "--demo"]
         
         result = subprocess.run(
             cmd,
@@ -184,9 +184,9 @@ def test_demo_help_and_language_selection():
     try:
         # Cross-platform command
         if sys.platform == "win32":
-            cmd = ["uv.exe", "run", "h2k2hpxml", "--demo"]
+            cmd = ["uv.exe", "run", "h2k-hpxml", "--demo"]
         else:
-            cmd = ["uv", "run", "h2k2hpxml", "--demo"]
+            cmd = ["uv", "run", "h2k-hpxml", "--demo"]
             
         result = subprocess.run(
             cmd,

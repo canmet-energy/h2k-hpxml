@@ -409,13 +409,13 @@ def cli(
     This tool can process single files or entire directories of H2K files.
 
     Examples:
-        h2k2hpxml input.h2k
-        h2k2hpxml /path/to/h2k/files/
-        h2k2hpxml input.h2k --output output.xml --debug
-        h2k2hpxml --credits
+        h2k-hpxml input.h2k
+        h2k-hpxml /path/to/h2k/files/
+        h2k-hpxml input.h2k --output output.xml --debug
+        h2k-hpxml --credits
     """
     
-    # Prevent auto-install when running h2k2hpxml CLI
+    # Prevent auto-install when running h2k-hpxml CLI
     os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
     
     # Check dependencies and provide helpful message if missing
@@ -580,7 +580,7 @@ def _find_project_root():
 
 
 def main() -> None:
-    """Entry point for the h2k2hpxml command."""
+    """Entry point for the h2k-hpxml command."""
     cli()
 
 

@@ -58,7 +58,7 @@ The interactive demo guides you through the complete conversion process with rea
 
 ### Usage Guides
 - **[User Guide](USER_GUIDE.md)** - Complete CLI reference
-  - Command reference (h2k2hpxml, h2k-demo, h2k-deps, h2k-resilience)
+  - Command reference (h2k-hpxml, h2k-demo, h2k-deps, h2k-resilience)
   - Common workflows and examples
   - Performance optimization with parallel processing
   - Configuration system
@@ -133,8 +133,8 @@ uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 h2k-deps --auto-install
 
 # Basic usage
-h2k2hpxml input.h2k                    # Convert single file
-h2k2hpxml folder/                      # Convert all files in folder
+h2k-hpxml input.h2k                    # Convert single file
+h2k-hpxml folder/                      # Convert all files in folder
 h2k-demo                              # Interactive learning demo
 
 # Testing and verification
@@ -142,7 +142,7 @@ h2k-deps --test-installation          # Verify setup
 h2k-deps --check-only                 # Check dependencies
 
 # Advanced usage
-h2k2hpxml input.h2k --hourly ALL      # Generate hourly outputs
+h2k-hpxml input.h2k --hourly ALL      # Generate hourly outputs
 h2k-resilience input.h2k              # Resilience analysis
 ```
 
@@ -150,10 +150,10 @@ h2k-resilience input.h2k              # Resilience analysis
 
 ```bash
 # Zero installation - use Docker
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/input.h2k
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 
 # Batch processing with Docker
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/
 ```
 
 ### Python API Quick Start
@@ -232,7 +232,7 @@ Validation    Parsing     Processors        Generation      & Reports
 h2k-deps --test-comprehensive
 
 # Debug conversion issues
-h2k2hpxml problematic.h2k --debug --do-not-sim
+h2k-hpxml problematic.h2k --debug --do-not-sim
 
 # Check system status
 h2k-deps --check-only
@@ -299,7 +299,7 @@ This project is developed by Natural Resources Canada (NRCan) and Canada Mortgag
 
 ```bash
 # Show detailed credits
-h2k2hpxml --credits
+h2k-hpxml --credits
 ```
 
 ---

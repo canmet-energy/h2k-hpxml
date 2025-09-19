@@ -8,7 +8,7 @@ to support the interactive demo feature.
 DEMO_STRINGS = {
     "en": {
         "welcome_title": "H2K to HPXML Interactive Demo",
-        "welcome_subtitle": "Learn how to use h2k2hpxml",
+        "welcome_subtitle": "Learn how to use h2k-hpxml",
         "language_prompt": "Select language",
         "file_selection": "Choose an example file",
         "command_preview": "Here's the command we'll run:",
@@ -55,18 +55,18 @@ DEMO_STRINGS = {
         "try_next": "Try these commands next:",
         "commands": [
             "# Convert your own H2K file:",
-            "h2k2hpxml your_file.h2k",
+            "h2k-hpxml your_file.h2k",
             "",
             "# Process a folder of files:",
-            "h2k2hpxml /path/to/h2k/folder/",
+            "h2k-hpxml /path/to/h2k/folder/",
             "",
             "# Add hourly outputs:",
-            "h2k2hpxml file.h2k --hourly ALL",
+            "h2k-hpxml file.h2k --hourly ALL",
             "",
             "# Skip simulation (convert only):",
-            "h2k2hpxml file.h2k --do-not-sim"
+            "h2k-hpxml file.h2k --do-not-sim"
         ],
-        "help_command": "Need help? Run: h2k2hpxml --help",
+        "help_command": "Need help? Run: h2k-hpxml --help",
         "demo_setup_explanation": "Demo setup: Created demo folder and copied {filename} for demonstration",
         "hourly_all_explanation": "--hourly ALL: Export ALL available hourly energy variables (comprehensive data)",
         "output_format_csv_explanation": "--output-format csv: Save results in spreadsheet-friendly CSV format",
@@ -147,7 +147,7 @@ DEMO_STRINGS = {
     },
     "fr": {
         "welcome_title": "Démo Interactive H2K vers HPXML",
-        "welcome_subtitle": "Apprenez à utiliser h2k2hpxml",
+        "welcome_subtitle": "Apprenez à utiliser h2k-hpxml",
         "language_prompt": "Sélectionner la langue",
         "file_selection": "Choisissez un fichier exemple",
         "command_preview": "Voici la commande que nous allons exécuter:",
@@ -194,18 +194,18 @@ DEMO_STRINGS = {
         "try_next": "Essayez ces commandes ensuite:",
         "commands": [
             "# Convertir votre propre fichier H2K:",
-            "h2k2hpxml votre_fichier.h2k",
+            "h2k-hpxml votre_fichier.h2k",
             "",
             "# Traiter un dossier de fichiers:",
-            "h2k2hpxml /chemin/vers/dossier/h2k/",
+            "h2k-hpxml /chemin/vers/dossier/h2k/",
             "",
             "# Ajouter des sorties horaires:",
-            "h2k2hpxml fichier.h2k --hourly ALL",
+            "h2k-hpxml fichier.h2k --hourly ALL",
             "",
             "# Ignorer la simulation (conversion seulement):",
-            "h2k2hpxml fichier.h2k --do-not-sim"
+            "h2k-hpxml fichier.h2k --do-not-sim"
         ],
-        "help_command": "Besoin d'aide? Exécutez: h2k2hpxml --help",
+        "help_command": "Besoin d'aide? Exécutez: h2k-hpxml --help",
         "demo_setup_explanation": "Configuration démo: Dossier démo créé et {filename} copié pour démonstration",
         "hourly_all_explanation": "--hourly ALL: Exporter TOUTES les variables énergétiques horaires disponibles (données complètes)",
         "output_format_csv_explanation": "--output-format csv: Sauvegarder les résultats en format CSV compatible tableur",

@@ -97,7 +97,7 @@
         {
             "label": "UV: H2K to HPXML Conversion",
             "type": "shell",
-            "command": "uv run h2k2hpxml ${input:h2kFile}",
+            "command": "uv run h2k-hpxml ${input:h2kFile}",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,

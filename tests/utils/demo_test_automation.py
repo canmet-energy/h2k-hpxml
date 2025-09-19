@@ -102,9 +102,9 @@ def test_demo_basic_flow():
     
     # Determine the command based on platform
     if sys.platform == "win32":
-        cmd = ["uv.exe", "run", "h2k2hpxml", "--demo"]
+        cmd = ["uv.exe", "run", "h2k-hpxml", "--demo"]
     else:
-        cmd = ["uv", "run", "h2k2hpxml", "--demo"]
+        cmd = ["uv", "run", "h2k-hpxml", "--demo"]
     
     print("Running demo...")
     result = run_command_with_input(cmd, demo_input, timeout=120, cwd=str(project_dir))
@@ -151,10 +151,10 @@ def test_demo_language_selection():
     french_input = "2\n"
     
     if sys.platform == "win32":
-        cmd = ["uv.exe", "run", "h2k2hpxml", "--demo"]
+        cmd = ["uv.exe", "run", "h2k-hpxml", "--demo"]
     else:
-        cmd = ["uv", "run", "h2k2hpxml", "--demo"]
-    
+        cmd = ["uv", "run", "h2k-hpxml", "--demo"]
+
     result = run_command_with_input(cmd, french_input, timeout=15, cwd=str(project_dir))
     
     if isinstance(result, subprocess.CompletedProcess):
@@ -219,7 +219,7 @@ def main():
         print("⚠️  Demo testing completed with issues")
     
     print("\nManual testing:")
-    print("  uv run h2k2hpxml --demo")
+    print("  uv run h2k-hpxml --demo")
     print("\nCleanup:")
     print("  python tests/utils/demo_test_automation.py --cleanup")
     

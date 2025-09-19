@@ -2,13 +2,13 @@
 
 ## Overview
 
-The h2k2hpxml tool is optimized for high-performance batch processing of H2K files, featuring automatic parallel processing that can dramatically reduce processing time for large datasets.
+The h2k-hpxml tool is optimized for high-performance batch processing of H2K files, featuring automatic parallel processing that can dramatically reduce processing time for large datasets.
 
 ## Parallel Processing Features
 
 ### Automatic Threading
 
-When processing multiple H2K files (folder input), h2k2hpxml automatically utilizes parallel processing:
+When processing multiple H2K files (folder input), h2k-hpxml automatically utilizes parallel processing:
 
 - **Thread Count**: `CPU cores - 1` threads
 - **Example**: On a 24-core system, uses 23 threads
@@ -41,20 +41,20 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
 
 ```bash
 # Standard single file - no parallelization needed
-h2k2hpxml input.h2k
+h2k-hpxml input.h2k
 ```
 
 ### Folder Processing (Parallel)
 
 ```bash
 # Process entire folder - automatic parallel processing
-h2k2hpxml /path/to/h2k/files/
+h2k-hpxml /path/to/h2k/files/
 
 # With output directory
-h2k2hpxml /path/to/h2k/files/ --output /path/to/output/
+h2k-hpxml /path/to/h2k/files/ --output /path/to/output/
 
 # Convert only (no simulation) - faster
-h2k2hpxml /path/to/h2k/files/ --do-not-sim
+h2k-hpxml /path/to/h2k/files/ --do-not-sim
 ```
 
 ## Optimization Tips
@@ -81,19 +81,19 @@ h2k2hpxml /path/to/h2k/files/ --do-not-sim
 **Convert-Only Mode**
 ```bash
 # Skip simulation for faster conversion
-h2k2hpxml /path/to/files/ --do-not-sim
+h2k-hpxml /path/to/files/ --do-not-sim
 ```
 
 **Skip Validation**
 ```bash
 # Skip schema validation for speed (use with caution)
-h2k2hpxml /path/to/files/ --skip-validation
+h2k-hpxml /path/to/files/ --skip-validation
 ```
 
 **Selective Processing**
 ```bash
 # Process specific file types
-find /path -name "*.h2k" -mtime -7 | xargs -I {} h2k2hpxml {}
+find /path -name "*.h2k" -mtime -7 | xargs -I {} h2k-hpxml {}
 ```
 
 ### 3. Batch Processing Strategies
@@ -107,16 +107,16 @@ ls *.h2k | head -2000 | xargs -I {} mv {} chunk2/
 ls *.h2k | head -2000 | xargs -I {} mv {} chunk3/
 
 # Process chunks in parallel
-h2k2hpxml chunk1/ --output output1/ &
-h2k2hpxml chunk2/ --output output2/ &
-h2k2hpxml chunk3/ --output output3/ &
+h2k-hpxml chunk1/ --output output1/ &
+h2k-hpxml chunk2/ --output output2/ &
+h2k-hpxml chunk3/ --output output3/ &
 wait
 ```
 
 **Using GNU Parallel**
 ```bash
 # Process files with GNU parallel
-find . -name "*.h2k" | parallel -j 20 h2k2hpxml {} --output {.}.xml
+find . -name "*.h2k" | parallel -j 20 h2k-hpxml {} --output {.}.xml
 ```
 
 ## Docker Performance
@@ -125,10 +125,10 @@ find . -name "*.h2k" | parallel -j 20 h2k2hpxml {} --output {.}.xml
 
 ```bash
 # Increase Docker CPU limit
-docker run --cpus="20" -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/
+docker run --cpus="20" -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/
 
 # Increase memory limit
-docker run --memory="16g" -v $(pwd):/data canmet/h2k-hpxml h2k2hpxml /data/
+docker run --memory="16g" -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/
 ```
 
 ### Docker Compose for Parallel Jobs
@@ -141,21 +141,21 @@ services:
     volumes:
       - ./chunk1:/input:ro
       - ./output1:/output
-    command: h2k2hpxml /input/ --output /output/
+    command: h2k-hpxml /input/ --output /output/
     
   converter2:
     image: canmet/h2k-hpxml
     volumes:
       - ./chunk2:/input:ro
       - ./output2:/output
-    command: h2k2hpxml /input/ --output /output/
+    command: h2k-hpxml /input/ --output /output/
     
   converter3:
     image: canmet/h2k-hpxml
     volumes:
       - ./chunk3:/input:ro
       - ./output3:/output
-    command: h2k2hpxml /input/ --output /output/
+    command: h2k-hpxml /input/ --output /output/
 ```
 
 ## Cloud Processing
@@ -170,7 +170,7 @@ services:
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 h2k-deps --auto-install
-h2k2hpxml /data/h2k_files/ --output /data/output/
+h2k-hpxml /data/h2k_files/ --output /data/output/
 ```
 
 ### Azure Batch Processing
@@ -182,7 +182,7 @@ pool:
   maxTasksPerNode: 31       # Leave 1 CPU for system
 
 task:
-  commandLine: h2k2hpxml /mnt/batch/tasks/working/input/ --output /mnt/batch/tasks/output/
+  commandLine: h2k-hpxml /mnt/batch/tasks/working/input/ --output /mnt/batch/tasks/output/
   resourceFiles:
     - blobSource: https://storage.blob.core.windows.net/h2k-files
       filePath: input/
@@ -199,7 +199,7 @@ htop  # Linux/Mac
 top -H  # Show threads
 
 # Monitor specific process
-pidstat -t -p $(pgrep h2k2hpxml) 1
+pidstat -t -p $(pgrep h2k-hpxml) 1
 
 # Monitor I/O
 iotop
@@ -238,7 +238,7 @@ Check `processing_results.md` for:
 echo "Starting benchmark at $(date)"
 START=$(date +%s)
 
-h2k2hpxml /path/to/test/files/ --output /tmp/benchmark/
+h2k-hpxml /path/to/test/files/ --output /tmp/benchmark/
 
 END=$(date +%s)
 DIFF=$(( $END - $START ))
@@ -264,7 +264,7 @@ def benchmark_processing(input_dir, output_dir):
     file_count = len(h2k_files)
     
     # Run conversion
-    os.system(f"h2k2hpxml {input_dir} --output {output_dir}")
+    os.system(f"h2k-hpxml {input_dir} --output {output_dir}")
     
     # Calculate metrics
     elapsed = time.time() - start
@@ -301,7 +301,7 @@ benchmark_processing("/path/to/files", "/path/to/output")
 # Override thread count (if needed)
 # This would require code modification to support MAX_WORKERS env variable
 export MAX_WORKERS=10
-h2k2hpxml /path/to/files/
+h2k-hpxml /path/to/files/
 ```
 
 ### Memory Issues
@@ -309,7 +309,7 @@ h2k2hpxml /path/to/files/
 ```bash
 # Limit thread count to reduce memory usage
 # Process in smaller batches
-find . -name "*.h2k" | head -100 | xargs -I {} h2k2hpxml {}
+find . -name "*.h2k" | head -100 | xargs -I {} h2k-hpxml {}
 ```
 
 ## Best Practices

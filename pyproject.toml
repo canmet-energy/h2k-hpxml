@@ -61,7 +61,7 @@ Repository = "https://github.com/canmet-energy/h2k-hpxml"
 Documentation = "https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md"
 
 [project.scripts]
-h2k2hpxml = "h2k_hpxml.cli.convert:main"
+h2k-hpxml = "h2k_hpxml.cli.convert:main"
 h2k-resilience = "h2k_hpxml.cli.resilience:main"
 h2k-deps = "h2k_hpxml.utils.dependencies:main"
 

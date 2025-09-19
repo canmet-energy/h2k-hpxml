@@ -177,13 +177,13 @@ You can use the command line tools to translate and simulate H2K files:
 1. **H2K to HPXML conversion**:
    ```bash
    # Convert a single file
-   h2k2hpxml examples/WizardHouse.h2k
+   h2k-hpxml examples/WizardHouse.h2k
 
    # Convert with custom output
-   h2k2hpxml examples/WizardHouse.h2k --output custom_output.xml
+   h2k-hpxml examples/WizardHouse.h2k --output custom_output.xml
 
    # Get help on available options
-   h2k2hpxml --help
+   h2k-hpxml --help
    ```
 
 2. **Full workflow (translation + simulation)**:
