@@ -49,8 +49,8 @@
 				},
 				"terminal.integrated.profiles.linux": {
 					"bash": {
-						"path": "bash",
-						"icon": "terminal-bash"
+						"path": "/bin/bash",
+						"args": ["--login"]
 					}
 				},
 				"terminal.integrated.defaultProfile.linux": "bash"
@@ -93,7 +93,8 @@
 		// Docker socket for Docker-in-Docker support
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
-	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh; uv venv --clear ; uv pip install -e '.[dev]' ; uv run h2k-deps --install-quiet && echo '# Auto-activate h2k-hpxml venv' >> ~/.bashrc && echo 'if [ -f \"/workspaces/h2k-hpxml/.venv/bin/activate\" ] && [ -z \"$VIRTUAL_ENV\" ]; then' >> ~/.bashrc && echo '    source \"/workspaces/h2k-hpxml/.venv/bin/activate\"' >> ~/.bashrc && echo '    echo \"🐍 Virtual environment activated: \\$(python --version)\"' >> ~/.bashrc && echo 'fi' >> ~/.bashrc",
+	"onCreateCommand": ".devcontainer/scripts/claude.sh",
+	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh ; uv venv --clear ; uv pip install -e '.[dev]' ; uv run h2k-deps --install-quiet && if ! grep -q 'Auto-activate h2k-hpxml venv' ~/.bashrc 2>/dev/null; then echo '# Auto-activate h2k-hpxml venv' >> ~/.bashrc && echo 'if [ -f \"/workspaces/h2k-hpxml/.venv/bin/activate\" ] && [ -z \"$VIRTUAL_ENV\" ]; then' >> ~/.bashrc && echo '    source \"/workspaces/h2k-hpxml/.venv/bin/activate\"' >> ~/.bashrc && echo '    echo \"🐍 Virtual environment activated: $(python --version)\"' >> ~/.bashrc && echo 'fi' >> ~/.bashrc; fi",
 	"containerUser": "vscode",
 	"remoteUser": "vscode"
 }
