@@ -8,44 +8,65 @@
 
 FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive \
-  UV_NATIVE_TLS=true \
-  UV_INSECURE_HOST="pypi.org files.pythonhosted.org github.com"
+# Build arguments for language versions
+# Usage: docker build --build-arg PYTHON_VERSION=3.12 --build-arg RUBY_VERSION=3.1 .
+ARG PYTHON_VERSION=3.12
+ARG RUBY_VERSION=3.2
 
-# Install system dependencies required by OpenStudio CLI and general tooling
-# Notes:
-# - libgfortran5, libgomp1, libssl3, libx11-6, libxext6 are common OpenStudio runtime deps
-# - ruby is used by OpenStudio-HPXML workflow scripts
-# - unzip and curl for downloads performed by h2k-deps
-# - build-essential, git in case native wheels or builds are needed during installation
+# Check for custom certificates and configure if present
+COPY .devcontainer/certs* /tmp/certs/
+COPY .devcontainer/scripts/install-certificates.sh /tmp/install-certificates.sh
+RUN chmod +x /tmp/install-certificates.sh && \
+  /tmp/install-certificates.sh && \
+  rm -f /tmp/install-certificates.sh
+
+# Environment Configuration with certificate awareness
+ENV DEBIAN_FRONTEND=noninteractive \
+  # Certificate environment variables for various tools
+  SSL_CERT_DIR=/etc/ssl/certs \
+  SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+  CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+  REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+  NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+
+# Install system dependencies required by OpenStudio and development tools
 RUN apt-get update && apt-get install -y \
+  # APT and repository tools
   apt-transport-https \
   ca-certificates \
   gnupg \
   lsb-release \
+  # Basic utilities
   curl \
   git \
-  ruby \
   unzip \
+  # Development tools
   build-essential \
+  # Runtime libraries needed by OpenStudio
   libgfortran5 \
   libgomp1 \
   libssl3 \
+  # X11 libraries for OpenStudio
   libx11-6 \
   libxext6 \
-  libxrender1 \
-  libfontconfig1 \
-  libglu1-mesa \
   && rm -rf /var/lib/apt/lists/*
 
-# Install uv (Python and package manager)
-RUN curl -fsSLk --connect-timeout 30 -o /tmp/uv.tar.gz \
-  https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz \
-  && cd /tmp \
-  && tar -xzf uv.tar.gz \
-  && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv \
-  && chmod +x /usr/local/bin/uv \
-  && rm -rf /tmp/uv*
+# Copy installation scripts and install development tools
+# This modular approach makes the Dockerfile cleaner and scripts reusable
+COPY .devcontainer/scripts/ /tmp/install-scripts/
+RUN chmod +x /tmp/install-scripts/*.sh && \
+  # Detect certificate capability and set CURL_FLAGS for all installations
+  . /tmp/install-scripts/detect-certificates.sh && detect_certificate_capability && \
+  # Install development tools (order matters for dependencies)
+  /tmp/install-scripts/install-uv.sh && \
+  # Record certificate status for user notification
+  record_certificate_status && \
+  # Set up certificate status notification system
+  /tmp/install-scripts/create-cert-status-script.sh && \
+  # Keep the script for later user setup (copy to permanent location)
+  cp /tmp/install-scripts/create-cert-status-script.sh /usr/local/bin/ && \
+  # Clean up
+  rm -rf /var/lib/apt/lists/* /tmp/install-scripts
 
 # Create a non-root user for running CLI tools and installing user-scoped deps
 ARG USERNAME=appuser
@@ -75,9 +96,12 @@ USER ${USERNAME}
 
 # Install uv-managed Python and create venv as the app user so base interpreter
 # lives under /home/appuser/.local/share/uv and is readable at runtime
-RUN uv python install 3.12 \
-  && uv venv --python 3.12 ${VENV_PATH}
+RUN uv python install ${PYTHON_VERSION} \
+  && uv venv --python ${PYTHON_VERSION} ${VENV_PATH}
 ENV PATH="${VENV_PATH}/bin:${PATH}"
+
+# Add certificate status display to user profile
+RUN /usr/local/bin/create-cert-status-script.sh ${USERNAME}
 
 # Install the package with CLI entry points into the venv
 # Use --no-cache-dir behavior by uv implicitly; install in non-editable mode for production

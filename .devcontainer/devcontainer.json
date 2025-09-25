@@ -4,7 +4,12 @@
 	"name": "H2K_HPXML",
 	"build": {
 		"dockerfile": "./Dockerfile",
-		"context": ".."
+		"context": "..",
+		"args": {
+			"PYTHON_VERSION": "3.11",
+			"RUBY_VERSION": "3.2",
+			"RUBY_METHOD": "system"
+		}
 	},
 	"containerEnv": {
 		"NODE_TLS_REJECT_UNAUTHORIZED": "0",
@@ -50,7 +55,9 @@
 				"terminal.integrated.profiles.linux": {
 					"bash": {
 						"path": "/bin/bash",
-						"args": ["--login"]
+						"args": [
+							"--login"
+						]
 					}
 				},
 				"terminal.integrated.defaultProfile.linux": "bash"

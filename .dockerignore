@@ -87,6 +87,22 @@ examples/output/
 temp/
 tmp/
 
+# Large development files
+tools/
+docs/presentations/
+docs/images/
+docs/archive/
+docs/development/
+docs/installation/
+docs/reports/
+docs/status/
+CLAUDE.md
+
+# Test files (keep test code but exclude test data)
+tests/fixtures/expected_outputs/
+examples/*.H2K
+examples/*.h2k
+
 # OS generated files
 .DS_Store
 .DS_Store?

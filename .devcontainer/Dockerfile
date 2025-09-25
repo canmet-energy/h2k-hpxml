@@ -3,10 +3,26 @@
 
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
-# Environment Configuration
+# Build arguments for language versions
+# Usage: docker build --build-arg PYTHON_VERSION=3.12 --build-arg RUBY_VERSION=3.1 .
+ARG PYTHON_VERSION=3.12
+ARG RUBY_VERSION=3.2.2
+
+# Check for custom certificates and configure if present
+COPY .devcontainer/certs* /tmp/certs/
+COPY .devcontainer/scripts/install-certificates.sh /tmp/install-certificates.sh
+RUN chmod +x /tmp/install-certificates.sh && \
+    /tmp/install-certificates.sh && \
+    rm -f /tmp/install-certificates.sh
+
+# Environment Configuration with certificate awareness
 ENV DEBIAN_FRONTEND=noninteractive \
-    UV_INSECURE_HOST="pypi.org files.pythonhosted.org github.com" \
-    UV_NATIVE_TLS=true
+    # Certificate environment variables for various tools
+    SSL_CERT_DIR=/etc/ssl/certs \
+    SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+    CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+    REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+    NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
 # Install system dependencies required by OpenStudio and development tools
 RUN apt-get update && apt-get install -y \
@@ -18,7 +34,6 @@ RUN apt-get update && apt-get install -y \
     # Basic utilities
     curl \
     git \
-    ruby \
     unzip \
     # Development tools
     build-essential \
@@ -29,39 +44,30 @@ RUN apt-get update && apt-get install -y \
     # X11 libraries for OpenStudio
     libx11-6 \
     libxext6 \
-    # Install uv - standalone Python manager
-    && curl -LsSfk --insecure --connect-timeout 30 -o /tmp/uv.tar.gz \
-    "https://github.com/astral-sh/uv/releases/download/0.8.15/uv-x86_64-unknown-linux-gnu.tar.gz" \
-    && cd /tmp && tar -xzf uv.tar.gz \
-    && mv uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/ \
-    && chmod +x /usr/local/bin/uv && rm -rf /tmp/uv* \
-    # Install GitHub CLI (insecure for corporate networks)
-    && curl -fsSLk --insecure https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-    && apt-get update \
-    && apt-get install -y gh \
-    # Cleanup
     && rm -rf /var/lib/apt/lists/*
 
-# Install Docker CLI for Docker-in-Docker support
-RUN curl -fsSLk https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update \
-    && apt-get install -y docker-ce-cli docker-compose-plugin \
-    && groupadd -f docker \
-    && usermod -aG docker vscode \
-    && rm -rf /var/lib/apt/lists/*
+# Copy installation scripts and install development tools
+# This modular approach makes the Dockerfile cleaner and scripts reusable
+COPY .devcontainer/scripts/ /tmp/install-scripts/
+RUN chmod +x /tmp/install-scripts/*.sh && \
+    # Detect certificate capability and set CURL_FLAGS for all installations
+    . /tmp/install-scripts/detect-certificates.sh && detect_certificate_capability && \
+    # Install development tools (order matters for dependencies)
+    /tmp/install-scripts/install-uv.sh && \
+    /tmp/install-scripts/install-github-cli.sh && \
+    /tmp/install-scripts/install-docker-cli.sh && \
+    /tmp/install-scripts/install-nodejs.sh && \
+    /tmp/install-scripts/install-python.sh --version ${PYTHON_VERSION} && \
+    /tmp/install-scripts/install-ruby.sh --version ${RUBY_VERSION} && \
+    # Record certificate status for user notification
+    record_certificate_status && \
+    # Set up certificate status notification system
+    /tmp/install-scripts/create-cert-status-script.sh vscode && \
+    # Clean up
+    rm -rf /var/lib/apt/lists/* /tmp/install-scripts
 
 # Set up application directory and permissions
 RUN mkdir -p /app/deps && chown -R vscode:vscode /app
-
-# Switch to vscode user for Python environment setup
-USER vscode
-
-# Create Python virtual environment using version from pyproject.toml
-# This will be done by the postCreateCommand in devcontainer.json
-# which has access to the mounted source code
 
 # Set up configuration template directory (will be populated by mount/copy)
 USER root
@@ -71,23 +77,12 @@ RUN mkdir -p /app/config/templates
 ENV PATH="/app/.venv/bin:$PATH" \
     H2K_DEPS_DIR=/app/deps
 
-# Install Node.js for development tooling
-RUN curl -fsSL -k --connect-timeout 30 https://nodejs.org/dist/v18.20.4/node-v18.20.4-linux-x64.tar.xz -o /tmp/node.tar.xz \
-    && cd /tmp \
-    && tar -xJf node.tar.xz \
-    && cp -r node-v18.20.4-linux-x64/* /usr/local/ \
-    && rm -rf /tmp/node* \
-    && ln -sf /usr/local/bin/node /usr/bin/node \
-    && ln -sf /usr/local/bin/npm /usr/bin/npm \
-    && ln -sf /usr/local/bin/npx /usr/bin/npx \
-    && npm config set ca "" \
-    && npm config set strict-ssl false \
-    && npm config set registry https://registry.npmjs.org/
-
 # Set up for development workflow
 USER vscode
 WORKDIR /workspaces/h2k_hpxml
 ENV DOCKER_BUILD_CONTEXT=true
+
+# Certificate status display is already configured by the create-cert-status-script.sh
 
 # Default command for development
 CMD ["/bin/bash"]
