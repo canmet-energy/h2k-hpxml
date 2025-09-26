@@ -6,8 +6,8 @@
 		"dockerfile": "./Dockerfile",
 		"context": "..",
 		"args": {
-			"PYTHON_VERSION": "3.11",
-			"RUBY_VERSION": "3.2",
+			"PYTHON_VERSION": "3.12",
+			"RUBY_VERSION": "3.2.2",
 			"RUBY_METHOD": "system"
 		}
 	},
@@ -100,8 +100,7 @@
 		// Docker socket for Docker-in-Docker support
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
-	"onCreateCommand": ".devcontainer/scripts/claude.sh",
-	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock && .devcontainer/scripts/certificates.sh ; uv venv --clear ; uv pip install -e '.[dev]' ; uv run h2k-deps --install-quiet && if ! grep -q 'Auto-activate h2k-hpxml venv' ~/.bashrc 2>/dev/null; then echo '# Auto-activate h2k-hpxml venv' >> ~/.bashrc && echo 'if [ -f \"/workspaces/h2k-hpxml/.venv/bin/activate\" ] && [ -z \"$VIRTUAL_ENV\" ]; then' >> ~/.bashrc && echo '    source \"/workspaces/h2k-hpxml/.venv/bin/activate\"' >> ~/.bashrc && echo '    echo \"🐍 Virtual environment activated: $(python --version)\"' >> ~/.bashrc && echo 'fi' >> ~/.bashrc; fi",
+	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock; rm -rf .venv ;uv venv --python 3.12 --clear; uv pip install -e '.[dev]' ; uv run h2k-deps --install-quiet && if ! grep -q 'Auto-activate h2k-hpxml venv' ~/.bashrc 2>/dev/null; then echo '# Auto-activate h2k-hpxml venv' >> ~/.bashrc && echo 'if [ -f \"/workspaces/h2k-hpxml/.venv/bin/activate\" ] && [ -z \"$VIRTUAL_ENV\" ]; then' >> ~/.bashrc && echo '    source \"/workspaces/h2k-hpxml/.venv/bin/activate\"' >> ~/.bashrc && echo '    echo \"🐍 Virtual environment activated: $(python --version)\"' >> ~/.bashrc && echo 'fi' >> ~/.bashrc; fi",
 	"containerUser": "vscode",
 	"remoteUser": "vscode"
 }
