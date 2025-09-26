@@ -5,18 +5,41 @@ This directory contains modular installation scripts for the H2K-HPXML developme
 ## Script Overview
 
 ### `install-dev-tools.sh`
-Master orchestration script that:
-- Detects certificate capability (corporate networks)
-- Calls all individual installation scripts
-- Records certificate status for user notification
-- Cleans up apt cache
+Legacy helper (kept only if referenced elsewhere). Prefer invoking individual scripts directly. Certificate logic is fully unified under `certctl.sh`.
 
-### `detect-certificates.sh`
-Certificate detection utility that:
-- Tests HTTPS connectivity to determine if certificate validation works
-- Sets `CURL_FLAGS` environment variable (`-fsSL` for secure, `-fsSLk` for insecure)
-- Records certificate status for user notification system
-- Can be sourced by other scripts or run standalone
+### `certctl.sh`
+Unified certificate utility (strict-only) replaces all former certificate scripts. Only `certctl.sh` remains for certificate installation, probing, environment emission, banner, and MOTD snapshot logic. The old helper scripts have been removed.
+
+Commands:
+```
+certctl install        # Install custom certs (idempotent)
+certctl probe|status   # Live strict probe (all targets) --json/--quiet
+certctl env            # Emit CERT_STATUS/CURL_FLAGS lines (use with eval)
+certctl refresh        # Probe + update banner (and MOTD if root)
+certctl motd           # Update MOTD (root) or banner (user)
+certctl banner         # Refresh banner and print it
+certctl write-motd     # Internal: write snapshot only (root)
+```
+
+Strict only: any failure => INSECURE. Targets:
+```
+https://pypi.org/
+https://registry.npmjs.org/
+https://github.com/
+https://cli.github.com/
+https://download.docker.com/
+https://nodejs.org/
+https://awscli.amazonaws.com/
+https://s3.amazonaws.com/
+```
+
+Exit codes:
+```
+0  SECURE / SECURE_CUSTOM
+10 INSECURE
+20 UNKNOWN
+30 install error (certificate store)
+```
 
 ### Individual Installation Scripts
 
@@ -82,14 +105,8 @@ Installs AWS CLI v2 via AWS's official installer:
 - Includes AWS Session Manager plugin for EC2 access
 - Certificate-aware downloads using `CURL_FLAGS`
 
-#### `install-certificates.sh`
-Installs custom certificates for corporate networks:
-- Detects and installs .crt and .pem certificate files
-- Converts .pem files to .crt format automatically
-- Updates system certificate store with error handling
-- Records certificate status for user notification system
-- Cleans up source certificate directory after installation
-- Environment variable: `CERT_SOURCE_DIR` (default: /tmp/certs)
+#### Custom certificate installation
+Handled by `certctl install` (old `install-certificates.sh` deleted).
 
 #### `install-claude-cli.sh`
 Installs Claude CLI (Anthropic's command-line interface):
@@ -111,31 +128,25 @@ Installs Claude CLI (Anthropic's command-line interface):
 ## Usage in Dockerfile
 
 ```dockerfile
-# Install custom certificates first (if any)
+# Install custom certificates (optional)
 COPY .devcontainer/certs* /tmp/certs/
-COPY .devcontainer/scripts/install-certificates.sh /tmp/install-certificates.sh
-RUN chmod +x /tmp/install-certificates.sh && \
-    /tmp/install-certificates.sh && \
-    rm -f /tmp/install-certificates.sh
+COPY .devcontainer/scripts/certctl.sh /tmp/certctl.sh
+RUN chmod +x /tmp/certctl.sh && /tmp/certctl.sh install && rm -f /tmp/certctl.sh
 
-# Copy installation scripts and install development tools
+# Copy scripts and install tools (certctl supplies CURL_FLAGS & MOTD snapshot)
 COPY .devcontainer/scripts/ /tmp/install-scripts/
 RUN chmod +x /tmp/install-scripts/*.sh && \
-    # Detect certificate capability and set CURL_FLAGS for all installations
-    source /tmp/install-scripts/detect-certificates.sh && detect_certificate_capability && \
-    # Install development tools (order matters for dependencies)
-    /tmp/install-scripts/install-uv.sh && \
-    /tmp/install-scripts/install-github-cli.sh && \
-    /tmp/install-scripts/install-docker-cli.sh && \
-    /tmp/install-scripts/install-nodejs.sh && \
-    /tmp/install-scripts/install-python.sh && \
-    /tmp/install-scripts/install-ruby.sh && \
-    # Optional: Install Claude CLI (requires Node.js)
-    # /tmp/install-scripts/install-claude-cli.sh && \
-    # Record certificate status for user notification
-    record_certificate_status && \
-    # Clean up
-    rm -rf /var/lib/apt/lists/* /tmp/install-scripts
+  cp /tmp/install-scripts/certctl.sh /usr/local/bin/certctl && chmod +x /usr/local/bin/certctl && \
+  eval "$(certctl env --quiet)" || true && \
+  certctl motd --quiet || true && \
+  /tmp/install-scripts/install-uv.sh && \
+  /tmp/install-scripts/install-github-cli.sh && \
+  /tmp/install-scripts/install-docker-cli.sh && \
+  /tmp/install-scripts/install-nodejs.sh && \
+  /tmp/install-scripts/install-python.sh && \
+  /tmp/install-scripts/install-ruby.sh && \
+  # Optional: /tmp/install-scripts/install-claude-cli.sh && \
+  rm -rf /var/lib/apt/lists/* /tmp/install-scripts
 ```
 
 ### Build Arguments for Version Control
@@ -194,24 +205,36 @@ RUN chmod +x /tmp/install-scripts/*.sh && \
 
 ## Corporate Network Support
 
-The container provides comprehensive certificate handling for corporate environments:
+Place `.crt` or `.pem` files in `.devcontainer/certs/` before build/rebuild. Installed via `certctl install` into system trust store.
 
-### Custom Certificate Files
-- Place `.crt` or `.pem` files in `.devcontainer/certs/`
-- Dockerfile automatically detects and installs them to system certificate store
-- All environment variables configured to use system certificates
+Runtime behavior:
+- `certctl probe` tests live connectivity (strict only)
+- `certctl motd` updates system snapshot (root) or user banner
+- `certctl banner` prints latest live banner
+- `certctl env` supplies `CERT_STATUS` and `CURL_FLAGS`
+- Divergence reported in `certctl probe --json` when snapshot differs
 
-### Automatic Detection
-All scripts automatically detect and handle corporate networks:
-- Test certificate validation against a known endpoint
-- Use secure connections when certificates work (including custom certificates)
-- Fall back to insecure curl flags when needed
-- Notify users about security status via login message
+Statuses returned by probe:
+- `SECURE` – All targets succeeded with base store.
+- `SECURE_CUSTOM` – All targets succeeded and custom cert(s) detected.
+- `INSECURE` – One or more targets failed under current condition.
 
-### Certificate Status Messages
-- **SECURE**: Standard certificate validation working
-- **SECURE_CUSTOM**: Custom certificates installed and working
-- **INSECURE**: Certificate validation failed, using insecure connections
+JSON output (`certctl probe --json`) example:
+```json
+{
+  "status": "INSECURE",
+  "curl_flags": "-fsSLk",
+  "custom_certs": false,
+  "snapshot_status": "SECURE",
+  "divergent": true,
+  "timestamp": 1700000000,
+  "success": 6,
+  "fail": 2,
+  "total": 8
+}
+```
+
+Lenient mode removed: strict-only (all targets must succeed).
 
 ## Standalone Usage
 

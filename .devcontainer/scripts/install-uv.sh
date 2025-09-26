@@ -4,6 +4,11 @@ set -e
 # Install Python UV Manager
 echo "🐍 Installing UV Python package manager..."
 
+if [ -z "${CURL_FLAGS:-}" ]; then
+    if command -v certctl >/dev/null 2>&1; then
+        eval "$(certctl env --quiet)" || true
+    fi
+fi
 CURL_FLAGS=${CURL_FLAGS:-"-fsSL"}
 UV_VERSION="0.8.15"
 
@@ -22,46 +27,24 @@ uv --version
 # Configure UV environment variables based on certificate status
 echo "🔧 Configuring UV environment variables..."
 
-# Read certificate status
-CERT_STATUS_FILE="/etc/container-cert-status"
-CERT_STATUS="SECURE"  # Default assumption
-
-if [ -f "$CERT_STATUS_FILE" ]; then
-    CERT_STATUS=$(cat "$CERT_STATUS_FILE")
-    echo "📋 Certificate status: $CERT_STATUS"
-else
-    echo "ℹ️  No certificate status file found, assuming secure"
-fi
+CERT_STATUS=${CERT_STATUS:-SECURE}
+echo "📋 (Stateless) certificate status: $CERT_STATUS"
 
 # Configure UV environment variables based on certificate status
-case "$CERT_STATUS" in
-    "SECURE"|"SECURE_CUSTOM")
-        echo "✅ Certificates are valid - configuring UV for secure TLS"
-        # Use standard secure TLS - no special configuration needed
-        echo "UV_NATIVE_TLS=true" >> /etc/environment
-        echo "# UV configured for secure TLS validation" >> /etc/environment
-        ;;
-    "INSECURE")
-        echo "⚠️  Certificates are problematic - configuring UV for insecure mode"
-        # Configure UV for environments with certificate issues
-        echo "UV_INSECURE_HOST=pypi.org files.pythonhosted.org github.com" >> /etc/environment
-        echo "UV_NATIVE_TLS=true" >> /etc/environment
-        echo "# UV configured for insecure hosts due to certificate issues" >> /etc/environment
-        ;;
-    *)
-        echo "⚠️  Unknown certificate status: $CERT_STATUS, defaulting to secure"
-        echo "UV_NATIVE_TLS=true" >> /etc/environment
-        ;;
-esac
+if [ "$CERT_STATUS" = "INSECURE" ]; then
+    echo "⚠️  Insecure network detected – configuring UV with relaxed hosts"
+    echo "UV_INSECURE_HOST=pypi.org files.pythonhosted.org github.com" >> /etc/environment
+else
+    echo "✅ Secure network – standard TLS for UV"
+fi
+echo "UV_NATIVE_TLS=true" >> /etc/environment
 
 # Display final UV configuration
 echo "🎯 UV Configuration Summary:"
 if grep -q "UV_INSECURE_HOST" /etc/environment 2>/dev/null; then
-    echo "  - UV_INSECURE_HOST: $(grep UV_INSECURE_HOST /etc/environment | cut -d'=' -f2-)"
-    echo "  - Security: Reduced certificate validation for corporate networks"
+    echo "  - UV_INSECURE_HOST: $(grep UV_INSECURE_HOST /etc/environment | cut -d'=' -f2-) (reduced validation)"
 else
-    echo "  - Standard secure TLS validation enabled"
-    echo "  - Security: Full certificate validation active"
+    echo "  - No insecure hosts configured (full validation)"
 fi
 
 echo "🎉 UV installation and configuration complete!"
