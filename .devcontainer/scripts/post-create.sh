@@ -32,8 +32,7 @@ uv run h2k-deps --install-quiet
 
 # Configure Git (personalize as needed)
 echo "📝 Configuring Git..."
-git config --global user.email 'phylroy.lopez@nrcan.gc.ca'
-git config --global user.name 'Phylroy Lopez'
+# git config --global user.email 'phylroy.lopez@nrcan.gc.ca' && git config --global user.name 'Phylroy Lopez'
 
 # Configure bash environment for auto-activation of virtual environment
 echo "⚙️ Configuring shell environment..."
