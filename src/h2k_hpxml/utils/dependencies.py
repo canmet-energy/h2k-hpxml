@@ -889,6 +889,208 @@ class DependencyManager:
         else:
             click.echo("- Ensure workflow/run_simulation.rb exists")
 
+    def _add_to_path_windows(self, install_dir):
+        """
+        Add OpenStudio and EnergyPlus binaries to Windows user PATH.
+
+        Args:
+            install_dir: Path to OpenStudio installation directory
+
+        Returns:
+            bool: True if PATH update successful, False otherwise
+        """
+        try:
+            bin_path = install_dir / "bin"
+            energyplus_path = install_dir / "EnergyPlus"
+
+            # Check if paths are already in PATH
+            current_path = os.environ.get("PATH", "")
+            bin_in_path = str(bin_path) in current_path
+            ep_in_path = str(energyplus_path) in current_path
+
+            if bin_in_path and ep_in_path:
+                click.echo("✅ OpenStudio and EnergyPlus already in PATH")
+                return True
+
+            # In interactive mode, ask user
+            if self.interactive:
+                if not click.confirm("\n🔧 Add OpenStudio and EnergyPlus to your PATH?"):
+                    click.echo("⏭️  Skipped PATH update")
+                    return False
+
+            # Use PowerShell to update user PATH
+            click.echo("🔧 Updating user PATH...")
+
+            # Get current user PATH from registry
+            ps_get_path = (
+                "[Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::User)"
+            )
+            result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", ps_get_path],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            if result.returncode != 0:
+                raise Exception(f"Failed to read user PATH: {result.stderr}")
+
+            current_user_path = result.stdout.strip()
+
+            # Build new PATH with OpenStudio paths
+            paths_to_add = []
+            if not bin_in_path:
+                paths_to_add.append(str(bin_path))
+            if not ep_in_path:
+                paths_to_add.append(str(energyplus_path))
+
+            if not paths_to_add:
+                click.echo("✅ Paths already in user PATH")
+                return True
+
+            # Construct new PATH
+            if current_user_path:
+                new_path = current_user_path + ";" + ";".join(paths_to_add)
+            else:
+                new_path = ";".join(paths_to_add)
+
+            # Update user PATH
+            ps_set_path = (
+                f"[Environment]::SetEnvironmentVariable('Path', '{new_path}', "
+                f"[EnvironmentVariableTarget]::User)"
+            )
+            result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", ps_set_path],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            if result.returncode != 0:
+                raise Exception(f"Failed to update PATH: {result.stderr}")
+
+            click.echo(f"✅ Added to user PATH:")
+            for path in paths_to_add:
+                click.echo(f"   • {path}")
+            click.echo("\n⚠️  Note: Restart your terminal for PATH changes to take effect")
+
+            return True
+
+        except subprocess.TimeoutExpired:
+            click.echo("❌ PATH update timed out")
+            return False
+        except Exception as e:
+            click.echo(f"❌ Failed to update PATH: {e}")
+            click.echo("\n📝 You can manually add to PATH:")
+            click.echo(f"   • {bin_path}")
+            click.echo(f"   • {energyplus_path}")
+            return False
+
+    def _add_to_path_linux(self, install_dir):
+        """
+        Add OpenStudio and EnergyPlus binaries to Linux PATH via shell profile.
+
+        Creates symlinks in ~/.local/bin/ and updates shell profile files
+        (.bashrc, .bash_profile, .zshrc, .profile) to include ~/.local/bin in PATH.
+
+        Args:
+            install_dir: Path to OpenStudio installation directory
+
+        Returns:
+            bool: True if PATH update successful, False otherwise
+        """
+        try:
+            local_bin = Path.home() / ".local" / "bin"
+            local_bin.mkdir(parents=True, exist_ok=True)
+
+            # Create symlinks for OpenStudio
+            openstudio_bin = install_dir / "bin" / "openstudio"
+            openstudio_link = local_bin / "openstudio"
+
+            # Create symlinks for EnergyPlus
+            energyplus_bin = install_dir / "EnergyPlus" / "energyplus"
+            energyplus_link = local_bin / "energyplus"
+
+            links_created = []
+
+            # Create OpenStudio symlink
+            if openstudio_bin.exists():
+                if openstudio_link.exists() or openstudio_link.is_symlink():
+                    openstudio_link.unlink()
+                openstudio_link.symlink_to(openstudio_bin)
+                links_created.append(f"openstudio → {openstudio_bin}")
+
+            # Create EnergyPlus symlink
+            if energyplus_bin.exists():
+                if energyplus_link.exists() or energyplus_link.is_symlink():
+                    energyplus_link.unlink()
+                energyplus_link.symlink_to(energyplus_bin)
+                links_created.append(f"energyplus → {energyplus_bin}")
+
+            if links_created:
+                click.echo(f"✅ Created symlinks in {local_bin}:")
+                for link in links_created:
+                    click.echo(f"   • {link}")
+
+            # Check if ~/.local/bin is in PATH
+            current_path = os.environ.get("PATH", "")
+            if str(local_bin) in current_path:
+                click.echo(f"✅ {local_bin} already in PATH")
+                return True
+
+            # In interactive mode, ask user
+            if self.interactive:
+                if not click.confirm(f"\n🔧 Add {local_bin} to your PATH?"):
+                    click.echo("⏭️  Skipped PATH update")
+                    click.echo(f"📝 To manually add to PATH, add this to your shell profile:")
+                    click.echo(f'   export PATH="$HOME/.local/bin:$PATH"')
+                    return False
+
+            # Update shell profile files
+            click.echo("🔧 Updating shell profile files...")
+
+            home = Path.home()
+            profile_files = [
+                home / ".bashrc",
+                home / ".bash_profile",
+                home / ".zshrc",
+                home / ".profile"
+            ]
+
+            path_export = '\n# Added by h2k-deps for OpenStudio and EnergyPlus\nexport PATH="$HOME/.local/bin:$PATH"\n'
+            files_updated = []
+
+            for profile_file in profile_files:
+                if profile_file.exists():
+                    # Read current content
+                    content = profile_file.read_text()
+
+                    # Check if PATH export already exists
+                    if 'PATH="$HOME/.local/bin:$PATH"' in content or 'PATH=$HOME/.local/bin:$PATH' in content:
+                        continue
+
+                    # Append PATH export
+                    with open(profile_file, 'a') as f:
+                        f.write(path_export)
+                    files_updated.append(str(profile_file))
+
+            if files_updated:
+                click.echo("✅ Updated shell profile files:")
+                for file in files_updated:
+                    click.echo(f"   • {file}")
+                click.echo("\n⚠️  Note: Run 'source ~/.bashrc' (or your shell's profile) to apply changes")
+                click.echo("   Or restart your terminal for PATH changes to take effect")
+            else:
+                click.echo("ℹ️  Shell profiles already configured or not found")
+
+            return True
+
+        except Exception as e:
+            click.echo(f"❌ Failed to update PATH: {e}")
+            click.echo(f"\n📝 You can manually add to PATH by adding this to your shell profile:")
+            click.echo(f'   export PATH="$HOME/.local/bin:$PATH"')
+            return False
+
     def _install_openstudio(self):
         """
         Install OpenStudio automatically based on platform.
@@ -996,16 +1198,8 @@ class DependencyManager:
 
                 click.echo(f"✅ OpenStudio installed successfully to: {install_dir}")
 
-                # Provide PATH instructions
-                bin_path = install_dir / "bin"
-                click.echo("\n📝 To add OpenStudio to your PATH (optional):")
-                click.echo("   1. Open System Properties > Environment Variables")
-                click.echo("   2. Edit the 'Path' variable for your user")
-                click.echo(f"   3. Add: {bin_path}")
-                click.echo("\n   Or run in PowerShell as Administrator:")
-                click.echo(
-                    f'   [Environment]::SetEnvironmentVariable("Path", $env:Path + ";{bin_path}", [EnvironmentVariableTarget]::User)'
-                )
+                # Add to PATH
+                self._add_to_path_windows(install_dir)
 
                 return True
 
@@ -2044,21 +2238,11 @@ class DependencyManager:
                 # Move the contents to the final location
                 shutil.move(extracted_root, install_dir)
 
-                # Create symlink in ~/.local/bin if it exists
-                local_bin = Path.home() / ".local" / "bin"
-                if local_bin.exists():
-                    bin_link = local_bin / "openstudio"
-                    openstudio_bin = install_dir / "bin" / "openstudio"
-                    
-                    if openstudio_bin.exists():
-                        # Remove existing symlink
-                        if bin_link.exists() or bin_link.is_symlink():
-                            bin_link.unlink()
-                        # Create new symlink
-                        bin_link.symlink_to(openstudio_bin)
-                        click.echo(f"✅ Created symlink: {bin_link} → {openstudio_bin}")
-
                 click.echo(f"✅ OpenStudio installed successfully to: {install_dir}")
+
+                # Add to PATH (creates symlinks and updates shell profiles)
+                self._add_to_path_linux(install_dir)
+
                 return True
 
         except Exception as e:
