@@ -7,27 +7,40 @@ CURL_FLAGS="${CURL_FLAGS:--fsSL}"
 
 # Install Claude CLI (Anthropic's command-line interface)
 echo "🤖 Installing Claude CLI..."
+echo "   Note: This script can be run as a regular user (no sudo required)"
 CLAUDE_VERSION="latest"
 
 # Check if Node.js is available (Claude CLI requires Node.js)
 if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
     echo "📋 Node.js and/or npm not found - installing automatically..."
     
-    # Find the install-nodejs.sh script
+    # Find the install-user-nodejs.sh script (or fallback to install-system-nodejs.sh if it exists)
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    NODEJS_SCRIPT="$SCRIPT_DIR/install-nodejs.sh"
-    
-    if [ -f "$NODEJS_SCRIPT" ]; then
-        echo "🔄 Running install-nodejs.sh..."
-        if "$NODEJS_SCRIPT"; then
+    NODEJS_USER_SCRIPT="$SCRIPT_DIR/install-user-nodejs.sh"
+    NODEJS_SYSTEM_SCRIPT="$SCRIPT_DIR/install-system-nodejs.sh"
+
+    # Try user installation first (no sudo required)
+    if [ -f "$NODEJS_USER_SCRIPT" ]; then
+        echo "🔄 Running install-user-nodejs.sh (user installation, no sudo required)..."
+        if "$NODEJS_USER_SCRIPT"; then
+            echo "✅ Node.js installation completed"
+            # Source bashrc to get the new PATH
+            source ~/.bashrc
+        else
+            echo "❌ Error: Failed to install Node.js"
+            exit 1
+        fi
+    elif [ -f "$NODEJS_SYSTEM_SCRIPT" ]; then
+        echo "🔄 Running install-system-nodejs.sh (system installation, requires sudo)..."
+        if sudo "$NODEJS_SYSTEM_SCRIPT"; then
             echo "✅ Node.js installation completed"
         else
             echo "❌ Error: Failed to install Node.js"
             exit 1
         fi
     else
-        echo "❌ Error: install-nodejs.sh script not found at $NODEJS_SCRIPT"
-        echo "   Please ensure install-nodejs.sh is in the same directory"
+        echo "❌ Error: No Node.js installation script found"
+        echo "   Expected $NODEJS_USER_SCRIPT or $NODEJS_SYSTEM_SCRIPT"
         exit 1
     fi
     
@@ -45,7 +58,7 @@ echo "📦 Using Node.js ${NODE_VERSION} with npm ${NPM_VERSION}"
 
 # Install Claude CLI globally via npm
 echo "🔄 Installing @anthropic-ai/claude-code package..."
-if npm install -g  @anthropic-ai/claude-code; then
+if npm install -g @anthropic-ai/claude-code; then
     echo "✅ Claude CLI installed successfully"
 else
     echo "❌ Failed to install Claude CLI via npm"

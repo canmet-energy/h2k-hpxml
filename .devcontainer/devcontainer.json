@@ -4,12 +4,7 @@
 	"name": "H2K_HPXML",
 	"build": {
 		"dockerfile": "./Dockerfile",
-		"context": "..",
-		"args": {
-			"PYTHON_VERSION": "3.12",
-			"RUBY_VERSION": "3.2.2",
-			"RUBY_METHOD": "system"
-		}
+		"context": ".."
 	},
 	"containerEnv": {
 		"UV_PROJECT_ENVIRONMENT": "${containerWorkspaceFolder}/.venv",

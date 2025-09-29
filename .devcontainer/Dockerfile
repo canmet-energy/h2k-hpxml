@@ -3,10 +3,7 @@
 
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
-# Build arguments for language versions
-# Usage: docker build --build-arg PYTHON_VERSION=3.12 --build-arg RUBY_VERSION=3.1 .
-ARG PYTHON_VERSION=3.12
-ARG RUBY_VERSION=3.2.2
+# No build arguments needed - UV handles Python version management at runtime
 
 # Install certificate management (single script)
 COPY .devcontainer/certs* /tmp/certs/
@@ -45,18 +42,17 @@ RUN apt-get update && apt-get install -y \
 # Copy installation scripts and install development tools
 # This modular approach makes the Dockerfile cleaner and scripts reusable
 COPY .devcontainer/scripts/ /tmp/install-scripts/
-RUN chmod +x /tmp/install-scripts/*.sh && \
-    # Dynamically detect certificate environment for NRCan network
-    bash -c '. /usr/local/bin/certctl && \
+RUN chmod +x /tmp/install-scripts/*.sh
+
+# Dynamically detect certificate environment for NRCan network and set variables accordingly
+# Then install development tools
+RUN bash -c '. /usr/local/bin/certctl && \
     certctl_load && \
     echo "Build environment detected: CERT_STATUS=$CERT_STATUS CURL_FLAGS=$CURL_FLAGS" && \
     # Install development tools (order matters for dependencies)
-    /tmp/install-scripts/install-uv.sh && \
-    /tmp/install-scripts/install-github-cli.sh && \
-    /tmp/install-scripts/install-docker-cli.sh && \
-    /tmp/install-scripts/install-nodejs.sh && \
-    /tmp/install-scripts/install-python.sh --version '"${PYTHON_VERSION}"' && \
-    rm -rf /var/lib/apt/lists/* /tmp/install-scripts'
+    /tmp/install-scripts/install-system-github-cli.sh && \
+    /tmp/install-scripts/install-system-docker-cli.sh && \
+    rm -rf /var/lib/apt/lists/*'
 
 # Set up application directory and permissions
 RUN mkdir -p /app/deps && chown -R vscode:vscode /app
@@ -73,6 +69,17 @@ ENV PATH="/app/.venv/bin:$PATH" \
 USER vscode
 WORKDIR /workspaces/h2k_hpxml
 ENV DOCKER_BUILD_CONTEXT=true
+
+# Install user-level tools (UV, Node.js) - no sudo required
+# This allows npm install -g and UV operations without sudo
+# Python will be installed by UV during post-create setup
+RUN bash -c '. /usr/local/bin/certctl 2>/dev/null || true && \
+    certctl_load 2>/dev/null || true && \
+    /tmp/install-scripts/install-user-uv.sh && \
+    /tmp/install-scripts/install-user-nodejs.sh'
+
+# Add user tools to PATH for vscode user
+ENV PATH="/home/vscode/.local/bin:$PATH"
 
 ## Stateless certificate detection: no persistent status display configured
 
