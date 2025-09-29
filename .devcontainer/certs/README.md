@@ -1,43 +1,35 @@
-# Certificate Configuration
+# Certificate Configuration (Unified via certctl-safe)
 
-This directory can contain custom certificate files for corporate environments where additional certificates are needed for HTTPS connections.
+Place optional corporate / custom CA certificates here to have them trusted inside the dev container and production image.
 
 ## How to Use
 
 1. **Place certificate files in this directory**:
-   - Supported formats: `.crt` and `.pem` files
+   - Supported formats: `.crt` and `.pem` files (PEM format)
    - Example: `corporate-ca.crt`, `proxy-cert.pem`
 
 2. **Rebuild the devcontainer**:
-   - The Dockerfile will automatically detect and install any certificates found here
+   - The Dockerfile will automatically install any certificates via `certctl certs-refresh`
    - All development tools will be configured to use the system certificate store
 
 ## What Happens Automatically
 
-When certificate files are detected:
+During container build:
+1. **Certificate Installation** (`certctl certs-refresh`):
+   - Cleans old custom certificates from `/usr/local/share/ca-certificates/custom/`
+   - Copies `.crt` files directly to `/usr/local/share/ca-certificates/custom/`
+   - Converts `.pem` files to `.crt` format and installs them
+   - Runs `update-ca-certificates` to rebuild the system certificate store
 
-### System Integration
-- Certificates are copied to `/usr/local/share/ca-certificates/`
-- System certificate store is updated via `update-ca-certificates`
-- All applications will use the updated certificate bundle
-
-### Environment Variables Set
-- `SSL_CERT_DIR=/etc/ssl/certs`
-- `SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt`
-- `CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt`
-- `REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt` (Python requests)
-- `NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt` (Node.js)
-
-### Tool Configuration
-- **curl**: Uses system certificate store
-- **Python UV**: Configured to use system certificates
-- **Node.js/npm**: Configured to use system certificates
-- **Git**: Uses system certificate store
-- **Docker CLI**: Uses system certificate store
+2. **Dynamic Environment Detection** (`certctl_load`):
+   - Probes multiple targets to detect network certificate status
+   - Automatically configures environment based on results:
+     - **SECURE**: Valid certificates detected - normal SSL validation
+     - **INSECURE**: Certificate issues detected - automatic fallback to insecure mode
+   - 10-second timeout ensures probe has time to complete
+   - Tools (curl, uv, requests, node, git, pip, npm, AWS CLI) are configured appropriately
 
 ## Corporate Network Setup
-
-For corporate networks with TLS interception:
 
 1. **Get your corporate CA certificate**:
    - Contact your IT department
@@ -51,17 +43,49 @@ For corporate networks with TLS interception:
    └── README.md
    ```
 
-3. **Rebuild devcontainer**:
-   - VS Code: Command Palette → "Dev Containers: Rebuild Container"
-   - CLI: `docker build -f .devcontainer/Dockerfile .`
+3. **Rebuild devcontainer** (VS Code Rebuild or image build) – certificates become trusted.
 
-## Verification
+## Certificate Management Commands
 
-After rebuilding with custom certificates:
+After container is built, you can manage certificates manually:
 
-1. **Check certificate status**: Login message will show certificate status
-2. **Test connectivity**: All HTTPS downloads should work without `--insecure` flags
-3. **Verify installation**: `ls -la /usr/local/share/ca-certificates/`
+**Status and Information:**
+- `certctl certs-status` - Show detailed certificate installation status
+- `certctl status` - Show overall certificate validation status
+- `certctl banner` - Show certificate status banner
+
+**Manual Management:**
+- `certctl certs-refresh` - Full certificate refresh (clean + install + update)
+- `certctl certs-clean` - Remove old custom certificates only
+- `certctl certs-install` - Install certificates from `/tmp/certs/` (if available)
+- `certctl certs-update` - Update system certificate store only
+
+## Verification (Strict Mode)
+
+The system tests certificate validation against these targets:
+```
+https://pypi.org/
+https://registry.npmjs.org/
+https://github.com/
+https://cli.github.com/
+https://download.docker.com/
+https://nodejs.org/
+https://awscli.amazonaws.com/
+https://s3.amazonaws.com/
+```
+
+**Verification Steps:**
+1. **Quick check**: `curl -I https://pypi.org/` (should work without `-k`)
+2. **Detailed status**: `certctl status` (shows probe results and environment)
+3. **Certificate info**: `certctl certs-status` (shows installed custom certificates)
+4. **Shell status**: New terminal shows certificate banner automatically
+5. **Verify files**: `ls -la /usr/local/share/ca-certificates/custom/`
+
+**Certificate Status Values:**
+- **SECURE_CUSTOM**: All targets OK + custom certificates installed
+- **SECURE**: All targets OK (system certificates only)
+- **INSECURE**: One or more probe failures (automatic fallback mode with `-k` flags and insecure environment variables)
+- **UNKNOWN**: Unable to determine status (uses secure defaults for safety)
 
 ## Security Notes
 
@@ -77,14 +101,20 @@ After rebuilding with custom certificates:
 - Rebuild container completely (don't use cached layers)
 
 ### Still Getting Certificate Errors
-- The container will automatically fall back to insecure mode
-- Check the login message for certificate status
-- Verify the certificate chain is complete
+- Run: `certctl status` to see detailed probe results and current status
+- If status is INSECURE and you have corporate certs available:
+  1. Install missing corporate root/intermediate certificates in this directory
+  2. Rebuild the container completely (don't use cached layers)
+  3. Verify installation: `certctl certs-status`
+- Verify certificate format: `openssl x509 -in your-cert.crt -text -noout | less`
+- Domain-specific failures may need firewall/proxy adjustments
+- For persistent issues, try: `sudo certctl certs-refresh` to reload certificates
+- Note: INSECURE mode is automatically enabled for development - tools will still work with bypass flags
 
 ## Example Corporate Certificate
 
-If you need to export a certificate from your browser:
+If you need to export a cert from your browser:
 1. Navigate to any HTTPS site
-2. Click the lock icon → Certificate details
-3. Export the root CA certificate
-4. Save as `.crt` or `.pem` file in this directory
+2. View certificate chain (lock icon)
+3. Export root CA (PEM)
+4. Save here and rebuild

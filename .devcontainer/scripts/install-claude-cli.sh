@@ -1,10 +1,12 @@
 #!/bin/bash
 set -e
 
+# Certificate environment now handled system-wide by certctl
+# Get appropriate curl flags from environment (set by certctl if available)
+CURL_FLAGS="${CURL_FLAGS:--fsSL}"
+
 # Install Claude CLI (Anthropic's command-line interface)
 echo "🤖 Installing Claude CLI..."
-
-CURL_FLAGS=${CURL_FLAGS:-"-fsSL"}
 CLAUDE_VERSION="latest"
 
 # Check if Node.js is available (Claude CLI requires Node.js)
@@ -42,8 +44,8 @@ NPM_VERSION=$(npm --version 2>/dev/null)
 echo "📦 Using Node.js ${NODE_VERSION} with npm ${NPM_VERSION}"
 
 # Install Claude CLI globally via npm
-echo "🔄 Installing @anthropic-ai/claude-cli package..."
-if npm install -g @anthropic-ai/claude-cli; then
+echo "🔄 Installing @anthropic-ai/claude-code package..."
+if npm install -g  @anthropic-ai/claude-code; then
     echo "✅ Claude CLI installed successfully"
 else
     echo "❌ Failed to install Claude CLI via npm"
@@ -54,7 +56,7 @@ else
     
     # Try to provide more specific error information
     echo "🔍 Testing npm registry connectivity..."
-    if curl $CURL_FLAGS --connect-timeout 10 https://registry.npmjs.org/ > /dev/null 2>&1; then
+    if curl ${CURL_FLAGS} --connect-timeout 10 https://registry.npmjs.org/ > /dev/null 2>&1; then
         echo "   ✅ npm registry is accessible"
         echo "   Issue might be package-specific or permission-related"
     else

@@ -8,21 +8,17 @@ FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 ARG PYTHON_VERSION=3.12
 ARG RUBY_VERSION=3.2.2
 
-# Check for custom certificates and configure if present
+# Install certificate management (single script)
 COPY .devcontainer/certs* /tmp/certs/
-COPY .devcontainer/scripts/install-certificates.sh /tmp/install-certificates.sh
-RUN chmod +x /tmp/install-certificates.sh && \
-    /tmp/install-certificates.sh && \
-    rm -f /tmp/install-certificates.sh
+COPY .devcontainer/scripts/certctl-safe.sh /tmp/
+RUN chmod +x /tmp/certctl-safe.sh && \
+    /tmp/certctl-safe.sh install && \
+    /tmp/certctl-safe.sh certs-refresh && \
+    rm -rf /tmp/certctl-safe.sh /tmp/certs/
 
-# Environment Configuration with certificate awareness
-ENV DEBIAN_FRONTEND=noninteractive \
-    # Certificate environment variables for various tools
-    SSL_CERT_DIR=/etc/ssl/certs \
-    SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
-    CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
-    REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
-    NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+# Environment Configuration
+ENV DEBIAN_FRONTEND=noninteractive
+# Note: Certificate environment variables now managed dynamically by certctl-safe
 
 # Install system dependencies required by OpenStudio and development tools
 RUN apt-get update && apt-get install -y \
@@ -50,21 +46,17 @@ RUN apt-get update && apt-get install -y \
 # This modular approach makes the Dockerfile cleaner and scripts reusable
 COPY .devcontainer/scripts/ /tmp/install-scripts/
 RUN chmod +x /tmp/install-scripts/*.sh && \
-    # Detect certificate capability and set CURL_FLAGS for all installations
-    . /tmp/install-scripts/detect-certificates.sh && detect_certificate_capability && \
+    # Dynamically detect certificate environment for NRCan network
+    bash -c '. /usr/local/bin/certctl && \
+    certctl_load && \
+    echo "Build environment detected: CERT_STATUS=$CERT_STATUS CURL_FLAGS=$CURL_FLAGS" && \
     # Install development tools (order matters for dependencies)
     /tmp/install-scripts/install-uv.sh && \
     /tmp/install-scripts/install-github-cli.sh && \
     /tmp/install-scripts/install-docker-cli.sh && \
     /tmp/install-scripts/install-nodejs.sh && \
-    /tmp/install-scripts/install-python.sh --version ${PYTHON_VERSION} && \
-    /tmp/install-scripts/install-ruby.sh --version ${RUBY_VERSION} && \
-    # Record certificate status for user notification
-    record_certificate_status && \
-    # Set up certificate status notification system
-    /tmp/install-scripts/create-cert-status-script.sh vscode && \
-    # Clean up
-    rm -rf /var/lib/apt/lists/* /tmp/install-scripts
+    /tmp/install-scripts/install-python.sh --version '"${PYTHON_VERSION}"' && \
+    rm -rf /var/lib/apt/lists/* /tmp/install-scripts'
 
 # Set up application directory and permissions
 RUN mkdir -p /app/deps && chown -R vscode:vscode /app
@@ -82,7 +74,7 @@ USER vscode
 WORKDIR /workspaces/h2k_hpxml
 ENV DOCKER_BUILD_CONTEXT=true
 
-# Certificate status display is already configured by the create-cert-status-script.sh
+## Stateless certificate detection: no persistent status display configured
 
 # Default command for development
 CMD ["/bin/bash"]

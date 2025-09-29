@@ -8,17 +8,15 @@ This directory contains modular installation scripts for the H2K-HPXML developme
 Legacy helper (kept only if referenced elsewhere). Prefer invoking individual scripts directly. Certificate logic is fully unified under `certctl.sh`.
 
 ### `certctl.sh`
-Unified certificate utility (strict-only) replaces all former certificate scripts. Only `certctl.sh` remains for certificate installation, probing, environment emission, banner, and MOTD snapshot logic. The old helper scripts have been removed.
+Unified certificate utility (strict-only) replaces all former certificate scripts. Only `certctl.sh` remains for certificate installation, probing, environment emission, and a user banner (MOTD snapshot functionality removed for simplicity).
 
 Commands:
 ```
 certctl install        # Install custom certs (idempotent)
 certctl probe|status   # Live strict probe (all targets) --json/--quiet
 certctl env            # Emit CERT_STATUS/CURL_FLAGS lines (use with eval)
-certctl refresh        # Probe + update banner (and MOTD if root)
-certctl motd           # Update MOTD (root) or banner (user)
-certctl banner         # Refresh banner and print it
-certctl write-motd     # Internal: write snapshot only (root)
+certctl refresh        # Probe + update user banner
+certctl banner         # Probe + update user banner, then print it
 ```
 
 Strict only: any failure => INSECURE. Targets:
@@ -133,12 +131,12 @@ COPY .devcontainer/certs* /tmp/certs/
 COPY .devcontainer/scripts/certctl.sh /tmp/certctl.sh
 RUN chmod +x /tmp/certctl.sh && /tmp/certctl.sh install && rm -f /tmp/certctl.sh
 
-# Copy scripts and install tools (certctl supplies CURL_FLAGS & MOTD snapshot)
+# Copy scripts and install tools (certctl supplies CURL_FLAGS & user banner)
 COPY .devcontainer/scripts/ /tmp/install-scripts/
 RUN chmod +x /tmp/install-scripts/*.sh && \
   cp /tmp/install-scripts/certctl.sh /usr/local/bin/certctl && chmod +x /usr/local/bin/certctl && \
   eval "$(certctl env --quiet)" || true && \
-  certctl motd --quiet || true && \
+  certctl refresh --quiet || true && \
   /tmp/install-scripts/install-uv.sh && \
   /tmp/install-scripts/install-github-cli.sh && \
   /tmp/install-scripts/install-docker-cli.sh && \
@@ -209,24 +207,21 @@ Place `.crt` or `.pem` files in `.devcontainer/certs/` before build/rebuild. Ins
 
 Runtime behavior:
 - `certctl probe` tests live connectivity (strict only)
-- `certctl motd` updates system snapshot (root) or user banner
+- Shell startup uses a per-user banner only (no /etc/motd.d writes)
 - `certctl banner` prints latest live banner
 - `certctl env` supplies `CERT_STATUS` and `CURL_FLAGS`
-- Divergence reported in `certctl probe --json` when snapshot differs
 
 Statuses returned by probe:
 - `SECURE` – All targets succeeded with base store.
 - `SECURE_CUSTOM` – All targets succeeded and custom cert(s) detected.
 - `INSECURE` – One or more targets failed under current condition.
 
-JSON output (`certctl probe --json`) example:
+JSON output (`certctl probe --json`) example (no legacy snapshot/divergence fields):
 ```json
 {
   "status": "INSECURE",
   "curl_flags": "-fsSLk",
   "custom_certs": false,
-  "snapshot_status": "SECURE",
-  "divergent": true,
   "timestamp": 1700000000,
   "success": 6,
   "fail": 2,

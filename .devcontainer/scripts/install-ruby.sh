@@ -3,6 +3,10 @@ set -e
 
 echo "💎 Installing Ruby via rbenv..."
 
+# Certificate environment now handled system-wide by certctl
+# Get appropriate curl flags from environment (set by certctl if available)
+CURL_FLAGS="${CURL_FLAGS:--fsSL}"
+
 # Parse command line arguments
 RUBY_VERSION="3.2.2"  # Default version (latest stable)
 HELP=false
@@ -42,8 +46,6 @@ if [ "$HELP" = true ]; then
     exit 0
 fi
 
-# Use certificate-aware curl flags if available
-CURL_FLAGS="${CURL_FLAGS:-"-fsSL"}"
 
 echo "🔧 Installing Ruby $RUBY_VERSION via rbenv..."
 

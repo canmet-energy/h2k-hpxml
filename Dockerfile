@@ -15,10 +15,10 @@ ARG RUBY_VERSION=3.2
 
 # Check for custom certificates and configure if present
 COPY .devcontainer/certs* /tmp/certs/
-COPY .devcontainer/scripts/install-certificates.sh /tmp/install-certificates.sh
-RUN chmod +x /tmp/install-certificates.sh && \
-  /tmp/install-certificates.sh && \
-  rm -f /tmp/install-certificates.sh
+COPY .devcontainer/scripts/certctl.sh /tmp/certctl.sh
+RUN chmod +x /tmp/certctl.sh && \
+  /tmp/certctl.sh install && \
+  rm -f /tmp/certctl.sh
 
 # Environment Configuration with certificate awareness
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -55,16 +55,13 @@ RUN apt-get update && apt-get install -y \
 # This modular approach makes the Dockerfile cleaner and scripts reusable
 COPY .devcontainer/scripts/ /tmp/install-scripts/
 RUN chmod +x /tmp/install-scripts/*.sh && \
-  # Detect certificate capability and set CURL_FLAGS for all installations
-  . /tmp/install-scripts/detect-certificates.sh && detect_certificate_capability && \
+  cp /tmp/install-scripts/certctl.sh /usr/local/bin/certctl && chmod +x /usr/local/bin/certctl && \
+  eval "$(certctl env --quiet)" || true && \
+  certctl refresh --quiet || true && \
+  # Profile hook: show live certificate banner for interactive shells (no output suppression)
+  echo 'if [[ "$-" == *i* ]] && [ -x /usr/local/bin/certctl ]; then certctl banner; fi' > /etc/profile.d/10-cert-banner.sh && \
   # Install development tools (order matters for dependencies)
   /tmp/install-scripts/install-uv.sh && \
-  # Record certificate status for user notification
-  record_certificate_status && \
-  # Set up certificate status notification system
-  /tmp/install-scripts/create-cert-status-script.sh && \
-  # Keep the script for later user setup (copy to permanent location)
-  cp /tmp/install-scripts/create-cert-status-script.sh /usr/local/bin/ && \
   # Clean up
   rm -rf /var/lib/apt/lists/* /tmp/install-scripts
 
@@ -100,8 +97,7 @@ RUN uv python install ${PYTHON_VERSION} \
   && uv venv --python ${PYTHON_VERSION} ${VENV_PATH}
 ENV PATH="${VENV_PATH}/bin:${PATH}"
 
-# Add certificate status display to user profile
-RUN /usr/local/bin/create-cert-status-script.sh ${USERNAME}
+# (Certificate status display disabled in stateless mode)
 
 # Install the package with CLI entry points into the venv
 # Use --no-cache-dir behavior by uv implicitly; install in non-editable mode for production

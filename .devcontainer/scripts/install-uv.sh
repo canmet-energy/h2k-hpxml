@@ -4,15 +4,13 @@ set -e
 # Install Python UV Manager
 echo "🐍 Installing UV Python package manager..."
 
-if [ -z "${CURL_FLAGS:-}" ]; then
-    if command -v certctl >/dev/null 2>&1; then
-        eval "$(certctl env --quiet)" || true
-    fi
-fi
-CURL_FLAGS=${CURL_FLAGS:-"-fsSL"}
-UV_VERSION="0.8.15"
+# Certificate environment now handled system-wide by certctl
+# Get appropriate curl flags from environment (set by certctl if available)
+CURL_FLAGS="${CURL_FLAGS:--fsSL}"
 
-curl $CURL_FLAGS --connect-timeout 30 -o /tmp/uv.tar.gz \
+UV_VERSION="0.8.15"
+echo "curl ${CURL_FLAGS} --connect-timeout 30 -o /tmp/uv.tar.gz https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz"
+curl ${CURL_FLAGS} --connect-timeout 30 -o /tmp/uv.tar.gz \
     "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz"
 
 cd /tmp
@@ -24,27 +22,8 @@ rm -rf /tmp/uv*
 echo "✅ UV installed successfully"
 uv --version
 
-# Configure UV environment variables based on certificate status
-echo "🔧 Configuring UV environment variables..."
+# Note: UV environment variables are now managed dynamically by certctl
+# at runtime, so no static configuration in /etc/environment is needed.
+echo "🔧 UV environment will be configured at runtime by certctl"
 
-CERT_STATUS=${CERT_STATUS:-SECURE}
-echo "📋 (Stateless) certificate status: $CERT_STATUS"
-
-# Configure UV environment variables based on certificate status
-if [ "$CERT_STATUS" = "INSECURE" ]; then
-    echo "⚠️  Insecure network detected – configuring UV with relaxed hosts"
-    echo "UV_INSECURE_HOST=pypi.org files.pythonhosted.org github.com" >> /etc/environment
-else
-    echo "✅ Secure network – standard TLS for UV"
-fi
-echo "UV_NATIVE_TLS=true" >> /etc/environment
-
-# Display final UV configuration
-echo "🎯 UV Configuration Summary:"
-if grep -q "UV_INSECURE_HOST" /etc/environment 2>/dev/null; then
-    echo "  - UV_INSECURE_HOST: $(grep UV_INSECURE_HOST /etc/environment | cut -d'=' -f2-) (reduced validation)"
-else
-    echo "  - No insecure hosts configured (full validation)"
-fi
-
-echo "🎉 UV installation and configuration complete!"
+echo "🎉 UV installation complete!"

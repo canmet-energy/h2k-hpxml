@@ -12,7 +12,6 @@
 		}
 	},
 	"containerEnv": {
-		"NODE_TLS_REJECT_UNAUTHORIZED": "0",
 		"UV_PROJECT_ENVIRONMENT": "${containerWorkspaceFolder}/.venv",
 		"UV_PYTHON_PREFERENCE": "managed"
 	},
@@ -65,12 +64,8 @@
 		}
 	},
 	"remoteEnv": {
-		"NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt",
-		"SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
-		"REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
-		"AWS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
-		"UV_INSECURE_HOST": "pypi.org files.pythonhosted.org github.com",
-		"UV_NATIVE_TLS": "true"
+		// Certificate environment variables now managed by certctl-safe
+		// These were removed: NODE_EXTRA_CA_CERTS, SSL_CERT_FILE, REQUESTS_CA_BUNDLE, AWS_CA_BUNDLE, UV_NATIVE_TLS
 	},
 	"forwardPorts": [
 		8080,
@@ -100,7 +95,7 @@
 		// Docker socket for Docker-in-Docker support
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
-	"postCreateCommand": "sudo chgrp docker /var/run/docker.sock; rm -rf .venv ;uv venv --python 3.12 --clear; uv pip install -e '.[dev]' ; uv run h2k-deps --install-quiet && if ! grep -q 'Auto-activate h2k-hpxml venv' ~/.bashrc 2>/dev/null; then echo '# Auto-activate h2k-hpxml venv' >> ~/.bashrc && echo 'if [ -f \"/workspaces/h2k-hpxml/.venv/bin/activate\" ] && [ -z \"$VIRTUAL_ENV\" ]; then' >> ~/.bashrc && echo '    source \"/workspaces/h2k-hpxml/.venv/bin/activate\"' >> ~/.bashrc && echo '    echo \"🐍 Virtual environment activated: $(python --version)\"' >> ~/.bashrc && echo 'fi' >> ~/.bashrc; fi",
+	"postCreateCommand": ".devcontainer/scripts/post-create.sh",
 	"containerUser": "vscode",
 	"remoteUser": "vscode"
 }

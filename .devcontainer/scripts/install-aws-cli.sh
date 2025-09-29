@@ -3,6 +3,10 @@ set -e
 
 echo "☁️ Installing AWS CLI..."
 
+# Certificate environment now handled system-wide by certctl
+# Get appropriate curl flags from environment (set by certctl if available)
+CURL_FLAGS="${CURL_FLAGS:--fsSL}"
+
 # Parse command line arguments
 HELP=false
 
@@ -42,8 +46,6 @@ if [ "$HELP" = true ]; then
     exit 0
 fi
 
-# Use certificate-aware curl flags if available
-CURL_FLAGS="${CURL_FLAGS:-"-fsSL"}"
 
 # Function to install AWS CLI v2 via official installer
 install_aws_cli_official() {
@@ -69,7 +71,7 @@ install_aws_cli_official() {
     echo "📥 Downloading AWS CLI v2 installer..."
     
     # Download and install
-    curl $CURL_FLAGS "$AWS_INSTALLER_URL" -o "/tmp/awscliv2.zip"
+    curl ${CURL_FLAGS} "$AWS_INSTALLER_URL" -o "/tmp/awscliv2.zip"
     
     # Verify download
     if [ ! -f "/tmp/awscliv2.zip" ] || [ ! -s "/tmp/awscliv2.zip" ]; then
@@ -120,7 +122,7 @@ echo "🛠️  Installing additional AWS development tools..."
 
 # Install AWS Session Manager plugin (useful for EC2 access)
 echo "🔌 Installing AWS Session Manager plugin..."
-if curl $CURL_FLAGS "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "/tmp/session-manager-plugin.deb"; then
+if curl ${CURL_FLAGS} "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "/tmp/session-manager-plugin.deb"; then
     dpkg -i /tmp/session-manager-plugin.deb 2>/dev/null || true
     rm -f /tmp/session-manager-plugin.deb
     

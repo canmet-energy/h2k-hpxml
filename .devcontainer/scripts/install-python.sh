@@ -3,6 +3,8 @@ set -e
 
 echo "🐍 Installing Python via uv..."
 
+# Certificate environment now handled system-wide by certctl
+
 # Parse command line arguments
 PYTHON_VERSION="3.12"  # Default version
 HELP=false
@@ -59,9 +61,6 @@ if ! echo "$PYTHON_VERSION" | grep -qE '^3\.(8|9|10|11|12|13)$'; then
 fi
 
 echo "📋 Installing Python $PYTHON_VERSION using uv..."
-
-# Use certificate-aware curl flags if available
-CURL_FLAGS="${CURL_FLAGS:-"-fsSL"}"
 
 # Install the specified Python version using uv
 if uv python install "$PYTHON_VERSION"; then

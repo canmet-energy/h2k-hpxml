@@ -3,6 +3,10 @@ set -e
 
 echo "🔷 Installing .NET and C# support..."
 
+# Certificate environment now handled system-wide by certctl
+# Get appropriate curl flags from environment (set by certctl if available)
+CURL_FLAGS="${CURL_FLAGS:--fsSL}"
+
 # Parse command line arguments
 DOTNET_VERSION="8.0"  # Default version (LTS)
 HELP=false
@@ -112,7 +116,7 @@ install_dotnet_manual() {
     
     # Download and run Microsoft's install script
     echo "📥 Downloading Microsoft .NET install script..."
-    curl $CURL_FLAGS https://dot.net/v1/dotnet-install.sh | bash -s -- --version $DOTNET_VERSION --install-dir /usr/local/dotnet
+    curl ${CURL_FLAGS} https://dot.net/v1/dotnet-install.sh | bash -s -- --version $DOTNET_VERSION --install-dir /usr/local/dotnet
     
     # Add to PATH
     echo "🔗 Adding .NET to system PATH..."
