@@ -62,6 +62,22 @@
 		// Certificate environment variables now managed by certctl-safe
 		// These were removed: NODE_EXTRA_CA_CERTS, SSL_CERT_FILE, REQUESTS_CA_BUNDLE, AWS_CA_BUNDLE, UV_NATIVE_TLS
 	},
+	"runArgs": [
+		// WSLg support for GUI applications
+		"--env=DISPLAY=${localEnv:DISPLAY:-:0}",
+		"--env=WAYLAND_DISPLAY=${localEnv:WAYLAND_DISPLAY:-wayland-0}",
+		"--env=XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir",
+		"--env=PULSE_SERVER=/mnt/wslg/PulseServer",
+		// OpenGL and GUI framework compatibility
+		"--env=LIBGL_ALWAYS_INDIRECT=1",
+		"--env=QT_X11_NO_MITSHM=1",
+		"--env=_JAVA_AWT_WM_NONREPARENTING=1",
+		// WSL2 X11 socket mount (using correct WSL2 paths)
+		"--volume=/run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix",
+		"--volume=/run/desktop/mnt/host/wslg:/mnt/wslg",
+		// GPU support
+		"--gpus=all"
+	],
 	"forwardPorts": [
 		8080,
 		8000,

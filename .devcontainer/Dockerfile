@@ -39,6 +39,38 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
+# Optional: Install GUI support libraries for WSLg
+# Comment out or remove this section if GUI support is not needed
+RUN apt-get update && apt-get install -y \
+    # Core X11/Wayland libraries
+    libx11-xcb1 \
+    libxcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxi6 \
+    libxrandr2 \
+    libxrender1 \
+    libxtst6 \
+    libwayland-client0 \
+    libwayland-cursor0 \
+    # OpenGL/Graphics acceleration
+    libgl1 \
+    libglx0 \
+    libglvnd0 \
+    # GTK3 support for modern Linux applications
+    libgtk-3-0 \
+    libgdk-pixbuf2.0-0 \
+    # Audio support via PulseAudio
+    libpulse0 \
+    # Font rendering
+    fontconfig \
+    fonts-dejavu-core \
+    # X11 testing tools (xclock, xeyes, etc.)
+    x11-apps \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy installation scripts and install development tools
 # This modular approach makes the Dockerfile cleaner and scripts reusable
 COPY .devcontainer/scripts/ /tmp/install-scripts/

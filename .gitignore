@@ -237,3 +237,9 @@ config/conversionconfig.test.ini
 
 # Don't include src_deps
 src/h2k_hpxml/_deps/
+
+# Dont include certificates
+.devcontainer/certs/*.certificates
+.devcontainer/certs/*.pem
+.devcontainer/certs/*.crt
+
