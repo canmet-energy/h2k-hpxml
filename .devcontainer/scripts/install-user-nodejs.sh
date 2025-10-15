@@ -1,65 +1,66 @@
 #!/bin/bash
 set -e
 
-# Install Node.js for user (no sudo required)
-echo "🟢 Installing Node.js for user $(whoami)..."
+# Install Python UV Manager for user (no sudo required)
+echo "🐍 Installing UV Python package manager for user $(whoami)..."
 
 # Certificate environment now handled system-wide by certctl
 # Get appropriate curl flags from environment (set by certctl if available)
 CURL_FLAGS="${CURL_FLAGS:--fsSL}"
 
-NODE_VERSION="22.11.0"
+# Allow caller to specify UV version via DEVCONTAINER_UV_VERSION (preferred) or UV_VERSION.
+# Fallback default remains 0.8.15 if neither provided.
+UV_VERSION_INPUT="${DEVCONTAINER_UV_VERSION:-${UV_VERSION:-0.8.15}}"
 
-# Set up installation directory in user's home
-INSTALL_DIR="$HOME/.local"
-mkdir -p "$INSTALL_DIR"
-
-# Download and install Node.js
-DOWNLOAD_URL="https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz"
-echo "📥 Downloading Node.js v${NODE_VERSION}..."
-if ! curl ${CURL_FLAGS} --connect-timeout 30 "$DOWNLOAD_URL" -o /tmp/node.tar.xz; then
-    echo "❌ Node.js download failed. Check network connectivity" >&2
-    exit 1
+# Basic semantic version validation (major.minor.patch) – tolerate a leading 'v'. Some uv releases are simple semver.
+if [[ "$UV_VERSION_INPUT" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    UV_VERSION="${UV_VERSION_INPUT#v}" # strip leading v if present
+else
+    echo "❌ Invalid UV version format: '$UV_VERSION_INPUT' (expected MAJOR.MINOR.PATCH)" >&2
+    exit 2
 fi
 
-echo "📦 Extracting Node.js..."
-cd /tmp
-tar -xJf node.tar.xz
+if [ -n "${DEVCONTAINER_UV_VERSION:-}" ]; then
+    _uv_version_source="DEVCONTAINER_UV_VERSION"
+elif [ -n "${UV_VERSION:-}" ]; then
+    _uv_version_source="UV_VERSION (env override)"
+else
+    _uv_version_source="default (0.8.15)"
+fi
+echo "ℹ️ Using UV version ${UV_VERSION} (source: ${_uv_version_source})"
 
-# Install to user's .local directory
-echo "📂 Installing to $INSTALL_DIR..."
-cp -r node-v${NODE_VERSION}-linux-x64/* "$INSTALL_DIR/"
-rm -rf /tmp/node*
+# Set up installation directory in user's home
+INSTALL_DIR="$HOME/.local/bin"
+mkdir -p "$INSTALL_DIR"
+
+echo "📥 Downloading UV v${UV_VERSION}..."
+curl ${CURL_FLAGS} --connect-timeout 30 -o /tmp/uv.tar.gz \
+    "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz"
+
+cd /tmp
+tar -xzf uv.tar.gz
+mv uv-x86_64-unknown-linux-gnu/uv "$INSTALL_DIR/"
+chmod +x "$INSTALL_DIR/uv"
+rm -rf /tmp/uv*
 
 # Update PATH in user's shell configuration
 echo "🔧 Configuring PATH..."
-if ! grep -q "$INSTALL_DIR/bin" ~/.bashrc 2>/dev/null; then
-    echo "export PATH=\"$INSTALL_DIR/bin:\$PATH\"" >> ~/.bashrc
+if ! grep -q "$INSTALL_DIR" ~/.bashrc 2>/dev/null; then
+    echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> ~/.bashrc
 fi
 
-if ! grep -q "$INSTALL_DIR/bin" ~/.profile 2>/dev/null; then
-    echo "export PATH=\"$INSTALL_DIR/bin:\$PATH\"" >> ~/.profile
+if ! grep -q "$INSTALL_DIR" ~/.profile 2>/dev/null; then
+    echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> ~/.profile
 fi
 
 # Export for current session
-export PATH="$INSTALL_DIR/bin:$PATH"
+export PATH="$INSTALL_DIR:$PATH"
 
-# Configure npm for certificate handling if needed
-if [ "${CERT_INSECURE:-}" = "1" ]; then
-    echo "⚠️  Insecure certificate mode detected - relaxing npm SSL settings"
-    npm config set ca ""
-    npm config set strict-ssl false
-else
-    # Ensure strict mode
-    npm config delete ca >/dev/null 2>&1 || true
-    npm config set strict-ssl true
-fi
-npm config set registry https://registry.npmjs.org/
-
-echo "✅ Node.js installed successfully for user $(whoami)"
-echo "   Node.js: $(node --version)"
-echo "   npm: $(npm --version)"
+echo "✅ UV installed successfully for user $(whoami)"
+uv --version
 echo "   Installation directory: $INSTALL_DIR"
 echo ""
-echo "💡 npm global packages will be installed to: $(npm config get prefix)"
-echo "   No sudo required for: npm install -g <package>"
+echo "💡 UV is now available for Python package management"
+echo "   No sudo required for any UV operations"
+
+echo "🎉 UV installation complete!"

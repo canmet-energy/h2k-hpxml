@@ -26,8 +26,26 @@ DEFAULT_INSECURE_HOSTS="github.com codeload.github.com objects.githubusercontent
 PROBE_TIMEOUT="${CERTCTL_PROBE_TIMEOUT:-10}"      # Per-URL timeout
 TOTAL_TIMEOUT="${CERTCTL_TOTAL_TIMEOUT:-10}"      # Total operation timeout
 
-# Debug control
+# Debug control (stderr debug stream)
 DEBUG="${CERTCTL_DEBUG:-0}"
+
+# Logging (persistent file for post-mortem troubleshooting)
+# Override with CERTCTL_LOG_FILE. Falls back to /tmp if /var/log not writable.
+CERTCTL_LOG_FILE_DEFAULT="${CERTCTL_LOG_FILE:-/var/log/certctl.log}"
+if touch "$CERTCTL_LOG_FILE_DEFAULT" 2>/dev/null; then
+    LOG_FILE="$CERTCTL_LOG_FILE_DEFAULT"
+else
+    LOG_FILE="/tmp/certctl.log"
+fi
+
+# Initialize log file with header (once per shell execution)
+if [ -z "${CERTCTL_LOG_INIT_DONE:-}" ]; then
+    {
+        echo "==== certctl session $(date -u '+%Y-%m-%dT%H:%M:%SZ') pid=$$ ===="
+        echo "SCRIPT_VERSION=2.0.0 DEBUG=$DEBUG LOG_FILE=$LOG_FILE USER=$(whoami) EUID=$EUID"
+    } >>"$LOG_FILE" 2>/dev/null || true
+    CERTCTL_LOG_INIT_DONE=1
+fi
 
 # Certificate bundle path
 CERT_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
@@ -37,6 +55,16 @@ CERT_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 # ============================================================================
 
 debug() {
+    if [ "$DEBUG" = "1" ]; then
+        echo "[certctl] $*" >&2
+    fi
+}
+
+# Always write to logfile (and optionally stderr when DEBUG=1)
+log_msg() {
+    local ts
+    ts=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+    echo "$ts $*" >>"$LOG_FILE" 2>/dev/null || true
     if [ "$DEBUG" = "1" ]; then
         echo "[certctl] $*" >&2
     fi
@@ -78,6 +106,7 @@ compute_insecure_hosts() {
 # Safe probe function - runs in subshell, never exits parent
 certctl_probe() {
     debug "Starting certificate probe"
+    log_msg "probe:start PROBE_TIMEOUT=$PROBE_TIMEOUT TOTAL_TIMEOUT=$TOTAL_TIMEOUT targets_override='${CERTCTL_TARGETS:-<default>}'"
 
     # Run the actual probe in a subshell with timeout
     local result
@@ -134,6 +163,14 @@ certctl_probe() {
     }
 
     debug "Probe complete"
+    # Extract simple status for logfile
+    if echo "$result" | grep -q 'CERT_STATUS='; then
+        local st
+        st=$(echo "$result" | sed -n 's/export CERT_STATUS=//p')
+        log_msg "probe:complete status=$st success=$(echo "$result" | sed -n 's/export CERT_SUCCESS_COUNT=//p') fail=$(echo "$result" | sed -n 's/export CERT_FAIL_COUNT=//p') total=$(echo "$result" | sed -n 's/export CERT_TOTAL_COUNT=//p')"
+    else
+        log_msg "probe:complete status=UNKNOWN (no parse)"
+    fi
     echo "$result"
 }
 
@@ -206,6 +243,7 @@ certctl_env() {
 # Load environment - safe for shell initialization
 certctl_load() {
     debug "Loading certificate environment"
+    log_msg "env:load:start"
 
     # Run probe and load environment (with timeout and fallback)
     local env_output
@@ -230,6 +268,7 @@ certctl_load() {
     fi
 
     debug "Environment loaded: CERT_STATUS=$CERT_STATUS"
+    log_msg "env:load:complete CERT_STATUS=${CERT_STATUS:-UNKNOWN} CURL_FLAGS=${CURL_FLAGS:-unset}"
 }
 
 # Status banner for interactive display
@@ -261,6 +300,7 @@ certctl_banner() {
 # Clean old custom certificates
 certctl_clean_certs() {
     debug "Cleaning old custom certificates"
+    log_msg "certs:clean:start"
 
     if [ "$EUID" -ne 0 ]; then
         echo "ERROR: Certificate management requires root permissions"
@@ -280,8 +320,10 @@ certctl_clean_certs() {
     local remaining_certs=$(find /usr/local/share/ca-certificates/custom -name '*.crt' 2>/dev/null | wc -l)
     if [ "$remaining_certs" -eq 0 ]; then
         echo "Custom certificate cleanup: OK"
+        log_msg "certs:clean:complete remaining=0"
     else
         echo "WARNING: $remaining_certs custom certificates remain after cleanup"
+        log_msg "certs:clean:warning remaining=$remaining_certs"
         return 1
     fi
 }
@@ -289,16 +331,19 @@ certctl_clean_certs() {
 # Validate certificate format
 certctl_validate_cert() {
     local cert_file="$1"
+    log_msg "cert:validate:start file=$cert_file"
 
     # Check if file exists and is readable
     if [ ! -f "$cert_file" ] || [ ! -r "$cert_file" ]; then
         debug "Certificate file not accessible: $cert_file"
+        log_msg "cert:validate:fail reason=not_accessible file=$cert_file"
         return 1
     fi
 
     # Check if file contains valid PEM certificate structure
     if ! grep -q "BEGIN CERTIFICATE" "$cert_file" || ! grep -q "END CERTIFICATE" "$cert_file"; then
         debug "Certificate file missing PEM markers: $cert_file"
+        log_msg "cert:validate:fail reason=missing_pem_markers file=$cert_file"
         return 1
     fi
 
@@ -306,10 +351,11 @@ certctl_validate_cert() {
     if command -v openssl >/dev/null 2>&1; then
         if ! openssl x509 -in "$cert_file" -noout >/dev/null 2>&1; then
             debug "Certificate file failed OpenSSL validation: $cert_file"
+            log_msg "cert:validate:fail reason=openssl_validation file=$cert_file"
             return 1
         fi
     fi
-
+    log_msg "cert:validate:success file=$cert_file"
     return 0
 }
 
@@ -320,14 +366,16 @@ certctl_backup_bundle() {
     local backup_file="$backup_dir/ca-certificates-$timestamp.crt"
 
     debug "Creating certificate bundle backup"
+    log_msg "bundle:backup:start dest=$backup_file"
 
     # Create backup directory
     mkdir -p "$backup_dir"
 
     # Backup current bundle
     if [ -f "$CERT_BUNDLE" ]; then
-        cp "$CERT_BUNDLE" "$backup_file"
-        echo "Certificate bundle backed up to: $backup_file"
+    cp "$CERT_BUNDLE" "$backup_file"
+    echo "Certificate bundle backed up to: $backup_file"
+    log_msg "bundle:backup:complete file=$backup_file"
 
         # Keep only last 5 backups
         find "$backup_dir" -name "ca-certificates-*.crt" -type f | sort | head -n -5 | xargs rm -f 2>/dev/null || true
@@ -337,10 +385,12 @@ certctl_backup_bundle() {
 # Verify certificate bundle integrity after operations
 certctl_verify_bundle() {
     debug "Verifying certificate bundle integrity"
+    log_msg "bundle:verify:start file=$CERT_BUNDLE"
 
     # Check if bundle file exists and is readable
     if [ ! -f "$CERT_BUNDLE" ] || [ ! -r "$CERT_BUNDLE" ]; then
         echo "ERROR: Certificate bundle not accessible: $CERT_BUNDLE"
+        log_msg "bundle:verify:fail reason=not_accessible file=$CERT_BUNDLE"
         return 1
     fi
 
@@ -348,6 +398,7 @@ certctl_verify_bundle() {
     local bundle_size=$(stat -c%s "$CERT_BUNDLE" 2>/dev/null || echo 0)
     if [ "$bundle_size" -lt 100000 ]; then
         echo "WARNING: Certificate bundle unusually small ($bundle_size bytes)"
+        log_msg "bundle:verify:warning reason=small size=$bundle_size"
         return 1
     fi
 
@@ -355,17 +406,20 @@ certctl_verify_bundle() {
     if command -v curl >/dev/null 2>&1; then
         if ! timeout 3s curl -sSf --cacert "$CERT_BUNDLE" https://github.com/ >/dev/null 2>&1; then
             echo "WARNING: Certificate bundle failed validation test"
+            log_msg "bundle:verify:warning reason=curl_validation_failed"
             return 1
         fi
     fi
 
     echo "Certificate bundle verification: OK"
+    log_msg "bundle:verify:success size=$bundle_size"
     return 0
 }
 
 # Install certificates from staging directory
 certctl_install_certs() {
     debug "Installing certificates from /tmp/certs/"
+    log_msg "certs:install:start source_scan=/tmp/certs"
 
     if [ "$EUID" -ne 0 ]; then
         echo "ERROR: Certificate management requires root permissions"
@@ -380,8 +434,12 @@ certctl_install_certs() {
     # Check if source directory exists and has certificates
     if [ ! -d "$cert_source" ]; then
         debug "No certificate source directory found at $cert_source"
+        log_msg "certs:install:skip reason=source_dir_missing path=$cert_source"
         return 0
     fi
+
+    # Log directory listing (non-fatal if fails)
+    (ls -1A "$cert_source" 2>/dev/null || echo "<empty>") | sed 's/^/certs:install:source_entry /' >>"$LOG_FILE" 2>/dev/null || true
 
     # Create destination directory
     mkdir -p "$cert_dest"
@@ -394,11 +452,18 @@ certctl_install_certs() {
         # Validate certificate before installation
         if certctl_validate_cert "$cert_file"; then
             echo "Installing certificate: $basename"
+            log_msg "certs:install:file action=install type=crt name=$basename"
             cp "$cert_file" "$cert_dest/"
             chmod 644 "$cert_dest/$basename"
+            if command -v sha256sum >/dev/null 2>&1; then
+                local fp
+                fp=$(sha256sum "$cert_file" | awk '{print $1}')
+                log_msg "certs:install:fingerprint type=crt name=$basename sha256=$fp"
+            fi
             installed_count=$((installed_count + 1))
         else
             echo "WARNING: Skipping invalid certificate: $basename"
+            log_msg "certs:install:file action=skip_invalid type=crt name=$basename"
             validation_failed=$((validation_failed + 1))
         fi
     done
@@ -412,17 +477,25 @@ certctl_install_certs() {
         # Validate certificate before installation
         if certctl_validate_cert "$pem_file"; then
             echo "Converting and installing PEM certificate: $basename"
+            log_msg "certs:install:file action=convert_install type=pem name=$basename"
             cp "$pem_file" "$cert_dest/$crt_name"
             chmod 644 "$cert_dest/$crt_name"
+            if command -v sha256sum >/dev/null 2>&1; then
+                local fp
+                fp=$(sha256sum "$pem_file" | awk '{print $1}')
+                log_msg "certs:install:fingerprint type=pem name=$basename sha256=$fp"
+            fi
             installed_count=$((installed_count + 1))
         else
             echo "WARNING: Skipping invalid PEM certificate: $basename"
+            log_msg "certs:install:file action=skip_invalid type=pem name=$basename"
             validation_failed=$((validation_failed + 1))
         fi
     done
 
     echo "Installed $installed_count custom certificate(s)"
     [ "$validation_failed" -gt 0 ] && echo "Skipped $validation_failed invalid certificate(s)"
+    log_msg "certs:install:complete installed=$installed_count skipped_invalid=$validation_failed"
 
     return 0
 }
@@ -430,6 +503,7 @@ certctl_install_certs() {
 # Update system certificate store
 certctl_update_certs() {
     debug "Updating system certificate store"
+    log_msg "certs:update:start"
 
     if [ "$EUID" -ne 0 ]; then
         echo "ERROR: Certificate management requires root permissions"
@@ -442,15 +516,18 @@ certctl_update_certs() {
     echo "Updating certificate store..."
     if update-ca-certificates >/dev/null 2>&1; then
         echo "Certificate store updated"
+        log_msg "certs:update:store_updated"
 
         # Verify bundle integrity after update
         if ! certctl_verify_bundle; then
             echo "ERROR: Certificate bundle verification failed after update"
+            log_msg "certs:update:verify_failed"
             echo "Consider restoring from backup in /var/backups/certctl/"
             return 1
         fi
     else
         echo "ERROR: Failed to update certificate store"
+        log_msg "certs:update:failed"
         return 1
     fi
 }
@@ -458,10 +535,14 @@ certctl_update_certs() {
 # Full certificate refresh
 certctl_refresh_certs() {
     debug "Performing full certificate refresh"
+    log_msg "certs:refresh:start"
 
-    certctl_clean_certs && \
-    certctl_install_certs && \
-    certctl_update_certs
+    if certctl_clean_certs && certctl_install_certs && certctl_update_certs; then
+        log_msg "certs:refresh:complete status=success"
+    else
+        log_msg "certs:refresh:complete status=failure"
+        return 1
+    fi
 }
 
 # Check for custom certificates

@@ -8,7 +8,26 @@ echo "🐍 Installing UV Python package manager for user $(whoami)..."
 # Get appropriate curl flags from environment (set by certctl if available)
 CURL_FLAGS="${CURL_FLAGS:--fsSL}"
 
-UV_VERSION="0.8.15"
+# Allow caller to specify UV version via DEVCONTAINER_UV_VERSION (preferred) or UV_VERSION.
+# Fallback default remains 0.8.15 if neither provided.
+UV_VERSION_INPUT="${DEVCONTAINER_UV_VERSION:-${UV_VERSION:-0.8.15}}"
+
+# Basic semantic version validation (major.minor.patch) – tolerate a leading 'v'. Some uv releases are simple semver.
+if [[ "$UV_VERSION_INPUT" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    UV_VERSION="${UV_VERSION_INPUT#v}" # strip leading v if present
+else
+    echo "❌ Invalid UV version format: '$UV_VERSION_INPUT' (expected MAJOR.MINOR.PATCH)" >&2
+    exit 2
+fi
+
+if [ -n "${DEVCONTAINER_UV_VERSION:-}" ]; then
+    _uv_version_source="DEVCONTAINER_UV_VERSION"
+elif [ -n "${UV_VERSION:-}" ]; then
+    _uv_version_source="UV_VERSION (env override)"
+else
+    _uv_version_source="default (0.8.15)"
+fi
+echo "ℹ️ Using UV version ${UV_VERSION} (source: ${_uv_version_source})"
 
 # Set up installation directory in user's home
 INSTALL_DIR="$HOME/.local/bin"

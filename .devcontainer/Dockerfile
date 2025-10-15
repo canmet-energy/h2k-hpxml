@@ -124,4 +124,4 @@ LABEL maintainer="CANMET Energy <canmet-energy@nrcan-rncan.gc.ca>" \
     version="dev" \
     org.opencontainers.image.source="https://github.com/canmet-energy/h2k-hpxml" \
     org.opencontainers.image.documentation="https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md" \
-    org.opencontainers.image.licenses="MIT"
+    org.opencontainers.image.licenses="GPLv3"
