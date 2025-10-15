@@ -1064,10 +1064,10 @@ ls -la /var/run/docker.sock 2>/dev/null || echo "Docker socket not accessible (m
 echo "=== Testing Clean Bashrc ==="
 grep -c "certctl" ~/.bashrc 2>/dev/null || echo "No certctl references in bashrc (expected)"
 
-# 7. Test h2k-deps functionality
+# 7. Test os-setup functionality
 echo "=== Testing H2K Dependencies ==="
 source .venv/bin/activate
-h2k-deps --check-only || echo "H2K deps check (expected result varies)"
+os-setup --check-only || echo "H2K deps check (expected result varies)"
 
 # 8. Test complete setup verification
 echo "=== Testing Complete Setup ==="

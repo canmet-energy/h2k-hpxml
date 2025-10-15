@@ -55,10 +55,10 @@ uv add git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 ```bash
 # Setup configuration and auto-install dependencies
-h2k-deps --auto-install
+os-setup --auto-install
 
 # Verify installation
-h2k-deps --test-installation
+os-setup --test-installation
 ```
 
 ### 4. Test with Demo
@@ -161,7 +161,7 @@ docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 
 4. **Setup dependencies** (automatic OpenStudio installation):
    ```powershell
-   h2k-deps --auto-install
+   os-setup --auto-install
    ```
 
    This automatically:
@@ -172,7 +172,7 @@ docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 
 5. **Test installation**:
    ```powershell
-   h2k-deps --test-installation
+   os-setup --test-installation
    h2k-demo
    ```
 
@@ -186,8 +186,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 **"Command not found" after installation:**
 ```powershell
 # Restart PowerShell/Command Prompt
-# Or manually add to PATH (h2k-deps will help with this)
-h2k-deps --add-to-path
+# Or manually add to PATH (os-setup will help with this)
+os-setup --add-to-path
 ```
 
 **OpenStudio installation location:**
@@ -217,7 +217,7 @@ h2k-deps --add-to-path
 3. **Setup dependencies**:
    ```bash
    # May require sudo for system-wide OpenStudio installation
-   sudo h2k-deps --auto-install
+   sudo os-setup --auto-install
 
    # Alternative: Use Docker for no system modifications
    docker run --rm canmet/h2k-hpxml h2k-hpxml --help
@@ -225,7 +225,7 @@ h2k-deps --add-to-path
 
 4. **Test installation**:
    ```bash
-   h2k-deps --test-installation
+   os-setup --test-installation
    h2k-demo
    ```
 
@@ -234,7 +234,7 @@ h2k-deps --add-to-path
 **Permission errors:**
 ```bash
 # Use sudo for system dependencies
-sudo h2k-deps --auto-install
+sudo os-setup --auto-install
 
 # Or use Docker for no system changes
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
@@ -279,13 +279,13 @@ See the complete [Docker Guide](DOCKER.md) for full instructions.
    - Download [OpenStudio-HPXML v1.9.1](https://github.com/NREL/OpenStudio-HPXML/releases/tag/v1.9.1)
    - Configure paths manually:
      ```bash
-     h2k-deps --setup
+     os-setup --setup
      # Follow prompts to specify custom paths
      ```
 
 4. **Test installation**:
    ```bash
-   h2k-deps --check-only  # Verify dependencies
+   os-setup --check-only  # Verify dependencies
    h2k-demo              # If dependencies are configured
    ```
 
@@ -293,7 +293,7 @@ See the complete [Docker Guide](DOCKER.md) for full instructions.
 
 **Automatic installation not supported:**
 ```bash
-# h2k-deps --auto-install will show unsupported platform error
+# os-setup --auto-install will show unsupported platform error
 # Use Docker instead for easiest setup
 docker run --rm canmet/h2k-hpxml h2k-hpxml --help
 ```
@@ -301,10 +301,10 @@ docker run --rm canmet/h2k-hpxml h2k-hpxml --help
 **Manual OpenStudio setup:**
 ```bash
 # After manual OpenStudio installation, check if detected
-h2k-deps --check-only
+os-setup --check-only
 
 # If not detected, use interactive setup
-h2k-deps --setup
+os-setup --setup
 ```
 
 **Gatekeeper issues with manual installation:**
@@ -315,7 +315,7 @@ sudo xattr -rd com.apple.quarantine /path/to/openstudio-3.9.0/
 
 ## Dependency Management
 
-H2K-HPXML requires several external dependencies that are managed by the `h2k-deps` command.
+H2K-HPXML requires several external dependencies that are managed by the `os-setup` command.
 
 ### Required Dependencies
 
@@ -328,19 +328,19 @@ H2K-HPXML requires several external dependencies that are managed by the `h2k-de
 
 ```bash
 # Check current status
-h2k-deps --check-only
+os-setup --check-only
 
 # Interactive setup (first time)
-h2k-deps --setup
+os-setup --setup
 
 # Automatic installation
-h2k-deps --auto-install
+os-setup --auto-install
 
 # Update existing installation
-h2k-deps --update-config
+os-setup --update-config
 
 # Test comprehensive installation
-h2k-deps --test-comprehensive
+os-setup --test-comprehensive
 ```
 
 ### Manual Dependency Installation
@@ -366,7 +366,7 @@ sudo dpkg -i OpenStudio-3.9.0+bb9481519e-Ubuntu-20.04-x86_64.deb
 # Download .dmg from GitHub releases (manual installation required)
 # Visit: https://github.com/NREL/OpenStudio/releases/tag/v3.9.0
 # Look for macOS .dmg file in Assets section
-# Install via GUI, then configure with h2k-deps --setup
+# Install via GUI, then configure with os-setup --setup
 ```
 
 #### OpenStudio-HPXML
@@ -382,7 +382,7 @@ unzip v1.9.1.zip -d /path/to/openstudio-hpxml/
 After manual installation, update configuration:
 
 ```bash
-h2k-deps --setup
+os-setup --setup
 # Follow prompts to specify custom paths
 ```
 
@@ -396,11 +396,11 @@ python -c "import h2k_hpxml; print('✅ Package imported successfully')"
 
 # 2. Check CLI commands
 h2k-hpxml --help
-h2k-deps --help
+os-setup --help
 h2k-demo --help
 
 # 3. Check dependencies
-h2k-deps --check-only
+os-setup --check-only
 ```
 
 Expected output:
@@ -418,13 +418,13 @@ Expected output:
 
 ```bash
 # Quick test (30 seconds)
-h2k-deps --test-quick
+os-setup --test-quick
 
 # Smart test (auto-detects installation method)
-h2k-deps --test-installation
+os-setup --test-installation
 
 # Comprehensive test (5-10 minutes)
-h2k-deps --test-comprehensive
+os-setup --test-comprehensive
 ```
 
 Expected output:
@@ -508,23 +508,23 @@ pip show h2k-hpxml
 
 ```bash
 # Check current status
-h2k-deps --check-only
+os-setup --check-only
 
 # Auto-install
-h2k-deps --auto-install
+os-setup --auto-install
 
 # Manual configuration
-h2k-deps --setup
+os-setup --setup
 ```
 
 #### 3. "Permission denied" (Linux/Mac)
 
 ```bash
 # Use sudo for system installation
-sudo h2k-deps --auto-install
+sudo os-setup --auto-install
 
 # Or use user-only installation
-h2k-deps --setup  # Choose user directory
+os-setup --setup  # Choose user directory
 
 # Alternative: Use Docker
 docker run --rm canmet/h2k-hpxml h2k-hpxml --help
@@ -562,8 +562,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **PATH issues:**
 ```powershell
-# Let h2k-deps fix PATH
-h2k-deps --add-to-path
+# Let os-setup fix PATH
+os-setup --add-to-path
 
 # Or manually add uv tools directory to PATH
 $env:PATH += ";$env:USERPROFILE\.local\bin"
@@ -604,7 +604,7 @@ sudo apt --fix-broken install
 **No automatic dependency installation:**
 ```bash
 # This will fail on macOS
-h2k-deps --auto-install
+os-setup --auto-install
 # Error: ❌ Unsupported platform: Darwin
 
 # Recommended solution: Use Docker
@@ -628,7 +628,7 @@ If issues persist:
 
 1. **Run diagnostics**:
    ```bash
-   h2k-deps --test-comprehensive 2>&1 | tee diagnosis.log
+   os-setup --test-comprehensive 2>&1 | tee diagnosis.log
    ```
 
 2. **Check system info**:
@@ -660,8 +660,8 @@ cd h2k-hpxml
 uv pip install -e '.[dev]'
 
 # Setup dependencies
-h2k-deps --setup
-h2k-deps --auto-install
+os-setup --setup
+os-setup --auto-install
 
 # Run tests
 pytest tests/unit/
@@ -695,7 +695,7 @@ For environments without internet access:
 
 3. **Manual dependency setup**:
    - Download OpenStudio and OpenStudio-HPXML manually
-   - Use `h2k-deps --setup` to configure paths
+   - Use `os-setup --setup` to configure paths
 
 ### Virtual Environment with specific Python version
 
@@ -719,7 +719,7 @@ After successful installation:
 1. **Try the demo**: `h2k-demo`
 2. **Read the user guide**: [USER_GUIDE.md](USER_GUIDE.md)
 3. **Convert your files**: `h2k-hpxml your_file.h2k`
-4. **Explore other tools**: `h2k-resilience`, `h2k-deps`
+4. **Explore other tools**: `h2k-resilience`, `os-setup`
 5. **Use as library**: See [LIBRARY.md](LIBRARY.md)
 6. **Docker usage**: See [DOCKER.md](DOCKER.md)
 

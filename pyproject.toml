@@ -63,7 +63,7 @@ Documentation = "https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md"
 [project.scripts]
 h2k-hpxml = "h2k_hpxml.cli.convert:main"
 h2k-resilience = "h2k_hpxml.cli.resilience:main"
-h2k-deps = "h2k_hpxml.utils.dependencies:main"
+os-setup = "h2k_hpxml.utils.dependencies:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

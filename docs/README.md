@@ -52,13 +52,13 @@ The interactive demo guides you through the complete conversion process with rea
   - Quick start with uv (Windows, Linux)
   - Platform-specific instructions
   - macOS: Docker required (no automatic dependency support)
-  - Dependency management with h2k-deps
+  - Dependency management with os-setup
   - Installation verification and testing
   - Troubleshooting common issues
 
 ### Usage Guides
 - **[User Guide](USER_GUIDE.md)** - Complete CLI reference
-  - Command reference (h2k-hpxml, h2k-demo, h2k-deps, h2k-resilience)
+  - Command reference (h2k-hpxml, h2k-demo, os-setup, h2k-resilience)
   - Common workflows and examples
   - Performance optimization with parallel processing
   - Configuration system
@@ -130,7 +130,7 @@ The interactive demo guides you through the complete conversion process with rea
 ```bash
 # Installation (recommended method)
 uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-h2k-deps --auto-install
+os-setup --auto-install
 
 # Basic usage
 h2k-hpxml input.h2k                    # Convert single file
@@ -138,8 +138,8 @@ h2k-hpxml folder/                      # Convert all files in folder
 h2k-demo                              # Interactive learning demo
 
 # Testing and verification
-h2k-deps --test-installation          # Verify setup
-h2k-deps --check-only                 # Check dependencies
+os-setup --test-installation          # Verify setup
+os-setup --check-only                 # Check dependencies
 
 # Advanced usage
 h2k-hpxml input.h2k --hourly ALL      # Generate hourly outputs
@@ -213,7 +213,7 @@ Validation    Parsing     Processors        Generation      & Reports
 | Issue | Solution | Documentation |
 |-------|----------|---------------|
 | "Command not found" | Check installation method | [Installation](INSTALLATION.md#troubleshooting) |
-| "OpenStudio not found" | Run `h2k-deps --auto-install` | [User Guide](USER_GUIDE.md#troubleshooting) |
+| "OpenStudio not found" | Run `os-setup --auto-install` | [User Guide](USER_GUIDE.md#troubleshooting) |
 | Conversion failures | Use `--debug` flag | [User Guide](USER_GUIDE.md#debugging) |
 | Performance issues | Enable parallel processing | [Performance](PERFORMANCE.md) |
 | Memory errors | Process smaller batches | [Library Guide](LIBRARY.md#performance-optimization) |
@@ -221,7 +221,7 @@ Validation    Parsing     Processors        Generation      & Reports
 ### Getting Help
 
 1. **Check Documentation**: Use the guides above for your use case
-2. **Run Diagnostics**: `h2k-deps --test-comprehensive`
+2. **Run Diagnostics**: `os-setup --test-comprehensive`
 3. **Search Issues**: [GitHub Issues](https://github.com/canmet-energy/h2k-hpxml/issues)
 4. **Report Problems**: Include OS, Python version, error output
 
@@ -229,13 +229,13 @@ Validation    Parsing     Processors        Generation      & Reports
 
 ```bash
 # Test complete installation
-h2k-deps --test-comprehensive
+os-setup --test-comprehensive
 
 # Debug conversion issues
 h2k-hpxml problematic.h2k --debug --do-not-sim
 
 # Check system status
-h2k-deps --check-only
+os-setup --check-only
 python -c "import h2k_hpxml; print('Package OK')"
 ```
 

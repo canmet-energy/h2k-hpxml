@@ -72,10 +72,11 @@
       "Bash(awk:*)",
       "Bash(xargs:*)",
       "Read(//usr/local/**)",
-      "Bash(h2k-deps:*)",
+      "Bash(os-setup:*)",
       "Bash(rm:*)",
       "Bash(/workspaces/h2k-hpxml/.devcontainer/scripts/install-user-github-copilot.sh:*)",
-      "Read(//workspaces/**)"
+      "Read(//workspaces/**)",
+      "Bash(uv pip install:*)"
     ],
     "deny": [],
     "ask": [],

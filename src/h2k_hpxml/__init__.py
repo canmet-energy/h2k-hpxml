@@ -19,7 +19,7 @@ if os.environ.get('H2K_SKIP_AUTO_INSTALL') != '1':
     try:
         from .utils.dependencies import validate_dependencies
         # Only check dependencies, don't auto-install on import
-        # Users can run h2k-deps --install-quiet for installation
+        # Users can run os-setup --install-quiet for installation
         validate_dependencies(interactive=False, check_only=True)
     except Exception:
         # Don't fail package import if dependency check fails

@@ -22,12 +22,12 @@ def get_config_with_dependency_paths():
     # Validate that dependencies are available
     if not openstudio_binary or not Path(openstudio_binary).exists():
         print(f"❌ OpenStudio binary not found: {openstudio_binary}")
-        print("Please run 'h2k-deps --auto-install' to install OpenStudio")
+        print("Please run 'os-setup --auto-install' to install OpenStudio")
         sys.exit(1)
         
     if not hpxml_os_path or not Path(hpxml_os_path).exists():
         print(f"❌ OpenStudio-HPXML path not found: {hpxml_os_path}")
-        print("Please run 'h2k-deps --auto-install' to install OpenStudio-HPXML")
+        print("Please run 'os-setup --auto-install' to install OpenStudio-HPXML")
         sys.exit(1)
     
     # Get user preferences from config file
@@ -83,7 +83,7 @@ def run_hpxml_os(file="", path=""):
     hpxml_path = Path(hpxml_os_path)
     if not hpxml_path.exists():
         print(f"Error: OpenStudio-HPXML path not found: {hpxml_os_path}")
-        print("Run 'h2k-deps --check-only' to diagnose dependency issues.")
+        print("Run 'os-setup --check-only' to diagnose dependency issues.")
         return {
             "result": None,
             "success": False,

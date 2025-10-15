@@ -246,7 +246,7 @@ docker run --rm -it -v $(pwd):/data canmet/h2k-hpxml:refactor bash
 
 # Then run commands inside container
 h2k-hpxml /data/input.h2k
-h2k-deps --check-only
+os-setup --check-only
 ```
 
 ## Building the Docker Image Locally
@@ -268,7 +268,7 @@ docker run --rm -v $(pwd):/data h2k-hpxml h2k-hpxml /data/input.h2k
 The Dockerfile includes:
 - Ubuntu 22.04 base with all required system libraries
 - Python 3.12 installed via uv
-- All h2k-hpxml CLI tools (h2k-hpxml, h2k-resilience, h2k-deps)
+- All h2k-hpxml CLI tools (h2k-hpxml, h2k-resilience, os-setup)
 - Pre-installed OpenStudio and OpenStudio-HPXML dependencies
 - Non-root user for security
 - Configured for production use

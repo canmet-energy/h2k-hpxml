@@ -361,8 +361,8 @@ def validate_dependencies() -> Dict[str, Any]:
                 "hpxml": "Unknown",
                 "missing": ["Dependency validation failed"],
                 "recommendations": [
-                    "Run h2k-deps --setup to configure dependencies",
-                    "Run h2k-deps --install-quiet to install missing dependencies",
+                    "Run os-setup --setup to configure dependencies",
+                    "Run os-setup --install-quiet to install missing dependencies",
                 ],
             }
 
@@ -374,7 +374,7 @@ def validate_dependencies() -> Dict[str, Any]:
             "hpxml": "Error",
             "missing": ["Unable to determine dependency status"],
             "recommendations": [
-                "Run h2k-deps --setup to configure dependencies",
+                "Run os-setup --setup to configure dependencies",
                 "Check logs for detailed error information",
             ],
         }

@@ -169,7 +169,7 @@ services:
 # Install and run
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-h2k-deps --auto-install
+os-setup --auto-install
 h2k-hpxml /data/h2k_files/ --output /data/output/
 ```
 

@@ -99,17 +99,17 @@ After installing the package, set up your development configuration:
 
 1. **Create configuration from template**:
    ```bash
-   h2k-deps --setup
+   os-setup --setup
    ```
 
 2. **Install dependencies automatically**:
    ```bash
-   h2k-deps --auto-install
+   os-setup --auto-install
    ```
 
 3. **Verify setup**:
    ```bash
-   h2k-deps --check-only
+   os-setup --check-only
    ```
 
 4. **Run tests to verify everything works**:
@@ -225,7 +225,7 @@ Your development configuration is at `config/conversionconfig.ini`. Common setti
 # Your local H2K files
 source_h2k_path = /path/to/your/h2k/files
 
-# Auto-detected dependencies (updated by h2k-deps)
+# Auto-detected dependencies (updated by os-setup)
 hpxml_os_path = /OpenStudio-HPXML/
 openstudio_binary = /usr/local/bin/openstudio
 

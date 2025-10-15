@@ -8,9 +8,11 @@ This is the H2K-HPXML translation tool - a Canadian government project (CMHC/NRC
 
 **Project Status**: Phase 1 (loads) and Phase 2 (HVAC systems) complete. Phase 3 (multi-unit residential buildings) pending.
 
-**Branch Strategy**: 
+**Branch Strategy**:
 - `main` - Production branch for pull requests
 - Feature branches - For development work
+
+**Python Version**: Requires Python 3.12+
 
 ## Essential Commands
 
@@ -22,11 +24,11 @@ This is the H2K-HPXML translation tool - a Canadian government project (CMHC/NRC
 uv pip install -e .
 
 # Setup configuration and dependencies
-h2k-deps --setup
-h2k-deps --auto-install
+os-setup --setup
+os-setup --auto-install
 
 # Verify setup
-h2k-deps --check-only
+os-setup --check-only
 ```
 
 #### Docker Development
@@ -77,6 +79,11 @@ pytest tests/integration/           # Integration tests only
 pytest -n auto                     # Run tests in parallel (faster)
 pytest -v                          # Verbose output
 pytest -x                          # Stop on first failure
+
+# Code formatting and linting
+black src/ tests/                   # Format code (line length: 100)
+ruff check src/ tests/              # Lint code
+ruff check --fix src/ tests/        # Auto-fix linting issues
 ```
 
 ### Main CLI Tools
@@ -84,7 +91,7 @@ pytest -x                          # Stop on first failure
 # H2K to HPXML conversion (single file)
 h2k-hpxml input.h2k [--output output.xml]
 
-# H2K to HPXML conversion (entire folder - parallel processing) 
+# H2K to HPXML conversion (entire folder - parallel processing)
 h2k-hpxml /path/to/h2k/files/
 # Note: Automatically uses (CPU cores - 1) threads for parallel processing
 
@@ -95,17 +102,57 @@ h2k-hpxml input.h2k --debug --hourly ALL --do-not-sim
 h2k-hpxml --credits
 
 # Interactive demo (bilingual learning tool)
-h2k-hpxml --demo                     # Demo with example files (language selected interactively)
+h2k-demo                             # Guided demo with example files
+h2k-demo --lang fr                   # French version
+h2k-hpxml --demo                     # Alternative demo command
 
 # Resilience analysis
 h2k-resilience input.h2k [--run-simulation] [--outage-days N] \
   [--output-path PATH] [--clothing-factor-summer F] [--clothing-factor-winter F]
 
-# Dependency management  
-h2k-deps                             # Interactive dependency management
+# Dependency management
+os-setup                             # Interactive dependency management
+os-setup --check-only               # Verify setup without installing
+os-setup --test-installation        # Run quick test to verify setup
 ```
 
 ## Architecture Overview
+
+### Source Code Structure
+```
+src/h2k_hpxml/
+├── cli/                    # Command-line interfaces
+│   ├── convert.py         # Main h2k-hpxml CLI
+│   ├── resilience.py      # h2k-resilience CLI
+│   └── demo.py            # h2k-demo CLI (bilingual)
+├── core/                   # Core translation engine
+│   ├── translator.py      # Main h2ktohpxml() orchestration
+│   ├── model.py           # ModelData class (state tracking)
+│   ├── h2k_parser.py      # H2K data extraction utilities
+│   ├── input_validation.py
+│   ├── template_loader.py
+│   ├── hpxml_assembly.py
+│   └── processors/        # Translation pipeline stages
+│       ├── building.py
+│       ├── weather.py
+│       ├── enclosure.py
+│       └── systems.py
+├── components/            # Individual component translators
+│   ├── walls.py, windows.py, doors.py, etc.
+│   └── hvac/             # HVAC system translators
+├── config/               # Configuration management
+│   ├── manager.py        # ConfigManager class
+│   └── defaults/         # Template config files
+├── resources/            # Data files and templates
+│   ├── template_base.xml # Base HPXML template
+│   ├── weather/          # EPW weather files
+│   └── *.json           # Mapping configurations
+├── analysis/             # Post-simulation analysis
+│   └── annual.py
+├── utils/                # Utilities and helpers
+│   └── dependencies.py   # os-setup CLI
+└── examples/             # Sample H2K files
+```
 
 ### Translation Pipeline
 The core translation follows this flow:
@@ -113,7 +160,7 @@ The core translation follows this flow:
 2. **Template Loading** (`core/template_loader.py`) - Loads base HPXML template and parses H2K XML
 3. **Processing Pipeline** (`core/translator.py` orchestrates):
    - **Building Details** (`core/processors/building.py`) - Basic building info
-   - **Weather Data** (`core/processors/weather.py`) - Climate file mapping  
+   - **Weather Data** (`core/processors/weather.py`) - Climate file mapping
    - **Enclosure Components** (`core/processors/enclosure.py`) - Walls, windows, doors, etc.
    - **Systems & Loads** (`core/processors/systems.py`) - HVAC, DHW, lighting, appliances
 4. **HPXML Assembly** (`core/hpxml_assembly.py`) - Final XML generation with mode-specific adjustments
@@ -161,9 +208,10 @@ The project uses selective type hints across modules. Mypy is configured with re
 - Use `--run-baseline` flag to regenerate golden files (use with caution)
 - Alternative: `uv run python tests/utils/generate_baseline_data.py` for direct baseline generation
 
-### Empty Files to Keep
+### Package Structure
+- Do NOT delete empty `__init__.py` files - they're required for Python package imports
 - `src/h2k_hpxml/analysis/__init__.py` - Required for package structure (analysis/annual.py is imported)
-- Do NOT delete empty `__init__.py` files - they're needed for Python packages
+- All subdirectories under `src/h2k_hpxml/` need `__init__.py` to be importable
 
 ### Weather Data Handling
 - Weather files stored in `resources/weather/` and `utils/` (zip files)
@@ -192,7 +240,7 @@ Critical external dependencies:
 - **OpenStudio-HPXML** (v1.9.1) - NREL's HPXML implementation 
 - **EnergyPlus** - Simulation engine (managed via OpenStudio)
 
-Managed via `h2k-deps` command which auto-detects and installs on Windows/Linux:
+Managed via `os-setup` command which auto-detects and installs on Windows/Linux:
 
 #### Windows Installation (Portable)
 - **No admin rights required** - Uses portable tar.gz installation
@@ -229,7 +277,7 @@ All Docker containers include pre-installed OpenStudio and dependencies, elimina
 ## Common Issues & Troubleshooting
 
 ### Installation Issues
-- **OpenStudio not found**: Run `h2k-deps --auto-install` or use Docker containers
+- **OpenStudio not found**: Run `os-setup --auto-install` or use Docker containers
   - **Windows**: Now uses portable tar.gz installation (no admin rights required)
   - **Installation location**: `%LOCALAPPDATA%\OpenStudio-3.9.0` or `%USERPROFILE%\OpenStudio`
   - **No admin privileges needed**: Portable installation extracts to user directory
@@ -238,7 +286,7 @@ All Docker containers include pre-installed OpenStudio and dependencies, elimina
 
 ### Testing Issues
 - **Golden file mismatches**: Expected when output format changes. Review changes carefully before running `--run-baseline`
-- **Weather file errors**: Ensure weather data is downloaded via `h2k-deps` 
+- **Weather file errors**: Ensure weather data is downloaded via `os-setup` 
 - **Path issues**: Use absolute paths in configuration files
 
 ### Docker Issues
@@ -247,10 +295,11 @@ All Docker containers include pre-installed OpenStudio and dependencies, elimina
 
 ### Development Tips
 - Always run tests before committing: `pytest`
-- Format code with: `black src/ tests/`
+- Format code with: `black src/ tests/` (line length: 100 characters)
 - Check for issues with: `ruff check src/ tests/`
-- Use DevContainer for consistent development environment
+- Use DevContainer for consistent development environment (includes all dependencies)
 - Review `docs/DOCKER.md` for detailed Docker usage
+- macOS users: Docker is the recommended development environment (auto-install not supported)
 
 ## Project Documentation
 

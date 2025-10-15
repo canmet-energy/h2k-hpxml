@@ -1057,7 +1057,7 @@ class DependencyManager:
                 home / ".profile"
             ]
 
-            path_export = '\n# Added by h2k-deps for OpenStudio and EnergyPlus\nexport PATH="$HOME/.local/bin:$PATH"\n'
+            path_export = '\n# Added by os-setup for OpenStudio and EnergyPlus\nexport PATH="$HOME/.local/bin:$PATH"\n'
             files_updated = []
 
             for profile_file in profile_files:
@@ -2309,7 +2309,7 @@ class DependencyManager:
                 click.echo("   After restarting your terminal, you can use 'h2k-hpxml' from any directory")
             else:
                 click.echo("⚠️  Could not update PATH automatically")
-                click.echo("   You can run 'h2k-deps --add-to-path' to try again")
+                click.echo("   You can run 'os-setup --add-to-path' to try again")
 
         except Exception as e:
             click.echo(f"⚠️  PATH setup failed: {e}")
@@ -2492,7 +2492,7 @@ def test_quick_installation():
         click.echo("🎉 All quick tests passed!")
         return True
     else:
-        click.echo("⚠️  Some tests failed. Run 'h2k-deps --setup' or 'h2k-deps --auto-install'")
+        click.echo("⚠️  Some tests failed. Run 'os-setup --setup' or 'os-setup --auto-install'")
         return False
 
 
@@ -2531,7 +2531,7 @@ def test_smart_installation():
 
     commands = [
         ("h2k-hpxml --help", "Main CLI help"),
-        ("h2k-deps --check-only", "Dependencies check"),
+        ("os-setup --check-only", "Dependencies check"),
         ("h2k-resilience --help", "Resilience CLI help")
     ]
 
@@ -2639,13 +2639,13 @@ def test_comprehensive_installation():
 def main():
     """Main entry point for standalone dependency checking."""
     import os
-    # Prevent auto-install when running h2k-deps CLI
+    # Prevent auto-install when running os-setup CLI
     os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
     
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Check and install h2k_hpxml dependencies",
+        description="Install and manage OpenStudio, EnergyPlus, and OpenStudio-HPXML",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

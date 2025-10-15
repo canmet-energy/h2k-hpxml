@@ -63,30 +63,30 @@ export H2K_LOGGING_LOG_LEVEL="DEBUG"
 
 ```bash
 # Create configuration from template
-h2k-deps --setup
+os-setup --setup
 
 # Non-interactive setup (for CI/CD)
-h2k-deps --setup --non-interactive
+os-setup --setup --non-interactive
 ```
 
 ### Update Commands
 
 ```bash
 # Update dependency paths in configuration
-h2k-deps --update-config
+os-setup --update-config
 ```
 
 ### Utility Commands
 
 ```bash
 # Check dependency status only
-h2k-deps --check-only
+os-setup --check-only
 
 # Auto-install missing dependencies
-h2k-deps --auto-install
+os-setup --auto-install
 
 # Interactive dependency management
-h2k-deps
+os-setup
 ```
 
 ## Template System
@@ -133,7 +133,7 @@ config/conversionconfig.ini
 If no configuration is found and auto-creation is disabled:
 ```
 ConfigurationError: Configuration file not found.
-Use 'h2k-deps --setup' to create configuration from template.
+Use 'os-setup --setup' to create configuration from template.
 ```
 
 ### Invalid Configuration

@@ -39,7 +39,7 @@ This directory contains utility modules that provide supporting functionality fo
 **Key Functions**:
 - `DependencyManager` - Check, install, and manage OpenStudio/OpenStudio-HPXML
 - `validate_dependencies()` - Validate system dependencies
-- CLI interface for dependency management (`h2k-deps` command)
+- CLI interface for dependency management (`os-setup` command)
 **Usage**: Used by CLI tools and workflows for dependency validation
 
 #### `common.py` (401 lines)

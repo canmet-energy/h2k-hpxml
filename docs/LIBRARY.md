@@ -768,7 +768,7 @@ def canadian_archetypes_analysis():
     print("🔍 Validating dependencies...")
     deps = validate_dependencies()
     if not deps['valid']:
-        raise RuntimeError("Dependencies not configured. Run h2k-deps --setup")
+        raise RuntimeError("Dependencies not configured. Run os-setup --setup")
 
     # 2. Process archetypes
     print("🏠 Processing housing archetypes...")

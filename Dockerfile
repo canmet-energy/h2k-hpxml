@@ -3,8 +3,8 @@
 #   docker build -t h2k-hpxml .
 # - Installs OS libraries commonly required by OpenStudio CLI
 # - Installs Python via uv and sets up an isolated virtual environment
-# - Installs the h2k-hpxml package with entry points (h2k-hpxml, h2k-resilience, h2k-deps)
-# - Uses a non-root user so h2k-deps can install dependencies into user-writable locations
+# - Installs the h2k-hpxml package with entry points (h2k-hpxml, h2k-resilience, os-setup)
+# - Uses a non-root user so os-setup can install dependencies into user-writable locations
 
 FROM ubuntu:22.04
 
@@ -86,7 +86,7 @@ COPY . /app
 ###############
 # Runtime user
 ###############
-# Switch to non-root user for runtime; h2k-deps will install OpenStudio/OpenStudio-HPXML
+# Switch to non-root user for runtime; os-setup will install OpenStudio/OpenStudio-HPXML
 # Ensure app user owns the workdir so tools like `uv run` can create local environments
 RUN chown -R ${USERNAME}:${USERNAME} /app
 USER ${USERNAME}
@@ -105,10 +105,10 @@ RUN uv pip install .
 
 # Pre-install OpenStudio and OpenStudio-HPXML so the image is ready to run
 # Installs into user-writable locations under /home/appuser/.local/share
-RUN h2k-deps --install-quiet
+RUN os-setup --install-quiet
 
 # Create user configuration from template and populate detected paths
-RUN h2k-deps --setup
+RUN os-setup --setup
 
 # Default volume for input/output convenience
 VOLUME ["/data"]

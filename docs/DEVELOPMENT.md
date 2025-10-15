@@ -52,7 +52,7 @@ code .
 
 ```bash
 # Run in VSCode terminal (should work immediately)
-h2k-deps --check-only
+os-setup --check-only
 pytest tests/unit/ -v
 h2k-hpxml --help
 ```
@@ -111,8 +111,8 @@ h2k-dev\Scripts\activate     # Windows
 uv pip install -e '.[dev]'
 
 # 4. Setup dependencies and configuration
-h2k-deps --setup
-h2k-deps --auto-install
+os-setup --setup
+os-setup --auto-install
 
 # 5. Verify setup
 pytest tests/unit/
@@ -727,11 +727,11 @@ echo $PYTHONPATH
 #### 2. Configuration Issues
 ```bash
 # Check configuration
-h2k-deps --check-only
+os-setup --check-only
 
 # Reset configuration
 rm config/conversionconfig.ini
-h2k-deps --setup
+os-setup --setup
 ```
 
 #### 3. Test Failures

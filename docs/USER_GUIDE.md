@@ -30,10 +30,10 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
 uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Setup dependencies automatically
-h2k-deps --auto-install
+os-setup --auto-install
 
 # Test installation
-h2k-deps --test-installation
+os-setup --test-installation
 ```
 
 ## Command Reference
@@ -111,34 +111,34 @@ The demo includes:
 - Explanation of all output files
 - Sample EnergyPlus results analysis
 
-### h2k-deps - Dependency Management
+### os-setup - Dependency Management
 
 Manage OpenStudio, EnergyPlus, and configuration.
 
 ```bash
 # Interactive dependency management
-h2k-deps
+os-setup
 
 # Check current dependency status
-h2k-deps --check-only
+os-setup --check-only
 
 # Setup initial configuration
-h2k-deps --setup
+os-setup --setup
 
 # Auto-install missing dependencies
-h2k-deps --auto-install
+os-setup --auto-install
 
 # Update configuration with new paths
-h2k-deps --update-config
+os-setup --update-config
 
 # Test installation (smart auto-detection)
-h2k-deps --test-installation
+os-setup --test-installation
 
 # Quick installation test
-h2k-deps --test-quick
+os-setup --test-quick
 
 # Comprehensive test with actual conversion
-h2k-deps --test-comprehensive
+os-setup --test-comprehensive
 ```
 
 ### h2k-resilience - Resilience Analysis
@@ -213,7 +213,7 @@ h2k-hpxml archetype_folder/ --output-format json --output json_results/
 h2k-hpxml test_house.h2k --mode ASHRAE140 --debug
 
 # Validate dependencies before processing
-h2k-deps --check-only && h2k-hpxml large_batch/
+os-setup --check-only && h2k-hpxml large_batch/
 
 # Test with demo files
 h2k-demo --cleanup  # Clean previous runs
@@ -359,17 +359,17 @@ debug_mode = false
 
 ```bash
 # View current configuration
-h2k-deps --check-only
+os-setup --check-only
 
 # Create initial configuration from template
-h2k-deps --setup
+os-setup --setup
 
 # Update configuration with auto-detected paths
-h2k-deps --update-config
+os-setup --update-config
 
 # Reset to defaults
 rm config/conversionconfig.ini
-h2k-deps --setup
+os-setup --setup
 ```
 
 ### Environment Variable Overrides
@@ -393,13 +393,13 @@ h2k-hpxml input.h2k
 #### "OpenStudio not found"
 ```bash
 # Check current status
-h2k-deps --check-only
+os-setup --check-only
 
 # Auto-install OpenStudio
-h2k-deps --auto-install
+os-setup --auto-install
 
 # Manual path configuration
-h2k-deps --setup
+os-setup --setup
 ```
 
 #### "Command not found: h2k-hpxml"
@@ -443,7 +443,7 @@ uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```bash
 # Command help
 h2k-hpxml --help
-h2k-deps --help
+os-setup --help
 h2k-demo --help
 h2k-resilience --help
 
@@ -454,13 +454,13 @@ h2k-hpxml --credits
 #### Test Commands
 ```bash
 # Quick installation test
-h2k-deps --test-quick
+os-setup --test-quick
 
 # Comprehensive test including actual conversion
-h2k-deps --test-comprehensive
+os-setup --test-comprehensive
 
 # Smart test (auto-detects uv vs pip)
-h2k-deps --test-installation
+os-setup --test-installation
 ```
 
 #### Debug Information
@@ -468,13 +468,13 @@ h2k-deps --test-installation
 # System information
 uv --version  # or python --version
 which h2k-hpxml
-h2k-deps --check-only
+os-setup --check-only
 
 # Configuration file location
 ls -la config/conversionconfig.ini
 
 # Dependency paths
-h2k-deps --check-only | grep "✅"
+os-setup --check-only | grep "✅"
 ```
 
 #### Log Files
@@ -512,7 +512,7 @@ for file in *.h2k; do h2k-hpxml "$file"; done
 If you continue to experience issues:
 
 1. **Check Documentation**: [docs/](../)
-2. **Run Diagnostics**: `h2k-deps --test-comprehensive`
+2. **Run Diagnostics**: `os-setup --test-comprehensive`
 3. **Report Issues**: [GitHub Issues](https://github.com/canmet-energy/h2k-hpxml/issues)
 
 When reporting issues, include:

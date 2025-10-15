@@ -121,7 +121,7 @@
         {
             "label": "UV: Check Dependencies",
             "type": "shell",
-            "command": "uv run h2k-deps --check-only",
+            "command": "uv run os-setup --check-only",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,

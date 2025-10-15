@@ -136,7 +136,7 @@ class ConfigManager:
             return self._create_config_from_template()
         else:
             raise ConfigurationError(
-                "Configuration file not found. Use 'h2k-deps --setup' to create user configuration."
+                "Configuration file not found. Use 'os-setup --setup' to create user configuration."
             )
 
     def _apply_environment_overrides(self):

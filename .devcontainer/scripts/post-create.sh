@@ -28,7 +28,7 @@ uv pip install -e '.[dev]'
 
 # Install dependencies such as OpenStudio, EnergyPlus, HPXML, etc.
 echo "📦 Installing H2K dependencies...This may take a minute..."
-uv run h2k-deps --install-quiet
+uv run os-setup --install-quiet
 
 # Configure Git (personalize as needed, edit as needed. Uncomment and set your details but avoid committing them)
 echo "📝 Configuring Git..."

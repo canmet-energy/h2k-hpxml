@@ -423,7 +423,7 @@ def cli(
         dep_manager = DependencyManager()
         if not dep_manager.check_only():
             click.echo("❌ Missing required dependencies!")
-            click.echo("Run 'h2k-deps --install-quiet' to install them.")
+            click.echo("Run 'os-setup --install-quiet' to install them.")
             sys.exit(1)
 
     # Handle credits flag

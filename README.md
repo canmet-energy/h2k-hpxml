@@ -35,7 +35,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 
 # Setup dependencies automatically (OpenStudio, EnergyPlus)
-h2k-deps --auto-install
+os-setup --auto-install
 ```
 
 ### 3. Try the Interactive Demo
@@ -112,7 +112,7 @@ results = run_full_workflow('input.h2k', simulate=True)
 
 - 🐛 **Issues**: [GitHub Issues](https://github.com/canmet-energy/h2k-hpxml/issues)
 - 📖 **Documentation**: [docs/](docs/)
-- 🚀 **Quick Test**: Run `h2k-deps --test-installation` to verify setup
+- 🚀 **Quick Test**: Run `os-setup --test-installation` to verify setup
 
 ## Credits & License
 
