@@ -13,6 +13,10 @@ RUN chmod +x /tmp/certctl-safe.sh && \
     /tmp/certctl-safe.sh certs-refresh && \
     rm -rf /tmp/certctl-safe.sh /tmp/certs/
 
+# Unified dev environment init (venv + prompt)
+COPY .devcontainer/scripts/dev-env-init.sh /etc/profile.d/dev-env-init.sh
+RUN chmod 644 /etc/profile.d/dev-env-init.sh
+
 # Environment Configuration
 ENV DEBIAN_FRONTEND=noninteractive
 # Note: Certificate environment variables now managed dynamically by certctl-safe
@@ -28,6 +32,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     unzip \
+    jq \
     # Development tools
     build-essential \
     # Runtime libraries needed by OpenStudio
@@ -120,7 +125,7 @@ CMD ["/bin/bash"]
 
 # Container metadata
 LABEL maintainer="CANMET Energy <canmet-energy@nrcan-rncan.gc.ca>" \
-    description="H2K to HPXML development environment" \
+    description="Bluesky development environment" \
     version="dev" \
     org.opencontainers.image.source="https://github.com/canmet-energy/h2k-hpxml" \
     org.opencontainers.image.documentation="https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md" \
