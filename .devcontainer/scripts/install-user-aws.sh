@@ -306,6 +306,91 @@ fi
 echo "  Location: $MCP_CONFIG_FILE"
 echo ""
 
+# Configure boto3 (AWS SDK for Python) in pyproject.toml
+echo "📦 Configuring boto3 (AWS SDK for Python)..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PYPROJECT_TOML="$PROJECT_ROOT/pyproject.toml"
+
+if [ -f "$PYPROJECT_TOML" ]; then
+    # Check if boto3 is already in dependencies
+    python3 - "$PYPROJECT_TOML" << 'BOTO3EOF'
+import sys
+from pathlib import Path
+
+pyproject_path = Path(sys.argv[1])
+content = pyproject_path.read_text()
+lines = content.splitlines()
+
+# Check if boto3 exists
+boto3_found = False
+for line in lines:
+    if "boto3" in line and ("=" in line or "@" in line):
+        boto3_found = True
+        print("✓ Found: boto3")
+        break
+
+if not boto3_found:
+    print("⚠ Missing: boto3>=1.28.0")
+
+    # Find dependencies section and add boto3
+    in_deps = False
+    deps_end_idx = -1
+
+    for idx, line in enumerate(lines):
+        if line.strip() == "dependencies = [":
+            in_deps = True
+        elif in_deps and line.strip() == "]":
+            deps_end_idx = idx
+            break
+
+    if deps_end_idx != -1:
+        # Make sure last dependency has a comma
+        if not lines[deps_end_idx - 1].rstrip().endswith(","):
+            lines[deps_end_idx - 1] += ","
+
+        # Add boto3
+        lines.insert(deps_end_idx, '    "boto3>=1.28.0",  # AWS SDK for Python')
+
+        # Write back
+        pyproject_path.write_text("\n".join(lines) + "\n")
+        print("📝 Added boto3>=1.28.0 to pyproject.toml")
+        sys.exit(2)  # Signal that changes were made
+    else:
+        print("❌ Could not find dependencies section", file=sys.stderr)
+        sys.exit(1)
+else:
+    print("✅ boto3 already present in pyproject.toml")
+    sys.exit(0)
+BOTO3EOF
+
+    BOTO3_EXIT_CODE=$?
+
+    if [ $BOTO3_EXIT_CODE -eq 2 ]; then
+        echo "📋 pyproject.toml was modified, installing boto3..."
+        cd "$PROJECT_ROOT"
+        if command -v uv &> /dev/null; then
+            uv pip install -e . > /dev/null 2>&1
+        else
+            pip install -e . > /dev/null 2>&1
+        fi
+    elif [ $BOTO3_EXIT_CODE -eq 1 ]; then
+        echo "❌ Failed to update pyproject.toml" >&2
+    fi
+
+    # Verify boto3 installation
+    if python3 -c "import boto3; print(f'   boto3 version: {boto3.__version__}')" 2>/dev/null; then
+        echo "✅ boto3 is installed and ready"
+    else
+        echo "⚠️  boto3 not found - run 'pip install boto3' or 'uv pip install -e .'" >&2
+    fi
+else
+    echo "ℹ️  pyproject.toml not found at $PYPROJECT_TOML"
+    echo "   Install boto3 manually: pip install boto3"
+fi
+
+echo ""
+
 cat <<EOF
 💡 Usage examples:
     aws --version                 # Show version

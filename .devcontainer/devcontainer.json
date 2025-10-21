@@ -12,7 +12,9 @@
 		"ENABLE_GPU_AI": "0", // Set to 0 to skip GPU AI/LLM stack (PyTorch etc.) installation
 		"DEVCONTAINER_NODE_VERSION": "22.11.0", // Node.js version installed by install-user-nodejs.sh (override as needed)
 		"DEVCONTAINER_UV_VERSION": "0.8.15", // UV (Python package manager) version installed by install-user-uv.sh
-		"DEVCONTAINER_PYTHON_VERSION": "3.12" // Python version used when creating the virtual environment
+		"DEVCONTAINER_PYTHON_VERSION": "3.12", // Python version used when creating the virtual environment
+		"DEVCONTAINER_RUBY_VERSION": "3.2.2", // Ruby version used when creating the virtual environment
+		"DEVCONTAINER_OS_STANDARDS": "0.8.4" //OS standards ruby gem version. 
 	},
 	"customizations": {
 		"vscode": {
