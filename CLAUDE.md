@@ -150,7 +150,15 @@ src/h2k_hpxml/
 ├── analysis/             # Post-simulation analysis
 │   └── annual.py
 ├── utils/                # Utilities and helpers
-│   └── dependencies.py   # os-setup CLI
+│   ├── dependencies/     # Modular dependency management (refactored)
+│   │   ├── __init__.py          # Public API re-exports (backward compatible)
+│   │   ├── dependencies_legacy.py  # Legacy monolithic module (being phased out)
+│   │   ├── download_utils.py    # Download helpers and safe_echo()
+│   │   ├── platform_utils.py    # Platform detection and path resolution
+│   │   └── installers/          # Installer modules
+│   │       ├── base.py          # BaseInstaller abstract class
+│   │       └── ...              # Platform-specific installers (future)
+│   └── ...               # Other utilities
 └── examples/             # Sample H2K files
 ```
 
@@ -182,6 +190,22 @@ The core translation follows this flow:
 - `config/manager.py` - `ConfigManager` class for handling `conversionconfig.ini`
 - `resources/` - Contains JSON mapping files and HPXML template
 - Weather data files and mapping configurations
+
+**Dependency Management** (Refactored):
+- `utils/dependencies/` - Modular dependency management package
+  - `dependencies_legacy.py` - Original 3,000+ line monolithic module (retained for compatibility)
+  - `__init__.py` - Re-exports all public APIs from legacy module (100% backward compatible)
+  - `download_utils.py` - File download with retry logic, SSL support, and safe_echo()
+  - `platform_utils.py` - Platform detection, path resolution, config loading
+  - `installers/base.py` - Abstract base class for installers
+  - Future: Platform-specific installer modules (OpenStudio Windows/Linux, HPXML)
+
+**Refactoring Rationale**:
+- Original `dependencies.py` was 3,056 lines with a 57-method DependencyManager class
+- Refactored into focused modules (each <400 lines) with single responsibilities
+- Maintains 100% backward compatibility via `__init__.py` re-exports
+- Enables incremental migration from legacy module to new modular structure
+- Future work: Complete extraction of installers, validators, and config management
 
 ### Data Flow Architecture
 - H2K data stored as nested dictionaries (parsed from XML)

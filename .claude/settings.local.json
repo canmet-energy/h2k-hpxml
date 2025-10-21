@@ -76,7 +76,9 @@
       "Bash(rm:*)",
       "Bash(/workspaces/h2k-hpxml/.devcontainer/scripts/install-user-github-copilot.sh:*)",
       "Read(//workspaces/**)",
-      "Bash(uv pip install:*)"
+      "Bash(uv pip install:*)",
+      "Bash(python3:*)",
+      "Bash(pytest:*)"
     ],
     "deny": [],
     "ask": [],
