@@ -1,6 +1,6 @@
 # H2K-HPXML API Reference
 
-Complete API reference for using H2K-HPXML as a Python library.
+Complete API reference for using H2K-HPXML as a Python library. This can be use to train an LLM to use the H2KHPXML library as well. 
 
 ## Table of Contents
 
@@ -18,105 +18,171 @@ Complete API reference for using H2K-HPXML as a Python library.
 
 Main public API for H2K to HPXML conversion.
 
+#### convert_h2k_string()
+
+Convert H2K XML string to HPXML format (core conversion function).
+
+```python
+def convert_h2k_string(
+    h2k_string: str,
+    config: Optional[Dict[str, Any]] = None
+) -> str
+```
+
+**Parameters:**
+- `h2k_string` (str): H2K file content as XML string
+- `config` (Dict, optional): Configuration dictionary for translation options. If None, uses default configuration from conversionconfig.ini
+
+**Returns:**
+- `str`: HPXML formatted string
+
+**Raises:**
+- `H2KParsingError`: If H2K input cannot be parsed
+- `HPXMLGenerationError`: If HPXML generation fails
+- `ConfigurationError`: If configuration is invalid
+
+**Example:**
+```python
+from h2k_hpxml.api import convert_h2k_string
+
+# Read H2K file
+with open('input.h2k', 'r') as f:
+    h2k_content = f.read()
+
+# Convert to HPXML string
+hpxml_content = convert_h2k_string(h2k_content)
+
+# Save HPXML
+with open('output.xml', 'w') as f:
+    f.write(hpxml_content)
+```
+
 #### convert_h2k_file()
 
 Convert a single H2K file to HPXML format.
 
 ```python
 def convert_h2k_file(
-    input_path: str,
-    output_path: Optional[str] = None,
-    simulate: bool = True,
-    mode: str = 'SOC',
-    hourly_outputs: Optional[List[str]] = None,
-    debug: bool = False
+    input_path: Union[str, Path],
+    output_path: Optional[Union[str, Path]] = None,
+    config: Optional[Dict[str, Any]] = None
 ) -> str
 ```
 
 **Parameters:**
-- `input_path` (str): Path to the input H2K file
-- `output_path` (str, optional): Path for the output HPXML file. If None, auto-generated based on input filename
-- `simulate` (bool): Whether to run EnergyPlus simulation after conversion. Default: True
-- `mode` (str): Translation mode. Options: 'SOC', 'ASHRAE140'. Default: 'SOC'
-- `hourly_outputs` (List[str], optional): List of hourly output types to generate. Options: 'ALL', 'Heating', 'Cooling', 'DHW', etc.
-- `debug` (bool): Enable debug logging. Default: False
+- `input_path` (str or Path): Path to the input H2K file
+- `output_path` (str or Path, optional): Path for the output HPXML file. If None, uses input filename with .xml extension in same directory
+- `config` (Dict, optional): Configuration dictionary for translation options
 
 **Returns:**
 - `str`: Path to the generated HPXML file
 
 **Raises:**
 - `FileNotFoundError`: If input file doesn't exist
-- `ValueError`: If invalid parameters are provided
-- `TranslationError`: If H2K to HPXML conversion fails
-- `SimulationError`: If EnergyPlus simulation fails (when simulate=True)
+- `H2KParsingError`: If H2K file cannot be parsed
+- `HPXMLGenerationError`: If HPXML generation fails
 
 **Example:**
 ```python
 from h2k_hpxml.api import convert_h2k_file
 
-# Basic conversion
+# Basic conversion (HPXML only, no simulation)
 output_path = convert_h2k_file('input.h2k')
+print(f"Created: {output_path}")
 
-# Advanced conversion
+# Specify output location
 output_path = convert_h2k_file(
     input_path='house.h2k',
-    output_path='results/house.xml',
-    simulate=True,
-    mode='SOC',
-    hourly_outputs=['ALL'],
-    debug=True
+    output_path='results/house.xml'
 )
+
+# With custom configuration
+config = {'translation_mode': 'ASHRAE140'}
+output_path = convert_h2k_file('input.h2k', config=config)
 ```
 
 #### run_full_workflow()
 
-Run complete workflow including validation, conversion, and simulation.
+Run complete workflow including conversion and optional simulation (replicates CLI functionality).
 
 ```python
 def run_full_workflow(
-    input_path: str,
-    output_directory: Optional[str] = None,
+    input_path: Union[str, Path],
+    output_path: Optional[Union[str, Path]] = None,
     simulate: bool = True,
-    mode: str = 'SOC',
+    output_format: str = "csv",
+    add_component_loads: bool = True,
+    debug: bool = False,
+    skip_validation: bool = False,
+    add_stochastic_schedules: bool = False,
+    add_timeseries_output_variable: Optional[List[str]] = None,
     hourly_outputs: Optional[List[str]] = None,
-    parallel: bool = True,
-    max_workers: Optional[int] = None
+    daily_outputs: Optional[List[str]] = None,
+    monthly_outputs: Optional[List[str]] = None,
+    timestep_outputs: Optional[List[str]] = None,
+    max_workers: Optional[int] = None,
+    **kwargs
 ) -> Dict[str, Any]
 ```
 
 **Parameters:**
-- `input_path` (str): Path to H2K file or directory containing H2K files
-- `output_directory` (str, optional): Output directory for results. Auto-generated if None
-- `simulate` (bool): Run EnergyPlus simulation. Default: True
-- `mode` (str): Translation mode. Default: 'SOC'
-- `hourly_outputs` (List[str], optional): Hourly output types to generate
-- `parallel` (bool): Use parallel processing for multiple files. Default: True
-- `max_workers` (int, optional): Maximum number of parallel workers. Auto-detected if None
+- `input_path` (str or Path): Path to H2K file or directory containing H2K files
+- `output_path` (str or Path, optional): Output directory. If None, creates 'output' folder in same directory as input
+- `simulate` (bool): Whether to run EnergyPlus simulation. Default: True
+- `output_format` (str): Output format for results ("csv", "json", "msgpack", "csv_dview"). Default: "csv"
+- `add_component_loads` (bool): Include component loads in output. Default: True
+- `debug` (bool): Enable debug mode with extra outputs. Default: False
+- `skip_validation` (bool): Skip HPXML validation for faster processing. Default: False
+- `add_stochastic_schedules` (bool): Add stochastic occupancy schedules. Default: False
+- `add_timeseries_output_variable` (List[str], optional): EnergyPlus output variables to include
+- `hourly_outputs` (List[str], optional): Hourly output types ('total', 'fuels', 'enduses', etc.)
+- `daily_outputs` (List[str], optional): Daily output types
+- `monthly_outputs` (List[str], optional): Monthly output types
+- `timestep_outputs` (List[str], optional): Timestep output types
+- `max_workers` (int, optional): Max parallel workers for batch processing. Auto-detected if None
 
 **Returns:**
 - `Dict[str, Any]`: Results dictionary containing:
+  - `converted_files` (List[str]): List of HPXML files created
   - `successful_conversions` (int): Number of successful conversions
   - `failed_conversions` (int): Number of failed conversions
-  - `output_files` (List[str]): List of generated output files
-  - `errors` (List[str]): List of error messages for failed conversions
-  - `processing_time` (float): Total processing time in seconds
+  - `simulation_results` (List[str]): Simulation output paths (if simulate=True)
+  - `errors` (List[str]): List of errors encountered
+  - `results_file` (str): Path to markdown results file
+
+**Raises:**
+- `FileNotFoundError`: If input path doesn't exist
+- `DependencyError`: If required dependencies are missing
+- `SimulationError`: If simulation fails (when simulate=True)
 
 **Example:**
 ```python
 from h2k_hpxml.api import run_full_workflow
 
-# Process single file
+# Process single file with simulation
 results = run_full_workflow('house.h2k', simulate=True)
+print(f"Converted {results['successful_conversions']} files")
 
-# Process directory with parallel processing
+# Process with hourly outputs
+results = run_full_workflow(
+    input_path='house.h2k',
+    simulate=True,
+    output_format='csv',
+    hourly_outputs=['total', 'fuels'],
+    debug=True
+)
+
+# Process directory (parallel processing)
 results = run_full_workflow(
     input_path='h2k_files/',
-    output_directory='results/',
-    parallel=True,
+    output_path='results/',
+    simulate=True,
     max_workers=4
 )
 
-print(f"Processed {results['successful_conversions']} files")
+# Access results
+for hpxml_file in results['converted_files']:
+    print(f"Created: {hpxml_file}")
 ```
 
 #### batch_convert_h2k_files()

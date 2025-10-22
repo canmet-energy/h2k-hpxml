@@ -52,6 +52,12 @@ pytest -n auto                       # Auto-detect number of CPU cores
 pytest -n 4                          # Use 4 parallel workers
 pytest tests/integration/test_regression.py -n auto  # Parallel regression tests only
 
+# Code coverage
+pytest --cov=src/h2k_hpxml          # Run tests with coverage report
+pytest --cov=src/h2k_hpxml --cov-report=html  # Generate HTML coverage report
+pytest --cov=src/h2k_hpxml --cov-report=term-missing  # Show missing lines in terminal
+pytest -n auto --cov=src/h2k_hpxml  # Parallel tests with coverage
+
 # Generate baseline data (alternative method)
 uv run python tests/utils/generate_baseline_data.py  # Direct script execution
 
@@ -79,6 +85,11 @@ pytest tests/integration/           # Integration tests only
 pytest -n auto                     # Run tests in parallel (faster)
 pytest -v                          # Verbose output
 pytest -x                          # Stop on first failure
+
+# Code coverage
+pytest --cov=src/h2k_hpxml         # Run tests with coverage
+pytest --cov=src/h2k_hpxml --cov-report=html  # Generate HTML coverage report (htmlcov/)
+pytest --cov=src/h2k_hpxml --cov-report=term-missing  # Show which lines are missing coverage
 
 # Code formatting and linting
 black src/ tests/                   # Format code (line length: 100)
@@ -323,7 +334,7 @@ All Docker containers include pre-installed OpenStudio and dependencies, elimina
 - Check for issues with: `ruff check src/ tests/`
 - Use DevContainer for consistent development environment (includes all dependencies)
 - Review `docs/DOCKER.md` for detailed Docker usage
-- macOS users: Docker is the recommended development environment (auto-install not supported)
+- **Supported Platforms**: Windows and Linux only
 
 ## Project Documentation
 

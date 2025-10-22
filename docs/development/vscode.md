@@ -8,9 +8,9 @@ Another benefit is that simulations will run 50% faster using linux containers c
 ## Requirements
 ### Docker
 
-**Windows**: [Docker Desktop 2.0+](https://www.docker.com/products/docker-desktop/) on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end. (Docker Toolbox is not supported. Windows container images are not supported.) Installation instructions are [here](../installation/docker_windows_install.md).
+**Supported Platforms**: Windows and Linux only
 
-**macOS**: [Docker Desktop 2.0+](https://www.docker.com/products/docker-desktop/).
+**Windows**: [Docker Desktop 2.0+](https://www.docker.com/products/docker-desktop/) on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end. (Docker Toolbox is not supported. Windows container images are not supported.) Installation instructions are [here](../installation/docker_windows_install.md).
 
 **Linux**: Docker CE/EE 18.06+ and Docker Compose 1.21+. (The Ubuntu snap package is not supported.) Use your distros package manager to install.
 

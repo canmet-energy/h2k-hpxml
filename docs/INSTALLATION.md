@@ -1,726 +1,301 @@
 # H2K-HPXML Installation Guide
 
-Complete installation guide for all platforms and installation methods.
+Complete installation instructions for Windows and Linux.
 
-## Table of Contents
+## Quick Start (5 Minutes)
 
-- [Quick Start (Recommended)](#quick-start-recommended)
-- [Installation Methods](#installation-methods)
-- [Platform-Specific Instructions](#platform-specific-instructions)
-- [Dependency Management](#dependency-management)
-- [Verification and Testing](#verification-and-testing)
-- [Troubleshooting](#troubleshooting)
-- [Alternative Installation Methods](#alternative-installation-methods)
-
-## Quick Start (Recommended)
-
-### 1. Install uv (Modern Python Package Manager)
-
-**Why uv?** 10-100x faster than pip, better dependency resolution, automatic virtual environments.
-
-**Linux/Mac:**
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+### 1. Install uv Package Manager
 
 **Windows PowerShell:**
 ```powershell
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-**Alternative (any platform):**
+**Linux:**
 ```bash
-pip install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### 2. Install H2K-HPXML
+### 2. Install H2K-HPXML Globally
 
-**Global Installation (commands available everywhere):**
 ```bash
 uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-```
-
-**Project Installation:**
-```bash
-# Create new project
-uv init my-h2k-project
-cd my-h2k-project
-uv add git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-
-# Or add to existing project
-uv add git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
 ```
 
 ### 3. Setup Dependencies
 
 ```bash
-# Setup configuration and auto-install dependencies
+# Automatic installation (no admin rights needed on Windows)
 os-setup --auto-install
 
 # Verify installation
 os-setup --test-installation
 ```
 
-### 4. Test with Demo
+### 4. Try the Demo
 
 ```bash
-# Run interactive demo
-h2k-demo
-
-# Or convert a file directly
-h2k-hpxml your_file.h2k
+h2k-demo                    # Interactive demo
+h2k-hpxml your_file.h2k     # Convert a file
 ```
 
-## Installation Methods
+**That's it!** You're ready to use H2K-HPXML.
 
-### Method 1: uv Tool (Recommended)
-
-**Best for**: General users who want commands available globally.
-
-```bash
-# Install globally
-uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-
-# Update
-uv tool upgrade git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-
-# Uninstall
-uv tool uninstall h2k-hpxml
-```
-
-### Method 2: uv Project
-
-**Best for**: Developers or users who want project isolation.
-
-```bash
-# Create new environment
-uv venv h2k-env --python 3.12
-source h2k-env/bin/activate  # Linux/Mac
-# or
-h2k-env\Scripts\activate     # Windows
-
-# Install package
-uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-
-# Use commands (only when environment is active)
-h2k-hpxml --help
-```
-
-### Method 3: Traditional pip
-
-**Best for**: Users who prefer traditional Python package management.
-
-```bash
-# Create virtual environment
-python -m venv h2k-env
-source h2k-env/bin/activate  # Linux/Mac
-# or
-h2k-env\Scripts\activate     # Windows
-
-# Install package
-pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-```
-
-### Method 4: Docker (Zero Setup)
-
-**Best for**: Users who don't want to install anything locally.
-
-```bash
-# Convert files using Docker
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
-
-# See Docker Guide for complete instructions
-```
+---
 
 ## Platform-Specific Instructions
 
-### Windows Installation
+### Windows
 
-#### Prerequisites
-- **Windows 10/11** (64-bit)
-- **PowerShell 5.1+** (pre-installed on Windows 10/11)
-- **Admin rights** (for initial uv installation only)
+**Prerequisites**: Windows 10/11 (64-bit), PowerShell 5.1+
 
-#### Step-by-Step
-
-1. **Install uv**:
-   ```powershell
-   # Open PowerShell as Administrator
-   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-   ```
-
-2. **Restart PowerShell** (as regular user) and verify:
-   ```powershell
-   uv --version
-   ```
-
-3. **Install H2K-HPXML**:
-   ```powershell
-   uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-   ```
-
-4. **Setup dependencies** (automatic OpenStudio installation):
-   ```powershell
-   os-setup --auto-install
-   ```
-
-   This automatically:
-   - Downloads OpenStudio 3.9.0 portable (no admin rights required)
-   - Installs to `%LOCALAPPDATA%\OpenStudio-3.9.0`
-   - Downloads OpenStudio-HPXML
-   - Configures all paths
-
-5. **Test installation**:
-   ```powershell
-   os-setup --test-installation
-   h2k-demo
-   ```
-
-#### Windows Troubleshooting
-
-**"Execution policy" errors:**
+**Complete Installation:**
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+# 1. Install uv (one-time setup)
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# 2. Restart PowerShell, then install H2K-HPXML
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+
+# 3. Auto-install dependencies (portable, no admin required)
+os-setup --auto-install
+
+# 4. Test
+h2k-demo
 ```
 
-**"Command not found" after installation:**
-```powershell
-# Restart PowerShell/Command Prompt
-# Or manually add to PATH (os-setup will help with this)
-os-setup --add-to-path
-```
+**Dependencies are installed to**: `%LOCALAPPDATA%\OpenStudio-3.9.0` (~500MB)
 
-**OpenStudio installation location:**
-- Primary: `%LOCALAPPDATA%\OpenStudio-3.9.0`
-- Fallback: `%USERPROFILE%\OpenStudio-3.9.0`
+**Troubleshooting:**
+- **"Command not found"**: Restart PowerShell or run `os-setup --add-to-path`
+- **Execution policy errors**: `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`
 
-### Linux Installation
+---
 
-#### Prerequisites
-- **Ubuntu 20.04+** or **CentOS 8+** (or equivalent)
-- **Python 3.12+** (uv can install this automatically)
-- **curl** (usually pre-installed)
+### Linux
 
-#### Step-by-Step
+**Prerequisites**: Ubuntu 20.04+ or equivalent, Python 3.12+
 
-1. **Install uv**:
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   source $HOME/.bashrc  # or restart terminal
-   ```
-
-2. **Install H2K-HPXML**:
-   ```bash
-   uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-   ```
-
-3. **Setup dependencies**:
-   ```bash
-   # May require sudo for system-wide OpenStudio installation
-   sudo os-setup --auto-install
-
-   # Alternative: Use Docker for no system modifications
-   docker run --rm canmet/h2k-hpxml h2k-hpxml --help
-   ```
-
-4. **Test installation**:
-   ```bash
-   os-setup --test-installation
-   h2k-demo
-   ```
-
-#### Linux Troubleshooting
-
-**Permission errors:**
+**Complete Installation:**
 ```bash
-# Use sudo for system dependencies
+# 1. Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.bashrc
+
+# 2. Install H2K-HPXML
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+
+# 3. Auto-install dependencies (may require sudo)
 sudo os-setup --auto-install
 
-# Or use Docker for no system changes
+# 4. Test
+h2k-demo
+```
+
+**Troubleshooting:**
+- **Permission errors**: Use `sudo os-setup --auto-install` or [Docker](#docker-installation)
+- **Missing dependencies**: `sudo apt install build-essential python3-dev`
+
+---
+
+## Alternative Installation Methods
+
+### Docker (Zero Setup)
+
+Works on Windows and Linux:
+
+```bash
+# Convert single file
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
+
+# Batch process folder
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/
+
+# With hourly outputs
+docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k --hourly ALL
 ```
 
-**Python version issues:**
+See [DOCKER.md](DOCKER.md) for complete guide.
+
+### Python Project/Virtual Environment
+
+For isolated installations:
+
 ```bash
-# uv can install specific Python versions
-uv python install 3.12
-uv venv --python 3.12
+# Create virtual environment
+uv venv h2k-env --python 3.12
+source h2k-env/bin/activate     # Linux
+h2k-env\Scripts\activate        # Windows
+
+# Install
+uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+
+# Setup dependencies
+os-setup --auto-install
 ```
 
-### macOS Installation
-
-> ⚠️ **Important**: Automatic dependency installation is **not currently supported** on macOS. OpenStudio and EnergyPlus must be installed manually, or use Docker for zero-setup usage.
-
-#### Recommended: Use Docker (Zero Setup)
+### Traditional pip
 
 ```bash
-# Install Docker Desktop for Mac
-# Then use H2K-HPXML via Docker
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
+# In a virtual environment
+pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+os-setup --auto-install
 ```
 
-See the complete [Docker Guide](DOCKER.md) for full instructions.
+### Development Installation
 
-#### Manual Installation (Advanced Users)
+For contributors:
 
-1. **Install uv**:
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   source $HOME/.zshrc  # or restart terminal
-   ```
-
-2. **Install H2K-HPXML**:
-   ```bash
-   uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-   ```
-
-3. **Manual dependency setup** (required):
-   - Download and install [OpenStudio 3.9.0](https://github.com/NREL/OpenStudio/releases/tag/v3.9.0) for macOS
-   - Download [OpenStudio-HPXML v1.9.1](https://github.com/NREL/OpenStudio-HPXML/releases/tag/v1.9.1)
-   - Configure paths manually:
-     ```bash
-     os-setup --setup
-     # Follow prompts to specify custom paths
-     ```
-
-4. **Test installation**:
-   ```bash
-   os-setup --check-only  # Verify dependencies
-   h2k-demo              # If dependencies are configured
-   ```
-
-#### macOS Troubleshooting
-
-**Automatic installation not supported:**
 ```bash
-# os-setup --auto-install will show unsupported platform error
-# Use Docker instead for easiest setup
-docker run --rm canmet/h2k-hpxml h2k-hpxml --help
+git clone https://github.com/canmet-energy/h2k-hpxml.git
+cd h2k-hpxml
+uv pip install -e '.[dev]'
+os-setup --auto-install
+pytest tests/unit/
 ```
 
-**Manual OpenStudio setup:**
-```bash
-# After manual OpenStudio installation, check if detected
-os-setup --check-only
+See [DEVELOPMENT.md](DEVELOPMENT.md) for complete development setup.
 
-# If not detected, use interactive setup
-os-setup --setup
-```
-
-**Gatekeeper issues with manual installation:**
-```bash
-# Allow OpenStudio to run if blocked
-sudo xattr -rd com.apple.quarantine /path/to/openstudio-3.9.0/
-```
+---
 
 ## Dependency Management
 
-H2K-HPXML requires several external dependencies that are managed by the `os-setup` command.
-
-### Required Dependencies
-
-1. **OpenStudio 3.9.0** - Building modeling and simulation platform
-2. **OpenStudio-HPXML 1.9.1** - NREL's HPXML implementation
-3. **EnergyPlus** - Simulation engine (included with OpenStudio)
-4. **Weather data files** - Canadian CWEC2020 weather files
+H2K-HPXML requires:
+- **OpenStudio 3.9.0** - Building simulation platform
+- **OpenStudio-HPXML 1.9.1** - NREL's HPXML implementation
+- **EnergyPlus** - Simulation engine (included with OpenStudio)
+- **Weather data** - Canadian CWEC2020 files
 
 ### Dependency Commands
 
 ```bash
-# Check current status
-os-setup --check-only
-
-# Interactive setup (first time)
-os-setup --setup
-
-# Automatic installation
-os-setup --auto-install
-
-# Update existing installation
-os-setup --update-config
-
-# Test comprehensive installation
-os-setup --test-comprehensive
+os-setup --check-only           # Check installation status
+os-setup --auto-install         # Auto-install all dependencies
+os-setup --setup                # Interactive setup
+os-setup --test-installation    # Quick test (30 sec)
+os-setup --test-comprehensive   # Full test (5-10 min)
 ```
 
 ### Manual Dependency Installation
 
-If automatic installation fails, you can install dependencies manually:
-
-#### OpenStudio 3.9.0
+If auto-install fails:
 
 **Windows:**
-1. Download from [OpenStudio Releases](https://github.com/NREL/OpenStudio/releases/tag/v3.9.0)
-2. Use portable `.tar.gz` version (no admin required)
-3. Extract to `%LOCALAPPDATA%\OpenStudio-3.9.0`
+1. Download [OpenStudio 3.9.0 portable](https://github.com/NREL/OpenStudio/releases/tag/v3.9.0) (.tar.gz)
+2. Extract to `%LOCALAPPDATA%\OpenStudio-3.9.0`
+3. Download [OpenStudio-HPXML v1.9.1](https://github.com/NREL/OpenStudio-HPXML/releases/tag/v1.9.1)
+4. Run `os-setup --setup` to configure paths
 
 **Linux:**
 ```bash
 # Ubuntu/Debian
 wget https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+bb9481519e-Ubuntu-20.04-x86_64.deb
 sudo dpkg -i OpenStudio-3.9.0+bb9481519e-Ubuntu-20.04-x86_64.deb
-```
-
-**macOS:**
-```bash
-# Download .dmg from GitHub releases (manual installation required)
-# Visit: https://github.com/NREL/OpenStudio/releases/tag/v3.9.0
-# Look for macOS .dmg file in Assets section
-# Install via GUI, then configure with os-setup --setup
-```
-
-#### OpenStudio-HPXML
-
-```bash
-# Download and extract
-wget https://github.com/NREL/OpenStudio-HPXML/archive/refs/tags/v1.9.1.zip
-unzip v1.9.1.zip -d /path/to/openstudio-hpxml/
-```
-
-#### Configuration
-
-After manual installation, update configuration:
-
-```bash
 os-setup --setup
-# Follow prompts to specify custom paths
 ```
 
-## Verification and Testing
+---
 
-### Basic Verification
+## Verification
+
+### Quick Test
 
 ```bash
-# 1. Check package installation
-python -c "import h2k_hpxml; print('✅ Package imported successfully')"
+# Verify package
+python -c "import h2k_hpxml; print('✅ Package OK')"
 
-# 2. Check CLI commands
+# Check CLI commands
 h2k-hpxml --help
-os-setup --help
 h2k-demo --help
 
-# 3. Check dependencies
+# Check dependencies
 os-setup --check-only
 ```
 
-Expected output:
+**Expected output:**
 ```
 🔍 Dependency Check Report
 ==============================
 ✅ OpenStudio CLI: /path/to/openstudio
-✅ OpenStudio-HPXML found at: /path/to/hpxml
+✅ OpenStudio-HPXML found
 ✅ Weather files configured
 
 🎉 All dependencies satisfied!
 ```
 
-### Installation Testing
+### Full Test
 
 ```bash
 # Quick test (30 seconds)
-os-setup --test-quick
-
-# Smart test (auto-detects installation method)
 os-setup --test-installation
 
 # Comprehensive test (5-10 minutes)
 os-setup --test-comprehensive
-```
 
-Expected output:
-```
-H2K-HPXML Installation Test
-========================================
-📦 Detected installation method: uv tool
-   Commands available globally
-
-TEST SUMMARY
-==================================================
-Installation         ✅ PASS
-CLI Tools            ✅ PASS
-Dependencies         ✅ PASS
-Basic Conversion     ✅ PASS
---------------------------------------------------
-Passed: 4/4
-
-🎉 All tests passed! H2K-HPXML is working correctly.
-```
-
-### Interactive Demo
-
-```bash
-# English demo
+# Interactive demo
 h2k-demo
-
-# French demo
-h2k-demo --lang fr
 ```
 
-The demo provides:
-- Guided file selection
-- Step-by-step conversion process
-- Explanation of output files
-- Real conversion results
-
-### Manual Testing
-
-```bash
-# Test with example file (if you have access to source)
-h2k-hpxml examples/WizardHouse.h2k --do-not-sim
-
-# Test with your own file
-h2k-hpxml /path/to/your/file.h2k --output results.xml
-
-# Test batch processing
-h2k-hpxml /path/to/folder/ --output results/
-```
+---
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### 1. "Command not found: h2k-hpxml"
-
-**uv tool installation:**
-```bash
-# Check if tool is installed
-uv tool list
-
-# Reinstall if needed
-uv tool uninstall h2k-hpxml
-uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-
-# Check PATH
-echo $PATH | grep -i uv
-```
-
-**Traditional installation:**
-```bash
-# Use Python module syntax
-python -m h2k_hpxml.cli.convert --help
-
-# Check if in PATH
-which h2k-hpxml
-pip show h2k-hpxml
-```
-
-#### 2. "OpenStudio not found"
-
-```bash
-# Check current status
-os-setup --check-only
-
-# Auto-install
-os-setup --auto-install
-
-# Manual configuration
-os-setup --setup
-```
-
-#### 3. "Permission denied" (Linux/Mac)
-
-```bash
-# Use sudo for system installation
-sudo os-setup --auto-install
-
-# Or use user-only installation
-os-setup --setup  # Choose user directory
-
-# Alternative: Use Docker
-docker run --rm canmet/h2k-hpxml h2k-hpxml --help
-```
-
-#### 4. Python version incompatibility
-
-```bash
-# Check Python version
-python --version
-
-# Use uv to manage Python versions
-uv python install 3.12
-uv venv --python 3.12
-```
-
-#### 5. Network/Download issues
-
-```bash
-# Install from GitHub repository
-pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-
-# Or download manually and install offline
-pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor --no-index --find-links /path/to/wheels/
-```
+| Issue | Solution |
+|-------|----------|
+| "Command not found: h2k-hpxml" | Restart terminal or run `os-setup --add-to-path` (Windows) |
+| "OpenStudio not found" | Run `os-setup --auto-install` or `os-setup --check-only` |
+| Permission errors (Linux) | Use `sudo os-setup --auto-install` or Docker |
+| Python version issues | `uv python install 3.12` then `uv venv --python 3.12` |
 
 ### Platform-Specific Issues
 
-#### Windows
-
-**PowerShell execution policy:**
+**Windows:**
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
+# Execution policy
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-**PATH issues:**
-```powershell
-# Let os-setup fix PATH
+# Fix PATH
 os-setup --add-to-path
-
-# Or manually add uv tools directory to PATH
-$env:PATH += ";$env:USERPROFILE\.local\bin"
 ```
 
-**WSL interference:**
-```powershell
-# Use native Windows Python, not WSL
-where python
-# Should show Windows path, not /usr/bin/python
-```
-
-#### Linux
-
-**Missing system dependencies:**
+**Linux:**
 ```bash
-# Ubuntu/Debian
-sudo apt update
-sudo apt install build-essential python3-dev
+# Install system dependencies
+sudo apt update && sudo apt install build-essential python3-dev
 
-# CentOS/RHEL
-sudo yum groupinstall "Development Tools"
-sudo yum install python3-devel
-```
-
-**OpenStudio installation fails:**
-```bash
-# Try manual download
-wget https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+bb9481519e-Ubuntu-20.04-x86_64.deb
-sudo dpkg -i OpenStudio-3.9.0+bb9481519e-Ubuntu-20.04-x86_64.deb
-
-# Fix dependencies if needed
+# Fix broken dependencies
 sudo apt --fix-broken install
-```
-
-#### macOS
-
-**No automatic dependency installation:**
-```bash
-# This will fail on macOS
-os-setup --auto-install
-# Error: ❌ Unsupported platform: Darwin
-
-# Recommended solution: Use Docker
-docker run --rm canmet/h2k-hpxml h2k-hpxml --help
-```
-
-**Manual installation challenges:**
-- OpenStudio 3.9.0 may not have macOS releases
-- EnergyPlus compatibility issues
-- Complex manual configuration required
-
-**Best solution for macOS:**
-```bash
-# Use Docker for guaranteed compatibility
-docker run --rm -v $(pwd):/data canmet/h2k-hpxml h2k-hpxml /data/input.h2k
 ```
 
 ### Getting Help
 
 If issues persist:
 
-1. **Run diagnostics**:
+1. Run diagnostics:
    ```bash
    os-setup --test-comprehensive 2>&1 | tee diagnosis.log
    ```
 
-2. **Check system info**:
-   ```bash
-   uv --version
-   python --version
-   which h2k-hpxml
-   ```
+2. Report issue with:
+   - OS and version
+   - Python version (`python --version`)
+   - Installation method
+   - Error output and diagnosis log
 
-3. **Report issue** with:
-   - Operating system and version
-   - Python version
-   - Installation method used
-   - Complete error output
-   - Diagnosis log
-
-## Alternative Installation Methods
-
-### Development Installation
-
-For contributors and developers:
-
-```bash
-# Clone repository
-git clone https://github.com/canmet-energy/h2k-hpxml.git
-cd h2k-hpxml
-
-# Install in development mode
-uv pip install -e '.[dev]'
-
-# Setup dependencies
-os-setup --setup
-os-setup --auto-install
-
-# Run tests
-pytest tests/unit/
-```
-
-### Docker Development
-
-```bash
-# Clone repository
-git clone https://github.com/canmet-energy/h2k-hpxml.git
-cd h2k-hpxml
-
-# Open in VSCode with DevContainer
-code .
-# Select "Reopen in Container" when prompted
-```
-
-### Offline Installation
-
-For environments without internet access:
-
-1. **Download packages** on connected machine:
-   ```bash
-   pip download git+https://github.com/canmet-energy/h2k-hpxml.git@refactor -d packages/
-   ```
-
-2. **Transfer to offline machine** and install:
-   ```bash
-   pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor --no-index --find-links packages/
-   ```
-
-3. **Manual dependency setup**:
-   - Download OpenStudio and OpenStudio-HPXML manually
-   - Use `os-setup --setup` to configure paths
-
-### Virtual Environment with specific Python version
-
-```bash
-# Using uv
-uv venv h2k-env --python 3.12
-source h2k-env/bin/activate
-uv pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-
-# Using pyenv + virtualenv
-pyenv install 3.12.0
-pyenv virtualenv 3.12.0 h2k-env
-pyenv activate h2k-env
-pip install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
-```
+---
 
 ## Next Steps
 
-After successful installation:
+After installation:
 
 1. **Try the demo**: `h2k-demo`
-2. **Read the user guide**: [USER_GUIDE.md](USER_GUIDE.md)
-3. **Convert your files**: `h2k-hpxml your_file.h2k`
-4. **Explore other tools**: `h2k-resilience`, `os-setup`
-5. **Use as library**: See [LIBRARY.md](LIBRARY.md)
-6. **Docker usage**: See [DOCKER.md](DOCKER.md)
+2. **Convert files**: `h2k-hpxml your_file.h2k`
+3. **Read guides**:
+   - [User Guide](USER_GUIDE.md) - CLI usage and workflows
+   - [API Reference](API.md) - Python API documentation
+   - [Docker Guide](DOCKER.md) - Container usage
+   - [Development Guide](DEVELOPMENT.md) - Contributing
 
 Welcome to H2K-HPXML! 🎉

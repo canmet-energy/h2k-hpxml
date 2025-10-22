@@ -16,9 +16,9 @@ Complete guide for using the H2K-HPXML command-line tools.
 
 See the [Installation Guide](INSTALLATION.md) for detailed setup instructions.
 
-> 🍎 **macOS Users**: Use [Docker](DOCKER.md) instead - automatic dependency installation is not supported on macOS.
+**Supported Platforms**: Windows and Linux
 
-Quick start (Windows/Linux):
+Quick start:
 
 ```bash
 # Install uv package manager
@@ -317,7 +317,6 @@ h2k-hpxml large_batch/ --do-not-sim --output-format json
 - Use `--do-not-sim` for HPXML generation only
 - Monitor system resources to avoid overwhelming the system
 
-See the [Performance Guide](PERFORMANCE.md) for detailed optimization strategies.
 
 ## Configuration System
 
@@ -526,7 +525,6 @@ When reporting issues, include:
 
 Once you're comfortable with the CLI tools:
 
-- **Advanced Usage**: See [LIBRARY.md](LIBRARY.md) for Python API
+- **Python API**: See [API.md](API.md) for Python library usage
 - **Docker Usage**: See [DOCKER.md](DOCKER.md) for containerized processing
 - **Development**: See [DEVELOPMENT.md](DEVELOPMENT.md) to contribute
-- **Performance**: See [PERFORMANCE.md](PERFORMANCE.md) for optimization

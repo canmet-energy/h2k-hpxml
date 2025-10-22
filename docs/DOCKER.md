@@ -1,14 +1,11 @@
 # Docker Guide for H2K-HPXML
 
-The easiest way to use h2k-hpxml without installing Python, OpenStudio, or other dependencies is through Docker. This approach works identically on Windows, Mac, and Linux with zero configuration required.
-
-> 🍎 **macOS Users**: Docker is the **recommended** method for macOS since automatic dependency installation is not currently supported on macOS.
+The easiest way to use h2k-hpxml without installing Python, OpenStudio, or other dependencies is through Docker. This approach works identically on Windows and Linux with zero configuration required.
 
 ## Why Use Docker?
 
 - ✅ **Zero Setup**: No Python, OpenStudio, or dependency installation required
-- ✅ **Universal**: Works identically on Windows, Mac, and Linux
-- ✅ **macOS Compatible**: Only method currently supported for automatic setup on macOS
+- ✅ **Universal**: Works identically on Windows and Linux
 - ✅ **Consistent**: Same environment and results every time
 - ✅ **Isolated**: No conflicts with existing software
 - ✅ **Version-Controlled**: Reproducible builds with specific tool versions
@@ -25,11 +22,6 @@ The easiest way to use h2k-hpxml without installing Python, OpenStudio, or other
 2. Run installer as Administrator
 3. Enable WSL 2 integration if prompted
 4. Restart computer when installation completes
-
-**Mac:**
-1. Download [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/)
-2. Drag Docker.app to Applications folder
-3. Launch Docker Desktop and follow setup prompts
 
 **Linux:**
 ```bash
@@ -59,7 +51,7 @@ docker run --rm canmet/h2k-hpxml:refactor h2k-hpxml --help
 
 #### Convert Your Files
 
-**Linux/Mac:**
+**Linux:**
 ```bash
 # Convert H2K file in your current directory
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-hpxml /data/your_file.h2k
@@ -88,7 +80,7 @@ docker run --rm -v "%cd%:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/
 
 #### Resilience Analysis
 ```bash
-# Linux/Mac
+# Linux
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-resilience /data/your_file.h2k
 
 # Windows PowerShell
@@ -159,13 +151,16 @@ The Docker container automatically:
 
 For large batch processing, optimize Docker Desktop settings:
 
-**Windows/Mac (Docker Desktop):**
+**Docker Desktop (Windows):**
 1. Open Docker Desktop
 2. Go to Settings → Resources
 3. Recommended settings:
    - **Memory**: 8GB+ (minimum 4GB)
    - **CPUs**: Use all available cores
    - **Disk Space**: 20GB+ for processing large batches
+
+**Linux:**
+Docker runs natively on Linux and uses system resources directly. No special configuration needed.
 
 ### Windows-Specific Setup
 
@@ -196,7 +191,7 @@ docker run --rm -v "Z:/:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/
 
 ## Advantages of Docker Approach
 - ✅ No local Python/OpenStudio installation required
-- ✅ Consistent environment across Windows, Mac, and Linux
+- ✅ Consistent environment across Windows and Linux
 - ✅ Automatic dependency management
 - ✅ Version-pinned for reproducibility
 - ✅ Easy to integrate into CI/CD pipelines

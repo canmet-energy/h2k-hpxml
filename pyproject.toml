@@ -52,6 +52,7 @@ test = [
 dev = [
     "pytest==8.3.3",
     "pytest-xdist>=3.0.0",
+    "pytest-cov>=4.0.0",
     "pre-commit>=3.0.0",
 ]
 
@@ -103,6 +104,34 @@ markers = [
     "linux: Linux-specific tests",
     "cross_platform: Tests that run on all platforms",
 ]
+
+[tool.coverage.run]
+source = ["src/h2k_hpxml"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if False:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
 
 [tool.mypy]
 python_version = "3.12"
