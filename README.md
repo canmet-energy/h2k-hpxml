@@ -2,7 +2,7 @@
 
 Welcome to the complete documentation for H2K-HPXML, the Canadian tool for converting Hot2000 (H2K) building energy models to HPXML format for EnergyPlus simulation.
 
-## 📜[Background](docs/BACKGROUND.md)
+## 📜 [Background](docs/BACKGROUND.md)
 
 ## 📊 Project Status
 
@@ -103,26 +103,7 @@ output/
 └── run.log                      # Detailed simulation log
 ```
 
-## 📚 Documentation by Audience
-
-### 🔧 **End Users** (Building Analysts, Energy Modellers)
-- **[Installation Guide](docs/INSTALLATION.md)** - Setup for Windows, Linux 
-- **[User Guide](docs/USER_GUIDE.md)** - Complete CLI usage guide
-- **[Troubleshooting](#troubleshooting)** - Common issues and solutions
-
-### 🐍 **Python Developers** (Data Scientists, Researchers)
-- **[API Reference](docs/API.md)** - Complete Python API documentation
-- **[Examples](docs/API.md#examples)** - Usage examples and patterns
-
-### 💻 **Contributors** (Software Developers)
-- **[Development Guide](docs/DEVELOPMENT.md)** - VSCode-centered development
-- **[Contributing](#contributing)** - How to contribute code
-
-### 🐳 **DevOps/IT** (System Administrators)
-- **[Docker Guide](docs/DOCKER.md)** - Containerized deployment
-- **[CI/CD Integration](docs/DOCKER.md#cicd-integration)** - Automated workflows
-
-## 📖 Core Documentation
+## 📖 Documentation
 
 ### Installation & Setup
 - **[Installation Guide](docs/INSTALLATION.md)** - Comprehensive setup guide

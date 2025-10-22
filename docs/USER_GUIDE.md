@@ -238,44 +238,14 @@ The interactive demo (`h2k-demo`) is the best way to learn the tool:
 4. **Live Conversion**: Watch the conversion process with real-time feedback
 5. **Results Review**: Explore all output files with detailed explanations
 
-### Example Demo Session
-```bash
-$ h2k-demo
+### Running the Demo
 
-🏠 H2K-HPXML Interactive Demo
-
-Select language / Sélectionnez la langue:
-1. English
-2. Français
-Choice: 1
-
-Available example files:
-1. WizardHouse.h2k - Simple single-family home
-2. TownHouse.h2k - Multi-story townhouse
-3. Apartment.h2k - Apartment unit
-Choice: 1
-
-Conversion options:
-1. Basic conversion (HPXML only, no simulation)
-2. Full conversion with EnergyPlus simulation
-3. Advanced with hourly outputs
-Choice: 2
-
-🔄 Converting WizardHouse.h2k...
-✅ HPXML generated: WizardHouse.xml
-✅ EnergyPlus simulation completed
-✅ Results saved to: WizardHouse_results/
-
-📊 Generated files:
-📁 WizardHouse_results/
-├── 📄 WizardHouse.xml          - HPXML building model
-├── 📄 eplusout.sql            - EnergyPlus simulation database
-├── 📄 eplusout.html           - Simulation summary report
-├── 📄 annual_energy.json      - Annual energy summary
-└── 📄 run.log                 - Detailed simulation log
-
-Demo completed! Files saved in current directory.
-```
+Simply run `h2k-demo` and the interactive tool will guide you through:
+1. Language selection (English/French)
+2. Choosing an example H2K file
+3. Selecting conversion options
+4. Watching live conversion with real-time feedback
+5. Exploring generated output files with descriptions
 
 ## Performance & Parallel Processing
 

@@ -51,41 +51,23 @@ docker run --rm canmet/h2k-hpxml:refactor h2k-hpxml --help
 
 #### Convert Your Files
 
-**Linux:**
+**Platform-Specific Volume Syntax:**
+- **Linux**: `-v $(pwd):/data`
+- **Windows PowerShell**: `-v "${PWD}:/data"`
+- **Windows CMD**: `-v "%cd%:/data"`
+
 ```bash
-# Convert H2K file in your current directory
+# Convert single file
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-hpxml /data/your_file.h2k
 
 # Convert entire folder (parallel processing)
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-hpxml /data/
-```
 
-**Windows PowerShell:**
-```powershell
-# Convert H2K file in current directory
-docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/your_file.h2k
-
-# Convert entire folder
-docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/
-```
-
-**Windows Command Prompt:**
-```cmd
-# Convert H2K file in current directory
-docker run --rm -v "%cd%:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/your_file.h2k
-
-# Convert entire folder
-docker run --rm -v "%cd%:/data" canmet/h2k-hpxml:refactor h2k-hpxml /data/
-```
-
-#### Resilience Analysis
-```bash
-# Linux
+# Resilience analysis
 docker run --rm -v $(pwd):/data canmet/h2k-hpxml:refactor h2k-resilience /data/your_file.h2k
-
-# Windows PowerShell
-docker run --rm -v "${PWD}:/data" canmet/h2k-hpxml:refactor h2k-resilience /data/your_file.h2k
 ```
+
+> **Note**: Replace `$(pwd)` with `"${PWD}"` (PowerShell) or `"%cd%"` (CMD) on Windows.
 
 ## Docker Usage Examples
 
@@ -405,5 +387,5 @@ docker pull canmet/h2k-hpxml:v1.0.0
 ## See Also
 
 - [Installation Guide](INSTALLATION.md) - For local installation
-- [Performance Guide](PERFORMANCE.md) - For optimization tips
+- [User Guide](USER_GUIDE.md) - Complete CLI reference and workflows
 - [Development Guide](DEVELOPMENT.md) - For contributing to the project
