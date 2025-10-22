@@ -80,7 +80,7 @@ def test_quick_installation():
 
     # Test 2: CLI tools
     try:
-        from ..cli.convert import main as convert_main
+        from h2k_hpxml.cli.convert import main as convert_main
         tests.append(("CLI Tools", True, "✅"))
     except ImportError as e:
         tests.append(("CLI Tools", False, f"❌ {e}"))
@@ -98,7 +98,7 @@ def test_quick_installation():
 
     # Test 4: Configuration
     try:
-        from ..config.manager import ConfigManager
+        from h2k_hpxml.config.manager import ConfigManager
         config = ConfigManager()
         if config.openstudio_binary and config.hpxml_os_path:
             tests.append(("Configuration", True, "✅"))
@@ -209,8 +209,8 @@ def test_comprehensive_installation():
 
     try:
         # Get example files
-        from .. import get_example_files
-        examples = get_example_files()
+        from h2k_hpxml.examples import list_example_files
+        examples = list_example_files()
 
         if not examples:
             click.echo("❌ No example files found")
@@ -226,15 +226,14 @@ def test_comprehensive_installation():
             output_file = temp_path / "test_output.xml"
 
             # Test conversion using API
-            from ..api import convert_file
+            from h2k_hpxml.api import convert_h2k_file
 
-            result = convert_file(
-                h2k_file=str(example_file),
-                output_file=str(output_file),
-                run_simulation=False  # Skip simulation for speed
+            result_path = convert_h2k_file(
+                input_path=example_file,
+                output_path=output_file
             )
 
-            if result.get("success", False):
+            if result_path and Path(result_path).exists():
                 click.echo("✅ H2K to HPXML conversion successful")
 
                 # Check output file
@@ -278,7 +277,7 @@ def main():
 Examples:
   %(prog)s                        # Check dependencies and prompt to install if missing
   %(prog)s --check-only           # Only check dependencies, don't install
-  %(prog)s --install-quiet        # Install missing dependencies and setup PATH (no prompts)
+  %(prog)s --auto-install         # Automatically install missing dependencies (no prompts)
   %(prog)s --add-to-path          # Add h2k-hpxml to PATH and clean up old entries (Windows only)
   %(prog)s --setup                # Set up user configuration from template
   %(prog)s --update-config        # Update all config files with detected paths
@@ -294,7 +293,7 @@ Examples:
         "--check-only", action="store_true", help="Only check dependencies, don't install"
     )
     parser.add_argument(
-        "--install-quiet", action="store_true", help="Install missing dependencies and setup PATH without prompts"
+        "--install-quiet", action="store_true", help="Alias for --auto-install (deprecated, use --auto-install)"
     )
     parser.add_argument("--skip-deps", action="store_true", help="Skip dependency validation")
     parser.add_argument(
@@ -336,7 +335,7 @@ Examples:
     parser.add_argument(
         "--auto-install",
         action="store_true",
-        help="Automatically install missing dependencies without prompts"
+        help="Automatically install missing dependencies without prompts (recommended)"
     )
     parser.add_argument(
         "--test-installation",
@@ -427,14 +426,15 @@ Examples:
         else:
             click.echo("❌ Failed to update configuration file")
     else:
-        # Determine mode: check-only, install-quiet, or interactive (default)
+        # Determine mode: check-only, auto-install, or interactive (default)
         if args.check_only:
             success = validate_dependencies(
                 check_only=True,
                 hpxml_path=args.hpxml_path,
                 openstudio_path=args.openstudio_path,
             )
-        elif args.install_quiet:
+        elif args.install_quiet or args.auto_install:
+            # Both --install-quiet and --auto-install do the same thing
             success = validate_dependencies(
                 interactive=False,
                 install_quiet=True,

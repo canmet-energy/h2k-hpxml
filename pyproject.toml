@@ -63,6 +63,7 @@ Documentation = "https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md"
 
 [project.scripts]
 h2k-hpxml = "h2k_hpxml.cli.convert:main"
+h2k-demo = "h2k_hpxml.cli.demo:run_interactive_demo"
 h2k-resilience = "h2k_hpxml.cli.resilience:main"
 os-setup = "h2k_hpxml.utils.dependencies:main"
 
