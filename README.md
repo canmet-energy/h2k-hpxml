@@ -29,8 +29,7 @@ Welcome to the complete documentation for H2K-HPXML, the Canadian tool for conve
 New to H2K-HPXML? Start here:
 
 - **[Installation Guide](docs/INSTALLATION.md)** - Complete setup instructions for all platforms
-- **[User Guide](docs/USER_GUIDE.md)** - Command-line usage and workflows
-- **[Interactive Demo](#try-the-demo)** - Learn with built-in examples
+- **[User Guide](docs/USER_GUIDE.md)** - Command-line usage and workflows and demo.
 
 ## 
 
