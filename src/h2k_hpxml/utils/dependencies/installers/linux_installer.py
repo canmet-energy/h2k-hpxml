@@ -500,16 +500,19 @@ class LinuxInstaller(BaseInstaller):
         return os.path.exists("/etc/debian_version") or shutil.which("apt-get") is not None
 
     def _add_to_path_linux(self, install_dir):
-        """Add OpenStudio and EnergyPlus binaries to Linux PATH via shell profile.
+        """Configure OpenStudio and EnergyPlus environment for Linux.
 
         Creates symlinks in ~/.local/bin/ and updates shell profile files
-        (.bashrc, .bash_profile, .zshrc, .profile) to include ~/.local/bin in PATH.
+        (.bashrc, .bash_profile, .zshrc, .profile) to:
+        - Add ~/.local/bin to PATH (for openstudio and energyplus binaries)
+        - Set RUBYLIB to OpenStudio Ruby bindings directory
+        - Set ENERGYPLUS_EXE_PATH to EnergyPlus installation directory
 
         Args:
             install_dir: Path to OpenStudio installation directory
 
         Returns:
-            bool: True if PATH update successful, False otherwise
+            bool: True if environment configuration successful, False otherwise
         """
         try:
             local_bin = Path.home() / ".local" / "bin"
@@ -544,18 +547,20 @@ class LinuxInstaller(BaseInstaller):
                 for link in links_created:
                     click.echo(f"   • {link}")
 
-            # Check if ~/.local/bin is in PATH
+            # Check if environment is already configured
             current_path = os.environ.get("PATH", "")
-            if str(local_bin) in current_path:
-                click.echo(f"✅ {local_bin} already in PATH")
+            if str(local_bin) in current_path and os.environ.get("RUBYLIB") and os.environ.get("ENERGYPLUS_EXE_PATH"):
+                click.echo(f"✅ Environment variables already configured")
                 return True
 
             # In interactive mode, ask user
             if self.interactive:
-                if not click.confirm(f"\n🔧 Add {local_bin} to your PATH?"):
-                    click.echo("⏭️  Skipped PATH update")
-                    click.echo(f"📝 To manually add to PATH, add this to your shell profile:")
+                if not click.confirm(f"\n🔧 Add {local_bin} to your PATH and set OpenStudio environment variables?"):
+                    click.echo("⏭️  Skipped environment variable updates")
+                    click.echo(f"📝 To manually configure, add these to your shell profile:")
                     click.echo(f'   export PATH="$HOME/.local/bin:$PATH"')
+                    click.echo(f'   export RUBYLIB="{install_dir}/Ruby"')
+                    click.echo(f'   export ENERGYPLUS_EXE_PATH="{install_dir}/EnergyPlus"')
                     return False
 
             # Update shell profile files
@@ -569,7 +574,17 @@ class LinuxInstaller(BaseInstaller):
                 home / ".profile"
             ]
 
-            path_export = '\n# Added by os-setup for OpenStudio and EnergyPlus\nexport PATH="$HOME/.local/bin:$PATH"\n'
+            # Build environment variable exports
+            # Use install_dir to determine OpenStudio base path
+            openstudio_base = str(install_dir).replace(str(home), "$HOME")
+
+            env_exports = f'''
+# Added by os-setup for OpenStudio and EnergyPlus
+export PATH="$HOME/.local/bin:$PATH"
+export RUBYLIB="{openstudio_base}/Ruby"
+export ENERGYPLUS_EXE_PATH="{openstudio_base}/EnergyPlus"
+'''
+
             files_updated = []
 
             for profile_file in profile_files:
@@ -577,13 +592,13 @@ class LinuxInstaller(BaseInstaller):
                     # Read current content
                     content = profile_file.read_text()
 
-                    # Check if PATH export already exists
-                    if 'PATH="$HOME/.local/bin:$PATH"' in content or 'PATH=$HOME/.local/bin:$PATH' in content:
+                    # Check if exports already exist
+                    if 'Added by os-setup for OpenStudio and EnergyPlus' in content:
                         continue
 
-                    # Append PATH export
+                    # Append environment variable exports
                     with open(profile_file, 'a') as f:
-                        f.write(path_export)
+                        f.write(env_exports)
                     files_updated.append(str(profile_file))
 
             if files_updated:
@@ -591,14 +606,20 @@ class LinuxInstaller(BaseInstaller):
                 for file in files_updated:
                     click.echo(f"   • {file}")
                 click.echo("\n⚠️  Note: Run 'source ~/.bashrc' (or your shell's profile) to apply changes")
-                click.echo("   Or restart your terminal for PATH changes to take effect")
+                click.echo("   Or restart your terminal for environment variable changes to take effect")
+                click.echo("\n📋 Environment variables configured:")
+                click.echo(f"   • PATH (includes OpenStudio and EnergyPlus binaries)")
+                click.echo(f"   • RUBYLIB (OpenStudio Ruby bindings)")
+                click.echo(f"   • ENERGYPLUS_EXE_PATH (EnergyPlus location)")
             else:
                 click.echo("ℹ️  Shell profiles already configured or not found")
 
             return True
 
         except Exception as e:
-            click.echo(f"❌ Failed to update PATH: {e}")
-            click.echo(f"\n📝 You can manually add to PATH by adding this to your shell profile:")
+            click.echo(f"❌ Failed to update environment variables: {e}")
+            click.echo(f"\n📝 You can manually add these to your shell profile:")
             click.echo(f'   export PATH="$HOME/.local/bin:$PATH"')
+            click.echo(f'   export RUBYLIB="{install_dir}/Ruby"')
+            click.echo(f'   export ENERGYPLUS_EXE_PATH="{install_dir}/EnergyPlus"')
             return False

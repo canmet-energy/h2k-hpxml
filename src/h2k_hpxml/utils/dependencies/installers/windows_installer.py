@@ -253,7 +253,7 @@ class WindowsInstaller(BaseInstaller):
         return None
 
     def _offer_path_setup(self, install_dir):
-        """Offer to add OpenStudio to PATH.
+        """Offer to configure OpenStudio environment variables.
 
         Args:
             install_dir (Path): Installation directory
@@ -264,31 +264,71 @@ class WindowsInstaller(BaseInstaller):
             return
 
         click.echo("\n" + "=" * 60)
-        click.echo("🪟 Windows PATH Setup")
+        click.echo("🪟 Windows Environment Setup")
         click.echo("=" * 60)
-        click.echo("\nTo use OpenStudio from any terminal, you can add it to your PATH.")
-        click.echo(f"\nOpenStudio Scripts Location: {scripts_dir}")
+        click.echo("\nTo use OpenStudio from any terminal, environment variables need to be configured.")
+        click.echo(f"\nOpenStudio Location: {install_dir}")
 
         if self.interactive:
-            click.echo("\nWould you like to add OpenStudio to your PATH?")
+            click.echo("\nWould you like to configure OpenStudio environment variables?")
             click.echo("Note: This will modify your user environment variables.")
-            response = click.prompt("Add to PATH?", type=click.Choice(['y', 'n']), default='n')
+            click.echo("Variables to set: PATH, RUBYLIB, ENERGYPLUS_EXE_PATH")
+            response = click.prompt("Configure environment?", type=click.Choice(['y', 'n']), default='n')
 
             if response == 'y':
-                self._add_to_path(scripts_dir)
+                self._configure_environment(install_dir)
         elif self.install_quiet:
-            # In quiet mode, automatically add to PATH
-            self._add_to_path(scripts_dir)
+            # In quiet mode, automatically configure environment
+            self._configure_environment(install_dir)
 
-    def _add_to_path(self, scripts_dir):
-        """Add directory to Windows PATH.
+    def _configure_environment(self, install_dir):
+        """Configure Windows environment variables for OpenStudio.
+
+        Sets PATH, RUBYLIB, and ENERGYPLUS_EXE_PATH.
 
         Args:
-            scripts_dir (Path): Directory to add to PATH
+            install_dir (Path): Installation directory
+        """
+        scripts_dir = install_dir / "bin"
+        ruby_dir = install_dir / "Ruby"
+        energyplus_dir = install_dir / "EnergyPlus"
+
+        success = True
+
+        # Set PATH
+        if not self._set_env_var("Path", f"$env:Path + ';{scripts_dir}'"):
+            success = False
+
+        # Set RUBYLIB
+        if not self._set_env_var("RUBYLIB", f"'{ruby_dir}'"):
+            success = False
+
+        # Set ENERGYPLUS_EXE_PATH
+        if not self._set_env_var("ENERGYPLUS_EXE_PATH", f"'{energyplus_dir}'"):
+            success = False
+
+        if success:
+            click.echo("\n✅ Environment variables configured successfully")
+            click.echo("⚠️  Please restart your terminal for changes to take effect")
+            click.echo("\n📋 Variables set:")
+            click.echo(f"   • PATH (includes {scripts_dir})")
+            click.echo(f"   • RUBYLIB = {ruby_dir}")
+            click.echo(f"   • ENERGYPLUS_EXE_PATH = {energyplus_dir}")
+        else:
+            self._show_manual_env_instructions(install_dir)
+
+    def _set_env_var(self, var_name, var_value):
+        """Set a Windows user environment variable using PowerShell.
+
+        Args:
+            var_name (str): Environment variable name
+            var_value (str): PowerShell expression for the value
+
+        Returns:
+            bool: True if successful, False otherwise
         """
         try:
-            # This requires PowerShell
-            cmd = f'[Environment]::SetEnvironmentVariable("Path", $env:Path + ";{scripts_dir}", "User")'
+            cmd = f'[Environment]::SetEnvironmentVariable("{var_name}", {var_value}, "User")'
             result = subprocess.run(
                 ["powershell", "-Command", cmd],
                 capture_output=True,
@@ -297,31 +337,44 @@ class WindowsInstaller(BaseInstaller):
             )
 
             if result.returncode == 0:
-                click.echo("✅ OpenStudio added to PATH")
-                click.echo("⚠️  Please restart your terminal for changes to take effect")
+                click.echo(f"✅ {var_name} configured")
+                return True
             else:
-                click.echo(f"⚠️  Failed to add to PATH: {result.stderr}")
-                self._show_manual_path_instructions(scripts_dir)
+                click.echo(f"⚠️  Failed to set {var_name}: {result.stderr}")
+                return False
 
         except Exception as e:
-            click.echo(f"⚠️  Failed to modify PATH: {e}")
-            self._show_manual_path_instructions(scripts_dir)
+            click.echo(f"⚠️  Failed to set {var_name}: {e}")
+            return False
 
-    def _show_manual_path_instructions(self, scripts_dir):
-        """Show manual instructions for adding to PATH.
+    def _show_manual_env_instructions(self, install_dir):
+        """Show manual instructions for configuring environment variables.
 
         Args:
-            scripts_dir (Path): Directory to add to PATH
+            install_dir (Path): Installation directory
         """
-        click.echo("\n" + "=" * 60)
-        click.echo("Manual PATH Setup Instructions")
-        click.echo("=" * 60)
+        scripts_dir = install_dir / "bin"
+        ruby_dir = install_dir / "Ruby"
+        energyplus_dir = install_dir / "EnergyPlus"
+
+        click.echo("\n" + "=" * 70)
+        click.echo("Manual Environment Variables Setup Instructions")
+        click.echo("=" * 70)
         click.echo("\n1. Open System Properties (Win + Pause/Break)")
         click.echo("2. Click 'Advanced system settings'")
         click.echo("3. Click 'Environment Variables'")
-        click.echo("4. Under 'User variables', select 'Path' and click 'Edit'")
-        click.echo("5. Click 'New' and add:")
-        click.echo(f"   {scripts_dir}")
-        click.echo("6. Click 'OK' to save")
-        click.echo("7. Restart your terminal")
-        click.echo("=" * 60)
+        click.echo("\n4. Configure PATH:")
+        click.echo("   - Under 'User variables', select 'Path' and click 'Edit'")
+        click.echo("   - Click 'New' and add:")
+        click.echo(f"     {scripts_dir}")
+        click.echo("\n5. Add RUBYLIB:")
+        click.echo("   - Click 'New' under 'User variables'")
+        click.echo("   - Variable name: RUBYLIB")
+        click.echo(f"   - Variable value: {ruby_dir}")
+        click.echo("\n6. Add ENERGYPLUS_EXE_PATH:")
+        click.echo("   - Click 'New' under 'User variables'")
+        click.echo("   - Variable name: ENERGYPLUS_EXE_PATH")
+        click.echo(f"   - Variable value: {energyplus_dir}")
+        click.echo("\n7. Click 'OK' to save all changes")
+        click.echo("8. Restart your terminal")
+        click.echo("=" * 70)

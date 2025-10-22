@@ -186,16 +186,7 @@ You can use the command line tools to translate and simulate H2K files:
    h2k-hpxml --help
    ```
 
-2. **Full workflow (translation + simulation)**:
-   ```bash
-   # Run the complete workflow
-   python -m h2k_hpxml.workflows.main
-
-   # Run OpenStudio-HPXML simulation workflow
-   python -m h2k_hpxml.workflows.run
-   ```
-
-3. **Resilience analysis**:
+2. **Resilience analysis**:
    ```bash
    # Run resilience analysis with all scenarios
    h2k-resilience examples/WizardHouse.h2k
