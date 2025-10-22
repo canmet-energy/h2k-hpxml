@@ -139,8 +139,14 @@ def test_smart_installation():
     if shutil.which("uv"):
         try:
             # Check if we can run h2k-hpxml with uv
-            result = subprocess.run(["uv", "run", "python", "-c", "import h2k_hpxml"],
-                                  capture_output=True, text=True, timeout=10)
+            result = subprocess.run(
+                ["uv", "run", "python", "-c", "import h2k_hpxml"],
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='replace',
+                timeout=10
+            )
             if result.returncode == 0:
                 runner = "uv"
         except:
@@ -170,7 +176,15 @@ def test_smart_installation():
             else:
                 full_cmd = cmd.split()
 
-            result = subprocess.run(full_cmd, capture_output=True, text=True, timeout=30)
+            # Use UTF-8 encoding and replace errors to handle emojis/special chars on Windows
+            result = subprocess.run(
+                full_cmd,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='replace',
+                timeout=30
+            )
             if result.returncode == 0:
                 click.echo(f"✅ {description}")
             else:
