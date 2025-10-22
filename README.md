@@ -31,14 +31,6 @@ New to H2K-HPXML? Start here:
 - **[Installation Guide](docs/INSTALLATION.md)** - Complete setup instructions for all platforms
 - **[User Guide](docs/USER_GUIDE.md)** - Command-line usage and workflows and demo.
 
-## 
-
-- **[Docker Guide](docs/DOCKER.md)** - Containerized usage
-  - Quick start with Docker
-  - Platform-specific Docker setup
-  - Docker Compose for batch processing
-  - CI/CD integration examples
-
 ### Technical References
 - **[API Reference](docs/API.md)** - Complete Python API documentation
   - Function signatures and parameters
