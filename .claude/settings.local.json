@@ -78,7 +78,8 @@
       "Read(//workspaces/**)",
       "Bash(uv pip install:*)",
       "Bash(python3:*)",
-      "Bash(pytest:*)"
+      "Bash(pytest:*)",
+      "Bash(h2k-hpxml:*)"
     ],
     "deny": [],
     "ask": [],

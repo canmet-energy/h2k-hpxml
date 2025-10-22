@@ -10,8 +10,6 @@ import os
 import pathlib
 import platform
 import random
-import re
-import shutil
 import subprocess
 import sys
 import time
@@ -22,8 +20,11 @@ import pyfiglet
 from colorama import Fore
 from colorama import Style
 
+from h2k_hpxml.api import _build_simulation_flags
+from h2k_hpxml.api import _convert_h2k_file_to_hpxml
+from h2k_hpxml.api import _handle_conversion_error
+from h2k_hpxml.api import _run_hpxml_simulation
 from h2k_hpxml.config import ConfigManager
-from h2k_hpxml.core.translator import h2ktohpxml
 from h2k_hpxml.utils.dependencies import DependencyManager
 from h2k_hpxml.utils.logging import get_logger
 
@@ -67,208 +68,6 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_ENCODING = "utf-8"
 SIMULATION_PAUSE_SECONDS = 3
 OUTPUT_FOLDER_NAME = "output"
-
-
-def _build_simulation_flags(
-    add_component_loads,
-    debug,
-    skip_validation,
-    output_format,
-    timestep,
-    daily,
-    hourly,
-    monthly,
-    add_stochastic_schedules,
-    add_timeseries_output_variable,
-):
-    """
-    Build simulation flags string for OpenStudio command.
-
-    Args:
-        add_component_loads (bool): Add component loads flag
-        debug (bool): Debug mode flag
-        skip_validation (bool): Skip validation flag
-        output_format (str): Output format option
-        timestep (tuple): Timestep output options
-        daily (tuple): Daily output options
-        hourly (tuple): Hourly output options
-        monthly (tuple): Monthly output options
-        add_stochastic_schedules (bool): Stochastic schedules flag
-        add_timeseries_output_variable (tuple): Timeseries variables
-
-    Returns:
-        str: Formatted flags string for simulation command
-    """
-    flag_options = {
-        "--add-component-loads": add_component_loads,
-        "--debug": debug,
-        "--skip-validation": skip_validation,
-        "--output-format": output_format,
-    }
-    flags = " ".join(
-        f"{key} {value}" if value else key for key, value in flag_options.items() if value
-    )
-
-    # Add options that can be repeated
-    repeated_options = [
-        ("--timestep", timestep),
-        ("--hourly", hourly),
-        ("--monthly", monthly),
-        ("--daily", daily),
-    ]
-    for option, values in repeated_options:
-        # Safety check: ensure values is iterable and not None
-        if values is None:
-            continue
-        # Convert single values or non-iterables to tuples
-        if not hasattr(values, '__iter__') or isinstance(values, str):
-            values = (values,) if values else ()
-        # Only add flags if values is not empty
-        if values:
-            flags += " " + " ".join(f"{option} {v}" for v in values)
-
-    if add_stochastic_schedules:
-        flags += " --add-stochastic-schedules"
-    
-    # Safety check for add_timeseries_output_variable
-    if add_timeseries_output_variable:
-        # Ensure it's iterable and not None
-        if not hasattr(add_timeseries_output_variable, '__iter__') or isinstance(add_timeseries_output_variable, str):
-            add_timeseries_output_variable = (add_timeseries_output_variable,)
-        flags += " " + " ".join(
-            f"--add-timeseries-output-variable {v}" for v in add_timeseries_output_variable
-        )
-
-    return flags
-
-
-def _detect_xml_encoding(filepath: str) -> str:
-    """
-    Detect XML encoding from file header.
-
-    Args:
-        filepath (str): Path to XML file
-
-    Returns:
-        str: Detected encoding or 'utf-8' as fallback
-    """
-    with open(filepath, "rb") as f:
-        first_line = f.readline()
-        match = re.search(rb'encoding=[\'"]([A-Za-z0-9_\-]+)[\'"]', first_line)
-        if match:
-            return match.group(1).decode("ascii")
-    return DEFAULT_ENCODING  # fallback
-
-
-def _convert_h2k_to_hpxml(filepath: str, dest_hpxml_path: str) -> str:
-    """
-    Convert H2K file to HPXML format.
-
-    Args:
-        filepath (str): Path to H2K file
-        dest_hpxml_path (str): Destination directory for HPXML files
-
-    Returns:
-        str: Path to created HPXML file
-
-    Raises:
-        Exception: If conversion fails
-    """
-    logger.info(f"Processing file: {filepath}")
-
-    # Detect encoding from XML declaration
-    encoding = _detect_xml_encoding(filepath)
-    logger.info(f"Detected encoding for {filepath}: {encoding}")
-
-    # Read the content of the H2K file with detected encoding
-    with open(filepath, encoding=encoding) as f:
-        h2k_string = f.read()
-
-    # Convert the H2K content to HPXML format
-    hpxml_string = h2ktohpxml(h2k_string)
-
-    # Define the output path for the converted HPXML file
-    file_stem = pathlib.Path(filepath).stem
-    hpxml_path = os.path.join(dest_hpxml_path, file_stem, f"{file_stem}.xml")
-
-    # If the destination path exists, delete the folder
-    if os.path.exists(hpxml_path):
-        shutil.rmtree(os.path.dirname(hpxml_path))
-    # Ensure the output directory exists
-    os.makedirs(os.path.dirname(hpxml_path), exist_ok=True)
-
-    logger.info(f"Saving converted file to: {hpxml_path}")
-
-    # Write the converted HPXML content to the output file
-    with open(hpxml_path, "w") as f:
-        f.write(hpxml_string)
-
-    return hpxml_path
-
-
-def _run_simulation(hpxml_path: str, ruby_hpxml_path: str, hpxml_os_path: str, flags: str) -> None:
-    """
-    Run OpenStudio simulation on HPXML file.
-
-    Args:
-        hpxml_path (str): Path to HPXML file
-        ruby_hpxml_path (str): Path to Ruby simulation script
-        hpxml_os_path (str): OpenStudio HPXML path
-        flags (str): Simulation flags
-
-    Returns:
-        tuple: (success_status, error_message)
-    """
-    # Run the OpenStudio simulation
-    openstudio_binary = get_openstudio_binary_path()
-    command = [openstudio_binary, ruby_hpxml_path, "-x", os.path.abspath(hpxml_path)]
-
-    # Convert flags to a list of strings
-    flags_list = flags.split()
-    command.extend(flags_list)
-
-    try:
-        logger.info(f"Running simulation for file: {hpxml_path}")
-        result = subprocess.run(
-            command, cwd=hpxml_os_path, check=True, capture_output=True, text=True
-        )
-        logger.info(f"Simulation result: {result}")
-        return "Success", ""
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Error during simulation: {e.stderr}")
-        return "Failure", e.stderr
-
-
-def _handle_processing_error(filepath, dest_hpxml_path, error, traceback_str):
-    """
-    Handle errors during file processing by saving error information.
-
-    Args:
-        filepath (str): Path to file that failed
-        dest_hpxml_path (str): Destination directory
-        error (Exception): The error that occurred
-        traceback_str (str): Formatted traceback string
-
-    Returns:
-        str: Error message for reporting
-    """
-    # Save traceback to a separate error.txt file
-    error_dir = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem)
-    os.makedirs(error_dir, exist_ok=True)
-    error_file_path = os.path.join(error_dir, "error.txt")
-    with open(error_file_path, "w") as error_file:
-        error_file.write(f"{str(error)}\n{traceback_str}")
-
-    # Check for specific exception text and handle run.log
-    if "returned non-zero exit status 1." in str(error):
-        run_log_path = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem, "run", "run.log")
-        if os.path.exists(run_log_path):
-            with open(run_log_path) as run_log_file:
-                run_log_content = "**OS-HPXML ERROR**: " + run_log_file.read()
-                return run_log_content
-
-    # Default behavior for other exceptions
-    return str(error)
 
 
 def show_credits():
@@ -453,18 +252,18 @@ def cli(
             "Only one of the options --hourly, --monthly, or --timestep can be provided at a time."
         )
 
-    # Build simulation flags
+    # Build simulation flags using API function
     flags = _build_simulation_flags(
-        add_component_loads,
-        debug,
-        skip_validation,
-        output_format,
-        timestep,
-        daily,
-        hourly,
-        monthly,
-        add_stochastic_schedules,
-        add_timeseries_output_variable,
+        add_component_loads=add_component_loads,
+        debug=debug,
+        skip_validation=skip_validation,
+        output_format=output_format,
+        timestep=timestep,
+        daily=daily,
+        hourly=hourly,
+        monthly=monthly,
+        add_stochastic_schedules=add_stochastic_schedules,
+        add_timeseries_output_variable=add_timeseries_output_variable,
     )
 
     # Load configuration using ConfigManager
@@ -506,28 +305,31 @@ def cli(
         """Process a single H2K file to HPXML and optionally simulate."""
         try:
             print("=" * 48)
-            # Convert H2K to HPXML
-            hpxml_path = _convert_h2k_to_hpxml(filepath, dest_hpxml_path)
+            # Convert H2K to HPXML using API function
+            hpxml_path = _convert_h2k_file_to_hpxml(filepath, dest_hpxml_path)
 
             if not do_not_sim:
                 # Pause briefly before simulation
                 time.sleep(SIMULATION_PAUSE_SECONDS)
 
-                # Run simulation
-                status, error_msg = _run_simulation(
-                    hpxml_path, ruby_hpxml_path, hpxml_os_path, flags
+                # Run simulation using API function
+                status, error_msg = _run_hpxml_simulation(
+                    hpxml_path=hpxml_path,
+                    ruby_hpxml_path=ruby_hpxml_path,
+                    hpxml_os_path=hpxml_os_path,
+                    flags=flags,
                 )
 
                 if status == "Success":
                     return (filepath, "Success", "")
                 else:
-                    # Handle simulation error
+                    # Handle simulation error using API function
                     tb = traceback.format_exc()
-                    error_details = _handle_processing_error(
-                        filepath,
-                        dest_hpxml_path,
-                        subprocess.CalledProcessError(1, "simulation", error_msg),
-                        tb,
+                    error_details = _handle_conversion_error(
+                        filepath=filepath,
+                        dest_hpxml_path=dest_hpxml_path,
+                        error=subprocess.CalledProcessError(1, "simulation", error_msg),
+                        traceback_str=tb,
                     )
                     return (filepath, "Failure", error_details)
             else:
@@ -537,8 +339,10 @@ def cli(
             tb = traceback.format_exc()
             logger.error(f"Exception during processing: {tb}")
 
-            # Handle processing error
-            error_details = _handle_processing_error(filepath, dest_hpxml_path, e, tb)
+            # Handle processing error using API function
+            error_details = _handle_conversion_error(
+                filepath=filepath, dest_hpxml_path=dest_hpxml_path, error=e, traceback_str=tb
+            )
             return (filepath, "Failure", error_details)
 
     # Use ThreadPoolExecutor to process files concurrently with a limited number of threads

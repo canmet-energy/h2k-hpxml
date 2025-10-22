@@ -3,11 +3,11 @@ Unit tests for the CLI convert module functionality.
 """
 
 import pytest
-from h2k_hpxml.cli.convert import _build_simulation_flags
+from h2k_hpxml.api import _build_simulation_flags
 
 
 class TestBuildSimulationFlags:
-    """Test cases for _build_simulation_flags function."""
+    """Test cases for build_simulation_flags function."""
 
     def test_basic_boolean_flags(self):
         """Test basic boolean flags are handled correctly."""
@@ -21,7 +21,7 @@ class TestBuildSimulationFlags:
             hourly=(),
             monthly=(),
             add_stochastic_schedules=False,
-            add_timeseries_output_variable=()
+            add_timeseries_output_variable=(),
         )
         
         assert "--add-component-loads" in flags

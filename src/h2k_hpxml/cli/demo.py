@@ -168,7 +168,7 @@ class H2KDemo:
 
             # Import conversion functions
             try:
-                from ..cli.convert import _convert_h2k_to_hpxml, _run_simulation, _build_simulation_flags
+                from ..api import _convert_h2k_file_to_hpxml, _run_hpxml_simulation, _build_simulation_flags
                 from ..config.manager import ConfigManager
             except ImportError as e:
                 console.print(f"[red]Import error: {e}[/red]")
@@ -187,9 +187,9 @@ class H2KDemo:
                 task = progress.add_task(f"[cyan]{self.t('converting')}[/cyan]", total=2)
                 
                 try:
-                    hpxml_path = _convert_h2k_to_hpxml(
-                        str(local_h2k_file),
-                        str(self.demo_dir)
+                    hpxml_path = _convert_h2k_file_to_hpxml(
+                        filepath=str(local_h2k_file),
+                        dest_hpxml_path=str(self.demo_dir)
                     )
                     progress.update(task, advance=1)
                     console.print(f"[green]✓ HPXML created: {hpxml_path}[/green]")
@@ -220,13 +220,13 @@ class H2KDemo:
                         add_stochastic_schedules=False,
                         add_timeseries_output_variable=()
                     )
-                    
+
                     # Run simulation
-                    status, error_msg = _run_simulation(
-                        hpxml_path,
-                        ruby_hpxml_path,
-                        hpxml_os_path, 
-                        flags
+                    status, error_msg = _run_hpxml_simulation(
+                        hpxml_path=hpxml_path,
+                        ruby_hpxml_path=ruby_hpxml_path,
+                        hpxml_os_path=hpxml_os_path,
+                        flags=flags
                     )
                     
                     progress.update(task, advance=1)

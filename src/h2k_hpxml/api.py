@@ -7,6 +7,10 @@ use cases while hiding internal implementation details.
 
 import concurrent.futures
 import os
+import pathlib
+import re
+import shutil
+import subprocess
 import time
 import traceback
 from pathlib import Path
@@ -17,15 +21,260 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-# Import CLI helper functions
-from .cli.convert import _build_simulation_flags
-from .cli.convert import _convert_h2k_to_hpxml
-from .cli.convert import _handle_processing_error
-from .cli.convert import _run_simulation
 from .config.manager import ConfigManager
 from .core.translator import h2ktohpxml as _h2ktohpxml
 from .utils.dependencies import validate_dependencies as _validate_dependencies
+from .utils.dependencies import get_openstudio_path
 from .utils.logging import get_logger
+
+# Public API exports
+__all__ = [
+    "convert_h2k_string",
+    "convert_h2k_file",
+    "run_full_workflow",
+    "batch_convert_h2k_files",
+    "validate_dependencies",
+]
+
+# Constants
+DEFAULT_ENCODING = "utf-8"
+
+logger = get_logger(__name__)
+
+
+# ============================================================================
+# Helper Functions (Moved from CLI)
+# ============================================================================
+
+def _build_simulation_flags(
+    add_component_loads: bool = True,
+    debug: bool = False,
+    skip_validation: bool = False,
+    output_format: str = "csv",
+    timestep: tuple = (),
+    daily: tuple = (),
+    hourly: tuple = (),
+    monthly: tuple = (),
+    add_stochastic_schedules: bool = False,
+    add_timeseries_output_variable: tuple = (),
+) -> str:
+    """
+    Build simulation flags string for OpenStudio command (internal).
+
+    This is an internal helper function used by CLI and batch processing.
+    For public API usage, use run_full_workflow() or batch_convert_h2k_files().
+
+    Args:
+        add_component_loads: Add component loads flag
+        debug: Debug mode flag
+        skip_validation: Skip validation flag
+        output_format: Output format option
+        timestep: Timestep output options
+        daily: Daily output options
+        hourly: Hourly output options
+        monthly: Monthly output options
+        add_stochastic_schedules: Stochastic schedules flag
+        add_timeseries_output_variable: Timeseries variables
+
+    Returns:
+        str: Formatted flags string for simulation command
+    """
+    flag_options = {
+        "--add-component-loads": add_component_loads,
+        "--debug": debug,
+        "--skip-validation": skip_validation,
+        "--output-format": output_format,
+    }
+    flags = " ".join(
+        f"{key} {value}" if value else key for key, value in flag_options.items() if value
+    )
+
+    # Add options that can be repeated
+    repeated_options = [
+        ("--timestep", timestep),
+        ("--hourly", hourly),
+        ("--monthly", monthly),
+        ("--daily", daily),
+    ]
+    for option, values in repeated_options:
+        # Safety check: ensure values is iterable and not None
+        if values is None:
+            continue
+        # Convert single values or non-iterables to tuples
+        if not hasattr(values, '__iter__') or isinstance(values, str):
+            values = (values,) if values else ()
+        # Only add flags if values is not empty
+        if values:
+            flags += " " + " ".join(f"{option} {v}" for v in values)
+
+    if add_stochastic_schedules:
+        flags += " --add-stochastic-schedules"
+
+    # Safety check for add_timeseries_output_variable
+    if add_timeseries_output_variable:
+        # Ensure it's iterable and not None
+        if not hasattr(add_timeseries_output_variable, '__iter__') or isinstance(
+            add_timeseries_output_variable, str
+        ):
+            add_timeseries_output_variable = (add_timeseries_output_variable,)
+        flags += " " + " ".join(
+            f"--add-timeseries-output-variable {v}" for v in add_timeseries_output_variable
+        )
+
+    return flags
+
+
+def _run_hpxml_simulation(
+    hpxml_path: str, ruby_hpxml_path: str, hpxml_os_path: str, flags: str
+) -> Tuple[str, str]:
+    """
+    Run OpenStudio simulation on HPXML file (internal).
+
+    This is an internal helper function used by CLI and batch processing.
+    For public API usage, use run_full_workflow() or batch_convert_h2k_files().
+
+    Args:
+        hpxml_path: Path to HPXML file
+        ruby_hpxml_path: Path to Ruby simulation script
+        hpxml_os_path: OpenStudio HPXML path
+        flags: Simulation flags string
+
+    Returns:
+        Tuple of (success_status, error_message)
+            - success_status: "Success" or "Failure"
+            - error_message: Error details if failed, empty string if successful
+    """
+    # Get OpenStudio binary path
+    openstudio_binary = get_openstudio_path()
+    command = [openstudio_binary, ruby_hpxml_path, "-x", os.path.abspath(hpxml_path)]
+
+    # Convert flags to a list of strings
+    flags_list = flags.split()
+    command.extend(flags_list)
+
+    try:
+        logger.info(f"Running simulation for file: {hpxml_path}")
+        result = subprocess.run(
+            command, cwd=hpxml_os_path, check=True, capture_output=True, text=True
+        )
+        logger.info(f"Simulation result: {result}")
+        return "Success", ""
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error during simulation: {e.stderr}")
+        return "Failure", e.stderr
+
+
+def _handle_conversion_error(
+    filepath: str, dest_hpxml_path: str, error: Exception, traceback_str: str
+) -> str:
+    """
+    Handle errors during file processing by saving error information (internal).
+
+    This is an internal helper function used by CLI and batch processing.
+    For public API usage, use run_full_workflow() or batch_convert_h2k_files().
+
+    Args:
+        filepath: Path to file that failed
+        dest_hpxml_path: Destination directory
+        error: The error that occurred
+        traceback_str: Formatted traceback string
+
+    Returns:
+        str: Error message for reporting
+    """
+    # Save traceback to a separate error.txt file
+    error_dir = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem)
+    os.makedirs(error_dir, exist_ok=True)
+    error_file_path = os.path.join(error_dir, "error.txt")
+    with open(error_file_path, "w") as error_file:
+        error_file.write(f"{str(error)}\n{traceback_str}")
+
+    # Check for specific exception text and handle run.log
+    if "returned non-zero exit status 1." in str(error):
+        run_log_path = os.path.join(
+            dest_hpxml_path, pathlib.Path(filepath).stem, "run", "run.log"
+        )
+        if os.path.exists(run_log_path):
+            with open(run_log_path) as run_log_file:
+                run_log_content = "**OS-HPXML ERROR**: " + run_log_file.read()
+                return run_log_content
+
+    # Default behavior for other exceptions
+    return str(error)
+
+
+def _detect_xml_encoding(filepath: str) -> str:
+    """
+    Detect XML encoding from file header.
+
+    Args:
+        filepath: Path to XML file
+
+    Returns:
+        str: Detected encoding or 'utf-8' as fallback
+    """
+    with open(filepath, "rb") as f:
+        first_line = f.readline()
+        match = re.search(rb'encoding=[\'"]([A-Za-z0-9_\-]+)[\'"]', first_line)
+        if match:
+            return match.group(1).decode("ascii")
+    return DEFAULT_ENCODING  # fallback
+
+
+def _convert_h2k_file_to_hpxml(filepath: str, dest_hpxml_path: str) -> str:
+    """
+    Convert H2K file to HPXML format and save to destination directory (internal).
+
+    This is an internal helper function used by CLI, demo, and batch processing.
+    It creates a subdirectory structure for each converted file.
+
+    For public API usage, use convert_h2k_file() instead.
+
+    Args:
+        filepath: Path to H2K file
+        dest_hpxml_path: Destination directory for HPXML files
+
+    Returns:
+        str: Path to created HPXML file
+
+    Raises:
+        Exception: If conversion fails
+    """
+    logger.info(f"Processing file: {filepath}")
+
+    # Detect encoding from XML declaration
+    encoding = _detect_xml_encoding(filepath)
+    logger.info(f"Detected encoding for {filepath}: {encoding}")
+
+    # Read the content of the H2K file with detected encoding
+    with open(filepath, encoding=encoding) as f:
+        h2k_string = f.read()
+
+    # Convert the H2K content to HPXML format
+    hpxml_string = _h2ktohpxml(h2k_string)
+
+    # Define the output path for the converted HPXML file
+    file_stem = pathlib.Path(filepath).stem
+    hpxml_path = os.path.join(dest_hpxml_path, file_stem, f"{file_stem}.xml")
+
+    # If the destination path exists, delete the folder
+    if os.path.exists(hpxml_path):
+        shutil.rmtree(os.path.dirname(hpxml_path))
+    # Ensure the output directory exists
+    os.makedirs(os.path.dirname(hpxml_path), exist_ok=True)
+
+    logger.info(f"Saving converted file to: {hpxml_path}")
+
+    # Write the converted HPXML content to the output file
+    with open(hpxml_path, "w") as f:
+        f.write(hpxml_string)
+
+    return hpxml_path
+
+
+# ============================================================================
+# Public API Functions
+# ============================================================================
 
 
 def convert_h2k_string(h2k_string: str, config: Optional[Dict[str, Any]] = None) -> str:
@@ -245,14 +494,14 @@ def run_full_workflow(
         """Process a single H2K file to HPXML and optionally simulate."""
         try:
             # Convert H2K to HPXML
-            hpxml_path = _convert_h2k_to_hpxml(filepath, dest_hpxml_path)
+            hpxml_path = _convert_h2k_file_to_hpxml(filepath, dest_hpxml_path)
 
             if simulate:
                 # Brief pause before simulation
                 time.sleep(3)
 
                 # Run simulation
-                status, error_msg = _run_simulation(
+                status, error_msg = _run_hpxml_simulation(
                     hpxml_path, ruby_hpxml_path, hpxml_os_path, flags
                 )
 
@@ -261,7 +510,7 @@ def run_full_workflow(
                 else:
                     # Handle simulation error
                     tb = traceback.format_exc()
-                    error_details = _handle_processing_error(
+                    error_details = _handle_conversion_error(
                         filepath,
                         dest_hpxml_path,
                         Exception(error_msg),
@@ -275,7 +524,7 @@ def run_full_workflow(
             tb = traceback.format_exc()
             logger.error(f"Exception during processing {filepath}: {tb}")
 
-            error_details = _handle_processing_error(filepath, dest_hpxml_path, e, tb)
+            error_details = _handle_conversion_error(filepath, dest_hpxml_path, e, tb)
             return (filepath, "Failure", error_details)
 
     # Process files concurrently
@@ -316,6 +565,163 @@ def run_full_workflow(
         "successful_conversions": len(successful_results),
         "failed_conversions": len(failed_results),
         "simulation_results": dest_hpxml_path if simulate else None,
+        "errors": [r[2] for r in failed_results],
+        "results_file": results_file,
+    }
+
+
+def batch_convert_h2k_files(
+    input_files: List[str],
+    output_directory: str,
+    simulate: bool = True,
+    mode: str = "SOC",
+    max_workers: Optional[int] = None,
+    progress_callback: Optional[Any] = None,
+) -> Dict[str, Any]:
+    """
+    Efficiently convert multiple H2K files with progress tracking.
+
+    Args:
+        input_files: List of H2K file paths to convert
+        output_directory: Directory for output files
+        simulate: Run EnergyPlus simulation. Default: True
+        mode: Translation mode. Default: 'SOC'
+        max_workers: Number of parallel workers. Auto-detected if None
+        progress_callback: Function called with (completed, total) for progress tracking
+
+    Returns:
+        Dict containing detailed conversion results:
+        - 'converted_files': List of successfully converted file paths
+        - 'successful_conversions': Number of successful conversions
+        - 'failed_conversions': Number of failed conversions
+        - 'simulation_results': Path to simulation results if simulate=True
+        - 'errors': List of error messages for failed conversions
+        - 'results_file': Path to results markdown file
+
+    Example:
+        >>> from h2k_hpxml.api import batch_convert_h2k_files
+        >>> import glob
+        >>>
+        >>> def progress_tracker(completed, total):
+        ...     percentage = (completed / total) * 100
+        ...     print(f"Progress: {completed}/{total} ({percentage:.1f}%)")
+        >>>
+        >>> h2k_files = glob.glob('*.h2k')
+        >>> results = batch_convert_h2k_files(
+        ...     input_files=h2k_files,
+        ...     output_directory='output/',
+        ...     progress_callback=progress_tracker
+        ... )
+    """
+    # Validate inputs
+    if not input_files:
+        raise ValueError("input_files list cannot be empty")
+
+    # Ensure all files exist and are .h2k files
+    for filepath in input_files:
+        if not Path(filepath).exists():
+            raise FileNotFoundError(f"H2K file not found: {filepath}")
+        if not filepath.lower().endswith(".h2k"):
+            raise ValueError(f"File must have .h2k extension: {filepath}")
+
+    # Create output directory
+    os.makedirs(output_directory, exist_ok=True)
+
+    # Determine number of workers
+    if max_workers is None:
+        max_workers = max(1, os.cpu_count() - 1)
+
+    # Load configuration
+    config_manager = ConfigManager()
+    hpxml_os_path = str(config_manager.hpxml_os_path)
+    ruby_hpxml_path = os.path.join(hpxml_os_path, "workflow", "run_simulation.rb")
+
+    # Get OpenStudio binary
+    openstudio_binary = get_openstudio_path()
+    if not openstudio_binary or not Path(openstudio_binary).exists():
+        # Fall back to finding it
+        from .cli.convert import get_openstudio_binary_path
+        openstudio_binary = get_openstudio_binary_path()
+
+    # Build simulation flags (using defaults for batch processing)
+    flags = _build_simulation_flags()
+
+    # Track progress
+    completed = 0
+    total = len(input_files)
+
+    def process_file_with_progress(filepath: str) -> Tuple[str, str, str]:
+        """Process file and update progress."""
+        nonlocal completed
+
+        try:
+            # Convert H2K to HPXML
+            hpxml_path = _convert_h2k_file_to_hpxml(filepath, output_directory)
+
+            if simulate:
+                # Run simulation
+                time.sleep(3)  # Brief pause before simulation
+                status, error_msg = _run_hpxml_simulation(
+                    hpxml_path=hpxml_path,
+                    ruby_hpxml_path=ruby_hpxml_path,
+                    hpxml_os_path=hpxml_os_path,
+                    flags=flags,
+                )
+
+                if status == "Success":
+                    result = (filepath, "Success", "")
+                else:
+                    # Handle simulation error
+                    tb = traceback.format_exc()
+                    error_details = _handle_conversion_error(
+                        filepath=filepath,
+                        dest_hpxml_path=output_directory,
+                        error=subprocess.CalledProcessError(1, "simulation", error_msg),
+                        traceback_str=tb,
+                    )
+                    result = (filepath, "Failure", error_details)
+            else:
+                result = (filepath, "Success", "")
+        except Exception as e:
+            tb = traceback.format_exc()
+            logger.error(f"Exception during processing: {tb}")
+            error_details = _handle_conversion_error(
+                filepath=filepath,
+                dest_hpxml_path=output_directory,
+                error=e,
+                traceback_str=tb,
+            )
+            result = (filepath, "Failure", error_details)
+
+        # Update progress
+        completed += 1
+        if progress_callback:
+            progress_callback(completed, total)
+
+        return result
+
+    # Process files in parallel
+    logger.info(f"Processing {total} files with {max_workers} workers...")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        results = list(executor.map(process_file_with_progress, input_files))
+
+    # Separate successful and failed results
+    successful_results = [r for r in results if r[1] == "Success"]
+    failed_results = [r for r in results if r[1] == "Failure"]
+
+    # Write results to markdown file
+    results_file = os.path.join(output_directory, "processing_results.md")
+    with open(results_file, "w") as mdfile:
+        mdfile.write("| Filepath | Status | Error |\n")
+        mdfile.write("|----------|--------|-------|\n")
+        for result in failed_results:
+            mdfile.write(f"| {result[0]} | {result[1]} | {result[2]} |\n")
+
+    return {
+        "converted_files": [r[0] for r in successful_results],
+        "successful_conversions": len(successful_results),
+        "failed_conversions": len(failed_results),
+        "simulation_results": output_directory if simulate else None,
         "errors": [r[2] for r in failed_results],
         "results_file": results_file,
     }

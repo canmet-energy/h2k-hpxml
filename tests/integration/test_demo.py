@@ -110,10 +110,10 @@ if examples:
         print(f"✅ File copied to: {local_h2k_file}")
         
         # Test conversion
-        from h2k_hpxml.cli.convert import _convert_h2k_to_hpxml
-        hpxml_path = _convert_h2k_to_hpxml(
-            str(local_h2k_file),
-            str(demo.demo_dir)
+        from h2k_hpxml.api import _convert_h2k_file_to_hpxml
+        hpxml_path = _convert_h2k_file_to_hpxml(
+            filepath=str(local_h2k_file),
+            dest_hpxml_path=str(demo.demo_dir)
         )
         print(f"✅ HPXML created: {hpxml_path}")
         
