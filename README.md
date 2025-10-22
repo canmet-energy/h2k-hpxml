@@ -2,12 +2,7 @@
 
 Welcome to the complete documentation for H2K-HPXML, the Canadian tool for converting Hot2000 (H2K) building energy models to HPXML format for EnergyPlus simulation.
 
-## Project Information
-- **[Background](docs/BACKGROUND.md)** - Project history and goals
-  - Project overview and motivation
-  - Technical approach and benefits
-  - Development roadmap and status
-  - Research applications and impact
+## 📜[Background](docs/BACKGROUND.md)
 
 ## 📊 Project Status
 
@@ -18,6 +13,7 @@ Welcome to the complete documentation for H2K-HPXML, the Canadian tool for conve
 | **Phase 3: Multi-Unit Buildings** | 🔄 Planned | TBD |
 
 ## Current Capabilities
+- ✅ Single zone simulation to mimic Hot2000 approach for validation. 
 - ✅ Building envelope (walls, windows, doors, foundations)
 - ✅ All HVAC system types (heating, cooling, ventilation)
 - ✅ Domestic hot water systems
