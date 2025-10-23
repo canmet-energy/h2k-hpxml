@@ -63,6 +63,7 @@ def h2ktohpxml(h2k_string="", config=None):
     # ================ 3. Process weather data ================
     # Create ConfigManager for weather processing
     from ..config import ConfigManager
+
     config_manager = ConfigManager()
     _process_weather_data(h2k_dict, hpxml_dict, translation_mode, config_manager)
 

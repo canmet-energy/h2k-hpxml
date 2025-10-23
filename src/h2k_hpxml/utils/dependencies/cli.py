@@ -74,6 +74,7 @@ def test_quick_installation():
     # Test 1: Package import
     try:
         import h2k_hpxml
+
         tests.append(("Package Import", True, "✅"))
     except ImportError as e:
         tests.append(("Package Import", False, f"❌ {e}"))
@@ -81,6 +82,7 @@ def test_quick_installation():
     # Test 2: CLI tools
     try:
         from h2k_hpxml.cli.convert import main as convert_main
+
         tests.append(("CLI Tools", True, "✅"))
     except ImportError as e:
         tests.append(("CLI Tools", False, f"❌ {e}"))
@@ -99,6 +101,7 @@ def test_quick_installation():
     # Test 4: Configuration
     try:
         from h2k_hpxml.config.manager import ConfigManager
+
         config = ConfigManager()
         if config.openstudio_binary and config.hpxml_os_path:
             tests.append(("Configuration", True, "✅"))
@@ -143,9 +146,9 @@ def test_smart_installation():
                 ["uv", "run", "python", "-c", "import h2k_hpxml"],
                 capture_output=True,
                 text=True,
-                encoding='utf-8',
-                errors='replace',
-                timeout=10
+                encoding="utf-8",
+                errors="replace",
+                timeout=10,
             )
             if result.returncode == 0:
                 runner = "uv"
@@ -165,7 +168,7 @@ def test_smart_installation():
     commands = [
         ("h2k-hpxml --help", "Main CLI help"),
         ("os-setup --check-only", "Dependencies check"),
-        ("h2k-resilience --help", "Resilience CLI help")
+        ("h2k-resilience --help", "Resilience CLI help"),
     ]
 
     all_passed = True
@@ -181,9 +184,9 @@ def test_smart_installation():
                 full_cmd,
                 capture_output=True,
                 text=True,
-                encoding='utf-8',
-                errors='replace',
-                timeout=30
+                encoding="utf-8",
+                errors="replace",
+                timeout=30,
             )
             if result.returncode == 0:
                 click.echo(f"✅ {description}")
@@ -224,6 +227,7 @@ def test_comprehensive_installation():
     try:
         # Get example files
         from h2k_hpxml.examples import list_example_files
+
         examples = list_example_files()
 
         if not examples:
@@ -242,10 +246,7 @@ def test_comprehensive_installation():
             # Test conversion using API
             from h2k_hpxml.api import convert_h2k_file
 
-            result_path = convert_h2k_file(
-                input_path=example_file,
-                output_path=output_file
-            )
+            result_path = convert_h2k_file(input_path=example_file, output_path=output_file)
 
             if result_path and Path(result_path).exists():
                 click.echo("✅ H2K to HPXML conversion successful")
@@ -258,6 +259,7 @@ def test_comprehensive_installation():
                     # Basic validation - check if it's valid XML
                     try:
                         import xml.etree.ElementTree as ET
+
                         ET.parse(output_file)
                         click.echo("✅ Output XML is well-formed")
                         return True
@@ -279,9 +281,10 @@ def test_comprehensive_installation():
 def main():
     """Main entry point for standalone dependency checking."""
     import os
+
     # Prevent auto-install when running os-setup CLI
-    os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
-    
+    os.environ["H2K_SKIP_AUTO_INSTALL"] = "1"
+
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -307,7 +310,9 @@ Examples:
         "--check-only", action="store_true", help="Only check dependencies, don't install"
     )
     parser.add_argument(
-        "--install-quiet", action="store_true", help="Alias for --auto-install (deprecated, use --auto-install)"
+        "--install-quiet",
+        action="store_true",
+        help="Alias for --auto-install (deprecated, use --auto-install)",
     )
     parser.add_argument("--skip-deps", action="store_true", help="Skip dependency validation")
     parser.add_argument(
@@ -344,27 +349,25 @@ Examples:
     parser.add_argument(
         "--add-to-path",
         action="store_true",
-        help="Add h2k-hpxml to Windows PATH and clean up old entries (Windows only)"
+        help="Add h2k-hpxml to Windows PATH and clean up old entries (Windows only)",
     )
     parser.add_argument(
         "--auto-install",
         action="store_true",
-        help="Automatically install missing dependencies without prompts (recommended)"
+        help="Automatically install missing dependencies without prompts (recommended)",
     )
     parser.add_argument(
         "--test-installation",
         action="store_true",
-        help="Run smart installation test (auto-detects uv vs pip)"
+        help="Run smart installation test (auto-detects uv vs pip)",
     )
     parser.add_argument(
-        "--test-quick",
-        action="store_true",
-        help="Run quick installation verification"
+        "--test-quick", action="store_true", help="Run quick installation verification"
     )
     parser.add_argument(
         "--test-comprehensive",
         action="store_true",
-        help="Run comprehensive installation test with conversion"
+        help="Run comprehensive installation test with conversion",
     )
 
     args = parser.parse_args()
@@ -372,7 +375,8 @@ Examples:
     # Handle add-to-path option (Windows only)
     if args.add_to_path:
         import platform
-        if platform.system() != 'Windows':
+
+        if platform.system() != "Windows":
             click.echo("ℹ️  --add-to-path is for Windows only.")
             click.echo("On Linux/Mac, h2k-hpxml should already be accessible after installation.")
             return
@@ -386,14 +390,17 @@ Examples:
     elif args.test_quick:
         success = test_quick_installation()
         import sys
+
         sys.exit(0 if success else 1)
     elif args.test_installation:
         success = test_smart_installation()
         import sys
+
         sys.exit(0 if success else 1)
     elif args.test_comprehensive:
         success = test_comprehensive_installation()
         import sys
+
         sys.exit(0 if success else 1)
 
     # Handle setup option
@@ -468,5 +475,6 @@ Examples:
     import sys
 
     sys.exit(0 if success else 1)
+
 
 # Compatibility functions for legacy installer.py imports

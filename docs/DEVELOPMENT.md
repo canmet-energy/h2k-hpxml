@@ -202,6 +202,7 @@ open htmlcov/index.html                  # View coverage report
 1. Create feature branch from `main`
 2. Make changes and add tests
 3. Run full test suite: `pytest -n auto`
+4. Test python targets using tox on supported python versions. (Install other versions using "uv python install 3.xx" )
 4. Format code: `black src/ tests/`
 5. Lint code: `ruff check src/ tests/ --fix`
 6. Commit with [conventional commits](https://www.conventionalcommits.org/) format

@@ -58,9 +58,9 @@ def normalize_paths_for_comparison(xml_content: str) -> str:
     #   C:/OpenStudio-HPXML/weather/file.epw
     # All become: WEATHER_FILE/filename (without .epw extension)
     normalized_content = re.sub(
-        r"[^<>]*OpenStudio-HPXML[^/]*/weather/([^<>/]+?)(?:\.epw)?(?=<)", 
-        r"WEATHER_FILE/\1", 
-        normalized_content
+        r"[^<>]*OpenStudio-HPXML[^/]*/weather/([^<>/]+?)(?:\.epw)?(?=<)",
+        r"WEATHER_FILE/\1",
+        normalized_content,
     )
 
     return normalized_content

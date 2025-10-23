@@ -43,20 +43,16 @@ def get_dependency_paths():
             energyplus_binary = None
 
     return {
-        'openstudio_binary': openstudio_binary,
-        'hpxml_os_path': hpxml_os_path,
-        'energyplus_binary': energyplus_binary
+        "openstudio_binary": openstudio_binary,
+        "hpxml_os_path": hpxml_os_path,
+        "energyplus_binary": energyplus_binary,
     }
 
 
 def get_openstudio_binary():
     """Get OpenStudio binary path without creating DependencyManager."""
     config = load_dependency_config()
-    paths = get_openstudio_paths(
-        config["openstudio_version"],
-        config["openstudio_sha"],
-        None
-    )
+    paths = get_openstudio_paths(config["openstudio_version"], config["openstudio_sha"], None)
 
     for path in paths:
         if Path(path).exists():
@@ -84,7 +80,7 @@ def get_hpxml_os_path():
 def get_energyplus_binary():
     """Get EnergyPlus binary path."""
     paths = get_dependency_paths()
-    return paths['energyplus_binary']
+    return paths["energyplus_binary"]
 
 
 # Aliases for backward compatibility
@@ -96,25 +92,25 @@ get_openstudio_hpxml_path_static = get_hpxml_os_path
 # Export all public APIs
 __all__ = [
     # Core classes and functions
-    'DependencyManager',
-    'validate_dependencies',
-    'main',
+    "DependencyManager",
+    "validate_dependencies",
+    "main",
     # Download utilities
-    'download_file',
-    'safe_echo',
+    "download_file",
+    "safe_echo",
     # Compatibility functions
-    'get_dependency_paths',
-    'get_openstudio_binary',
-    'get_hpxml_os_path',
-    'get_energyplus_binary',
-    'get_openstudio_path',
-    'get_openstudio_hpxml_path',
-    'get_openstudio_path_static',
-    'get_openstudio_hpxml_path_static',
+    "get_dependency_paths",
+    "get_openstudio_binary",
+    "get_hpxml_os_path",
+    "get_energyplus_binary",
+    "get_openstudio_path",
+    "get_openstudio_hpxml_path",
+    "get_openstudio_path_static",
+    "get_openstudio_hpxml_path_static",
     # Platform utilities
-    'load_dependency_config',
-    'get_user_data_dir',
-    'get_openstudio_paths',
-    'get_default_hpxml_path',
-    'get_default_openstudio_path',
+    "load_dependency_config",
+    "get_user_data_dir",
+    "get_openstudio_paths",
+    "get_default_hpxml_path",
+    "get_default_openstudio_path",
 ]

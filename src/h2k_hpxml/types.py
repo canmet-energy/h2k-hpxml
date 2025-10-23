@@ -5,7 +5,6 @@ This module defines common type aliases used throughout the codebase
 to improve type safety and code documentation.
 """
 
-
 # Configuration types
 ConfigDict = dict
 ConfigValue = object

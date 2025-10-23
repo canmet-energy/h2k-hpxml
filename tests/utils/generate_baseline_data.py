@@ -8,7 +8,9 @@ from datetime import datetime
 import pytest
 
 # Add project root to Python path so we can import h2k_hpxml
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # Go up two levels from tests/utils/
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(__file__))
+)  # Go up two levels from tests/utils/
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 

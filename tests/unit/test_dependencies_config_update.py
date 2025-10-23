@@ -21,13 +21,16 @@ class TestConfigUpdate:
 
         # After refactoring, these methods were removed since config management
         # is now handled by ConfigManager, not DependencyManager
-        assert not hasattr(manager, '_update_single_config_file'), \
-            "Method removed during refactoring - config is handled by ConfigManager"
-        assert not hasattr(manager, '_update_config_file'), \
-            "Method removed during refactoring - dependencies are auto-detected"
-        assert not hasattr(manager, '_find_all_config_files'), \
-            "Method removed during refactoring - not needed in DependencyManager"
+        assert not hasattr(
+            manager, "_update_single_config_file"
+        ), "Method removed during refactoring - config is handled by ConfigManager"
+        assert not hasattr(
+            manager, "_update_config_file"
+        ), "Method removed during refactoring - dependencies are auto-detected"
+        assert not hasattr(
+            manager, "_find_all_config_files"
+        ), "Method removed during refactoring - not needed in DependencyManager"
 
         # DependencyManager now focuses on dependency validation and installation
-        assert hasattr(manager, 'validate_all'), "Should have validate_all method"
-        assert hasattr(manager, 'install_dependencies'), "Should have install_dependencies method"
+        assert hasattr(manager, "validate_all"), "Should have validate_all method"
+        assert hasattr(manager, "install_dependencies"), "Should have install_dependencies method"

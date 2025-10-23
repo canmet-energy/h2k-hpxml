@@ -18,7 +18,9 @@ import pytest
 from h2k_hpxml.utils.dependencies import DependencyManager
 
 
-@pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific portable installation tests")
+@pytest.mark.skipif(
+    platform.system() != "Windows", reason="Windows-specific portable installation tests"
+)
 class TestWindowsPortableInstallation:
     """Test Windows portable installation functionality."""
 
@@ -56,8 +58,9 @@ class TestWindowsPortableInstallation:
 
             # Check that the version-specific path is included
             paths_str = " ".join(str(p) for p in paths)
-            assert "OpenStudio-3.9.0" in paths_str or "OpenStudio" in paths_str, \
-                f"Version-specific path not found in {paths}"
+            assert (
+                "OpenStudio-3.9.0" in paths_str or "OpenStudio" in paths_str
+            ), f"Version-specific path not found in {paths}"
 
     def test_write_access_detection(self, temp_install_dir, mock_dm):
         """Test write access detection for installation directories."""
@@ -68,9 +71,7 @@ class TestWindowsPortableInstallation:
 
         # Test non-existent parent (should check parent's parent)
         non_existent = temp_install_dir / "deep" / "nested" / "path"
-        assert has_write_access(non_existent) == has_write_access(
-            temp_install_dir.parent
-        )
+        assert has_write_access(non_existent) == has_write_access(temp_install_dir.parent)
 
     @patch("urllib.request.urlretrieve")
     @patch("tarfile.open")

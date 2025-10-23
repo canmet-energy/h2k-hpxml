@@ -39,8 +39,9 @@ def load_and_parse_templates(h2k_string):
     # Strategy 1: Try importlib.resources (Python 3.7+, works with installed packages)
     try:
         from importlib import resources
+
         try:
-            with resources.open_text('h2k_hpxml.resources', 'template_base.xml') as f:
+            with resources.open_text("h2k_hpxml.resources", "template_base.xml") as f:
                 base_hpxml = f.read()
                 base_hpxml_path = "h2k_hpxml.resources/template_base.xml"
                 logger.debug("Loaded template using importlib.resources")
@@ -53,9 +54,12 @@ def load_and_parse_templates(h2k_string):
     if base_hpxml is None:
         try:
             import pkg_resources
-            resource_path = pkg_resources.resource_filename('h2k_hpxml', 'resources/template_base.xml')
+
+            resource_path = pkg_resources.resource_filename(
+                "h2k_hpxml", "resources/template_base.xml"
+            )
             if os.path.exists(resource_path):
-                with open(resource_path, 'r', encoding="utf-8") as f:
+                with open(resource_path, "r", encoding="utf-8") as f:
                     base_hpxml = f.read()
                     base_hpxml_path = resource_path
                     logger.debug(f"Loaded template using pkg_resources from {resource_path}")

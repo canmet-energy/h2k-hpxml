@@ -239,8 +239,10 @@ class TestWindowsInstallationWorkflow:
         dm = DependencyManager()
 
         # Config update methods should exist but be stubbed out
-        assert hasattr(dm, '_update_single_config_file'), "Should have stubbed _update_single_config_file method"
-        assert hasattr(dm, '_update_config_file'), "Should have stubbed _update_config_file method"
+        assert hasattr(
+            dm, "_update_single_config_file"
+        ), "Should have stubbed _update_single_config_file method"
+        assert hasattr(dm, "_update_config_file"), "Should have stubbed _update_config_file method"
 
         # Should be callable and return success (but do nothing)
         result = dm._update_config_file()

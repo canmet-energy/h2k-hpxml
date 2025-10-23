@@ -179,9 +179,7 @@ def show_credits():
 @click.option(
     "--do-not-sim", is_flag=True, default=False, help="Convert only, do not run simulation"
 )
-@click.option(
-    "--demo", is_flag=True, help="Run interactive demo / Exécuter la démo interactive"
-)
+@click.option("--demo", is_flag=True, help="Run interactive demo / Exécuter la démo interactive")
 def cli(
     input,
     output,
@@ -213,10 +211,10 @@ def cli(
         h2k-hpxml input.h2k --output output.xml --debug
         h2k-hpxml --credits
     """
-    
+
     # Prevent auto-install when running h2k-hpxml CLI
-    os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
-    
+    os.environ["H2K_SKIP_AUTO_INSTALL"] = "1"
+
     # Check dependencies and provide helpful message if missing
     if not credits and not demo:  # Skip dependency check for credits and demo
         dep_manager = DependencyManager()
@@ -229,10 +227,11 @@ def cli(
     if credits:
         show_credits()
         return
-    
+
     # Handle demo flag
     if demo:
         from .demo import run_interactive_demo
+
         run_interactive_demo()
         return
 

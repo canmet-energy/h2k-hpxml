@@ -26,9 +26,9 @@ def test_config_does_not_have_ruby_hpxml_path():
     ruby_hpxml_path_from_config = config.get("paths", "ruby_hpxml_path")
 
     # This should be None because the key doesn't exist in config
-    assert ruby_hpxml_path_from_config is None, (
-        "Config should not contain ruby_hpxml_path key - it should be constructed from auto-detected hpxml_os_path"
-    )
+    assert (
+        ruby_hpxml_path_from_config is None
+    ), "Config should not contain ruby_hpxml_path key - it should be constructed from auto-detected hpxml_os_path"
 
     # Also verify that hpxml_os_path is not in the raw config but available as property
     raw_hpxml_path = config.get("paths", "hpxml_os_path")

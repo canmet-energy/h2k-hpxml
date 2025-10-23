@@ -44,11 +44,12 @@ def get_h2k_test_files():
     # Use packaged examples from the h2k_hpxml.examples module
     try:
         from h2k_hpxml.examples import get_examples_directory, list_example_files
+
         examples_dir = get_examples_directory()
     except ImportError:
         # Fallback to hardcoded path if package not available
         examples_dir = "examples"
-    
+
     baseline_summary = load_baseline_summary()
 
     if not baseline_summary or "results" not in baseline_summary:
@@ -60,7 +61,7 @@ def get_h2k_test_files():
             input_path = examples_dir / source_file
         else:
             input_path = os.path.join(examples_dir, source_file)
-        
+
         if os.path.exists(input_path):
             test_files.append((source_file, baseline_info))
 
@@ -76,15 +77,16 @@ def test_regression_parallel(test_file_info, check_openstudio_bindings):
     This allows pytest-xdist to run tests in parallel across multiple workers.
     """
     source_file, baseline_info = test_file_info
-    
+
     # Use packaged examples from the h2k_hpxml.examples module
     try:
         from h2k_hpxml.examples import get_examples_directory
+
         examples_dir = get_examples_directory()
     except ImportError:
         # Fallback to hardcoded path if package not available
         examples_dir = "examples"
-        
+
     energy_tolerance_percent = 5.0  # 5% tolerance for energy data
 
     # Create unique temp directory for this test to avoid conflicts

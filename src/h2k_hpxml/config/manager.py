@@ -179,7 +179,7 @@ class ConfigManager:
     def _validate_paths(self):
         """Validate that configured paths exist or can be created."""
         paths_to_check = [
-            ("source_h2k_path", True),   # Input path must exist
+            ("source_h2k_path", True),  # Input path must exist
             # Removed ("hpxml_os_path", True) - now auto-detected, not in config
             ("dest_hpxml_path", False),  # Can be created
         ]
@@ -282,7 +282,10 @@ class ConfigManager:
         # Strategy 1: Try pkg_resources for pip installations
         try:
             import pkg_resources
-            resource_path = Path(pkg_resources.resource_filename('h2k_hpxml', f'resources/{resource_name}'))
+
+            resource_path = Path(
+                pkg_resources.resource_filename("h2k_hpxml", f"resources/{resource_name}")
+            )
             if resource_path.exists():
                 return resource_path
         except (ImportError, FileNotFoundError):
@@ -319,12 +322,12 @@ class ConfigManager:
     def hpxml_os_path(self):
         """OpenStudio-HPXML installation directory (auto-detected)."""
         from ..utils.dependencies import get_hpxml_os_path
-        
+
         hpxml_path = get_hpxml_os_path()
         if hpxml_path:
             logger.debug(f"Auto-detected OpenStudio-HPXML path: {hpxml_path}")
             return hpxml_path
-            
+
         logger.warning("OpenStudio-HPXML installation not found")
         return None
 
@@ -337,19 +340,20 @@ class ConfigManager:
     def openstudio_binary(self):
         """Path to OpenStudio binary (auto-detected)."""
         from ..utils.dependencies import get_openstudio_binary
-        
+
         binary_path = get_openstudio_binary()
         if binary_path:
             logger.debug(f"Auto-detected OpenStudio binary: {binary_path}")
             return binary_path
-            
+
         # Fall back to system openstudio if available
         import shutil
+
         system_path = shutil.which("openstudio")
         if system_path:
             logger.debug(f"Using system OpenStudio binary: {system_path}")
             return system_path
-            
+
         logger.warning("OpenStudio binary not found")
         return "openstudio"  # Fallback for error handling
 
@@ -357,19 +361,20 @@ class ConfigManager:
     def energyplus_binary(self):
         """Path to EnergyPlus binary (auto-detected)."""
         from ..utils.dependencies import get_energyplus_binary
-        
+
         energyplus_path = get_energyplus_binary()
         if energyplus_path:
             logger.debug(f"Auto-detected EnergyPlus binary: {energyplus_path}")
             return energyplus_path
-            
+
         # Fall back to system energyplus if available
         import shutil
+
         system_path = shutil.which("energyplus")
         if system_path:
             logger.debug(f"Using system EnergyPlus binary: {system_path}")
             return system_path
-            
+
         logger.warning("EnergyPlus binary not found")
         return "energyplus"  # Fallback for error handling
 

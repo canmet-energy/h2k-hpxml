@@ -67,7 +67,9 @@ def process_weather_data(h2k_dict, hpxml_dict, translation_mode, config_manager)
                     f"Weather information incomplete in H2K file. Region: {weather_region}, Location: {weather_location}"
                 )
 
-            weather_file = weather.get_cwec_file(weather_region, weather_location, config_manager=config_manager)
+            weather_file = weather.get_cwec_file(
+                weather_region, weather_location, config_manager=config_manager
+            )
 
         # Log the weather location for diagnostics
         weather_location = obj.get_val(

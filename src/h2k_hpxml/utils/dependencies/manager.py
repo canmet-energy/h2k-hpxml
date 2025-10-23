@@ -7,7 +7,8 @@ Manages detection, validation, and installation of OpenStudio and OpenStudio-HPX
 
 # CRITICAL: Set this FIRST before any imports to prevent auto-install
 import os
-os.environ['H2K_SKIP_AUTO_INSTALL'] = '1'
+
+os.environ["H2K_SKIP_AUTO_INSTALL"] = "1"
 
 import configparser
 import platform
@@ -483,7 +484,7 @@ class DependencyManager:
                     self.REQUIRED_OPENSTUDIO_VERSION,
                     self.OPENSTUDIO_BUILD_HASH,
                     interactive=self.interactive,
-                    install_quiet=self.install_quiet
+                    install_quiet=self.install_quiet,
                 )
                 return installer.install()
             elif self.is_linux:
@@ -492,7 +493,7 @@ class DependencyManager:
                     self.OPENSTUDIO_BUILD_HASH,
                     self.default_openstudio_path,
                     interactive=self.interactive,
-                    install_quiet=self.install_quiet
+                    install_quiet=self.install_quiet,
                 )
                 return installer.install()
             else:
@@ -516,7 +517,7 @@ class DependencyManager:
                 self.REQUIRED_HPXML_VERSION,
                 self.default_hpxml_path,
                 interactive=self.interactive,
-                install_quiet=self.install_quiet
+                install_quiet=self.install_quiet,
             )
             return installer.install()
         except Exception as e:
@@ -538,7 +539,7 @@ class DependencyManager:
                     self.REQUIRED_OPENSTUDIO_VERSION,
                     self.OPENSTUDIO_BUILD_HASH,
                     interactive=self.interactive,
-                    install_quiet=self.install_quiet
+                    install_quiet=self.install_quiet,
                 )
                 return installer.uninstall()
             elif self.is_linux:
@@ -547,7 +548,7 @@ class DependencyManager:
                     self.OPENSTUDIO_BUILD_HASH,
                     self.default_openstudio_path,
                     interactive=self.interactive,
-                    install_quiet=self.install_quiet
+                    install_quiet=self.install_quiet,
                 )
                 return installer.uninstall()
             else:
@@ -571,7 +572,7 @@ class DependencyManager:
                 self.REQUIRED_HPXML_VERSION,
                 self.default_hpxml_path,
                 interactive=self.interactive,
-                install_quiet=self.install_quiet
+                install_quiet=self.install_quiet,
             )
             return installer.uninstall()
         except Exception as e:

@@ -23,7 +23,7 @@ class TestBuildSimulationFlags:
             add_stochastic_schedules=False,
             add_timeseries_output_variable=(),
         )
-        
+
         assert "--add-component-loads" in flags
         assert "--debug" not in flags
         assert "--skip-validation" in flags
@@ -42,9 +42,9 @@ class TestBuildSimulationFlags:
             hourly=(),
             monthly=(),
             add_stochastic_schedules=False,
-            add_timeseries_output_variable=()
+            add_timeseries_output_variable=(),
         )
-        
+
         assert "--timestep" not in flags
         assert "--daily" not in flags
         assert "--hourly" not in flags
@@ -63,9 +63,9 @@ class TestBuildSimulationFlags:
             hourly=("ALL",),
             monthly=("emissions",),
             add_stochastic_schedules=False,
-            add_timeseries_output_variable=("Zone Air Temperature",)
+            add_timeseries_output_variable=("Zone Air Temperature",),
         )
-        
+
         assert "--timestep total" in flags
         assert "--daily fuels" in flags
         assert "--hourly ALL" in flags
@@ -84,12 +84,15 @@ class TestBuildSimulationFlags:
             hourly=("loads", "temperatures"),
             monthly=(),
             add_stochastic_schedules=False,
-            add_timeseries_output_variable=("Zone Air Temperature", "Zone Air Humidity")
+            add_timeseries_output_variable=("Zone Air Temperature", "Zone Air Humidity"),
         )
-        
+
         assert "--timestep total --timestep fuels --timestep enduses" in flags
         assert "--hourly loads --hourly temperatures" in flags
-        assert "--add-timeseries-output-variable Zone Air Temperature --add-timeseries-output-variable Zone Air Humidity" in flags
+        assert (
+            "--add-timeseries-output-variable Zone Air Temperature --add-timeseries-output-variable Zone Air Humidity"
+            in flags
+        )
 
     def test_none_values_handled_safely(self):
         """Test that None values don't cause errors."""
@@ -103,9 +106,9 @@ class TestBuildSimulationFlags:
             hourly=None,
             monthly=None,
             add_stochastic_schedules=False,
-            add_timeseries_output_variable=None
+            add_timeseries_output_variable=None,
         )
-        
+
         # Should not crash and should not contain any of these flags
         assert "--timestep" not in flags
         assert "--daily" not in flags
@@ -125,9 +128,9 @@ class TestBuildSimulationFlags:
             hourly=(),
             monthly=(),
             add_stochastic_schedules=False,
-            add_timeseries_output_variable="Zone Air Temperature"  # Single string
+            add_timeseries_output_variable="Zone Air Temperature",  # Single string
         )
-        
+
         assert "--timestep total" in flags
         assert "--add-timeseries-output-variable Zone Air Temperature" in flags
 
@@ -143,9 +146,9 @@ class TestBuildSimulationFlags:
             hourly=(),
             monthly=(),
             add_stochastic_schedules=False,
-            add_timeseries_output_variable=()
+            add_timeseries_output_variable=(),
         )
-        
+
         # Should handle gracefully, even though 60 is not a valid output category
         assert "--timestep 60" in flags
 
@@ -162,7 +165,7 @@ class TestBuildSimulationFlags:
                 hourly=(),
                 monthly=(),
                 add_stochastic_schedules=False,
-                add_timeseries_output_variable=()
+                add_timeseries_output_variable=(),
             )
             assert f"--output-format {fmt}" in flags
 
@@ -178,9 +181,9 @@ class TestBuildSimulationFlags:
             hourly=(),
             monthly=(),
             add_stochastic_schedules=True,
-            add_timeseries_output_variable=()
+            add_timeseries_output_variable=(),
         )
-        
+
         assert "--add-stochastic-schedules" in flags
 
     def test_complex_real_world_scenario(self):
@@ -195,9 +198,12 @@ class TestBuildSimulationFlags:
             hourly=("ALL",),  # All hourly outputs
             monthly=("emissions", "loads"),
             add_stochastic_schedules=True,
-            add_timeseries_output_variable=("Zone Air Temperature", "Zone Mean Radiant Temperature")
+            add_timeseries_output_variable=(
+                "Zone Air Temperature",
+                "Zone Mean Radiant Temperature",
+            ),
         )
-        
+
         # Verify all expected components are present
         assert "--add-component-loads" in flags
         assert "--debug" in flags
@@ -206,8 +212,11 @@ class TestBuildSimulationFlags:
         assert "--hourly ALL" in flags
         assert "--monthly emissions --monthly loads" in flags
         assert "--add-stochastic-schedules" in flags
-        assert "--add-timeseries-output-variable Zone Air Temperature --add-timeseries-output-variable Zone Mean Radiant Temperature" in flags
-        
+        assert (
+            "--add-timeseries-output-variable Zone Air Temperature --add-timeseries-output-variable Zone Mean Radiant Temperature"
+            in flags
+        )
+
         # Verify timestep is not present (empty tuple)
         assert "--timestep" not in flags
 
@@ -223,7 +232,7 @@ class TestBuildSimulationFlags:
             hourly=(),
             monthly=(),
             add_stochastic_schedules=False,
-            add_timeseries_output_variable=()
+            add_timeseries_output_variable=(),
         )
-        
+
         assert isinstance(flags, str)

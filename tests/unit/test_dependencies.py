@@ -108,7 +108,11 @@ class TestDependencyManager:
         path = manager.default_hpxml_path
 
         if manager.is_windows:
-            assert "AppData" in str(path) or "h2k_hpxml" in str(path) or "OpenStudio-HPXML" in str(path)
+            assert (
+                "AppData" in str(path)
+                or "h2k_hpxml" in str(path)
+                or "OpenStudio-HPXML" in str(path)
+            )
         else:
             assert ".local/share" in str(path) or "OpenStudio-HPXML" in str(path)
 
@@ -227,12 +231,15 @@ class TestOpenStudioDetection:
     @patch("h2k_hpxml.utils.dependencies.validators.test_binary_path")
     @patch("h2k_hpxml.utils.dependencies.validators.test_openstudio_command")
     @patch("click.echo")
-    def test_check_openstudio_cli_success(self, mock_echo, mock_test_command, mock_test_binary, manager):
+    def test_check_openstudio_cli_success(
+        self, mock_echo, mock_test_command, mock_test_binary, manager
+    ):
         """Test successful OpenStudio CLI detection."""
         mock_test_binary.return_value = True
         mock_test_command.return_value = False
 
         from h2k_hpxml.utils.dependencies.validators import check_openstudio
+
         result = check_openstudio(manager)
 
         assert result is True
@@ -240,12 +247,15 @@ class TestOpenStudioDetection:
     @patch("h2k_hpxml.utils.dependencies.validators.test_binary_path")
     @patch("h2k_hpxml.utils.dependencies.validators.test_openstudio_command")
     @patch("click.echo")
-    def test_check_openstudio_cli_in_path(self, mock_echo, mock_test_command, mock_test_binary, manager):
+    def test_check_openstudio_cli_in_path(
+        self, mock_echo, mock_test_command, mock_test_binary, manager
+    ):
         """Test OpenStudio CLI detection in PATH."""
         mock_test_binary.return_value = False
         mock_test_command.return_value = True
 
         from h2k_hpxml.utils.dependencies.validators import check_openstudio
+
         result = check_openstudio(manager)
 
         assert result is True
@@ -273,9 +283,7 @@ class TestOpenStudioDetection:
         from h2k_hpxml.utils.dependencies.platform_utils import get_openstudio_paths
 
         paths = get_openstudio_paths(
-            manager.REQUIRED_OPENSTUDIO_VERSION,
-            manager.OPENSTUDIO_BUILD_HASH,
-            None
+            manager.REQUIRED_OPENSTUDIO_VERSION, manager.OPENSTUDIO_BUILD_HASH, None
         )
 
         # Check that some expected Linux paths are included

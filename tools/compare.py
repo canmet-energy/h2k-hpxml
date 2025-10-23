@@ -23,11 +23,11 @@ except AttributeError:
     dest_compare_data = "./output/compare"
 
 # Get simulation flags
-flags = getattr(config, 'flags', '')
+flags = getattr(config, "flags", "")
 print("flags", flags)
 
 # Get translation mode
-translation_mode = getattr(config, 'translation_mode', 'SOC')
+translation_mode = getattr(config, "translation_mode", "SOC")
 
 
 # Determine whether to process as folder or single file
@@ -89,7 +89,9 @@ for filepath in h2k_files:
         result = run_hpxml_os(hpxml_filename, dest_hpxml_path)
 
         print(result)
-        os_results = annual.read_os_results(f"{hpxml_os_path}/{dest_hpxml_path}", return_type="dict")
+        os_results = annual.read_os_results(
+            f"{hpxml_os_path}/{dest_hpxml_path}", return_type="dict"
+        )
 
         if (os_results.get("Energy Use: Total (MBtu)", 0) == 0) & (translation_mode != "ASHRAE140"):
             # no results generated, check logs

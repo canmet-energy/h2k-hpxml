@@ -34,7 +34,7 @@ def check_cli_binary(manager):
     paths = get_openstudio_paths(
         manager.REQUIRED_OPENSTUDIO_VERSION,
         manager.OPENSTUDIO_BUILD_HASH,
-        manager._custom_openstudio_path
+        manager._custom_openstudio_path,
     )
 
     # Try common installation paths

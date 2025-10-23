@@ -30,7 +30,7 @@ def download_file(url, dest_path, desc="", max_retries=3):
     ctx.verify_mode = ssl.CERT_NONE
 
     dest_path = Path(dest_path)
-    temp_path = dest_path.with_suffix(dest_path.suffix + '.tmp')
+    temp_path = dest_path.with_suffix(dest_path.suffix + ".tmp")
 
     for attempt in range(max_retries + 1):
         try:
@@ -44,24 +44,24 @@ def download_file(url, dest_path, desc="", max_retries=3):
             # Create request with Range header for resume
             req = urllib.request.Request(url)
             if resume_byte_pos > 0:
-                req.add_header('Range', f'bytes={resume_byte_pos}-')
+                req.add_header("Range", f"bytes={resume_byte_pos}-")
 
             # Create opener with SSL context
             opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx))
 
             with opener.open(req) as response:
                 # Get total file size
-                content_range = response.headers.get('Content-Range')
+                content_range = response.headers.get("Content-Range")
                 if content_range and resume_byte_pos > 0:
                     # Format: "bytes start-end/total"
-                    total_size = int(content_range.split('/')[-1])
+                    total_size = int(content_range.split("/")[-1])
                 else:
-                    total_size = int(response.headers.get('Content-Length', 0))
+                    total_size = int(response.headers.get("Content-Length", 0))
                     if resume_byte_pos > 0:
                         total_size += resume_byte_pos
 
                 # Open file in append mode if resuming, otherwise write mode
-                mode = 'ab' if resume_byte_pos > 0 else 'wb'
+                mode = "ab" if resume_byte_pos > 0 else "wb"
 
                 with open(temp_path, mode) as f:
                     downloaded = resume_byte_pos
@@ -91,7 +91,7 @@ def download_file(url, dest_path, desc="", max_retries=3):
             if attempt < max_retries:
                 print(f"\n  ⚠ Download failed (attempt {attempt + 1}/{max_retries + 1}): {e}")
                 print(f"  Retrying in {2 ** attempt} seconds...")
-                time.sleep(2 ** attempt)  # Exponential backoff
+                time.sleep(2**attempt)  # Exponential backoff
             else:
                 print(f"\n  ✗ Download failed after {max_retries + 1} attempts: {e}")
                 # Clean up temp file on final failure

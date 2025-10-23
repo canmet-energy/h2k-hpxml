@@ -39,11 +39,15 @@ def load_dependency_config():
 
         # Try to load from package resources
         try:
-            with resources.open_text('h2k_hpxml.resources', 'dependency_versions.json') as f:
+            with resources.open_text("h2k_hpxml.resources", "dependency_versions.json") as f:
                 config = json.load(f)
 
                 # Validate required fields
-                required_fields = ["openstudio_version", "openstudio_sha", "openstudio_hpxml_version"]
+                required_fields = [
+                    "openstudio_version",
+                    "openstudio_sha",
+                    "openstudio_hpxml_version",
+                ]
                 missing_fields = [field for field in required_fields if field not in config]
 
                 if missing_fields:
@@ -60,13 +64,20 @@ def load_dependency_config():
         # Try alternative resource loading for older Python versions
         try:
             import pkg_resources
-            resource_path = pkg_resources.resource_filename('h2k_hpxml', 'resources/dependency_versions.json')
+
+            resource_path = pkg_resources.resource_filename(
+                "h2k_hpxml", "resources/dependency_versions.json"
+            )
             if os.path.exists(resource_path):
-                with open(resource_path, 'r') as f:
+                with open(resource_path, "r") as f:
                     config = json.load(f)
 
                     # Validate required fields
-                    required_fields = ["openstudio_version", "openstudio_sha", "openstudio_hpxml_version"]
+                    required_fields = [
+                        "openstudio_version",
+                        "openstudio_sha",
+                        "openstudio_hpxml_version",
+                    ]
                     missing_fields = [field for field in required_fields if field not in config]
 
                     if missing_fields:
@@ -163,11 +174,7 @@ def has_write_access(path):
         test_path = Path(path)
         if not test_path.exists():
             # Check parent directory
-            return (
-                has_write_access(test_path.parent)
-                if test_path.parent != test_path
-                else False
-            )
+            return has_write_access(test_path.parent) if test_path.parent != test_path else False
         return os.access(str(test_path), os.W_OK)
     except (PermissionError, OSError):
         return False
@@ -213,9 +220,7 @@ def get_windows_openstudio_paths(openstudio_version, build_hash):
 
     # User-specific installations (both MSI and portable)
     user_profile = os.environ.get("USERPROFILE", os.path.expanduser("~"))
-    local_appdata = os.environ.get(
-        "LOCALAPPDATA", os.path.join(user_profile, "AppData", "Local")
-    )
+    local_appdata = os.environ.get("LOCALAPPDATA", os.path.join(user_profile, "AppData", "Local"))
 
     # Legacy user installations (MSI-based)
     paths.extend(
@@ -274,11 +279,9 @@ def get_linux_openstudio_paths(openstudio_version):
         os.path.expanduser(f"~/.local/share/OpenStudio-{openstudio_version}/bin/openstudio"),
         os.path.expanduser("~/.local/bin/openstudio"),
         os.path.expanduser(f"~/.local/OpenStudio-{openstudio_version}/bin/openstudio"),
-
         # Legacy user paths
         os.path.expanduser("~/openstudio/bin/openstudio"),
         os.path.expanduser(f"~/openstudio-{openstudio_version}/bin/openstudio"),
-
         # System installations LAST (fallback for existing installs)
         "/usr/local/bin/openstudio",
         "/usr/bin/openstudio",

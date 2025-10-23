@@ -187,9 +187,7 @@ class WindowsInstaller(BaseInstaller):
 
             # Find the extracted OpenStudio folder (may have build hash in name)
             extracted_folders = [
-                d
-                for d in Path(extract_temp_dir).iterdir()
-                if d.is_dir() and "OpenStudio" in d.name
+                d for d in Path(extract_temp_dir).iterdir() if d.is_dir() and "OpenStudio" in d.name
             ]
 
             if not extracted_folders:
@@ -225,9 +223,7 @@ class WindowsInstaller(BaseInstaller):
             click.echo(f"✅ OpenStudio binary verified: {result.stdout.strip()}")
             return True
         except subprocess.TimeoutExpired:
-            click.echo(
-                "⚠️ OpenStudio binary test timed out, but installation appears successful"
-            )
+            click.echo("⚠️ OpenStudio binary test timed out, but installation appears successful")
             return True
         except Exception as e:
             click.echo(f"❌ OpenStudio binary test failed: {e}")
@@ -266,16 +262,20 @@ class WindowsInstaller(BaseInstaller):
         click.echo("\n" + "=" * 60)
         click.echo("🪟 Windows Environment Setup")
         click.echo("=" * 60)
-        click.echo("\nTo use OpenStudio from any terminal, environment variables need to be configured.")
+        click.echo(
+            "\nTo use OpenStudio from any terminal, environment variables need to be configured."
+        )
         click.echo(f"\nOpenStudio Location: {install_dir}")
 
         if self.interactive:
             click.echo("\nWould you like to configure OpenStudio environment variables?")
             click.echo("Note: This will modify your user environment variables.")
             click.echo("Variables to set: PATH, RUBYLIB, ENERGYPLUS_EXE_PATH")
-            response = click.prompt("Configure environment?", type=click.Choice(['y', 'n']), default='n')
+            response = click.prompt(
+                "Configure environment?", type=click.Choice(["y", "n"]), default="n"
+            )
 
-            if response == 'y':
+            if response == "y":
                 self._configure_environment(install_dir)
         elif self.install_quiet:
             # In quiet mode, automatically configure environment
@@ -330,10 +330,7 @@ class WindowsInstaller(BaseInstaller):
         try:
             cmd = f'[Environment]::SetEnvironmentVariable("{var_name}", {var_value}, "User")'
             result = subprocess.run(
-                ["powershell", "-Command", cmd],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["powershell", "-Command", cmd], capture_output=True, text=True, timeout=10
             )
 
             if result.returncode == 0:

@@ -23,7 +23,7 @@ def run_command_with_input(cmd, input_text, timeout=60, cwd=None):
             capture_output=True,
             timeout=timeout,
             cwd=cwd,
-            shell=True if sys.platform == "win32" else False
+            shell=True if sys.platform == "win32" else False,
         )
         return result
     except subprocess.TimeoutExpired as e:
@@ -37,11 +37,11 @@ def run_command_with_input(cmd, input_text, timeout=60, cwd=None):
 def check_demo_output(demo_dir):
     """Check if demo created expected output files."""
     demo_path = Path(demo_dir)
-    
+
     if not demo_path.exists():
         print("❌ Demo output directory not created")
         return False
-    
+
     print("✅ Demo output directory created successfully")
     print("Contents:")
     try:
@@ -54,7 +54,7 @@ def check_demo_output(demo_dir):
                 print(f"  📁 {item.name}/")
     except Exception as e:
         print(f"Error listing directory contents: {e}")
-    
+
     # Check for H2K file
     h2k_files = list(demo_path.glob("*.H2K")) + list(demo_path.glob("*.h2k"))
     if h2k_files:
@@ -62,7 +62,7 @@ def check_demo_output(demo_dir):
     else:
         print("❌ No H2K file found in output")
         return False
-    
+
     # Check for HPXML file
     xml_files = list(demo_path.rglob("*.xml"))
     if xml_files:
@@ -72,18 +72,18 @@ def check_demo_output(demo_dir):
             print(f"   • {xml_file.relative_to(demo_path)} ({size//1024} KB)")
     else:
         print("⚠️  No HPXML file found (conversion may not have completed)")
-    
+
     # Check for simulation results
     csv_files = list(demo_path.rglob("results_*.csv"))
     if csv_files:
         print("✅ Simulation results created successfully")
         for csv_file in csv_files[:2]:  # Show first 2 CSV files
             size = csv_file.stat().st_size
-            size_str = f"{size//1024} KB" if size < 1024*1024 else f"{size//(1024*1024)} MB"
+            size_str = f"{size//1024} KB" if size < 1024 * 1024 else f"{size//(1024*1024)} MB"
             print(f"   • {csv_file.relative_to(demo_path)} ({size_str})")
     else:
         print("⚠️  No simulation results found")
-    
+
     return True
 
 
@@ -93,32 +93,32 @@ def test_demo_basic_flow():
     print("=" * 50)
     print("Test 1: Basic demo flow")
     print("Input: 1 (English), 1 (First file), y (Run), n (No cleanup)")
-    
+
     # Get project directory (cross-platform)
     project_dir = Path(__file__).parent.parent.resolve()
-    
+
     # Create input sequence
     demo_input = "1\n1\ny\nn\n"  # English, first file, yes run, no cleanup
-    
+
     # Determine the command based on platform
     if sys.platform == "win32":
         cmd = ["uv.exe", "run", "h2k-hpxml", "--demo"]
     else:
         cmd = ["uv", "run", "h2k-hpxml", "--demo"]
-    
+
     print("Running demo...")
     result = run_command_with_input(cmd, demo_input, timeout=120, cwd=str(project_dir))
-    
+
     if result is None:
         print("❌ Failed to run demo command")
         return False
-    
+
     if isinstance(result, subprocess.TimeoutExpired):
         print("⚠️  Demo timed out (may be expected for long simulations)")
         # Timeout might be OK if simulation is running
     elif isinstance(result, subprocess.CompletedProcess):
         print(f"Demo completed with return code: {result.returncode}")
-        
+
         # Check output for key indicators
         stdout = result.stdout
         if "Language / Langue" in stdout:
@@ -129,12 +129,12 @@ def test_demo_basic_flow():
             print("✅ File selection displayed")
         if "h2k_demo_output" in stdout:
             print("✅ Output directory referenced")
-        
+
         # Show any errors
         if result.stderr:
             print("STDERR output:")
             print(result.stderr[:1000])  # First 1000 chars
-    
+
     # Check output directory
     demo_output_dir = project_dir / "h2k_demo_output"
     return check_demo_output(demo_output_dir)
@@ -144,19 +144,19 @@ def test_demo_language_selection():
     """Test French language selection."""
     print("\nTest 2: French language selection")
     print("Input: 2 (Français), then timeout")
-    
+
     project_dir = Path(__file__).parent.parent.resolve()
-    
+
     # Test French language selection (exit quickly)
     french_input = "2\n"
-    
+
     if sys.platform == "win32":
         cmd = ["uv.exe", "run", "h2k-hpxml", "--demo"]
     else:
         cmd = ["uv", "run", "h2k-hpxml", "--demo"]
 
     result = run_command_with_input(cmd, french_input, timeout=15, cwd=str(project_dir))
-    
+
     if isinstance(result, subprocess.CompletedProcess):
         if "Démo Interactive" in result.stdout or "Choisissez" in result.stdout:
             print("✅ French language selection works")
@@ -164,7 +164,7 @@ def test_demo_language_selection():
     elif isinstance(result, subprocess.TimeoutExpired):
         print("✅ French selection started (timeout expected)")
         return True
-    
+
     print("⚠️  French language selection test inconclusive")
     return False
 
@@ -173,10 +173,11 @@ def cleanup_demo_files():
     """Clean up demo output files."""
     project_dir = Path(__file__).parent.parent.resolve()
     demo_output_dir = project_dir / "h2k_demo_output"
-    
+
     if demo_output_dir.exists():
         try:
             import shutil
+
             shutil.rmtree(demo_output_dir)
             print(f"🧹 Cleaned up demo files: {demo_output_dir}")
         except Exception as e:
@@ -191,38 +192,39 @@ def main():
     print(f"Platform: {sys.platform}")
     print(f"Python: {sys.version}")
     print()
-    
+
     success = True
-    
+
     try:
         # Test basic demo flow
         if not test_demo_basic_flow():
             success = False
-        
+
         # Test language selection
         if not test_demo_language_selection():
             success = False
-        
+
     except KeyboardInterrupt:
         print("\n❌ Test interrupted by user")
         success = False
     except Exception as e:
         print(f"\n❌ Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()
         success = False
-    
+
     print("\n" + "=" * 50)
     if success:
         print("🎉 Demo testing completed successfully!")
     else:
         print("⚠️  Demo testing completed with issues")
-    
+
     print("\nManual testing:")
     print("  uv run h2k-hpxml --demo")
     print("\nCleanup:")
     print("  python tests/utils/demo_test_automation.py --cleanup")
-    
+
     return 0 if success else 1
 
 

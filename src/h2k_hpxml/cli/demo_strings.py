@@ -34,13 +34,13 @@ DEMO_STRINGS = {
             "xml": "HPXML format building model",
             "sql": "SQLite database with simulation results",
             "csv": "Annual energy summary",
-            "timeseries": "Hourly energy data (8760 hours)"
+            "timeseries": "Hourly energy data (8760 hours)",
         },
         "file_details": {
             "xml": "Contains: envelope, systems, schedules",
             "sql": "Contains: hourly energy data, loads",
             "csv": "Contains: fuel use, emissions, costs",
-            "timeseries": "Use for: detailed time-series analysis"
+            "timeseries": "Use for: detailed time-series analysis",
         },
         "explore_file": "Would you like to explore any file?",
         "view_file": "Viewing: {filename}",
@@ -50,7 +50,7 @@ DEMO_STRINGS = {
         "learned_points": [
             "✓ Convert H2K files to HPXML",
             "✓ Run EnergyPlus simulations",
-            "✓ Understand output files"
+            "✓ Understand output files",
         ],
         "try_next": "Try these commands next:",
         "commands": [
@@ -64,7 +64,7 @@ DEMO_STRINGS = {
             "h2k-hpxml file.h2k --hourly ALL",
             "",
             "# Skip simulation (convert only):",
-            "h2k-hpxml file.h2k --do-not-sim"
+            "h2k-hpxml file.h2k --do-not-sim",
         ],
         "help_command": "Need help? Run: h2k-hpxml --help",
         "demo_setup_explanation": "Demo setup: Created demo folder and copied {filename} for demonstration",
@@ -95,40 +95,32 @@ DEMO_STRINGS = {
         "file_descriptions": {
             # HPXML and building model files
             "xml_general": "HPXML building energy model (standardized home energy format)",
-            "in_xml": "Processed HPXML input file used by OpenStudio/EnergyPlus simulation", 
+            "in_xml": "Processed HPXML input file used by OpenStudio/EnergyPlus simulation",
             "in_idf": "EnergyPlus Input Data File - detailed building geometry and systems",
             "in_osm": "OpenStudio Model file - 3D building geometry and HVAC systems",
-            
             # Annual and summary results
             "results_annual_csv": "Annual energy totals (heating, cooling, hot water, appliances)",
             "results_annual_json": "Annual energy results in JSON format for data processing",
-            
             # Time-series data
             "results_timeseries_csv": "8,760 hours of energy data (heating, cooling, electricity, gas)",
             "eplusout_hourly_msgpack": "Hourly simulation data in compressed binary format",
-            "eplusout_runperiod_msgpack": "Full year simulation data in compressed format", 
+            "eplusout_runperiod_msgpack": "Full year simulation data in compressed format",
             "eplusout_msgpack": "Complete EnergyPlus output data in binary format",
-            
             # Financial/billing results
             "results_bills_csv": "Annual utility bills and costs breakdown by fuel type",
             "results_bills_monthly_csv": "Monthly utility bills with seasonal variations",
-            
-            # Design and load calculations  
+            # Design and load calculations
             "results_design_load_details_csv": "Peak heating/cooling loads for equipment sizing",
-            
             # Simulation logs and diagnostics
             "eplusout_err": "EnergyPlus warnings and errors - check for simulation issues",
             "eplusout_end": "Simulation completion status indicator",
             "run_log": "Processing log from HPXML to OpenStudio conversion",
             "stderr_energyplus_log": "EnergyPlus error messages during simulation",
             "stdout_energyplus_log": "EnergyPlus standard output during simulation",
-            
             # Reports and tables
             "eplustbl_htm": "EnergyPlus HTML report with detailed tables and summaries",
-            
             # Source files
             "h2k_file": "Original Hot2000 building energy model input file",
-            
             # Fallbacks
             "xml_fallback": "XML building model or configuration file",
             "csv_fallback": "Energy data in spreadsheet format for analysis",
@@ -142,8 +134,8 @@ DEMO_STRINGS = {
             "html_fallback": "HTML report with tables and charts",
             "txt_fallback": "Text file with simulation data or logs",
             "end_fallback": "Simulation completion status file",
-            "default_fallback": "Energy simulation output file"
-        }
+            "default_fallback": "Energy simulation output file",
+        },
     },
     "fr": {
         "welcome_title": "Démo Interactive H2K vers HPXML",
@@ -173,13 +165,13 @@ DEMO_STRINGS = {
             "xml": "Modèle de bâtiment au format HPXML",
             "sql": "Base de données SQLite avec résultats",
             "csv": "Résumé énergétique annuel",
-            "timeseries": "Données énergétiques horaires (8760 heures)"
+            "timeseries": "Données énergétiques horaires (8760 heures)",
         },
         "file_details": {
             "xml": "Contient: enveloppe, systèmes, horaires",
             "sql": "Contient: données énergétiques horaires, charges",
             "csv": "Contient: consommation, émissions, coûts",
-            "timeseries": "Pour: analyse détaillée des séries temporelles"
+            "timeseries": "Pour: analyse détaillée des séries temporelles",
         },
         "explore_file": "Voulez-vous explorer un fichier?",
         "view_file": "Affichage: {filename}",
@@ -189,7 +181,7 @@ DEMO_STRINGS = {
         "learned_points": [
             "✓ Convertir des fichiers H2K vers HPXML",
             "✓ Exécuter des simulations EnergyPlus",
-            "✓ Comprendre les fichiers de sortie"
+            "✓ Comprendre les fichiers de sortie",
         ],
         "try_next": "Essayez ces commandes ensuite:",
         "commands": [
@@ -203,7 +195,7 @@ DEMO_STRINGS = {
             "h2k-hpxml fichier.h2k --hourly ALL",
             "",
             "# Ignorer la simulation (conversion seulement):",
-            "h2k-hpxml fichier.h2k --do-not-sim"
+            "h2k-hpxml fichier.h2k --do-not-sim",
         ],
         "help_command": "Besoin d'aide? Exécutez: h2k-hpxml --help",
         "demo_setup_explanation": "Configuration démo: Dossier démo créé et {filename} copié pour démonstration",
@@ -237,37 +229,29 @@ DEMO_STRINGS = {
             "in_xml": "Fichier d'entrée HPXML traité pour simulation OpenStudio/EnergyPlus",
             "in_idf": "Fichier de données d'entrée EnergyPlus - géométrie et systèmes détaillés",
             "in_osm": "Fichier modèle OpenStudio - géométrie 3D et systèmes CVC",
-            
             # Annual and summary results
             "results_annual_csv": "Totaux énergétiques annuels (chauffage, climatisation, eau chaude, appareils)",
             "results_annual_json": "Résultats énergétiques annuels en format JSON pour traitement",
-            
             # Time-series data
             "results_timeseries_csv": "8 760 heures de données énergétiques (chauffage, climatisation, électricité, gaz)",
             "eplusout_hourly_msgpack": "Données de simulation horaires en format binaire compressé",
             "eplusout_runperiod_msgpack": "Données de simulation annuelle en format compressé",
             "eplusout_msgpack": "Données complètes de sortie EnergyPlus en format binaire",
-            
             # Financial/billing results
             "results_bills_csv": "Factures et coûts annuels par type de combustible",
             "results_bills_monthly_csv": "Factures mensuelles avec variations saisonnières",
-            
             # Design and load calculations
             "results_design_load_details_csv": "Charges de pointe chauffage/climatisation pour dimensionnement",
-            
             # Simulation logs and diagnostics
             "eplusout_err": "Avertissements et erreurs EnergyPlus - vérifier problèmes de simulation",
             "eplusout_end": "Indicateur d'état de completion de simulation",
             "run_log": "Journal de traitement de conversion HPXML vers OpenStudio",
             "stderr_energyplus_log": "Messages d'erreur EnergyPlus durant simulation",
             "stdout_energyplus_log": "Sortie standard EnergyPlus durant simulation",
-            
             # Reports and tables
             "eplustbl_htm": "Rapport HTML EnergyPlus avec tableaux et résumés détaillés",
-            
             # Source files
             "h2k_file": "Fichier d'entrée original de modèle énergétique Hot2000",
-            
             # Fallbacks
             "xml_fallback": "Modèle de bâtiment XML ou fichier de configuration",
             "csv_fallback": "Données énergétiques en format tableur pour analyse",
@@ -281,30 +265,30 @@ DEMO_STRINGS = {
             "html_fallback": "Rapport HTML avec tableaux et graphiques",
             "txt_fallback": "Fichier texte avec données ou journaux de simulation",
             "end_fallback": "Fichier d'état de completion de simulation",
-            "default_fallback": "Fichier de sortie de simulation énergétique"
-        }
-    }
+            "default_fallback": "Fichier de sortie de simulation énergétique",
+        },
+    },
 }
 
 
 def get_string(key, lang="en"):
     """
     Get localized string with fallback to English.
-    
+
     Args:
         key (str): String key, can use dot notation for nested keys (e.g., "file_description.xml")
         lang (str): Language code ("en" or "fr")
-        
+
     Returns:
         str: Localized string or key if not found
     """
     # Handle nested keys like "file_description.xml"
-    keys = key.split('.')
-    
+    keys = key.split(".")
+
     # Get the language dict with fallback to English
     lang_dict = DEMO_STRINGS.get(lang, DEMO_STRINGS["en"])
     fallback_dict = DEMO_STRINGS["en"]
-    
+
     # Navigate through nested keys
     try:
         value = lang_dict
@@ -326,11 +310,11 @@ def get_string(key, lang="en"):
 def get_list(key, lang="en"):
     """
     Get localized list with fallback to English.
-    
+
     Args:
         key (str): List key
         lang (str): Language code ("en" or "fr")
-        
+
     Returns:
         list: Localized list or empty list if not found
     """

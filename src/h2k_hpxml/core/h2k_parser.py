@@ -24,8 +24,9 @@ def _load_resource_json(resource_name):
     # Strategy 1: Try importlib.resources (Python 3.7+, works with installed packages)
     try:
         from importlib import resources
+
         try:
-            with resources.open_text('h2k_hpxml.resources', resource_name) as f:
+            with resources.open_text("h2k_hpxml.resources", resource_name) as f:
                 json_content = json.load(f)
         except (FileNotFoundError, ImportError, AttributeError):
             pass
@@ -36,9 +37,12 @@ def _load_resource_json(resource_name):
     if json_content is None:
         try:
             import pkg_resources
-            resource_path = pkg_resources.resource_filename('h2k_hpxml', f'resources/{resource_name}')
+
+            resource_path = pkg_resources.resource_filename(
+                "h2k_hpxml", f"resources/{resource_name}"
+            )
             if os.path.exists(resource_path):
-                with open(resource_path, 'r', encoding="utf-8") as f:
+                with open(resource_path, "r", encoding="utf-8") as f:
                     json_content = json.load(f)
         except (ImportError, FileNotFoundError):
             pass

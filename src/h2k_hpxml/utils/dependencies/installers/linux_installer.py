@@ -23,7 +23,9 @@ class LinuxInstaller(BaseInstaller):
 
     OPENSTUDIO_BASE_URL = "https://github.com/NREL/OpenStudio/releases/download"
 
-    def __init__(self, required_version, build_hash, default_path, interactive=True, install_quiet=False):
+    def __init__(
+        self, required_version, build_hash, default_path, interactive=True, install_quiet=False
+    ):
         """Initialize Linux installer.
 
         Args:
@@ -378,11 +380,11 @@ class LinuxInstaller(BaseInstaller):
             list: List of missing package names that need to be installed
         """
         required_libs = {
-            'libgomp.so.1': 'libgomp1',
-            'libX11.so.6': 'libx11-6',
-            'libXext.so.6': 'libxext6',
-            'libgfortran.so.5': 'libgfortran5',
-            'libssl.so.3': 'libssl3'
+            "libgomp.so.1": "libgomp1",
+            "libX11.so.6": "libx11-6",
+            "libXext.so.6": "libxext6",
+            "libgfortran.so.5": "libgfortran5",
+            "libssl.so.3": "libssl3",
         }
 
         missing = []
@@ -403,12 +405,7 @@ class LinuxInstaller(BaseInstaller):
         """
         try:
             # Method 1: Use ldconfig to check dynamic linker cache
-            result = subprocess.run(
-                ['ldconfig', '-p'],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
+            result = subprocess.run(["ldconfig", "-p"], capture_output=True, text=True, timeout=10)
             if result.returncode == 0 and lib_name in result.stdout:
                 return True
         except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -416,12 +413,12 @@ class LinuxInstaller(BaseInstaller):
 
         # Method 2: Check common library paths
         common_paths = [
-            '/lib/x86_64-linux-gnu',
-            '/usr/lib/x86_64-linux-gnu',
-            '/lib64',
-            '/usr/lib64',
-            '/lib',
-            '/usr/lib'
+            "/lib/x86_64-linux-gnu",
+            "/usr/lib/x86_64-linux-gnu",
+            "/lib64",
+            "/usr/lib64",
+            "/lib",
+            "/usr/lib",
         ]
 
         for path in common_paths:
@@ -447,10 +444,10 @@ class LinuxInstaller(BaseInstaller):
             click.echo(f"Installing system libraries: {' '.join(missing_packages)}")
 
             # Update package list first
-            subprocess.run(['sudo', 'apt-get', 'update'], check=True)
+            subprocess.run(["sudo", "apt-get", "update"], check=True)
 
             # Install packages
-            cmd = ['sudo', 'apt-get', 'install', '-y'] + missing_packages
+            cmd = ["sudo", "apt-get", "install", "-y"] + missing_packages
             subprocess.run(cmd, check=True)
 
             click.echo("✅ System libraries installed successfully")
@@ -471,21 +468,12 @@ class LinuxInstaller(BaseInstaller):
         """
         try:
             # Check if sudo exists
-            result = subprocess.run(
-                ['which', 'sudo'],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
+            result = subprocess.run(["which", "sudo"], capture_output=True, text=True, timeout=5)
             if result.returncode != 0:
                 return False
 
             # Test if we can use sudo (without actually running a command)
-            result = subprocess.run(
-                ['sudo', '-n', 'true'],
-                capture_output=True,
-                timeout=5
-            )
+            result = subprocess.run(["sudo", "-n", "true"], capture_output=True, timeout=5)
             return result.returncode == 0
 
         except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -549,13 +537,19 @@ class LinuxInstaller(BaseInstaller):
 
             # Check if environment is already configured
             current_path = os.environ.get("PATH", "")
-            if str(local_bin) in current_path and os.environ.get("RUBYLIB") and os.environ.get("ENERGYPLUS_EXE_PATH"):
+            if (
+                str(local_bin) in current_path
+                and os.environ.get("RUBYLIB")
+                and os.environ.get("ENERGYPLUS_EXE_PATH")
+            ):
                 click.echo(f"✅ Environment variables already configured")
                 return True
 
             # In interactive mode, ask user
             if self.interactive:
-                if not click.confirm(f"\n🔧 Add {local_bin} to your PATH and set OpenStudio environment variables?"):
+                if not click.confirm(
+                    f"\n🔧 Add {local_bin} to your PATH and set OpenStudio environment variables?"
+                ):
                     click.echo("⏭️  Skipped environment variable updates")
                     click.echo(f"📝 To manually configure, add these to your shell profile:")
                     click.echo(f'   export PATH="$HOME/.local/bin:$PATH"')
@@ -571,19 +565,19 @@ class LinuxInstaller(BaseInstaller):
                 home / ".bashrc",
                 home / ".bash_profile",
                 home / ".zshrc",
-                home / ".profile"
+                home / ".profile",
             ]
 
             # Build environment variable exports
             # Use install_dir to determine OpenStudio base path
             openstudio_base = str(install_dir).replace(str(home), "$HOME")
 
-            env_exports = f'''
+            env_exports = f"""
 # Added by os-setup for OpenStudio and EnergyPlus
 export PATH="$HOME/.local/bin:$PATH"
 export RUBYLIB="{openstudio_base}/Ruby"
 export ENERGYPLUS_EXE_PATH="{openstudio_base}/EnergyPlus"
-'''
+"""
 
             files_updated = []
 
@@ -593,11 +587,11 @@ export ENERGYPLUS_EXE_PATH="{openstudio_base}/EnergyPlus"
                     content = profile_file.read_text()
 
                     # Check if exports already exist
-                    if 'Added by os-setup for OpenStudio and EnergyPlus' in content:
+                    if "Added by os-setup for OpenStudio and EnergyPlus" in content:
                         continue
 
                     # Append environment variable exports
-                    with open(profile_file, 'a') as f:
+                    with open(profile_file, "a") as f:
                         f.write(env_exports)
                     files_updated.append(str(profile_file))
 
@@ -605,8 +599,12 @@ export ENERGYPLUS_EXE_PATH="{openstudio_base}/EnergyPlus"
                 click.echo("✅ Updated shell profile files:")
                 for file in files_updated:
                     click.echo(f"   • {file}")
-                click.echo("\n⚠️  Note: Run 'source ~/.bashrc' (or your shell's profile) to apply changes")
-                click.echo("   Or restart your terminal for environment variable changes to take effect")
+                click.echo(
+                    "\n⚠️  Note: Run 'source ~/.bashrc' (or your shell's profile) to apply changes"
+                )
+                click.echo(
+                    "   Or restart your terminal for environment variable changes to take effect"
+                )
                 click.echo("\n📋 Environment variables configured:")
                 click.echo(f"   • PATH (includes OpenStudio and EnergyPlus binaries)")
                 click.echo(f"   • RUBYLIB (OpenStudio Ruby bindings)")

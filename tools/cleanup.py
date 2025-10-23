@@ -52,7 +52,7 @@ def find_and_remove_pattern(root_path, pattern, file_type="file"):
                 pass
     except Exception as e:
         print(f"  Warning: Error searching for {pattern}: {e}")
-    
+
     return removed_count
 
 
@@ -61,10 +61,10 @@ def clean_output_directory():
     output_dir = Path("output")
     if not output_dir.exists():
         return False
-    
+
     subdirs = ["hpxml", "comparisons", "workflows", "logs", "test"]
     cleaned_any = False
-    
+
     for subdir in subdirs:
         subdir_path = output_dir / subdir
         if subdir_path.exists():
@@ -83,43 +83,45 @@ def clean_output_directory():
                 print(f"  Cleaned: {subdir_path}")
             except Exception as e:
                 print(f"  Warning: Could not clean {subdir_path}: {e}")
-    
+
     return cleaned_any
 
 
 def main():
     """Main cleanup function."""
     print("🧹 Cleaning up h2k_hpxml project...")
-    
+
     # Get project root (assuming script is in tools/)
     project_root = Path(__file__).parent.parent
     os.chdir(project_root)
-    
+
     cleanup_count = 0
-    
+
     # 1. Remove Python cache files
     print("\nRemoving Python cache files...")
     pycache_count = find_and_remove_pattern(".", "__pycache__", "dir")
     pyc_count = find_and_remove_pattern(".", "*.pyc", "file")
     pyo_count = find_and_remove_pattern(".", "*.pyo", "file")
-    
+
     if pycache_count or pyc_count or pyo_count:
-        print(f"  Removed {pycache_count} __pycache__ dirs, {pyc_count} .pyc files, {pyo_count} .pyo files")
+        print(
+            f"  Removed {pycache_count} __pycache__ dirs, {pyc_count} .pyc files, {pyo_count} .pyo files"
+        )
         cleanup_count += pycache_count + pyc_count + pyo_count
-    
+
     # 2. Remove test and build caches
     print("\nRemoving tool caches...")
     cache_dirs = [
         ".pytest_cache",
-        ".mypy_cache", 
+        ".mypy_cache",
         ".ruff_cache",
         ".hypothesis",
         ".coverage",
         "build",
         "dist",
-        "*.egg-info"
+        "*.egg-info",
     ]
-    
+
     cache_removed = 0
     for cache_dir in cache_dirs:
         if "*" in cache_dir:
@@ -128,10 +130,10 @@ def main():
         else:
             if remove_tree_if_exists(cache_dir):
                 cache_removed += 1
-    
+
     if cache_removed:
         cleanup_count += cache_removed
-    
+
     # 3. Clean output directory but keep structure
     print("\nCleaning output directories...")
     if clean_output_directory():
@@ -139,47 +141,42 @@ def main():
         cleanup_count += 1
     else:
         print("  No output directory found or nothing to clean")
-    
+
     # 4. Remove test result files
     print("\nRemoving temporary files...")
     temp_patterns = [
         "test_results_*.txt",
         "*.tmp",
-        "*.temp", 
+        "*.temp",
         "*.bak",
         ".DS_Store",  # macOS
         "Thumbs.db",  # Windows
-        "desktop.ini"  # Windows
+        "desktop.ini",  # Windows
     ]
-    
+
     temp_removed = 0
     for pattern in temp_patterns:
         temp_removed += find_and_remove_pattern(".", pattern, "file")
-    
+
     if temp_removed:
         print(f"  Removed {temp_removed} temporary files")
         cleanup_count += temp_removed
-    
+
     # 5. Clean up any temporary test directories
     print("\nRemoving temporary test directories...")
-    temp_dir_patterns = [
-        "tmp*",
-        "temp*",
-        "tests/temp",
-        "tests/tmp*"
-    ]
-    
+    temp_dir_patterns = ["tmp*", "temp*", "tests/temp", "tests/tmp*"]
+
     temp_dirs_removed = 0
     for pattern in temp_dir_patterns:
         temp_dirs_removed += find_and_remove_pattern(".", pattern, "dir")
-    
+
     if temp_dirs_removed:
         print(f"  Removed {temp_dirs_removed} temporary directories")
         cleanup_count += temp_dirs_removed
-    
+
     # Final summary
     print(f"\n✅ Cleanup complete! Removed {cleanup_count} items")
-    
+
     if cleanup_count == 0:
         print("   (Project was already clean)")
 

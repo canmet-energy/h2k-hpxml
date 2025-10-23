@@ -46,6 +46,7 @@ logger = get_logger(__name__)
 # Helper Functions (Moved from CLI)
 # ============================================================================
 
+
 def _build_simulation_flags(
     add_component_loads: bool = True,
     debug: bool = False,
@@ -101,7 +102,7 @@ def _build_simulation_flags(
         if values is None:
             continue
         # Convert single values or non-iterables to tuples
-        if not hasattr(values, '__iter__') or isinstance(values, str):
+        if not hasattr(values, "__iter__") or isinstance(values, str):
             values = (values,) if values else ()
         # Only add flags if values is not empty
         if values:
@@ -113,7 +114,7 @@ def _build_simulation_flags(
     # Safety check for add_timeseries_output_variable
     if add_timeseries_output_variable:
         # Ensure it's iterable and not None
-        if not hasattr(add_timeseries_output_variable, '__iter__') or isinstance(
+        if not hasattr(add_timeseries_output_variable, "__iter__") or isinstance(
             add_timeseries_output_variable, str
         ):
             add_timeseries_output_variable = (add_timeseries_output_variable,)
@@ -191,9 +192,7 @@ def _handle_conversion_error(
 
     # Check for specific exception text and handle run.log
     if "returned non-zero exit status 1." in str(error):
-        run_log_path = os.path.join(
-            dest_hpxml_path, pathlib.Path(filepath).stem, "run", "run.log"
-        )
+        run_log_path = os.path.join(dest_hpxml_path, pathlib.Path(filepath).stem, "run", "run.log")
         if os.path.exists(run_log_path):
             with open(run_log_path) as run_log_file:
                 run_log_content = "**OS-HPXML ERROR**: " + run_log_file.read()
@@ -641,6 +640,7 @@ def batch_convert_h2k_files(
     if not openstudio_binary or not Path(openstudio_binary).exists():
         # Fall back to finding it
         from .cli.convert import get_openstudio_binary_path
+
         openstudio_binary = get_openstudio_binary_path()
 
     # Build simulation flags (using defaults for batch processing)
