@@ -28,7 +28,7 @@ Guide for contributing to the H2K-HPXML project.
  2. Ctrl + Shift + P and Type "Dev Containers: Clone Repository in container volume" and select from list.
  3. Enter the github repo url.  
  4. Let it build.
- 5. Optionally if you are on a secured network like NRCan, add your certs file to the /certs/ folder and rebuild (Ctrl+Shift+P and Type "Dev Containers: Rebuild.) See [Corporate Networks](../.devcontainer/certs/README.md)
+ 5. Optionally if you are on a secured network like NRCan, add your certs file to the .devcontainer/certs/ folder and rebuild (Ctrl+Shift+P and Type "Dev Containers: Rebuild.) See [Corporate Networks](../.devcontainer/certs/README.md)
  6. Check if eveything works with these commands
     * os-setup --check-only
     * pytest -v

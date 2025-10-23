@@ -243,3 +243,5 @@ src/h2k_hpxml/_deps/
 .devcontainer/certs/*.pem
 .devcontainer/certs/*.crt
 
+docs/build/
+docs/source/_build/

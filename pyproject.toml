@@ -55,6 +55,12 @@ dev = [
     "pre-commit>=3.0.0",
     "tox>=4.0.0",
     "tox-uv>=1.0.0",
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "sphinx-autodoc-typehints>=1.25.0",
+    "myst-parser>=2.0.0",
+    "sphinx-copybutton>=0.5.0",
+    "sphinx-autobuild>=2021.3.14",
 ]
 
 [project.urls]
