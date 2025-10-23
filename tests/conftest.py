@@ -26,29 +26,14 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    """Configure pytest markers and platform-aware filtering."""
-    config.addinivalue_line(
-        "markers",
-        "baseline_generation: mark test as baseline generation (requires --run-baseline flag)",
-    )
-    config.addinivalue_line(
-        "markers", "regression: mark test as regression test (validates against baseline)"
-    )
-
-    # Platform-aware test filtering (unless --force-all is specified)
-    if not config.getoption("--force-all"):
-        # Only apply platform filtering if no explicit marker expression is provided
-        if not config.getoption("-m") and not config.getoption("--markers"):
-            if sys.platform == "win32":
-                # On Windows, skip Linux-specific tests
-                config.option.markexpr = "not linux"
-            elif sys.platform in ["linux", "linux2", "darwin"]:
-                # On Linux/Unix, skip Windows-specific tests
-                config.option.markexpr = "not windows"
+    """Configure pytest with custom options."""
+    # Markers are now defined in pyproject.toml
+    # Platform filtering is handled by @pytest.mark.skipif decorators
+    pass
 
 
 def pytest_collection_modifyitems(config, items):
-    """Modify test collection to handle baseline generation tests and add platform information."""
+    """Modify test collection to handle baseline generation tests."""
     # Handle baseline generation tests
     if config.getoption("--run-baseline"):
         # Remove skip marker from baseline generation tests
@@ -65,14 +50,9 @@ def pytest_collection_modifyitems(config, items):
             if "baseline_generation" in item.keywords:
                 item.add_marker(skip_baseline)
 
-    # Add platform information to test collection for debugging
-    platform_info = f"Running on {sys.platform}"
-    if config.option.markexpr:
-        platform_info += f" with marker filter: {config.option.markexpr}"
-
     # Print platform info during collection if verbose
     if config.option.verbose >= 1:
-        print(f"\n{platform_info}")
+        print(f"\nRunning on {sys.platform}")
 
 
 def pytest_sessionstart(session):
@@ -83,14 +63,6 @@ def pytest_sessionstart(session):
         print("\nPlatform Information:")
         print(f"  System: {sys.platform}")
         print(f"  Python: {sys.version.split()[0]}")
-        if config.option.markexpr:
-            print(f"  Test filter: {config.option.markexpr}")
-        else:
-            print("  Test filter: None (running all tests)")
-
-    if config.getoption("--force-all"):
-        # Clear any automatic platform filtering
-        config.option.markexpr = ""
 
 
 @pytest.fixture(scope="session")

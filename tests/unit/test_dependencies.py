@@ -251,7 +251,6 @@ class TestOpenStudioDetection:
         assert result is True
         mock_echo.assert_called_with("✅ OpenStudio CLI found in PATH")
 
-    @pytest.mark.windows
     @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific test")
     @patch("platform.system")
     def test_get_openstudio_paths_windows(self, mock_platform, manager):
@@ -266,7 +265,6 @@ class TestOpenStudioDetection:
         assert any("openstudio.exe" in path for path in paths)
         assert any("Program Files" in path for path in paths)
 
-    @pytest.mark.linux
     @pytest.mark.skipif(
         platform.system() not in ["Linux", "linux", "linux2"], reason="Linux-specific test"
     )
@@ -592,7 +590,6 @@ class TestPlatformSpecificBehavior:
         mock_echo.assert_any_call("❌ Unsupported platform: Windows")
 
 
-@pytest.mark.windows
 class TestWindowsSimulation:
     """Test Windows-specific functionality by simulating Windows environment on Linux."""
 
@@ -604,6 +601,7 @@ class TestWindowsSimulation:
             expected_path = Path("C:/OpenStudio-HPXML")
             assert manager.default_hpxml_path == expected_path
 
+    @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific test")
     def test_windows_openstudio_paths(self):
         """Test Windows OpenStudio path generation."""
         with patch("platform.system", return_value="Windows"):
@@ -616,6 +614,7 @@ class TestWindowsSimulation:
                 assert any("Program Files" in path for path in paths)
                 assert any("C:\\openstudio\\bin\\openstudio.exe" in path for path in paths)
 
+    @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific test")
     def test_windows_manual_instructions(self):
         """Test Windows manual installation instructions."""
         with patch("platform.system", return_value="Windows"):
@@ -628,6 +627,7 @@ class TestWindowsSimulation:
             assert any("Windows.exe" in call for call in echo_calls)
             assert any("administrator" in call for call in echo_calls)
 
+    @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific test")
     def test_windows_hpxml_instructions(self):
         """Test Windows HPXML manual installation instructions."""
         with patch("platform.system", return_value="Windows"):
@@ -640,6 +640,7 @@ class TestWindowsSimulation:
             # Should show Windows-style path separator
             assert any("workflow\\\\run_simulation.rb" in call for call in echo_calls)
 
+    @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific test")
     @patch("platform.system", return_value="Windows")
     def test_full_windows_workflow_simulation(self, mock_platform):
         """Test complete Windows dependency workflow simulation."""

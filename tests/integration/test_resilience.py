@@ -60,7 +60,6 @@ def get_pythonpath():
         return f"{src_path}:{root_path}"
 
 
-@pytest.mark.resilience
 def test_resilience_cli_basic(check_openstudio_bindings):
     """
     Test basic resilience CLI functionality without running simulations.
@@ -178,8 +177,6 @@ def test_resilience_cli_basic(check_openstudio_bindings):
         pytest.fail(f"Resilience CLI test failed for {test_file}: {str(e)}")
 
 
-@pytest.mark.resilience
-@pytest.mark.slow
 def test_resilience_cli_with_simulation(check_openstudio_bindings):
     """
     Test resilience CLI with simulation runs (slower test).
@@ -302,7 +299,6 @@ def test_resilience_cli_with_simulation(check_openstudio_bindings):
         pytest.fail(f"Resilience CLI simulation test failed for {test_file}: {str(e)}")
 
 
-@pytest.mark.resilience
 def test_resilience_cli_error_handling():
     """
     Test resilience CLI error handling for invalid inputs.
@@ -397,7 +393,6 @@ def test_resilience_cli_error_handling():
     print("✅ Resilience CLI error handling tests PASSED")
 
 
-@pytest.mark.resilience
 def test_resilience_cli_help():
     """
     Test that resilience CLI help command works.

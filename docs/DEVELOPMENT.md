@@ -18,7 +18,7 @@ Guide for contributing to the H2K-HPXML project.
 
 ### Prerequisites
 
-- [VSCode](https://code.visualstudio.com/) with Microsoft Dev Container Extention Installed.
+- [VSCode](https://code.visualstudio.com/) with Microsoft Dev Container Extension Installed.
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ### Setup
@@ -144,54 +144,44 @@ git checkout -b docs/update-guide
 
 ```
 tests/
-├── unit/                       # Fast, isolated tests
-│   ├── test_core/             # Core translation logic
-│   ├── test_components/       # Individual components
-│   ├── test_config/           # Configuration
-│   └── test_utils/            # Utilities
-├── integration/               # End-to-end tests
-│   ├── test_regression.py     # Golden file comparisons
-│   ├── test_full_workflow.py  # Complete pipeline
-│   └── test_cli.py           # CLI tests
-└── fixtures/                  # Test data
-    ├── h2k_files/            # Sample inputs
-    ├── expected_outputs/     # Golden files
-    └── mock_data/            # Mock objects
-```
-
-### Test Configuration
-
-Project uses pytest with custom markers. See `pyproject.toml`:
-
-```toml
-[tool.pytest.ini_options]
-markers = [
-    "regression: regression tests that compare against baseline data",
-    "slow: tests that take a long time to run",
-    "baseline: tests for generating baseline data (use with --run-baseline flag)",
-    "integration: integration tests that check external services",
-    "windows: Windows-specific tests",
-]
+├── unit/                           # Fast, isolated tests (flat structure)
+│   ├── test_cli_convert.py         # CLI conversion tests
+│   ├── test_config_manager.py      # Configuration tests
+│   ├── test_core_model.py          # ModelData tests
+│   ├── test_core_translator.py     # Core translation logic
+│   ├── test_dependencies.py        # Dependency management
+│   ├── test_essential_utilities.py # Utility functions
+│   └── ... (other unit tests)
+├── integration/                    # End-to-end tests
+│   ├── test_demo.py                # Interactive demo tests
+│   ├── test_regression.py          # Golden file comparisons
+│   ├── test_resilience.py          # Resilience CLI tests
+│   └── test_windows_installation.py # Windows-specific tests
+└── fixtures/                       # Test data
+    └── expected_outputs/           # Golden files for regression tests
 ```
 
 ### Running Tests
 
 ```bash
-# By test type
-pytest tests/unit/ -v                    # Fast tests
-pytest tests/integration/ -v             # Slow tests
-pytest -m "not slow" -v                  # Skip slow tests
+# By test folder
+pytest tests/unit/ -v                    # Fast unit tests
+pytest tests/integration/ -v             # Slow regression tests.
+pytest -v                                # All tests. 
 
-# Specific tests
-pytest tests/unit/test_components/test_walls.py -v
-pytest tests/unit/test_translator.py::TestTranslator::test_basic_conversion -v
+# Specific test files
+pytest tests/unit/test_core_translator.py -v
+pytest tests/unit/test_config_manager.py -v
+
+# Specific test in a file
+pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translation_modes -v
 
 # With options
-pytest -n auto                           # Parallel
+pytest -n auto                           # Parallel to test faster. 
 pytest -x                                # Stop on first failure
 pytest -v -s                             # Verbose with stdout
 
-# Coverage
+# Coverage to determin how much of the code is covered by tests. 
 pytest --cov=src/h2k_hpxml --cov-report=html tests/
 open htmlcov/index.html                  # View coverage report
 ```

@@ -12,7 +12,6 @@ from h2k_hpxml.exceptions import ConfigurationError
 from h2k_hpxml.exceptions import H2KParsingError
 
 
-@pytest.mark.cross_platform
 class TestH2KToHPXML:
     """Test cases for the main h2ktohpxml function."""
 

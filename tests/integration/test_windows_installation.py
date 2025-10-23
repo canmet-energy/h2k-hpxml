@@ -15,7 +15,6 @@ import pytest
 from h2k_hpxml.utils.dependencies import DependencyManager
 
 
-@pytest.mark.windows
 @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific tests")
 @pytest.mark.integration
 class TestWindowsIntegration:
@@ -93,7 +92,6 @@ class TestWindowsIntegration:
             ]
             assert len(profile_paths) > 0, "No USERPROFILE paths found"
 
-    @pytest.mark.slow
     def test_openstudio_check_methods(self):
         """Test OpenStudio detection methods don't crash."""
         dm = DependencyManager()
@@ -139,7 +137,6 @@ class TestWindowsIntegration:
 
 @pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific tests")
 @pytest.mark.integration
-@pytest.mark.slow
 class TestWindowsInstallationWorkflow:
     """Test complete installation workflow (without actually installing system-wide)."""
 

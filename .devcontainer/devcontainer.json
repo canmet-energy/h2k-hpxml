@@ -9,6 +9,7 @@
 	"containerEnv": {
 		"UV_PROJECT_ENVIRONMENT": "${containerWorkspaceFolder}/.venv",
 		"UV_PYTHON_PREFERENCE": "managed",
+		"UV_LINK_MODE": "copy",
 		"ENABLE_GPU_AI": "0", // Set to 0 to skip GPU AI/LLM stack (PyTorch etc.) installation
 		"DEVCONTAINER_NODE_VERSION": "22.11.0", // Node.js version installed by install-user-nodejs.sh (override as needed)
 		"DEVCONTAINER_UV_VERSION": "0.8.15", // UV (Python package manager) version installed by install-user-uv.sh

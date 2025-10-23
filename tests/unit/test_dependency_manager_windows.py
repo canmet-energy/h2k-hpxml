@@ -18,7 +18,7 @@ import pytest
 from h2k_hpxml.utils.dependencies import DependencyManager
 
 
-@pytest.mark.windows
+@pytest.mark.skipif(platform.system() != "Windows", reason="Windows-specific portable installation tests")
 class TestWindowsPortableInstallation:
     """Test Windows portable installation functionality."""
 

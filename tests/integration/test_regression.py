@@ -67,7 +67,6 @@ def get_h2k_test_files():
     return test_files
 
 
-@pytest.mark.regression
 @pytest.mark.parametrize("test_file_info", get_h2k_test_files(), ids=lambda x: x[0])
 def test_regression_parallel(test_file_info, check_openstudio_bindings):
     """
@@ -230,7 +229,6 @@ def _test_hpxml_validation(source_file, base_name, temp_output_dir):
     print("✅ HPXML validation PASSED: Files match exactly")
 
 
-@pytest.mark.regression
 @pytest.mark.skip(
     reason="Use test_regression_parallel for better performance. This is kept for backward compatibility."
 )
