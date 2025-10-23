@@ -71,7 +71,9 @@ class BaseInstaller(ABC):
     def show_manual_instructions(self):
         """Show manual installation instructions to the user.
 
-        Default implementation does nothing. Subclasses should override
-        to provide platform-specific instructions.
+        This is an optional method that subclasses can override
+        to provide platform-specific manual installation instructions.
+        The default implementation does nothing.
         """
-        pass
+        # Optional method - subclasses may override
+        return None

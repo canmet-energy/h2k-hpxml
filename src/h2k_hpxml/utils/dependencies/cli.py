@@ -64,6 +64,7 @@ def validate_dependencies(
 
 def test_quick_installation():
     """Quick installation test - basic verification."""
+    import importlib.util
 
     click.echo("🧪 H2K-HPXML Quick Installation Test")
     click.echo("=" * 40)
@@ -72,18 +73,20 @@ def test_quick_installation():
 
     # Test 1: Package import
     try:
-        import h2k_hpxml
-
-        tests.append(("Package Import", True, "✅"))
-    except ImportError as e:
+        if importlib.util.find_spec("h2k_hpxml") is not None:
+            tests.append(("Package Import", True, "✅"))
+        else:
+            tests.append(("Package Import", False, "❌ Package not found"))
+    except (ImportError, ValueError) as e:
         tests.append(("Package Import", False, f"❌ {e}"))
 
     # Test 2: CLI tools
     try:
-        from h2k_hpxml.cli.convert import main as convert_main
-
-        tests.append(("CLI Tools", True, "✅"))
-    except ImportError as e:
+        if importlib.util.find_spec("h2k_hpxml.cli.convert") is not None:
+            tests.append(("CLI Tools", True, "✅"))
+        else:
+            tests.append(("CLI Tools", False, "❌ CLI module not found"))
+    except (ImportError, ValueError) as e:
         tests.append(("CLI Tools", False, f"❌ {e}"))
 
     # Test 3: Dependencies
@@ -150,7 +153,7 @@ def test_smart_installation():
             )
             if result.returncode == 0:
                 runner = "uv"
-        except:
+        except Exception:
             pass
 
     click.echo(f"🔍 Detected runner: {runner}")
@@ -267,7 +270,7 @@ def test_comprehensive_installation():
                     click.echo("❌ Output file not created or empty")
                     return False
             else:
-                click.echo(f"❌ Conversion failed: {result.get('error', 'Unknown error')}")
+                click.echo("❌ Conversion failed: No output file generated")
                 return False
 
     except Exception as e:
