@@ -6,7 +6,6 @@ This module provides access to sample H2K files included with the package.
 
 import os
 from pathlib import Path
-from typing import List
 from typing import Optional
 
 
@@ -20,7 +19,7 @@ def get_examples_directory() -> Path:
     return Path(__file__).parent
 
 
-def list_example_files(extension: str = ".h2k") -> List[Path]:
+def list_example_files(extension: str = ".h2k") -> list[Path]:
     """
     List all example files with the given extension.
 
@@ -45,7 +44,7 @@ def list_example_files(extension: str = ".h2k") -> List[Path]:
     return sorted(files)
 
 
-def get_example_file(filename: Optional[str] = None) -> Optional[Path]:
+def get_example_file(filename: str | None = None) -> Path | None:
     """
     Get path to a specific example file, or the first available if none specified.
 
@@ -72,7 +71,7 @@ def get_example_file(filename: Optional[str] = None) -> Optional[Path]:
     return None
 
 
-def get_wizard_house() -> Optional[Path]:
+def get_wizard_house() -> Path | None:
     """
     Get path to the WizardHouse.h2k example file.
 

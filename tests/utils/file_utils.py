@@ -13,10 +13,7 @@ import os
 import shutil
 from datetime import datetime
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Tuple
 
 # Golden file directory structure
 GOLDEN_FILES_BASE = "tests/fixtures/expected_outputs/golden_files"
@@ -84,7 +81,7 @@ def create_backup_directory() -> str:
     return backup_dir
 
 
-def backup_golden_files() -> Optional[str]:
+def backup_golden_files() -> str | None:
     """
     Create backup of existing golden files before overwriting.
 
@@ -119,7 +116,7 @@ def backup_golden_files() -> Optional[str]:
     return backup_dir
 
 
-def load_json_file(file_path: str) -> Optional[Dict[str, Any]]:
+def load_json_file(file_path: str) -> dict[str, Any] | None:
     """
     Load JSON data from file with error handling.
 
@@ -143,7 +140,7 @@ def load_json_file(file_path: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def save_json_file(data: Dict[str, Any], file_path: str, indent: int = 2) -> bool:
+def save_json_file(data: dict[str, Any], file_path: str, indent: int = 2) -> bool:
     """
     Save JSON data to file with error handling.
 
@@ -167,47 +164,47 @@ def save_json_file(data: Dict[str, Any], file_path: str, indent: int = 2) -> boo
         return False
 
 
-def load_baseline_summary() -> Optional[Dict[str, Any]]:
+def load_baseline_summary() -> dict[str, Any] | None:
     """Load baseline energy summary."""
     return load_json_file(get_baseline_summary_path())
 
 
-def save_baseline_summary(data: Dict[str, Any]) -> bool:
+def save_baseline_summary(data: dict[str, Any]) -> bool:
     """Save baseline energy summary."""
     return save_json_file(data, get_baseline_summary_path())
 
 
-def load_comparison_summary() -> Optional[Dict[str, Any]]:
+def load_comparison_summary() -> dict[str, Any] | None:
     """Load comparison energy summary."""
     return load_json_file(get_comparison_summary_path())
 
 
-def save_comparison_summary(data: Dict[str, Any]) -> bool:
+def save_comparison_summary(data: dict[str, Any]) -> bool:
     """Save comparison energy summary."""
     return save_json_file(data, get_comparison_summary_path())
 
 
-def load_baseline_file(base_name: str) -> Optional[Dict[str, Any]]:
+def load_baseline_file(base_name: str) -> dict[str, Any] | None:
     """Load individual baseline file."""
     return load_json_file(get_baseline_file_path(base_name))
 
 
-def save_baseline_file(base_name: str, data: Dict[str, Any]) -> bool:
+def save_baseline_file(base_name: str, data: dict[str, Any]) -> bool:
     """Save individual baseline file."""
     return save_json_file(data, get_baseline_file_path(base_name))
 
 
-def load_comparison_file(base_name: str) -> Optional[Dict[str, Any]]:
+def load_comparison_file(base_name: str) -> dict[str, Any] | None:
     """Load individual comparison file."""
     return load_json_file(get_comparison_file_path(base_name))
 
 
-def save_comparison_file(base_name: str, data: Dict[str, Any]) -> bool:
+def save_comparison_file(base_name: str, data: dict[str, Any]) -> bool:
     """Save individual comparison file."""
     return save_json_file(data, get_comparison_file_path(base_name))
 
 
-def get_baseline_file_list() -> List[str]:
+def get_baseline_file_list() -> list[str]:
     """Get list of available baseline files."""
     if not os.path.exists(BASELINE_DIR):
         return []
@@ -226,7 +223,7 @@ def get_baseline_file_list() -> List[str]:
     return sorted(baseline_files)
 
 
-def validate_golden_file_structure() -> Tuple[bool, List[str]]:
+def validate_golden_file_structure() -> tuple[bool, list[str]]:
     """
     Validate that golden file structure is complete and consistent.
 
@@ -265,7 +262,7 @@ def validate_golden_file_structure() -> Tuple[bool, List[str]]:
     return len(issues) == 0, issues
 
 
-def create_file_structure_summary() -> Dict[str, Any]:
+def create_file_structure_summary() -> dict[str, Any]:
     """Create a summary of the current golden file structure."""
     summary = {
         "timestamp": datetime.now().isoformat(),

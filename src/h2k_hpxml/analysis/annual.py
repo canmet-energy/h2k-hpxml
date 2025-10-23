@@ -31,7 +31,7 @@ def read_os_results(path="", return_type="dict"):
     res_df = pd.read_csv(f"{results_folder_path}results_annual.csv", header=None, names=columns)
 
     if return_type == "dict":
-        return dict(zip(res_df.parameter, res_df.value))
+        return dict(zip(res_df.parameter, res_df.value, strict=False))
 
     else:
         return res_df

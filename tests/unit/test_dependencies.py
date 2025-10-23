@@ -769,7 +769,7 @@ class TestDownloadURLValidation:
             return False, f"HTTP Error {e.code}: {e.reason}"
         except urllib.error.URLError as e:
             return False, f"URL Error: {e.reason}"
-        except socket.timeout:
+        except TimeoutError:
             return False, f"Timeout after {timeout} seconds"
         except Exception as e:
             return False, f"Unexpected error: {e}"

@@ -14,10 +14,7 @@ import re
 import xml.etree.ElementTree as ET
 from difflib import unified_diff
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Tuple
 
 
 def normalize_paths_for_comparison(xml_content: str) -> str:
@@ -66,7 +63,7 @@ def normalize_paths_for_comparison(xml_content: str) -> str:
     return normalized_content
 
 
-def extract_hpxml_key_elements(hpxml_path: str) -> Dict[str, Any]:
+def extract_hpxml_key_elements(hpxml_path: str) -> dict[str, Any]:
     """
     Extract key elements from HPXML file for comparison.
 
@@ -256,7 +253,7 @@ def normalize_hpxml_for_comparison(hpxml_path: str) -> str:
         return f"Error normalizing HPXML: {str(e)}"
 
 
-def compare_hpxml_files(baseline_path: str, comparison_path: str) -> Dict[str, Any]:
+def compare_hpxml_files(baseline_path: str, comparison_path: str) -> dict[str, Any]:
     """
     Compare two HPXML files comprehensively and return differences.
 
@@ -363,7 +360,7 @@ def compare_hpxml_files(baseline_path: str, comparison_path: str) -> Dict[str, A
     return result
 
 
-def validate_hpxml_structure(hpxml_path: str) -> Dict[str, Any]:
+def validate_hpxml_structure(hpxml_path: str) -> dict[str, Any]:
     """
     Validate HPXML file structure and content.
 
@@ -432,7 +429,7 @@ def validate_hpxml_structure(hpxml_path: str) -> Dict[str, Any]:
     return validation_result
 
 
-def create_hpxml_summary(hpxml_files: List[str]) -> Dict[str, Any]:
+def create_hpxml_summary(hpxml_files: list[str]) -> dict[str, Any]:
     """
     Create a summary of multiple HPXML files.
 

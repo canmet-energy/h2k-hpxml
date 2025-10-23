@@ -10,9 +10,6 @@ This module provides common functions for:
 import os
 import sqlite3
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Tuple
 
 
 def inspect_sqlite_database(sql_path: str) -> None:
@@ -49,7 +46,7 @@ def inspect_sqlite_database(sql_path: str) -> None:
         print(f"Error inspecting database {sql_path}: {e}")
 
 
-def extract_from_standard_energyplus(cursor: sqlite3.Cursor) -> Dict[str, Any]:
+def extract_from_standard_energyplus(cursor: sqlite3.Cursor) -> dict[str, Any]:
     """Extract energy data from standard EnergyPlus report format."""
     energy_data = {}
 
@@ -101,7 +98,7 @@ def extract_from_standard_energyplus(cursor: sqlite3.Cursor) -> Dict[str, Any]:
     return energy_data
 
 
-def extract_from_tabular_data(cursor: sqlite3.Cursor) -> Dict[str, Any]:
+def extract_from_tabular_data(cursor: sqlite3.Cursor) -> dict[str, Any]:
     """Extract energy data from TabularData table with proper string joins."""
     tabular_data = {}
 
@@ -196,7 +193,7 @@ def extract_from_tabular_data(cursor: sqlite3.Cursor) -> Dict[str, Any]:
     return tabular_data
 
 
-def extract_from_hpxml_reports(cursor: sqlite3.Cursor) -> Dict[str, Any]:
+def extract_from_hpxml_reports(cursor: sqlite3.Cursor) -> dict[str, Any]:
     """Extract energy data from OpenStudio-HPXML report format."""
     energy_data = {}
 
@@ -218,7 +215,7 @@ def extract_from_hpxml_reports(cursor: sqlite3.Cursor) -> Dict[str, Any]:
     return energy_data
 
 
-def extract_from_generic_tables(cursor: sqlite3.Cursor, tables: List[str]) -> Dict[str, Any]:
+def extract_from_generic_tables(cursor: sqlite3.Cursor, tables: list[str]) -> dict[str, Any]:
     """Extract energy data from any available tables as fallback."""
     energy_data = {}
 
@@ -240,7 +237,7 @@ def extract_from_generic_tables(cursor: sqlite3.Cursor, tables: List[str]) -> Di
     return energy_data
 
 
-def extract_annual_energy_data(sql_path: str) -> Dict[str, Any]:
+def extract_annual_energy_data(sql_path: str) -> dict[str, Any]:
     """
     Extract annual energy end-use data from eplusout.sql.
 
@@ -291,7 +288,7 @@ def extract_annual_energy_data(sql_path: str) -> Dict[str, Any]:
         return {}
 
 
-def count_energy_records(energy_data: Dict[str, Any]) -> int:
+def count_energy_records(energy_data: dict[str, Any]) -> int:
     """Count the total number of energy value records in the data structure."""
     count = 0
 
@@ -308,7 +305,7 @@ def count_energy_records(energy_data: Dict[str, Any]) -> int:
     return count
 
 
-def validate_energy_data(energy_data: Dict[str, Any]) -> Tuple[bool, str]:
+def validate_energy_data(energy_data: dict[str, Any]) -> tuple[bool, str]:
     """
     Validate that energy data contains meaningful values.
 

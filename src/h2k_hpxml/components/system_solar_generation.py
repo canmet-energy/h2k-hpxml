@@ -40,7 +40,7 @@ def get_solar_generation(h2k_dict, model_data):
         new_inverter_efficiency = sum(
             [
                 a * (b / sum(pv_array_capacities))
-                for a, b in zip(inverter_efficiencies, pv_array_capacities)
+                for a, b in zip(inverter_efficiencies, pv_array_capacities, strict=False)
             ]
         )
 

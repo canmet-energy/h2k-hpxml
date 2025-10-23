@@ -15,10 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Tuple
 
 
 def get_python_executable():
@@ -48,7 +45,7 @@ def get_pythonpath():
         return f"{src_path}:{root_path}"
 
 
-def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tuple[bool, str, str]:
+def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> tuple[bool, str, str]:
     """
     Run the H2K to HPXML workflow using the CLI tool.
 
@@ -90,7 +87,7 @@ def run_h2k_workflow(input_path: str, output_dir: str, debug: bool = True) -> Tu
         return False, "", str(e)
 
 
-def find_sql_file(base_output_path: str, base_name: str) -> Optional[str]:
+def find_sql_file(base_output_path: str, base_name: str) -> str | None:
     """
     Find the eplusout.sql file in the output directory structure.
 
@@ -132,7 +129,7 @@ def find_sql_file(base_output_path: str, base_name: str) -> Optional[str]:
     return None
 
 
-def find_hpxml_file(base_output_path: str, base_name: str) -> Optional[str]:
+def find_hpxml_file(base_output_path: str, base_name: str) -> str | None:
     """
     Find the generated HPXML file in the output directory structure.
 
@@ -175,7 +172,7 @@ def find_hpxml_file(base_output_path: str, base_name: str) -> Optional[str]:
     return None
 
 
-def explore_output_directory(output_path: str, max_depth: int = 3) -> Dict[str, Any]:
+def explore_output_directory(output_path: str, max_depth: int = 3) -> dict[str, Any]:
     """
     Explore output directory structure for debugging.
 
@@ -187,7 +184,7 @@ def explore_output_directory(output_path: str, max_depth: int = 3) -> Dict[str, 
         Dictionary representing the directory structure
     """
 
-    def explore_recursive(path: str, current_depth: int = 0) -> Dict[str, Any]:
+    def explore_recursive(path: str, current_depth: int = 0) -> dict[str, Any]:
         if current_depth >= max_depth:
             return {"...": "max_depth_reached"}
 
@@ -215,7 +212,7 @@ def explore_output_directory(output_path: str, max_depth: int = 3) -> Dict[str, 
     return explore_recursive(output_path)
 
 
-def validate_workflow_outputs(base_output_path: str, base_name: str) -> Tuple[bool, List[str]]:
+def validate_workflow_outputs(base_output_path: str, base_name: str) -> tuple[bool, list[str]]:
     """
     Validate that all expected workflow outputs were created.
 
@@ -271,7 +268,7 @@ def validate_workflow_outputs(base_output_path: str, base_name: str) -> Tuple[bo
     return len(missing_files) == 0, missing_files
 
 
-def get_h2k_example_files() -> List[str]:
+def get_h2k_example_files() -> list[str]:
     """
     Get list of H2K example files for testing.
 

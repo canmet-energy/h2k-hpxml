@@ -7,11 +7,9 @@ and comparison data to ensure fresh test runs.
 
 import os
 import shutil
-from typing import List
-from typing import Tuple
 
 
-def clean_temp_directory() -> Tuple[bool, List[str]]:
+def clean_temp_directory() -> tuple[bool, list[str]]:
     """
     Clean the entire tests/temp directory.
 
@@ -45,7 +43,7 @@ def clean_temp_directory() -> Tuple[bool, List[str]]:
         return False, [f"Error cleaning temp directory: {str(e)}"]
 
 
-def clean_comparison_files() -> Tuple[bool, List[str]]:
+def clean_comparison_files() -> tuple[bool, list[str]]:
     """
     Clean comparison files and directories.
 
@@ -75,7 +73,7 @@ def clean_comparison_files() -> Tuple[bool, List[str]]:
         return False, [f"Error cleaning comparison files: {str(e)}"]
 
 
-def clean_pytest_cache() -> Tuple[bool, List[str]]:
+def clean_pytest_cache() -> tuple[bool, list[str]]:
     """
     Clean pytest cache files.
 
@@ -104,7 +102,7 @@ def clean_pytest_cache() -> Tuple[bool, List[str]]:
     return True, cleaned_items
 
 
-def clean_pycache() -> Tuple[bool, List[str]]:
+def clean_pycache() -> tuple[bool, list[str]]:
     """
     Clean Python __pycache__ directories.
 
@@ -129,7 +127,7 @@ def clean_pycache() -> Tuple[bool, List[str]]:
     return True, cleaned_items
 
 
-def clean_all_test_data() -> Tuple[bool, List[str]]:
+def clean_all_test_data() -> tuple[bool, list[str]]:
     """
     Clean all test data including temp files, comparison files, and caches.
 
@@ -184,7 +182,7 @@ def clean_all_test_data() -> Tuple[bool, List[str]]:
     return all_success, all_cleaned
 
 
-def clean_for_baseline_generation() -> Tuple[bool, List[str]]:
+def clean_for_baseline_generation() -> tuple[bool, list[str]]:
     """
     Specialized cleanup for baseline generation.
 

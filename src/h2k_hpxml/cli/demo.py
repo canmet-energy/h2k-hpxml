@@ -8,8 +8,6 @@ the h2k-hpxml conversion process using real example files.
 import os
 import shutil
 from pathlib import Path
-from typing import List
-from typing import Optional
 
 from rich.console import Console
 from rich.panel import Panel
@@ -33,15 +31,15 @@ class H2KDemo:
 
     def __init__(self):
         self.lang = "en"
-        self.demo_dir: Optional[Path] = None
-        self.selected_file: Optional[Path] = None
+        self.demo_dir: Path | None = None
+        self.selected_file: Path | None = None
         self.output_files = []
 
     def t(self, key: str) -> str:
         """Translation helper."""
         return get_string(key, self.lang)
 
-    def tl(self, key: str) -> List[str]:
+    def tl(self, key: str) -> list[str]:
         """Translation helper for lists."""
         return get_list(key, self.lang)
 

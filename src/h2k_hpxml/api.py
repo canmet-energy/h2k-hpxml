@@ -15,11 +15,6 @@ import time
 import traceback
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from .config.manager import ConfigManager
 from .core.translator import h2ktohpxml as _h2ktohpxml
@@ -127,7 +122,7 @@ def _build_simulation_flags(
 
 def _run_hpxml_simulation(
     hpxml_path: str, ruby_hpxml_path: str, hpxml_os_path: str, flags: str
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """
     Run OpenStudio simulation on HPXML file (internal).
 
@@ -276,7 +271,7 @@ def _convert_h2k_file_to_hpxml(filepath: str, dest_hpxml_path: str) -> str:
 # ============================================================================
 
 
-def convert_h2k_string(h2k_string: str, config: Optional[Dict[str, Any]] = None) -> str:
+def convert_h2k_string(h2k_string: str, config: dict[str, Any] | None = None) -> str:
     """
     Convert H2K XML string to HPXML format.
 
@@ -305,9 +300,9 @@ def convert_h2k_string(h2k_string: str, config: Optional[Dict[str, Any]] = None)
 
 
 def convert_h2k_file(
-    input_path: Union[str, Path],
-    output_path: Optional[Union[str, Path]] = None,
-    config: Optional[Dict[str, Any]] = None,
+    input_path: str | Path,
+    output_path: str | Path | None = None,
+    config: dict[str, Any] | None = None,
 ) -> str:
     """
     Convert H2K file to HPXML format.
@@ -366,22 +361,22 @@ def convert_h2k_file(
 
 
 def run_full_workflow(
-    input_path: Union[str, Path],
-    output_path: Optional[Union[str, Path]] = None,
+    input_path: str | Path,
+    output_path: str | Path | None = None,
     simulate: bool = True,
     output_format: str = "csv",
     add_component_loads: bool = True,
     debug: bool = False,
     skip_validation: bool = False,
     add_stochastic_schedules: bool = False,
-    add_timeseries_output_variable: Optional[List[str]] = None,
-    hourly_outputs: Optional[List[str]] = None,
-    daily_outputs: Optional[List[str]] = None,
-    monthly_outputs: Optional[List[str]] = None,
-    timestep_outputs: Optional[List[str]] = None,
-    max_workers: Optional[int] = None,
+    add_timeseries_output_variable: list[str] | None = None,
+    hourly_outputs: list[str] | None = None,
+    daily_outputs: list[str] | None = None,
+    monthly_outputs: list[str] | None = None,
+    timestep_outputs: list[str] | None = None,
+    max_workers: int | None = None,
     **kwargs,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run the complete H2K to HPXML conversion and simulation workflow.
 
@@ -489,7 +484,7 @@ def run_full_workflow(
     else:
         raise ValueError(f"Input path must be a .h2k file or directory: {input_path}")
 
-    def process_file(filepath: str) -> Tuple[str, str, str]:
+    def process_file(filepath: str) -> tuple[str, str, str]:
         """Process a single H2K file to HPXML and optionally simulate."""
         try:
             # Convert H2K to HPXML
@@ -570,13 +565,13 @@ def run_full_workflow(
 
 
 def batch_convert_h2k_files(
-    input_files: List[str],
+    input_files: list[str],
     output_directory: str,
     simulate: bool = True,
     mode: str = "SOC",
-    max_workers: Optional[int] = None,
-    progress_callback: Optional[Any] = None,
-) -> Dict[str, Any]:
+    max_workers: int | None = None,
+    progress_callback: Any | None = None,
+) -> dict[str, Any]:
     """
     Efficiently convert multiple H2K files with progress tracking.
 
@@ -650,7 +645,7 @@ def batch_convert_h2k_files(
     completed = 0
     total = len(input_files)
 
-    def process_file_with_progress(filepath: str) -> Tuple[str, str, str]:
+    def process_file_with_progress(filepath: str) -> tuple[str, str, str]:
         """Process file and update progress."""
         nonlocal completed
 
@@ -727,7 +722,7 @@ def batch_convert_h2k_files(
     }
 
 
-def validate_dependencies() -> Dict[str, Any]:
+def validate_dependencies() -> dict[str, Any]:
     """
     Validate that all required dependencies are available.
 

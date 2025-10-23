@@ -10,10 +10,7 @@ This module provides common functions for:
 
 import json
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Tuple
 
 
 def calculate_percentage_difference(baseline_value: float, current_value: float) -> float:
@@ -38,11 +35,11 @@ def calculate_percentage_difference(baseline_value: float, current_value: float)
 
 
 def compare_energy_values(
-    baseline_data: Dict[str, Any],
-    current_data: Dict[str, Any],
+    baseline_data: dict[str, Any],
+    current_data: dict[str, Any],
     tolerance_percent: float = 5.0,
     path: str = "",
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Compare energy data structures recursively.
 
@@ -129,7 +126,7 @@ def compare_energy_values(
     return comparisons
 
 
-def generate_comparison_summary(comparisons: List[Dict[str, Any]]) -> Dict[str, Any]:
+def generate_comparison_summary(comparisons: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Generate a summary of comparison results.
 
@@ -187,7 +184,7 @@ def generate_comparison_summary(comparisons: List[Dict[str, Any]]) -> Dict[str, 
 
 
 def format_comparison_report(
-    file_name: str, comparisons: List[Dict[str, Any]], summary: Dict[str, Any]
+    file_name: str, comparisons: list[dict[str, Any]], summary: dict[str, Any]
 ) -> str:
     """
     Format a human-readable comparison report.
@@ -245,8 +242,8 @@ def format_comparison_report(
 
 
 def validate_comparison_data(
-    baseline_data: Dict[str, Any], current_data: Dict[str, Any]
-) -> Tuple[bool, str]:
+    baseline_data: dict[str, Any], current_data: dict[str, Any]
+) -> tuple[bool, str]:
     """
     Validate that comparison data is suitable for comparison.
 
@@ -303,8 +300,8 @@ def validate_comparison_data(
 
 
 def filter_comparisons_by_tolerance(
-    comparisons: List[Dict[str, Any]], tolerance_percent: float
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    comparisons: list[dict[str, Any]], tolerance_percent: float
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """
     Filter comparisons into passed and failed based on tolerance.
 
