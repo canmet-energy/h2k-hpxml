@@ -91,9 +91,12 @@ class TestWindowsPortableInstallation:
         mock_subprocess.return_value = MagicMock(returncode=0, stdout="OpenStudio 3.9.0")
 
         # Create mock extracted directory structure
-        with patch("os.makedirs"), patch("shutil.copytree") as mock_copytree, patch(
-            "pathlib.Path.iterdir"
-        ) as mock_iterdir, patch("pathlib.Path.exists") as mock_exists:
+        with (
+            patch("os.makedirs"),
+            patch("shutil.copytree") as mock_copytree,
+            patch("pathlib.Path.iterdir") as mock_iterdir,
+            patch("pathlib.Path.exists") as mock_exists,
+        ):
 
             # Mock directory structure after extraction
             mock_extracted_dir = MagicMock()
@@ -170,16 +173,16 @@ class TestWindowsPortableInstallation:
         bin_dir.mkdir(parents=True)
         (bin_dir / "openstudio.exe").touch()
 
-        with patch.dict(
-            "os.environ",
-            {
-                "LOCALAPPDATA": str(temp_install_dir.parent),
-                "USERPROFILE": str(temp_install_dir.parent.parent),
-            },
-        ), patch.object(
-            mock_dm, "_get_user_data_dir", return_value=temp_install_dir.parent
-        ), patch.object(
-            mock_dm, "_check_openstudio", return_value=False
+        with (
+            patch.dict(
+                "os.environ",
+                {
+                    "LOCALAPPDATA": str(temp_install_dir.parent),
+                    "USERPROFILE": str(temp_install_dir.parent.parent),
+                },
+            ),
+            patch.object(mock_dm, "_get_user_data_dir", return_value=temp_install_dir.parent),
+            patch.object(mock_dm, "_check_openstudio", return_value=False),
         ):
 
             result = mock_dm._uninstall_openstudio_windows()
@@ -196,17 +199,18 @@ class TestWindowsPortableInstallation:
         bin_dir.mkdir(parents=True)
         (bin_dir / "openstudio.exe").touch()
 
-        with patch.dict(
-            "os.environ",
-            {
-                "LOCALAPPDATA": str(temp_install_dir.parent),
-                "USERPROFILE": str(temp_install_dir.parent.parent),
-                "PROGRAMFILES": r"C:\Program Files",
-            },
-        ), patch.object(mock_dm, "_get_user_data_dir", return_value=temp_install_dir.parent), patch(
-            "pathlib.Path.exists"
-        ) as mock_exists, patch.object(
-            mock_dm, "_check_openstudio", return_value=True
+        with (
+            patch.dict(
+                "os.environ",
+                {
+                    "LOCALAPPDATA": str(temp_install_dir.parent),
+                    "USERPROFILE": str(temp_install_dir.parent.parent),
+                    "PROGRAMFILES": r"C:\Program Files",
+                },
+            ),
+            patch.object(mock_dm, "_get_user_data_dir", return_value=temp_install_dir.parent),
+            patch("pathlib.Path.exists") as mock_exists,
+            patch.object(mock_dm, "_check_openstudio", return_value=True),
         ):
 
             # Mock MSI installation exists
@@ -230,26 +234,24 @@ class TestWindowsPortableInstallation:
 
     def test_installation_directory_fallback(self, mock_dm):
         """Test installation directory selection with fallback logic."""
-        with patch.dict(
-            "os.environ",
-            {
-                "LOCALAPPDATA": r"C:\Users\TestUser\AppData\Local",
-                "USERPROFILE": r"C:\Users\TestUser",
-            },
-        ), patch.object(mock_dm, "_has_write_access") as mock_write_access, patch(
-            "urllib.request.urlretrieve"
-        ), patch(
-            "tarfile.open"
-        ), patch(
-            "os.makedirs"
-        ), patch(
-            "shutil.copytree"
-        ), patch(
-            "pathlib.Path.iterdir"
-        ) as mock_iterdir, patch(
-            "pathlib.Path.exists", return_value=True
-        ), patch(
-            "subprocess.run", return_value=MagicMock(returncode=0, stdout="OpenStudio 3.9.0")
+        with (
+            patch.dict(
+                "os.environ",
+                {
+                    "LOCALAPPDATA": r"C:\Users\TestUser\AppData\Local",
+                    "USERPROFILE": r"C:\Users\TestUser",
+                },
+            ),
+            patch.object(mock_dm, "_has_write_access") as mock_write_access,
+            patch("urllib.request.urlretrieve"),
+            patch("tarfile.open"),
+            patch("os.makedirs"),
+            patch("shutil.copytree"),
+            patch("pathlib.Path.iterdir") as mock_iterdir,
+            patch("pathlib.Path.exists", return_value=True),
+            patch(
+                "subprocess.run", return_value=MagicMock(returncode=0, stdout="OpenStudio 3.9.0")
+            ),
         ):
 
             # Mock that LOCALAPPDATA is not writable, but USERPROFILE is
@@ -272,14 +274,17 @@ class TestWindowsPortableInstallation:
     @patch("click.echo")
     def test_installation_provides_path_instructions(self, mock_echo, temp_install_dir, mock_dm):
         """Test that installation provides PATH setup instructions."""
-        with patch("urllib.request.urlretrieve"), patch("tarfile.open"), patch(
-            "os.makedirs"
-        ), patch("shutil.copytree"), patch("pathlib.Path.iterdir") as mock_iterdir, patch(
-            "pathlib.Path.exists", return_value=True
-        ), patch(
-            "subprocess.run", return_value=MagicMock(returncode=0, stdout="OpenStudio 3.9.0")
-        ), patch.object(
-            mock_dm, "_get_user_data_dir", return_value=temp_install_dir.parent
+        with (
+            patch("urllib.request.urlretrieve"),
+            patch("tarfile.open"),
+            patch("os.makedirs"),
+            patch("shutil.copytree"),
+            patch("pathlib.Path.iterdir") as mock_iterdir,
+            patch("pathlib.Path.exists", return_value=True),
+            patch(
+                "subprocess.run", return_value=MagicMock(returncode=0, stdout="OpenStudio 3.9.0")
+            ),
+            patch.object(mock_dm, "_get_user_data_dir", return_value=temp_install_dir.parent),
         ):
 
             # Mock extracted directory
