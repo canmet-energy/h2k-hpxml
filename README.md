@@ -86,11 +86,3 @@ NRCan/CMHC H2K-HPXML Translation Tool
 Canada Mortgage and Housing Corporation and Natural Resources Canada
 https://github.com/canmet-energy/h2k-hpxml
 ```
-
-
-**Ready to get started?** Choose your path:
-- 🏃‍♂️ **Quick Start**: [Installation Guide](docs/INSTALLATION.md)
-- 🎓 **Learn**: Run `h2k-demo` for interactive tutorial
-- 🐍 **Python API**: [API Reference](docs/API.md)
-- 🐳 **Deploy**: [Docker Guide](docs/DOCKER.md)
-- 💻 **Contribute**: [Development Guide](docs/DEVELOPMENT.md)
