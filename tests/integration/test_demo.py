@@ -105,18 +105,18 @@ examples = list_example_files(".h2k")
 if examples:
     demo.selected_file = examples[0]
     print(f"Selected file: {demo.selected_file.name}")
-    
+
     # Create demo directory
     demo.demo_dir = Path.cwd() / "h2k_demo_output_test"
     demo.demo_dir.mkdir(exist_ok=True)
-    
+
     # Test just the conversion part (no simulation)
     try:
         import shutil
         local_h2k_file = demo.demo_dir / demo.selected_file.name
         shutil.copy2(demo.selected_file, local_h2k_file)
         print(f"✅ File copied to: {local_h2k_file}")
-        
+
         # Test conversion
         from h2k_hpxml.api import _convert_h2k_file_to_hpxml
         hpxml_path = _convert_h2k_file_to_hpxml(
@@ -124,19 +124,19 @@ if examples:
             dest_hpxml_path=str(demo.demo_dir)
         )
         print(f"✅ HPXML created: {hpxml_path}")
-        
+
         # Check output files exist
         hpxml_file = Path(hpxml_path)
         if hpxml_file.exists():
             print(f"✅ HPXML file verified: {hpxml_file}")
         else:
             print(f"❌ HPXML file not found: {hpxml_file}")
-            
+
     except Exception as e:
         print(f"❌ Conversion failed: {e}")
         import traceback
         traceback.print_exc()
-    
+
     print("Test completed")
 else:
     print("No example files found")

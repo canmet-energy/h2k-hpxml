@@ -27,7 +27,7 @@ from .platform_utils import load_dependency_config
 # Lightweight helper functions (don't create DependencyManager instances!)
 def get_dependency_paths():
     """Get all dependency paths in a single call."""
-    config = load_dependency_config()
+    load_dependency_config()
     openstudio_binary = get_openstudio_binary()
     hpxml_os_path = get_hpxml_os_path()
 

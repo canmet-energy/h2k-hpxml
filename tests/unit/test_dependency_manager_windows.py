@@ -328,7 +328,7 @@ class TestWindowsCompatibility:
             # All paths should use backslashes on Windows (when converted to string)
             paths_str = [str(p) for p in paths]
             # Check that at least some paths have Windows-style separators
-            has_windows_paths = any("\\" in p or "C:" in p for p in paths_str)
+            any("\\" in p or "C:" in p for p in paths_str)
             assert isinstance(paths, list), "Should return a list of paths"
 
     @patch.dict("os.environ", {}, clear=True)

@@ -168,7 +168,6 @@ class TestWindowsInstallationWorkflow:
 
         # Test with real environment variables
         local_appdata = os.environ.get("LOCALAPPDATA")
-        userprofile = os.environ.get("USERPROFILE")
 
         if local_appdata:
             expected_dir = Path(local_appdata) / f"OpenStudio-{dm.REQUIRED_OPENSTUDIO_VERSION}"
@@ -184,7 +183,7 @@ class TestWindowsInstallationWorkflow:
         with tempfile.TemporaryDirectory() as temp_dir:
             install_dir = Path(temp_dir) / "OpenStudio"
 
-            dm = DependencyManager(auto_install=True, openstudio_path=install_dir)
+            DependencyManager(auto_install=True, openstudio_path=install_dir)
 
             # Create a mock tarball file
             tarball_path = Path(temp_dir) / "openstudio.tar.gz"

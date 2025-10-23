@@ -32,7 +32,6 @@ def test_config_does_not_have_ruby_hpxml_path():
     ), "Config should not contain ruby_hpxml_path key - it should be constructed from auto-detected hpxml_os_path"
 
     # Also verify that hpxml_os_path is not in the raw config but available as property
-    raw_hpxml_path = config.get("paths", "hpxml_os_path")
     property_hpxml_path = config.hpxml_os_path
 
     # Raw config should not have it (we removed it), but property should work

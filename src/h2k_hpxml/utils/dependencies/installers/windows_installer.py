@@ -15,8 +15,7 @@ from pathlib import Path
 import click
 
 from ..download_utils import download_file
-from ..platform_utils import get_user_data_dir
-from ..platform_utils import has_write_access
+from ..platform_utils import get_user_data_dir, has_write_access
 from .base import BaseInstaller
 
 
@@ -255,7 +254,6 @@ class WindowsInstaller(BaseInstaller):
         Args:
             install_dir (Path): Installation directory
         """
-        scripts_dir = install_dir / "bin"
 
         if not self.interactive and not self.install_quiet:
             return

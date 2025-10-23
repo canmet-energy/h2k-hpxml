@@ -183,7 +183,7 @@ class LinuxInstaller(BaseInstaller):
                 # Find the actual OpenStudio directory (should be usr/local/openstudio-3.9.0)
                 # The tarball structure is: OpenStudio-3.9.0+.../usr/local/openstudio-3.9.0/
                 extracted_root = None
-                for root, dirs, files in os.walk(temp_extract):
+                for root, dirs, _files in os.walk(temp_extract):
                     if "bin" in dirs and os.path.exists(os.path.join(root, "bin", "openstudio")):
                         extracted_root = root
                         break
