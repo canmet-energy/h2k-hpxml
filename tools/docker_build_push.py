@@ -18,7 +18,6 @@ Examples:
 """
 
 import argparse
-import os
 import re
 import subprocess
 import sys
@@ -157,7 +156,7 @@ def main():
         return
 
     # Build the image
-    print(f"\n🔨 Building Docker image...")
+    print("\n🔨 Building Docker image...")
     build_cmd = [
         "docker",
         "build",
@@ -179,11 +178,11 @@ def main():
         print(f"📤 Pushing {tag}...")
         run_command(["docker", "push", tag])
 
-    print(f"\n✅ Successfully built and pushed:")
+    print("\n✅ Successfully built and pushed:")
     for tag in tags:
         print(f"   📦 {tag}")
 
-    print(f"\n🎉 Done! You can now pull with:")
+    print("\n🎉 Done! You can now pull with:")
     print(f"   docker pull {primary_tag}")
 
 

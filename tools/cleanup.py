@@ -8,7 +8,6 @@ directory structure. Works on Windows, Linux, and macOS.
 
 import os
 import shutil
-import sys
 from pathlib import Path
 
 

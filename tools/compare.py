@@ -6,8 +6,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from h2k_hpxml.analysis import annual
-from h2k_hpxml.core.translator import h2ktohpxml
 from h2k_hpxml.config.manager import ConfigManager
+from h2k_hpxml.core.translator import h2ktohpxml
 
 # Use ConfigManager instead of direct INI parsing
 config = ConfigManager()
