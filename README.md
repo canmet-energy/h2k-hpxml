@@ -32,18 +32,8 @@ New to H2K-HPXML? Start here:
 - **[User Guide](docs/USER_GUIDE.md)** - Command-line usage and workflows and demo.
 
 ### Technical References
-- **[API Reference](docs/API.md)** - Complete Python API documentation
-  - Function signatures and parameters
-  - Return types and error handling
-  - Type definitions
-  - Usage examples for every function
-
+- **[API Reference](docs/API.md)** - Complete Python API/Library documentation
 - **[Development Guide](docs/DEVELOPMENT.md)** - Contributing with VSCode
-  - DevContainer setup (recommended)
-  - Project architecture overview
-  - Testing strategy and tools
-  - Code quality standards
-  - Debugging and troubleshooting
 
 
 ## 🔍 Detailed Status & Features
@@ -57,36 +47,6 @@ New to H2K-HPXML? Start here:
 - **[Systems Report](docs/reports/H2k-HPXML-Systems-Report.pdf)** - HVAC systems validation
 - **[Presentations](docs/presentations/)** - Research presentations and results
 
-## 🆘 Troubleshooting
-
-### Common Issues
-
-| Issue | Solution | Documentation |
-|-------|----------|---------------|
-| "Command not found" | Check installation method | [Installation](docs/INSTALLATION.md#troubleshooting) |
-| "OpenStudio not found" | Run `os-setup --auto-install` | [User Guide](docs/USER_GUIDE.md#troubleshooting) |
-| Conversion failures | Use `--debug` flag | [User Guide](docs/USER_GUIDE.md#debugging) |
-
-### Getting Help
-
-1. **Check Documentation**: Use the guides above for your use case
-2. **Run Diagnostics**: `os-setup --test-comprehensive`
-3. **Search Issues**: [GitHub Issues](https://github.com/canmet-energy/h2k-hpxml/issues)
-4. **Report Problems**: Include OS, Python version, error output
-
-### Debug Commands
-
-```bash
-# Test complete installation
-os-setup --test-comprehensive
-
-# Debug conversion issues
-h2k-hpxml problematic.h2k --debug --do-not-sim
-
-# Check system status
-os-setup --check-only
-python -c "import h2k_hpxml; print('Package OK')"
-```
 
 ## 🤝 Contributing
 
@@ -127,16 +87,6 @@ Canada Mortgage and Housing Corporation and Natural Resources Canada
 https://github.com/canmet-energy/h2k-hpxml
 ```
 
-## 📄 License & Credits
-
-This project is developed by Natural Resources Canada (NRCan) and Canada Mortgage and Housing Corporation (CMHC) to advance Canadian building energy analysis capabilities.
-
-```bash
-# Show detailed credits
-h2k-hpxml --credits
-```
-
----
 
 **Ready to get started?** Choose your path:
 - 🏃‍♂️ **Quick Start**: [Installation Guide](docs/INSTALLATION.md)
