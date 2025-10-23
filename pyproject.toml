@@ -16,14 +16,13 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.10,<3.14"
 version = "1.9.0.1.1"
 dependencies = [
     "numpy==1.26.2",
@@ -54,6 +53,8 @@ dev = [
     "pytest-xdist>=3.0.0",
     "pytest-cov>=4.0.0",
     "pre-commit>=3.0.0",
+    "tox>=4.0.0",
+    "tox-uv>=1.0.0",
 ]
 
 [project.urls]
@@ -242,3 +243,25 @@ ignore = [
 [tool.ruff.lint.isort]
 known-first-party = ["h2k_hpxml"]
 force-single-line = true
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+requires =
+    tox>=4
+    tox-uv>=1.0.0
+env_list = py310,py311,py312,py313
+skip_missing_interpreters = true
+
+[testenv]
+description = Run unit and integration tests
+runner = uv-venv-runner
+package = wheel
+wheel_build_env = .pkg
+deps =
+    pytest==8.3.3
+    pytest-xdist>=3.0.0
+    pytest-cov>=4.0.0
+commands =
+    pytest {posargs}
+"""

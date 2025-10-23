@@ -204,7 +204,13 @@ class H2KDemo:
                 try:
                     # Get configuration
                     config = ConfigManager()
-                    hpxml_os_path = config.get("paths", "hpxml_os_path")
+                    hpxml_os_path = config.hpxml_os_path  # Use property accessor for auto-detection
+
+                    # Check if path was found
+                    if not hpxml_os_path:
+                        console.print(f"[red]✗ OpenStudio-HPXML installation not found[/red]")
+                        return False
+
                     ruby_hpxml_path = os.path.join(hpxml_os_path, "workflow", "run_simulation.rb")
                     
                     # Build simulation flags (with hourly outputs to showcase capabilities)

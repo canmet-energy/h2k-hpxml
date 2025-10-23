@@ -71,6 +71,20 @@ pytest tests/unit/test_core_translator.py::TestH2KToHPXML::test_valid_translatio
 python3 tests/utils/demo_test_automation.py           # Cross-platform demo test with scripted input
 python3 tests/utils/demo_test_automation.py --cleanup # Clean up demo test files
 pytest tests/integration/test_demo.py                 # Pytest integration tests for demo
+
+# Multi-version Python testing with tox
+# First-time setup: Install Python versions
+uv python install 3.10 3.11 3.12 3.13  # Install all supported Python versions
+
+# Run tox tests
+tox                                    # Test against all Python versions (3.10-3.13)
+tox -e py310                          # Test with Python 3.10 only
+tox -e py311                          # Test with Python 3.11 only
+tox -e py312                          # Test with Python 3.12 only
+tox -e py313                          # Test with Python 3.13 only
+tox -p auto                           # Run all environments in parallel (faster)
+tox -e py312 -- -v                    # Pass extra arguments to pytest (e.g., verbose mode)
+tox -e py312 -- tests/unit/           # Run specific test directory with tox
 ```
 
 ### Code Quality
