@@ -79,8 +79,8 @@ def test_resilience_cli_basic(check_openstudio_bindings):
 
     # Use the first available test file
     test_file = test_files[0]
-    examples_dir = "examples"
-    input_path = os.path.join(examples_dir, test_file)
+    # test_file is now a full path from get_h2k_example_files()
+    input_path = test_file
 
     # Setup output directory
     temp_output_dir = "tests/temp/resilience"
@@ -88,8 +88,8 @@ def test_resilience_cli_basic(check_openstudio_bindings):
         shutil.rmtree(temp_output_dir)
     os.makedirs(temp_output_dir, exist_ok=True)
 
-    # Extract base name for output validation
-    base_name = os.path.splitext(test_file)[0]
+    # Extract base name for output validation (just filename without extension)
+    base_name = os.path.splitext(os.path.basename(test_file))[0]
 
     print(f"\n🔄 Testing Resilience CLI for {test_file}...")
 
@@ -198,8 +198,8 @@ def test_resilience_cli_with_simulation(check_openstudio_bindings):
 
     # Use the first available test file
     test_file = test_files[0]
-    examples_dir = "examples"
-    input_path = os.path.join(examples_dir, test_file)
+    # test_file is now a full path from get_h2k_example_files()
+    input_path = test_file
 
     # Setup output directory
     temp_output_dir = "tests/temp/resilience_sim"
@@ -207,8 +207,8 @@ def test_resilience_cli_with_simulation(check_openstudio_bindings):
         shutil.rmtree(temp_output_dir)
     os.makedirs(temp_output_dir, exist_ok=True)
 
-    # Extract base name for output validation
-    base_name = os.path.splitext(test_file)[0]
+    # Extract base name for output validation (just filename without extension)
+    base_name = os.path.splitext(os.path.basename(test_file))[0]
 
     print(f"\n🔄 Testing Resilience CLI with Simulation for {test_file}...")
     print("⚠️  This test may take several minutes to complete...")

@@ -121,7 +121,7 @@ ruff check src/ tests/ --fix                    # Lint and auto-fix
 mypy src/h2k_hpxml/core/                       # Type checking
 
 # Test with real files
-h2k-hpxml examples/WizardHouse.h2k --debug --do-not-sim
+h2k-hpxml src/h2k_hpxml/examples/WizardHouse.h2k --debug --do-not-sim
 h2k-demo                                        # Interactive demo
 
 # Regenerate test baselines (use with caution)

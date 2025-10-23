@@ -272,17 +272,35 @@ def validate_workflow_outputs(base_output_path: str, base_name: str) -> Tuple[bo
 
 
 def get_h2k_example_files() -> List[str]:
-    """Get list of H2K example files for testing."""
-    examples_dir = "examples"
-    if not os.path.exists(examples_dir):
-        return []
+    """
+    Get list of H2K example files for testing.
 
-    h2k_files = []
-    for file_name in os.listdir(examples_dir):
-        if file_name.endswith(".h2k") or file_name.endswith(".H2K"):
-            h2k_files.append(file_name)
+    Returns:
+        List of full paths to H2K example files, or empty list if none found
+    """
+    # Try multiple possible locations for examples
+    possible_locations = [
+        # Installed package location
+        Path(__file__).parent.parent.parent / "src" / "h2k_hpxml" / "examples",
+        # Development location (from project root)
+        Path.cwd() / "src" / "h2k_hpxml" / "examples",
+        # Legacy location (for backward compatibility)
+        Path.cwd() / "examples",
+    ]
 
-    return sorted(h2k_files)
+    for examples_dir in possible_locations:
+        if examples_dir.exists():
+            h2k_files = []
+            # Collect both .h2k and .H2K files
+            for file_path in examples_dir.glob("*.h2k"):
+                h2k_files.append(str(file_path))
+            for file_path in examples_dir.glob("*.H2K"):
+                h2k_files.append(str(file_path))
+
+            if h2k_files:
+                return sorted(h2k_files)
+
+    return []
 
 
 def cleanup_test_outputs(output_dir: str, keep_on_failure: bool = True) -> None:

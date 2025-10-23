@@ -1,3 +1,3 @@
 from .units import convert_unit
-from .weather import get_climate_zone
-from .weather import get_cwec_file
+from .weather_files import get_climate_zone
+from .weather_files import get_cwec_file

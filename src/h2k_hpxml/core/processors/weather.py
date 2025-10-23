@@ -7,7 +7,7 @@ and mapping to appropriate HPXML weather station data.
 
 from ...core import data_utils as obj
 from ...exceptions import WeatherDataError
-from ...utils import weather
+from ...utils import weather_files as weather
 from ...utils.logging import get_logger
 
 # Get logger for this module

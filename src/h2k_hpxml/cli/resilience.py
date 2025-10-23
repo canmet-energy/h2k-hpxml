@@ -583,7 +583,7 @@ class ResilienceProcessor:
         """Get CWEC and EWY weather file paths using the weather utility."""
         import csv
 
-        from h2k_hpxml.utils.weather import get_cwec_file
+        from h2k_hpxml.utils.weather_files import get_cwec_file
 
         # Get the standard weather resources folder path
         project_root = self._find_project_root()

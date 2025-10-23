@@ -79,7 +79,14 @@
       "Bash(uv pip install:*)",
       "Bash(python3:*)",
       "Bash(pytest:*)",
-      "Bash(h2k-hpxml:*)"
+      "Bash(h2k-hpxml:*)",
+      "Bash(uv:*)",
+      "Bash(tox list:*)",
+      "Bash(tox:*)",
+      "Bash(sphinx-build:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": [],

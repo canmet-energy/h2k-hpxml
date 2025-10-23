@@ -111,6 +111,47 @@ ruff check src/ tests/              # Lint code
 ruff check --fix src/ tests/        # Auto-fix linting issues
 ```
 
+### Documentation
+
+#### Building Documentation
+
+```bash
+# Install documentation dependencies (included in dev dependencies)
+uv pip install -e ".[dev]"
+
+# Build HTML documentation
+cd docs && sphinx-build -b html source build
+
+# Live preview with auto-reload (opens browser at http://127.0.0.1:8000)
+cd docs && sphinx-autobuild source build
+
+# Check for broken links
+cd docs && sphinx-build -b linkcheck source build
+
+# Clean build directory
+cd docs && rm -rf build/
+
+# Alternative: Build from project root
+sphinx-build -b html docs/source docs/build
+```
+
+#### Documentation Structure
+
+```
+docs/
+├── source/               # Sphinx source files
+│   ├── conf.py          # Sphinx configuration
+│   ├── index.rst        # Main entry point
+│   ├── api/             # Auto-generated API docs from docstrings
+│   ├── guides/          # User guides
+│   └── development/     # Developer documentation
+├── build/               # Generated HTML (gitignored)
+├── API.md               # Legacy manual API docs (deprecated)
+└── USER_GUIDE.md        # Full user guide
+```
+
+**Note**: API documentation is auto-generated from source code docstrings. To update API docs, edit the docstrings in the source code and rebuild.
+
 ### Main CLI Tools
 ```bash
 # H2K to HPXML conversion (single file)
