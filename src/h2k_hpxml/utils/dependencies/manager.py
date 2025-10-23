@@ -10,28 +10,21 @@ import os
 
 os.environ["H2K_SKIP_AUTO_INSTALL"] = "1"
 
-import configparser
 import platform
 from pathlib import Path
 
 import click
 
-# Import from our modular structure
-from .download_utils import download_file
-from .platform_utils import (
-    load_dependency_config,
-    get_user_data_dir,
-    get_openstudio_paths,
-    get_default_hpxml_path,
-    get_default_openstudio_path,
-)
-from .validators import (
-    check_openstudio,
-    check_openstudio_hpxml,
-)
-from .installers.windows_installer import WindowsInstaller
-from .installers.linux_installer import LinuxInstaller
 from .installers.hpxml_installer import HPXMLInstaller
+from .installers.linux_installer import LinuxInstaller
+from .installers.windows_installer import WindowsInstaller
+from .platform_utils import get_default_hpxml_path
+from .platform_utils import get_default_openstudio_path
+
+# Import from our modular structure
+from .platform_utils import load_dependency_config
+from .validators import check_openstudio
+from .validators import check_openstudio_hpxml
 
 
 class DependencyManager:

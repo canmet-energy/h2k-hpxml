@@ -6,9 +6,9 @@ This script tests the interactive demo with predefined responses
 and works on both Windows and Unix-like systems.
 """
 
+import os
 import subprocess
 import sys
-import os
 import time
 from pathlib import Path
 

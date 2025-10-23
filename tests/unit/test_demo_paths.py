@@ -3,6 +3,7 @@ Unit tests for demo path construction.
 """
 
 import os
+
 from h2k_hpxml.config.manager import ConfigManager
 
 

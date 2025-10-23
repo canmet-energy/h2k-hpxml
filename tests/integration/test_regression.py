@@ -43,7 +43,8 @@ def get_h2k_test_files():
     """Get list of H2K files that have baseline data for testing."""
     # Use packaged examples from the h2k_hpxml.examples module
     try:
-        from h2k_hpxml.examples import get_examples_directory, list_example_files
+        from h2k_hpxml.examples import get_examples_directory
+        from h2k_hpxml.examples import list_example_files
 
         examples_dir = get_examples_directory()
     except ImportError:

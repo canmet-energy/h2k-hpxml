@@ -3,6 +3,7 @@ Unit tests for the CLI convert module functionality.
 """
 
 import pytest
+
 from h2k_hpxml.api import _build_simulation_flags
 
 

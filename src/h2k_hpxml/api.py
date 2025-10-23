@@ -23,8 +23,8 @@ from typing import Union
 
 from .config.manager import ConfigManager
 from .core.translator import h2ktohpxml as _h2ktohpxml
-from .utils.dependencies import validate_dependencies as _validate_dependencies
 from .utils.dependencies import get_openstudio_path
+from .utils.dependencies import validate_dependencies as _validate_dependencies
 from .utils.logging import get_logger
 
 # Public API exports

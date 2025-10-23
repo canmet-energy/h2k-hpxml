@@ -6,7 +6,8 @@ This module provides access to sample H2K files included with the package.
 
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List
+from typing import Optional
 
 
 def get_examples_directory() -> Path:

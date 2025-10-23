@@ -14,8 +14,8 @@ from pathlib import Path
 
 import click
 
-from .base import BaseInstaller
 from ..download_utils import download_file
+from .base import BaseInstaller
 
 
 class HPXMLInstaller(BaseInstaller):

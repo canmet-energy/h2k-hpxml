@@ -42,7 +42,7 @@ def _load_resource_json(resource_name):
                 "h2k_hpxml", f"resources/{resource_name}"
             )
             if os.path.exists(resource_path):
-                with open(resource_path, "r", encoding="utf-8") as f:
+                with open(resource_path, encoding="utf-8") as f:
                     json_content = json.load(f)
         except (ImportError, FileNotFoundError):
             pass

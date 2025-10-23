@@ -69,7 +69,7 @@ def load_dependency_config():
                 "h2k_hpxml", "resources/dependency_versions.json"
             )
             if os.path.exists(resource_path):
-                with open(resource_path, "r") as f:
+                with open(resource_path) as f:
                     config = json.load(f)
 
                     # Validate required fields
@@ -89,7 +89,7 @@ def load_dependency_config():
         except (ImportError, FileNotFoundError):
             pass
 
-    except Exception as e:
+    except Exception:
         # Log the error but continue to fallback
         pass
 

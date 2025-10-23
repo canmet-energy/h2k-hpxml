@@ -7,7 +7,6 @@ resume capability, and retry logic.
 """
 
 import locale
-import os
 import platform
 import ssl
 import sys
@@ -87,7 +86,7 @@ def download_file(url, dest_path, desc="", max_retries=3):
             print(f"\n  ✓ Downloaded to {dest_path}")
             return True
 
-        except (urllib.error.URLError, OSError, IOError) as e:
+        except (urllib.error.URLError, OSError) as e:
             if attempt < max_retries:
                 print(f"\n  ⚠ Download failed (attempt {attempt + 1}/{max_retries + 1}): {e}")
                 print(f"  Retrying in {2 ** attempt} seconds...")

@@ -6,8 +6,8 @@ Provides abstract interface that platform-specific installers must implement.
 """
 
 import platform
-from abc import ABC, abstractmethod
-from pathlib import Path
+from abc import ABC
+from abc import abstractmethod
 
 
 class BaseInstaller(ABC):

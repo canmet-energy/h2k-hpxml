@@ -5,22 +5,25 @@ This module provides an interactive, bilingual demo that guides users through
 the h2k-hpxml conversion process using real example files.
 """
 
-import tempfile
-import shutil
-import time
 import os
-import sys
+import shutil
 from pathlib import Path
-from typing import Optional, List
+from typing import List
+from typing import Optional
 
 from rich.console import Console
 from rich.panel import Panel
+from rich.progress import BarColumn
+from rich.progress import Progress
+from rich.progress import SpinnerColumn
+from rich.progress import TextColumn
+from rich.prompt import Confirm
+from rich.prompt import Prompt
 from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
-from rich.prompt import Prompt, Confirm
 
-from ..examples import get_examples_directory, list_example_files
-from .demo_strings import get_string, get_list
+from ..examples import list_example_files
+from .demo_strings import get_list
+from .demo_strings import get_string
 
 console = Console()
 
@@ -184,11 +187,9 @@ class H2KDemo:
 
             # Import conversion functions
             try:
-                from ..api import (
-                    _convert_h2k_file_to_hpxml,
-                    _run_hpxml_simulation,
-                    _build_simulation_flags,
-                )
+                from ..api import _build_simulation_flags
+                from ..api import _convert_h2k_file_to_hpxml
+                from ..api import _run_hpxml_simulation
                 from ..config.manager import ConfigManager
             except ImportError as e:
                 console.print(f"[red]Import error: {e}[/red]")
@@ -227,7 +228,7 @@ class H2KDemo:
 
                     # Check if path was found
                     if not hpxml_os_path:
-                        console.print(f"[red]✗ OpenStudio-HPXML installation not found[/red]")
+                        console.print("[red]✗ OpenStudio-HPXML installation not found[/red]")
                         return False
 
                     ruby_hpxml_path = os.path.join(hpxml_os_path, "workflow", "run_simulation.rb")

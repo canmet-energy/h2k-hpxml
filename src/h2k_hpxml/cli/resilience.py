@@ -653,9 +653,9 @@ class ResilienceProcessor:
     def get_ewy_file(self, weather_region, weather_location, weather_folder, ewy_filename):
         """Download and extract EWY weather file similar to get_cwec_file."""
         import zipfile
-        import urllib3
 
         import requests
+        import urllib3
         from filelock import FileLock
 
         # Suppress SSL warnings for weather file downloads

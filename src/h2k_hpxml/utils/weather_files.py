@@ -1,12 +1,11 @@
 import csv
 import os
 import zipfile
-import warnings
 
 import requests
+import urllib3
 from filelock import FileLock
 from unidecode import unidecode
-import urllib3
 
 # Suppress SSL warnings for weather file downloads
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

@@ -14,8 +14,8 @@ from pathlib import Path
 
 import click
 
-from .base import BaseInstaller
 from ..download_utils import download_file
+from .base import BaseInstaller
 
 
 class LinuxInstaller(BaseInstaller):
@@ -542,7 +542,7 @@ class LinuxInstaller(BaseInstaller):
                 and os.environ.get("RUBYLIB")
                 and os.environ.get("ENERGYPLUS_EXE_PATH")
             ):
-                click.echo(f"✅ Environment variables already configured")
+                click.echo("✅ Environment variables already configured")
                 return True
 
             # In interactive mode, ask user
@@ -551,8 +551,8 @@ class LinuxInstaller(BaseInstaller):
                     f"\n🔧 Add {local_bin} to your PATH and set OpenStudio environment variables?"
                 ):
                     click.echo("⏭️  Skipped environment variable updates")
-                    click.echo(f"📝 To manually configure, add these to your shell profile:")
-                    click.echo(f'   export PATH="$HOME/.local/bin:$PATH"')
+                    click.echo("📝 To manually configure, add these to your shell profile:")
+                    click.echo('   export PATH="$HOME/.local/bin:$PATH"')
                     click.echo(f'   export RUBYLIB="{install_dir}/Ruby"')
                     click.echo(f'   export ENERGYPLUS_EXE_PATH="{install_dir}/EnergyPlus"')
                     return False
@@ -606,9 +606,9 @@ export ENERGYPLUS_EXE_PATH="{openstudio_base}/EnergyPlus"
                     "   Or restart your terminal for environment variable changes to take effect"
                 )
                 click.echo("\n📋 Environment variables configured:")
-                click.echo(f"   • PATH (includes OpenStudio and EnergyPlus binaries)")
-                click.echo(f"   • RUBYLIB (OpenStudio Ruby bindings)")
-                click.echo(f"   • ENERGYPLUS_EXE_PATH (EnergyPlus location)")
+                click.echo("   • PATH (includes OpenStudio and EnergyPlus binaries)")
+                click.echo("   • RUBYLIB (OpenStudio Ruby bindings)")
+                click.echo("   • ENERGYPLUS_EXE_PATH (EnergyPlus location)")
             else:
                 click.echo("ℹ️  Shell profiles already configured or not found")
 
@@ -616,8 +616,8 @@ export ENERGYPLUS_EXE_PATH="{openstudio_base}/EnergyPlus"
 
         except Exception as e:
             click.echo(f"❌ Failed to update environment variables: {e}")
-            click.echo(f"\n📝 You can manually add these to your shell profile:")
-            click.echo(f'   export PATH="$HOME/.local/bin:$PATH"')
+            click.echo("\n📝 You can manually add these to your shell profile:")
+            click.echo('   export PATH="$HOME/.local/bin:$PATH"')
             click.echo(f'   export RUBYLIB="{install_dir}/Ruby"')
             click.echo(f'   export ENERGYPLUS_EXE_PATH="{install_dir}/EnergyPlus"')
             return False

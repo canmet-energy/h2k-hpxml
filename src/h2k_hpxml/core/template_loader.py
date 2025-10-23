@@ -59,7 +59,7 @@ def load_and_parse_templates(h2k_string):
                 "h2k_hpxml", "resources/template_base.xml"
             )
             if os.path.exists(resource_path):
-                with open(resource_path, "r", encoding="utf-8") as f:
+                with open(resource_path, encoding="utf-8") as f:
                     base_hpxml = f.read()
                     base_hpxml_path = resource_path
                     logger.debug(f"Loaded template using pkg_resources from {resource_path}")

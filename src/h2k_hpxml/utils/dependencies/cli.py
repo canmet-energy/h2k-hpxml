@@ -64,7 +64,6 @@ def validate_dependencies(
 
 def test_quick_installation():
     """Quick installation test - basic verification."""
-    import subprocess
 
     click.echo("🧪 H2K-HPXML Quick Installation Test")
     click.echo("=" * 40)
@@ -128,9 +127,8 @@ def test_quick_installation():
 
 def test_smart_installation():
     """Smart installation test - detects uv vs pip automatically."""
-    import subprocess
     import shutil
-    from pathlib import Path
+    import subprocess
 
     click.echo("🧪 H2K-HPXML Smart Installation Test")
     click.echo("=" * 40)
@@ -210,7 +208,6 @@ def test_smart_installation():
 def test_comprehensive_installation():
     """Comprehensive installation test with actual conversion."""
     import tempfile
-    import shutil
     from pathlib import Path
 
     click.echo("🧪 H2K-HPXML Comprehensive Installation Test")

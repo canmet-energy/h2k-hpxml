@@ -5,12 +5,13 @@ This module tests the demo functionality with scripted input to ensure
 it works correctly without requiring manual interaction.
 """
 
-import subprocess
-import tempfile
 import os
 import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
 import pytest
 
 

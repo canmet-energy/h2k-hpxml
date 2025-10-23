@@ -8,19 +8,20 @@ import platform
 import shutil
 from pathlib import Path
 
+from .cli import main
+from .cli import validate_dependencies
+from .download_utils import download_file
+from .download_utils import safe_echo
+
 # Core functionality
 from .manager import DependencyManager
-from .cli import validate_dependencies, main
-from .download_utils import download_file, safe_echo
+from .platform_utils import get_default_hpxml_path
+from .platform_utils import get_default_openstudio_path
+from .platform_utils import get_openstudio_paths
+from .platform_utils import get_user_data_dir
 
 # Platform utilities (available for direct use)
-from .platform_utils import (
-    load_dependency_config,
-    get_user_data_dir,
-    get_openstudio_paths,
-    get_default_hpxml_path,
-    get_default_openstudio_path,
-)
+from .platform_utils import load_dependency_config
 
 
 # Lightweight helper functions (don't create DependencyManager instances!)
