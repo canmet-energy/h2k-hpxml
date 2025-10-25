@@ -7,8 +7,13 @@ import urllib3
 from filelock import FileLock
 from unidecode import unidecode
 
+from h2k_hpxml.utils.logging import get_logger
+
 # Suppress SSL warnings for weather file downloads
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Get logger for this module
+logger = get_logger(__name__)
 
 # ConfigManager will be passed as parameter to functions that need it
 
@@ -93,7 +98,7 @@ def get_cwec_file(
     # Check to see if epw file already exists in the weather folder
     epw_file = os.path.join(os.path.join(weather_folder), f"{zip_file[:-4]}.epw")
     if os.path.exists(epw_file):
-        print(f"Weather file already exists:  \t {epw_file}")
+        logger.info(f"Weather file already exists: {epw_file}")
         return os.path.join(weather_folder, f"{zip_file[:-4]}")
 
     # Download the file from github

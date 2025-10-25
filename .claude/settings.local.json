@@ -87,7 +87,8 @@
       "Bash(tree:*)",
       "Bash(wc:*)",
       "Bash(python:*)",
-      "Bash(ruff check:*)"
+      "Bash(ruff check:*)",
+      "Bash(sqlite3:*)"
     ],
     "deny": [],
     "ask": [],

@@ -179,7 +179,8 @@ class ConfigManager:
     def _validate_paths(self):
         """Validate that configured paths exist or can be created."""
         paths_to_check = [
-            ("source_h2k_path", True),  # Input path must exist
+            # Note: source_h2k_path is NOT validated here - it's provided via CLI arguments
+            # The config value is just a placeholder/example for documentation
             # Removed ("hpxml_os_path", True) - now auto-detected, not in config
             ("dest_hpxml_path", False),  # Can be created
         ]

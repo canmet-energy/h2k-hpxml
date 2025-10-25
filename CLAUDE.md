@@ -161,6 +161,15 @@ h2k-hpxml input.h2k [--output output.xml]
 h2k-hpxml /path/to/h2k/files/
 # Note: Automatically uses (CPU cores - 1) threads for parallel processing
 
+# H2K to HPXML conversion (recursive search in subdirectories)
+h2k-hpxml /path/to/h2k/files/ --recursive
+# Note: Searches all subdirectories for .h2k files, outputs to flat folder structure
+
+# Processing Results Database
+# The CLI automatically creates a SQLite database with all processing results
+# Database location: {output_folder}/processing_results.db
+# Use any SQLite client or Python/pandas to analyze results
+
 # Advanced conversion options
 h2k-hpxml input.h2k --debug --hourly ALL --do-not-sim
 
@@ -293,10 +302,76 @@ The project uses selective type hints across modules. Mypy is configured with re
 ### Testing Strategy
 - **Unit tests**: Component-level testing with mocked data
 - **Integration tests**: Full translation pipeline with real H2K files
-- **Regression tests**: Compare against baseline "golden files" 
+- **Regression tests**: Compare against baseline "golden files"
 - **Resilience tests**: CLI functionality testing
 - Use `--run-baseline` flag to regenerate golden files (use with caution)
 - Alternative: `uv run python tests/utils/generate_baseline_data.py` for direct baseline generation
+
+### Processing Results Database
+The CLI automatically creates a SQLite database tracking all processing results (successes and failures):
+
+**Database Location**: `{output_folder}/processing_results.db`
+
+**Schema**:
+```sql
+CREATE TABLE processing_results (
+    id INTEGER PRIMARY KEY,
+    filepath TEXT,
+    filename TEXT,
+    directory TEXT,
+    status TEXT,  -- 'Success' or 'Failure'
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    duration_seconds REAL,
+    hpxml_output_path TEXT,
+    error_message TEXT,
+    error_type TEXT,  -- Categorized error (e.g., 'Area_GreaterThanZero')
+    error_category TEXT,  -- Category (e.g., 'Enclosure', 'HVAC', 'Validation')
+    warnings TEXT,
+    processed_at TIMESTAMP,
+    worker_id INTEGER
+);
+```
+
+**Querying with Python**:
+```python
+import sqlite3
+import pandas as pd
+
+# Load all results
+conn = sqlite3.connect('output/processing_results.db')
+df = pd.read_sql("SELECT * FROM processing_results", conn)
+
+# Query failures by error type
+failures = pd.read_sql("""
+    SELECT error_type, error_category, COUNT(*) as count
+    FROM processing_results
+    WHERE status = 'Failure'
+    GROUP BY error_type, error_category
+    ORDER BY count DESC
+""", conn)
+
+# Find slowest conversions
+slow = pd.read_sql("""
+    SELECT filename, duration_seconds
+    FROM processing_results
+    WHERE status = 'Success'
+    ORDER BY duration_seconds DESC
+    LIMIT 10
+""", conn)
+
+conn.close()
+```
+
+**Error Categorization**: Errors are automatically categorized by type and category:
+- **Validation errors**: Area/RValue/EnergyFactor must be > 0
+- **HVAC errors**: Heat pump switchover temperature, multiple heating systems
+- **Ventilation errors**: ERV/HRV effectiveness, missing UsedFor elements
+- **Enclosure errors**: Missing floors/slabs, location mismatches
+- **Translation errors**: Failed processing of systems, weather data
+- **Weather errors**: Missing weather files
+
+**Thread Safety**: Database uses WAL mode and threading locks for safe concurrent writes during parallel processing.
 
 ### Package Structure
 - Do NOT delete empty `__init__.py` files - they're required for Python package imports

@@ -245,3 +245,5 @@ src/h2k_hpxml/_deps/
 
 docs/build/
 docs/source/_build/
+housing-archetypes/
+src/h2k_hpxml/utils/*.zip*
