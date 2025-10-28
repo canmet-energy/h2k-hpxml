@@ -66,6 +66,34 @@ The demo includes:
 - Sample EnergyPlus results analysis
 
 
+### HPXML Validation
+
+Validate generated HPXML files against the H2K-HPXML subset schema to ensure they conform to the expected structure.
+
+```bash
+# Validate a single HPXML file
+python -m h2k_hpxml.utils.hpxml_validator output.xml
+
+# Batch validate all XML files in a directory
+python -m h2k_hpxml.utils.hpxml_validator --batch output_folder/
+
+# Recursive validation with verbose output
+python -m h2k_hpxml.utils.hpxml_validator --batch output/ --recursive --verbose
+
+# Quiet mode (only show summary)
+python -m h2k_hpxml.utils.hpxml_validator --batch output/ --quiet
+```
+
+The validator checks:
+- XML structure and syntax
+- Required elements presence
+- Data types and value ranges
+- Referential integrity (e.g., windows attached to valid walls)
+- HPXML v4.0 compliance
+
+For more information about the HPXML subset schema and validation, see [docs/HPXML_SUBSET.md](HPXML_SUBSET.md).
+
+
 ## Troubleshooting
 
 ### Common Issues

@@ -189,6 +189,11 @@ h2k-resilience input.h2k [--run-simulation] [--outage-days N] \
 os-setup                             # Interactive dependency management
 os-setup --check-only               # Verify setup without installing
 os-setup --test-installation        # Run quick test to verify setup
+
+# HPXML Validation (validate generated HPXML files)
+python -m h2k_hpxml.utils.hpxml_validator output.xml           # Validate single file
+python -m h2k_hpxml.utils.hpxml_validator --batch output/      # Batch validate directory
+python -m h2k_hpxml.utils.hpxml_validator --batch output/ --recursive --verbose  # Recursive with details
 ```
 
 ## Architecture Overview
@@ -471,6 +476,7 @@ All Docker containers include pre-installed OpenStudio and dependencies, elimina
 ### Key Documentation Files
 - `README.md` - Project overview and quick start guide
 - `docs/DOCKER.md` - Comprehensive Docker usage guide
+- `docs/HPXML_SUBSET.md` - HPXML v4.0 subset schema documentation and validation guide
 - `docs/` - Additional documentation and examples
 - `CLAUDE.md` - This file (AI assistant instructions)
 
@@ -483,6 +489,9 @@ All Docker containers include pre-installed OpenStudio and dependencies, elimina
 ### Resource Files
 - `src/h2k_hpxml/resources/template_base.xml` - Base HPXML template
 - `src/h2k_hpxml/resources/weather/` - Weather data files
+- `src/h2k_hpxml/resources/schemas/` - XSD schema files
+  - `h2k_schema.xsd` - H2K XML schema (for validation)
+  - `hpxml_subset.xsd` - HPXML v4.0 subset schema (266 elements used by H2K converter)
 - `src/h2k_hpxml/resources/` - Mapping JSONs (`config_locations.json`, `config_selection.json`, `config_numeric.json`, `config_foundations.json`)
 - `src/h2k_hpxml/examples/` - Example H2K input files
 - `tests/fixtures/expected_outputs/` - Baseline golden files

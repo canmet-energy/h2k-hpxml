@@ -1,0 +1,1357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  HPXML v4.0 Subset Schema for H2K-HPXML Conversion Tool
+
+  This is a streamlined subset of the full HPXML v4.0 schema containing only
+  the 266 elements actually used by the H2K to HPXML conversion tool.
+
+  Source: Generated from analysis of h2k-hpxml conversion source code and
+          5000+ generated HPXML files from Canadian housing archetypes.
+
+  Full HPXML Specification: https://hpxml.nrel.gov/
+  HPXML Version: 4.0
+  Namespace: http://hpxmlonline.com/2023/09
+
+  Differences from Full HPXML v4.0:
+  - Contains only ~266 elements (vs. 10,000+ in full spec)
+  - Simplified enumerations (only values actually used)
+  - Stricter constraints based on H2K conversion patterns
+  - Custom extension elements for H2K-specific data
+
+  License: Compatible with HPXML v4.0 license
+  Maintainer: H2K-HPXML Project
+-->
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://hpxmlonline.com/2023/09"
+  xmlns="http://hpxmlonline.com/2023/09"
+  elementFormDefault="qualified">
+
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace"
+             schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+
+  <!-- ============================================================ -->
+  <!-- ROOT ELEMENT WITH REFERENTIAL INTEGRITY                      -->
+  <!-- ============================================================ -->
+
+  <xs:element name="HPXML">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="XMLTransactionHeaderInformation" type="XMLTransactionHeaderInformationType"/>
+        <xs:element name="SoftwareInfo" type="SoftwareInfoType" minOccurs="0"/>
+        <xs:element name="Building" type="BuildingType" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="schemaVersion" type="xs:string" fixed="4.0"/>
+    </xs:complexType>
+
+    <!-- Define keys for referential integrity -->
+    <xs:key name="SystemIdentifierKey">
+      <xs:selector xpath=".//SystemIdentifier"/>
+      <xs:field xpath="@id"/>
+    </xs:key>
+
+    <xs:keyref name="AttachedToWallRef" refer="SystemIdentifierKey">
+      <xs:selector xpath=".//AttachedToWall"/>
+      <xs:field xpath="@idref"/>
+    </xs:keyref>
+
+    <xs:keyref name="AttachedToRoofRef" refer="SystemIdentifierKey">
+      <xs:selector xpath=".//AttachedToRoof"/>
+      <xs:field xpath="@idref"/>
+    </xs:keyref>
+
+    <xs:keyref name="AttachedToFloorRef" refer="SystemIdentifierKey">
+      <xs:selector xpath=".//AttachedToFloor"/>
+      <xs:field xpath="@idref"/>
+    </xs:keyref>
+
+    <xs:keyref name="DistributionSystemRef" refer="SystemIdentifierKey">
+      <xs:selector xpath=".//DistributionSystem"/>
+      <xs:field xpath="@idref"/>
+    </xs:keyref>
+  </xs:element>
+
+  <!-- ============================================================ -->
+  <!-- COMMON TYPES AND PATTERNS                                    -->
+  <!-- ============================================================ -->
+
+  <xs:simpleType name="SystemIdentifierPattern">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z]+[0-9]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="SystemIdentifierType">
+    <xs:attribute name="id" type="SystemIdentifierPattern" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="IdRefType">
+    <xs:attribute name="idref" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:simpleType name="PositiveDecimal">
+    <xs:restriction base="xs:decimal">
+      <xs:minExclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NonNegativeDecimal">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ZeroToOneDecimal">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AzimuthType">
+    <xs:restriction base="xs:integer">
+      <xs:enumeration value="0"/>
+      <xs:enumeration value="45"/>
+      <xs:enumeration value="90"/>
+      <xs:enumeration value="135"/>
+      <xs:enumeration value="180"/>
+      <xs:enumeration value="225"/>
+      <xs:enumeration value="270"/>
+      <xs:enumeration value="315"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ============================================================ -->
+  <!-- XML TRANSACTION HEADER                                       -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="XMLTransactionHeaderInformationType">
+    <xs:sequence>
+      <xs:element name="XMLType" type="xs:string"/>
+      <xs:element name="XMLGeneratedBy" type="xs:string"/>
+      <xs:element name="CreatedDateAndTime" type="xs:dateTime"/>
+      <xs:element name="Transaction" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ============================================================ -->
+  <!-- SOFTWARE INFO AND SIMULATION CONTROL                         -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="SoftwareInfoType">
+    <xs:sequence>
+      <xs:element name="extension" type="SoftwareInfoExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SoftwareInfoExtensionType">
+    <xs:sequence>
+      <xs:element name="SimulationControl" type="SimulationControlType" minOccurs="0"/>
+      <xs:element name="EmissionsScenarios" type="EmissionsScenariosType" minOccurs="0"/>
+      <xs:element name="UtilityBillScenarios" type="UtilityBillScenariosType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SimulationControlType">
+    <xs:sequence>
+      <xs:element name="Timestep" type="xs:positiveInteger"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EmissionsScenariosType">
+    <xs:sequence>
+      <xs:element name="EmissionsScenario" type="EmissionsScenarioType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EmissionsScenarioType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string"/>
+      <xs:element name="EmissionsType" type="EmissionsTypeEnum"/>
+      <xs:element name="EmissionsFactor" type="EmissionsFactorType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="EmissionsTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CO2e"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="EmissionsFactorType">
+    <xs:sequence>
+      <xs:element name="FuelType" type="FuelTypeEnum"/>
+      <xs:element name="Units" type="xs:string"/>
+      <xs:element name="Value" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UtilityBillScenariosType">
+    <xs:sequence>
+      <xs:element name="UtilityBillScenario" type="UtilityBillScenarioType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UtilityBillScenarioType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string"/>
+      <xs:element name="UtilityRate" type="UtilityRateType" maxOccurs="unbounded"/>
+      <xs:element name="PVCompensation" type="PVCompensationType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UtilityRateType">
+    <xs:sequence>
+      <xs:element name="FuelType" type="FuelTypeEnum"/>
+      <xs:element name="FixedCharge" type="xs:decimal"/>
+      <xs:element name="MarginalRate" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PVCompensationType">
+    <xs:sequence>
+      <xs:element name="CompensationType" type="CompensationTypeType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CompensationTypeType">
+    <xs:sequence>
+      <xs:element name="NetMetering" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ============================================================ -->
+  <!-- BUILDING TYPE                                                -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="BuildingType">
+    <xs:sequence>
+      <xs:element name="BuildingID" type="BuildingIDType"/>
+      <xs:element name="Site" type="SiteRootType"/>
+      <xs:element name="ProjectStatus" type="ProjectStatusType"/>
+      <xs:element name="BuildingDetails" type="BuildingDetailsType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BuildingIDType">
+    <xs:attribute name="id" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="SiteRootType">
+    <xs:sequence>
+      <xs:element name="SiteID" type="SiteIDType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SiteIDType">
+    <xs:attribute name="id" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ProjectStatusType">
+    <xs:sequence>
+      <xs:element name="EventType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ============================================================ -->
+  <!-- BUILDING DETAILS                                             -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="BuildingDetailsType">
+    <xs:sequence>
+      <xs:element name="BuildingSummary" type="BuildingSummaryType"/>
+      <xs:element name="ClimateandRiskZones" type="ClimateandRiskZonesType"/>
+      <xs:element name="Enclosure" type="EnclosureType"/>
+      <xs:element name="Systems" type="SystemsType"/>
+      <xs:element name="Appliances" type="AppliancesType" minOccurs="0"/>
+      <xs:element name="Lighting" type="LightingType" minOccurs="0"/>
+      <xs:element name="MiscLoads" type="MiscLoadsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BuildingSummaryType">
+    <xs:sequence>
+      <xs:element name="Site" type="SiteType"/>
+      <xs:element name="BuildingOccupancy" type="BuildingOccupancyType"/>
+      <xs:element name="BuildingConstruction" type="BuildingConstructionType"/>
+      <xs:element name="extension" type="BuildingSummaryExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SiteType">
+    <xs:sequence>
+      <xs:element name="SiteType" type="xs:string" minOccurs="0"/>
+      <xs:element name="Surroundings" type="xs:string" minOccurs="0"/>
+      <xs:element name="VerticalSurroundings" type="xs:string" minOccurs="0"/>
+      <xs:element name="ShieldingofHome" type="xs:string" minOccurs="0"/>
+      <xs:element name="AzimuthOfFrontOfHome" type="AzimuthType" minOccurs="0"/>
+      <xs:element name="FuelTypesAvailable" type="FuelTypesAvailableType" minOccurs="0"/>
+      <xs:element name="Soil" type="SoilType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FuelTypesAvailableType">
+    <xs:sequence>
+      <xs:element name="Fuel" type="FuelTypeEnum" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SoilType">
+    <xs:sequence>
+      <xs:element name="Conductivity" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BuildingOccupancyType">
+    <xs:sequence>
+      <xs:element name="NumberofResidents" type="xs:positiveInteger"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BuildingConstructionType">
+    <xs:sequence>
+      <xs:element name="ResidentialFacilityType" type="ResidentialFacilityTypeEnum"/>
+      <xs:element name="NumberofConditionedFloors" type="xs:positiveInteger"/>
+      <xs:element name="NumberofConditionedFloorsAboveGrade" type="xs:positiveInteger"/>
+      <xs:element name="AverageCeilingHeight" type="PositiveDecimal"/>
+      <xs:element name="NumberofBedrooms" type="xs:positiveInteger"/>
+      <xs:element name="NumberofBathrooms" type="xs:positiveInteger"/>
+      <xs:element name="ConditionedFloorArea" type="PositiveDecimal"/>
+      <xs:element name="ConditionedBuildingVolume" type="PositiveDecimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BuildingSummaryExtensionType">
+    <xs:sequence>
+      <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="ResidentialFacilityTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="single-family detached"/>
+      <xs:enumeration value="single-family attached"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ============================================================ -->
+  <!-- CLIMATE AND WEATHER                                          -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="ClimateandRiskZonesType">
+    <xs:sequence>
+      <xs:element name="WeatherStation" type="WeatherStationType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WeatherStationType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Name" type="xs:string"/>
+      <xs:element name="extension" type="WeatherStationExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WeatherStationExtensionType">
+    <xs:sequence>
+      <xs:element name="EPWFilePath" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ============================================================ -->
+  <!-- ENCLOSURE                                                    -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="EnclosureType">
+    <xs:sequence>
+      <xs:element name="AirInfiltration" type="AirInfiltrationType"/>
+      <xs:element name="Attics" type="AtticsType" minOccurs="0"/>
+      <xs:element name="Foundations" type="FoundationsType" minOccurs="0"/>
+      <xs:element name="Roofs" type="RoofsType" minOccurs="0"/>
+      <xs:element name="RimJoists" type="RimJoistsType" minOccurs="0"/>
+      <xs:element name="Walls" type="WallsType" minOccurs="0"/>
+      <xs:element name="FoundationWalls" type="FoundationWallsType" minOccurs="0"/>
+      <xs:element name="Floors" type="FloorsType" minOccurs="0"/>
+      <xs:element name="Slabs" type="SlabsType" minOccurs="0"/>
+      <xs:element name="Windows" type="WindowsType" minOccurs="0"/>
+      <xs:element name="Skylights" type="SkylightsType" minOccurs="0"/>
+      <xs:element name="Doors" type="DoorsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Air Infiltration -->
+  <xs:complexType name="AirInfiltrationType">
+    <xs:sequence>
+      <xs:element name="AirInfiltrationMeasurement" type="AirInfiltrationMeasurementType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AirInfiltrationMeasurementType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="HousePressure" type="xs:decimal"/>
+      <xs:element name="BuildingAirLeakage" type="BuildingAirLeakageType"/>
+      <xs:element name="InfiltrationVolume" type="PositiveDecimal"/>
+      <xs:element name="TypeOfInfiltrationLeakage" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BuildingAirLeakageType">
+    <xs:sequence>
+      <xs:element name="UnitofMeasure" type="InfiltrationUnitEnum"/>
+      <xs:element name="AirLeakage" type="PositiveDecimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="InfiltrationUnitEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ACH"/>
+      <xs:enumeration value="ACHnatural"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Attics -->
+  <xs:complexType name="AtticsType">
+    <xs:sequence>
+      <xs:element name="Attic" type="AtticType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AtticType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="AtticType" type="AtticTypeChoiceType"/>
+      <xs:element name="VentilationRate" type="VentilationRateType" minOccurs="0"/>
+      <xs:element name="AttachedToRoof" type="IdRefType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="AttachedToWall" type="IdRefType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="AttachedToFloor" type="IdRefType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AtticTypeChoiceType">
+    <xs:choice>
+      <xs:element name="Attic" type="AtticSubTypeType"/>
+      <xs:element name="CathedralCeiling" type="xs:string"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="AtticSubTypeType">
+    <xs:sequence>
+      <xs:element name="Vented" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="VentilationRateType">
+    <xs:sequence>
+      <xs:element name="UnitofMeasure" type="xs:string"/>
+      <xs:element name="Value" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Foundations -->
+  <xs:complexType name="FoundationsType">
+    <xs:sequence>
+      <xs:element name="Foundation" type="FoundationType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FoundationType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="FoundationType" type="FoundationTypeChoiceType"/>
+      <xs:element name="AttachedToFoundationWall" type="IdRefType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="AttachedToSlab" type="IdRefType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FoundationTypeChoiceType">
+    <xs:choice>
+      <xs:element name="Basement" type="BasementType"/>
+      <xs:element name="Crawlspace" type="CrawlspaceType"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="BasementType">
+    <xs:sequence>
+      <xs:element name="Conditioned" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CrawlspaceType">
+    <xs:sequence>
+      <xs:element name="Conditioned" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Roofs -->
+  <xs:complexType name="RoofsType">
+    <xs:sequence>
+      <xs:element name="Roof" type="RoofType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RoofType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="InteriorAdjacentTo" type="InteriorAdjacentToEnum"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="RoofType" type="RoofTypeEnum"/>
+      <xs:element name="SolarAbsorptance" type="ZeroToOneDecimal"/>
+      <xs:element name="Emittance" type="ZeroToOneDecimal"/>
+      <xs:element name="Pitch" type="NonNegativeDecimal"/>
+      <xs:element name="RadiantBarrier" type="xs:boolean"/>
+      <xs:element name="Insulation" type="InsulationType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="RoofTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="asphalt or fiberglass shingles"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Walls -->
+  <xs:complexType name="WallsType">
+    <xs:sequence>
+      <xs:element name="Wall" type="WallType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WallType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="ExteriorAdjacentTo" type="ExteriorAdjacentToEnum" minOccurs="0"/>
+      <xs:element name="InteriorAdjacentTo" type="InteriorAdjacentToEnum"/>
+      <xs:element name="AtticWallType" type="AtticWallTypeEnum" minOccurs="0"/>
+      <xs:element name="WallType" type="WallTypeChoiceType"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="Siding" type="SidingEnum" minOccurs="0"/>
+      <xs:element name="SolarAbsorptance" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="Emittance" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="InteriorFinish" type="InteriorFinishType" minOccurs="0"/>
+      <xs:element name="Insulation" type="InsulationType"/>
+      <xs:element name="extension" type="ExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WallTypeChoiceType">
+    <xs:sequence>
+      <xs:element name="WoodStud" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="SidingEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="wood siding"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AtticWallTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="gable"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Foundation Walls -->
+  <xs:complexType name="FoundationWallsType">
+    <xs:sequence>
+      <xs:element name="FoundationWall" type="FoundationWallType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FoundationWallType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="ExteriorAdjacentTo" type="xs:string"/>
+      <xs:element name="InteriorAdjacentTo" type="InteriorAdjacentToEnum"/>
+      <xs:element name="Height" type="PositiveDecimal"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="Thickness" type="PositiveDecimal" minOccurs="0"/>
+      <xs:element name="DepthBelowGrade" type="NonNegativeDecimal"/>
+      <xs:element name="InteriorFinish" type="InteriorFinishType" minOccurs="0"/>
+      <xs:element name="Insulation" type="InsulationType"/>
+      <xs:element name="extension" type="ExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Rim Joists -->
+  <xs:complexType name="RimJoistsType">
+    <xs:sequence>
+      <xs:element name="RimJoist" type="RimJoistType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RimJoistType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="ExteriorAdjacentTo" type="ExteriorAdjacentToEnum"/>
+      <xs:element name="InteriorAdjacentTo" type="InteriorAdjacentToEnum"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="Siding" type="SidingEnum" minOccurs="0"/>
+      <xs:element name="SolarAbsorptance" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="Emittance" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="Insulation" type="InsulationType"/>
+      <xs:element name="extension" type="ExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Floors -->
+  <xs:complexType name="FloorsType">
+    <xs:sequence>
+      <xs:element name="Floor" type="FloorType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FloorType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="ExteriorAdjacentTo" type="ExteriorAdjacentToEnum" minOccurs="0"/>
+      <xs:element name="InteriorAdjacentTo" type="InteriorAdjacentToEnum"/>
+      <xs:element name="FloorOrCeiling" type="FloorOrCeilingEnum"/>
+      <xs:element name="FloorType" type="FloorTypeChoiceType"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="InteriorFinish" type="InteriorFinishType" minOccurs="0"/>
+      <xs:element name="Insulation" type="InsulationType"/>
+      <xs:element name="extension" type="ExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FloorTypeChoiceType">
+    <xs:sequence>
+      <xs:element name="WoodFrame" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="FloorOrCeilingEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ceiling"/>
+      <xs:enumeration value="floor"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Slabs -->
+  <xs:complexType name="SlabsType">
+    <xs:sequence>
+      <xs:element name="Slab" type="SlabType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SlabType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="InteriorAdjacentTo" type="InteriorAdjacentToEnum"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="Thickness" type="PositiveDecimal"/>
+      <xs:element name="ExposedPerimeter" type="NonNegativeDecimal"/>
+      <xs:element name="PerimeterInsulation" type="PerimeterInsulationType" minOccurs="0"/>
+      <xs:element name="UnderSlabInsulation" type="UnderSlabInsulationType" minOccurs="0"/>
+      <xs:element name="extension" type="SlabExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PerimeterInsulationType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Layer" type="SlabInsulationLayerType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UnderSlabInsulationType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Layer" type="SlabInsulationLayerType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SlabInsulationLayerType">
+    <xs:sequence>
+      <xs:element name="NominalRValue" type="NonNegativeDecimal"/>
+      <xs:choice minOccurs="0">
+        <xs:element name="InsulationDepth" type="PositiveDecimal"/>
+        <xs:element name="InsulationWidth" type="PositiveDecimal"/>
+        <xs:element name="InsulationSpansEntireSlab" type="xs:boolean"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SlabExtensionType">
+    <xs:sequence>
+      <xs:element name="CarpetFraction" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="CarpetRValue" type="NonNegativeDecimal" minOccurs="0"/>
+      <xs:element name="H2kLabel" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Windows -->
+  <xs:complexType name="WindowsType">
+    <xs:sequence>
+      <xs:element name="Window" type="WindowType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WindowType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="Azimuth" type="AzimuthType"/>
+      <xs:element name="UFactor" type="PositiveDecimal"/>
+      <xs:element name="SHGC" type="ZeroToOneDecimal"/>
+      <xs:element name="InteriorShading" type="InteriorShadingType" minOccurs="0"/>
+      <xs:element name="Overhangs" type="OverhangsType" minOccurs="0"/>
+      <xs:element name="FractionOperable" type="ZeroToOneDecimal"/>
+      <xs:element name="AttachedToWall" type="IdRefType"/>
+      <xs:element name="extension" type="ExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InteriorShadingType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="SummerShadingCoefficient" type="ZeroToOneDecimal"/>
+      <xs:element name="WinterShadingCoefficient" type="ZeroToOneDecimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OverhangsType">
+    <xs:sequence>
+      <xs:element name="Depth" type="NonNegativeDecimal"/>
+      <xs:element name="DistanceToTopOfWindow" type="NonNegativeDecimal"/>
+      <xs:element name="DistanceToBottomOfWindow" type="PositiveDecimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Skylights -->
+  <xs:complexType name="SkylightsType">
+    <xs:sequence>
+      <xs:element name="Skylight" type="SkylightType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SkylightType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="Azimuth" type="AzimuthType"/>
+      <xs:element name="UFactor" type="PositiveDecimal"/>
+      <xs:element name="SHGC" type="ZeroToOneDecimal"/>
+      <xs:element name="AttachedToRoof" type="IdRefType"/>
+      <xs:element name="AttachedToFloor" type="IdRefType" minOccurs="0"/>
+      <xs:element name="extension" type="ExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Doors -->
+  <xs:complexType name="DoorsType">
+    <xs:sequence>
+      <xs:element name="Door" type="DoorType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DoorType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="AttachedToWall" type="IdRefType"/>
+      <xs:element name="Area" type="PositiveDecimal"/>
+      <xs:element name="Azimuth" type="AzimuthType" minOccurs="0"/>
+      <xs:element name="RValue" type="PositiveDecimal"/>
+      <xs:element name="extension" type="ExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Common Enclosure Types -->
+  <xs:complexType name="InsulationType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="AssemblyEffectiveRValue" type="NonNegativeDecimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InteriorFinishType">
+    <xs:sequence>
+      <xs:element name="Type" type="InteriorFinishEnum"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="InteriorFinishEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="gypsum board"/>
+      <xs:enumeration value="none"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ExteriorAdjacentToEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="outside"/>
+      <xs:enumeration value="attic - vented"/>
+      <xs:enumeration value="ground"/>
+      <xs:enumeration value="other housing unit"/>
+      <xs:enumeration value="other non-freezing space"/>
+      <xs:enumeration value="crawlspace - conditioned"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="InteriorAdjacentToEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="conditioned space"/>
+      <xs:enumeration value="attic - vented"/>
+      <xs:enumeration value="basement - conditioned"/>
+      <xs:enumeration value="crawlspace - conditioned"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ============================================================ -->
+  <!-- SYSTEMS                                                      -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="SystemsType">
+    <xs:sequence>
+      <xs:element name="HVAC" type="HVACType"/>
+      <xs:element name="MechanicalVentilation" type="MechanicalVentilationType" minOccurs="0"/>
+      <xs:element name="WaterHeating" type="WaterHeatingType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- HVAC -->
+  <xs:complexType name="HVACType">
+    <xs:sequence>
+      <xs:element name="HVACPlant" type="HVACPlantType"/>
+      <xs:element name="HVACControl" type="HVACControlType"/>
+      <xs:element name="HVACDistribution" type="HVACDistributionType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HVACPlantType">
+    <xs:sequence>
+      <xs:element name="PrimarySystems" type="PrimarySystemsType"/>
+      <xs:element name="HeatingSystem" type="HeatingSystemType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="CoolingSystem" type="CoolingSystemType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="HeatPump" type="HeatPumpType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PrimarySystemsType">
+    <xs:sequence>
+      <xs:element name="PrimaryHeatingSystem" type="IdRefType"/>
+      <xs:element name="PrimaryCoolingSystem" type="IdRefType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Heating System -->
+  <xs:complexType name="HeatingSystemType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="DistributionSystem" type="IdRefType" minOccurs="0"/>
+      <xs:element name="HeatingSystemType" type="HeatingSystemTypeChoiceType"/>
+      <xs:element name="HeatingSystemFuel" type="FuelTypeEnum"/>
+      <xs:element name="HeatingCapacity" type="PositiveDecimal" minOccurs="0"/>
+      <xs:element name="AnnualHeatingEfficiency" type="AnnualEfficiencyType"/>
+      <xs:element name="FractionHeatLoadServed" type="ZeroToOneDecimal"/>
+      <xs:element name="extension" type="HeatingSystemExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HeatingSystemTypeChoiceType">
+    <xs:choice>
+      <xs:element name="Furnace" type="xs:string"/>
+      <xs:element name="ElectricResistance" type="ElectricResistanceType"/>
+      <xs:element name="Boiler" type="xs:string"/>
+      <xs:element name="Stove" type="xs:string"/>
+      <xs:element name="Fireplace" type="xs:string"/>
+      <xs:element name="SpaceHeater" type="xs:string"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="ElectricResistanceType">
+    <xs:sequence>
+      <xs:element name="ElectricDistribution" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HeatingSystemExtensionType">
+    <xs:sequence>
+      <xs:element name="HeatingAutosizingFactor" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="H2kLabel" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Cooling System -->
+  <xs:complexType name="CoolingSystemType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="DistributionSystem" type="IdRefType" minOccurs="0"/>
+      <xs:element name="CoolingSystemType" type="CoolingSystemTypeEnum"/>
+      <xs:element name="CoolingSystemFuel" type="xs:string"/>
+      <xs:element name="CoolingCapacity" type="PositiveDecimal" minOccurs="0"/>
+      <xs:element name="FractionCoolLoadServed" type="ZeroToOneDecimal"/>
+      <xs:element name="AnnualCoolingEfficiency" type="AnnualEfficiencyType"/>
+      <xs:element name="SensibleHeatFraction" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="extension" type="CoolingSystemExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="CoolingSystemTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="central air conditioner"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="CoolingSystemExtensionType">
+    <xs:sequence>
+      <xs:element name="CoolingAutosizingFactor" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="H2kLabel" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Heat Pump -->
+  <xs:complexType name="HeatPumpType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="DistributionSystem" type="IdRefType" minOccurs="0"/>
+      <xs:element name="HeatPumpType" type="HeatPumpTypeEnum"/>
+      <xs:element name="HeatPumpFuel" type="xs:string"/>
+      <xs:element name="HeatingCapacity" type="PositiveDecimal" minOccurs="0"/>
+      <xs:element name="CoolingCapacity" type="PositiveDecimal" minOccurs="0"/>
+      <xs:element name="CoolingSensibleHeatFraction" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="BackupType" type="BackupTypeEnum" minOccurs="0"/>
+      <xs:element name="BackupSystem" type="IdRefType" minOccurs="0"/>
+      <xs:element name="BackupSystemFuel" type="FuelTypeEnum" minOccurs="0"/>
+      <xs:element name="BackupHeatingSwitchoverTemperature" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="BackupAnnualHeatingEfficiency" type="AnnualEfficiencyType" minOccurs="0"/>
+      <xs:element name="FractionHeatLoadServed" type="ZeroToOneDecimal"/>
+      <xs:element name="FractionCoolLoadServed" type="ZeroToOneDecimal"/>
+      <xs:element name="AnnualCoolingEfficiency" type="AnnualEfficiencyType"/>
+      <xs:element name="AnnualHeatingEfficiency" type="AnnualEfficiencyType"/>
+      <xs:element name="extension" type="HeatPumpExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="HeatPumpTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="air-to-air"/>
+      <xs:enumeration value="mini-split"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BackupTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="separate"/>
+      <xs:enumeration value="integrated"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="HeatPumpExtensionType">
+    <xs:sequence>
+      <xs:element name="HeatingCapacityRetention" type="HeatingCapacityRetentionType" minOccurs="0"/>
+      <xs:element name="H2kLabel" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HeatingCapacityRetentionType">
+    <xs:sequence>
+      <xs:element name="Fraction" type="ZeroToOneDecimal"/>
+      <xs:element name="Temperature" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- HVAC Control -->
+  <xs:complexType name="HVACControlType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="SetpointTempHeatingSeason" type="xs:decimal"/>
+      <xs:element name="SetbackTempHeatingSeason" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="TotalSetbackHoursperWeekHeating" type="NonNegativeDecimal" minOccurs="0"/>
+      <xs:element name="SetpointTempCoolingSeason" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="extension" type="HVACControlExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HVACControlExtensionType">
+    <xs:sequence>
+      <xs:element name="SetbackStartHourHeating" type="xs:integer" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- HVAC Distribution -->
+  <xs:complexType name="HVACDistributionType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="DistributionSystemType" type="DistributionSystemTypeChoiceType"/>
+      <xs:element name="DuctLeakageMeasurement" type="DuctLeakageMeasurementType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Ducts" type="DuctsType" minOccurs="0"/>
+      <xs:element name="ConditionedFloorAreaServed" type="PositiveDecimal" minOccurs="0"/>
+      <xs:element name="HydronicDistribution" type="HydronicDistributionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DistributionSystemTypeChoiceType">
+    <xs:sequence>
+      <xs:element name="AirDistribution" type="AirDistributionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AirDistributionType">
+    <xs:sequence>
+      <xs:element name="AirDistributionType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DuctLeakageMeasurementType">
+    <xs:sequence>
+      <xs:element name="DuctType" type="DuctTypeEnum"/>
+      <xs:element name="DuctLeakage" type="DuctLeakageType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DuctLeakageType">
+    <xs:sequence>
+      <xs:element name="Units" type="xs:string"/>
+      <xs:element name="Value" type="NonNegativeDecimal"/>
+      <xs:element name="TotalOrToOutside" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DuctsType">
+    <xs:sequence>
+      <xs:element name="Duct" type="DuctType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DuctType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="DuctType" type="DuctTypeEnum"/>
+      <xs:element name="DuctInsulationRValue" type="NonNegativeDecimal"/>
+      <xs:element name="DuctLocation" type="xs:string" minOccurs="0"/>
+      <xs:element name="DuctSurfaceArea" type="PositiveDecimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="DuctTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="supply"/>
+      <xs:enumeration value="return"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="HydronicDistributionType">
+    <xs:sequence>
+      <xs:element name="HydronicDistributionType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Common HVAC Types -->
+  <xs:complexType name="AnnualEfficiencyType">
+    <xs:sequence>
+      <xs:element name="Units" type="EfficiencyUnitsEnum"/>
+      <xs:element name="Value" type="PositiveDecimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="EfficiencyUnitsEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AFUE"/>
+      <xs:enumeration value="Percent"/>
+      <xs:enumeration value="SEER"/>
+      <xs:enumeration value="HSPF"/>
+      <xs:enumeration value="CFM25"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FuelTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="electricity"/>
+      <xs:enumeration value="natural gas"/>
+      <xs:enumeration value="propane"/>
+      <xs:enumeration value="fuel oil"/>
+      <xs:enumeration value="wood"/>
+      <xs:enumeration value="wood pellets"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Mechanical Ventilation -->
+  <xs:complexType name="MechanicalVentilationType">
+    <xs:sequence>
+      <xs:element name="VentilationFans" type="VentilationFansType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="VentilationFansType">
+    <xs:sequence>
+      <xs:element name="VentilationFan" type="VentilationFanType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="VentilationFanType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="FanType" type="FanTypeEnum"/>
+      <xs:element name="RatedFlowRate" type="PositiveDecimal"/>
+      <xs:element name="HoursInOperation" type="NonNegativeDecimal"/>
+      <xs:element name="FanLocation" type="FanLocationEnum" minOccurs="0"/>
+      <xs:element name="UsedForLocalVentilation" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="UsedForWholeBuildingVentilation" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="FanPower" type="PositiveDecimal"/>
+      <xs:element name="SensibleRecoveryEfficiency" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="extension" type="ExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="FanTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="exhaust only"/>
+      <xs:enumeration value="heat recovery ventilator"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FanLocationEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bath"/>
+      <xs:enumeration value="kitchen"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Water Heating -->
+  <xs:complexType name="WaterHeatingType">
+    <xs:sequence>
+      <xs:element name="WaterHeatingSystem" type="WaterHeatingSystemType" maxOccurs="unbounded"/>
+      <xs:element name="HotWaterDistribution" type="HotWaterDistributionType" minOccurs="0"/>
+      <xs:element name="WaterFixture" type="WaterFixtureType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="extension" type="WaterHeatingExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WaterHeatingSystemType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="FuelType" type="FuelTypeEnum"/>
+      <xs:element name="WaterHeaterType" type="WaterHeaterTypeEnum"/>
+      <xs:element name="Location" type="xs:string"/>
+      <xs:element name="TankVolume" type="PositiveDecimal"/>
+      <xs:element name="FractionDHWLoadServed" type="ZeroToOneDecimal"/>
+      <xs:element name="HeatingCapacity" type="PositiveDecimal" minOccurs="0"/>
+      <xs:element name="EnergyFactor" type="PositiveDecimal"/>
+      <xs:element name="HotWaterTemperature" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="WaterHeaterTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="storage water heater"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="HotWaterDistributionType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="SystemType" type="HotWaterDistributionSystemType"/>
+      <xs:element name="PipeInsulation" type="PipeInsulationType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HotWaterDistributionSystemType">
+    <xs:sequence>
+      <xs:element name="Standard" type="StandardDistributionType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StandardDistributionType">
+    <xs:sequence>
+      <xs:element name="PipingLength" type="PositiveDecimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PipeInsulationType">
+    <xs:sequence>
+      <xs:element name="PipeRValue" type="NonNegativeDecimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WaterFixtureType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="WaterFixtureType" type="WaterFixtureTypeEnum"/>
+      <xs:element name="LowFlow" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="FlowRate" type="PositiveDecimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="WaterFixtureTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="shower head"/>
+      <xs:enumeration value="faucet"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="WaterHeatingExtensionType">
+    <xs:sequence>
+      <xs:element name="WaterFixturesUsageMultiplier" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ============================================================ -->
+  <!-- APPLIANCES                                                   -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="AppliancesType">
+    <xs:sequence>
+      <xs:element name="ClothesWasher" type="ClothesWasherType" minOccurs="0"/>
+      <xs:element name="ClothesDryer" type="ClothesDryerType" minOccurs="0"/>
+      <xs:element name="Dishwasher" type="DishwasherType" minOccurs="0"/>
+      <xs:element name="Refrigerator" type="RefrigeratorType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="CookingRange" type="CookingRangeType" minOccurs="0"/>
+      <xs:element name="Oven" type="OvenType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClothesWasherType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Location" type="xs:string"/>
+      <xs:element name="IntegratedModifiedEnergyFactor" type="PositiveDecimal"/>
+      <xs:element name="RatedAnnualkWh" type="NonNegativeDecimal"/>
+      <xs:element name="LabelElectricRate" type="xs:decimal"/>
+      <xs:element name="LabelGasRate" type="xs:decimal"/>
+      <xs:element name="LabelAnnualGasCost" type="xs:decimal"/>
+      <xs:element name="LabelUsage" type="xs:decimal"/>
+      <xs:element name="Capacity" type="PositiveDecimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClothesDryerType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Location" type="xs:string"/>
+      <xs:element name="FuelType" type="FuelTypeEnum"/>
+      <xs:element name="CombinedEnergyFactor" type="PositiveDecimal"/>
+      <xs:element name="Vented" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="VentedFlowRate" type="PositiveDecimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DishwasherType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Location" type="xs:string"/>
+      <xs:element name="RatedAnnualkWh" type="NonNegativeDecimal"/>
+      <xs:element name="PlaceSettingCapacity" type="xs:positiveInteger"/>
+      <xs:element name="LabelElectricRate" type="xs:decimal"/>
+      <xs:element name="LabelGasRate" type="xs:decimal"/>
+      <xs:element name="LabelAnnualGasCost" type="xs:decimal"/>
+      <xs:element name="LabelUsage" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RefrigeratorType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Location" type="xs:string"/>
+      <xs:element name="RatedAnnualkWh" type="NonNegativeDecimal"/>
+      <xs:element name="PrimaryIndicator" type="xs:boolean" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CookingRangeType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Location" type="xs:string"/>
+      <xs:element name="FuelType" type="FuelTypeEnum"/>
+      <xs:element name="IsInduction" type="xs:boolean"/>
+      <xs:element name="extension" type="CookingRangeExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CookingRangeExtensionType">
+    <xs:sequence>
+      <xs:element name="UsageMultiplier" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OvenType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="IsConvection" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ============================================================ -->
+  <!-- LIGHTING                                                     -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="LightingType">
+    <xs:sequence>
+      <xs:element name="LightingGroup" type="LightingGroupType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LightingGroupType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="Location" type="LightingLocationEnum"/>
+      <xs:choice>
+        <xs:element name="Load" type="LoadType"/>
+        <xs:sequence>
+          <xs:element name="FractionofUnitsInLocation" type="ZeroToOneDecimal"/>
+          <xs:element name="LightingType" type="xs:string"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="LightingLocationEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="interior"/>
+      <xs:enumeration value="exterior"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ============================================================ -->
+  <!-- MISC LOADS                                                   -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="MiscLoadsType">
+    <xs:sequence>
+      <xs:element name="PlugLoad" type="PlugLoadType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PlugLoadType">
+    <xs:sequence>
+      <xs:element name="SystemIdentifier" type="SystemIdentifierType"/>
+      <xs:element name="PlugLoadType" type="PlugLoadTypeEnum"/>
+      <xs:element name="Load" type="LoadType"/>
+      <xs:element name="extension" type="PlugLoadExtensionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="PlugLoadTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="TV other"/>
+      <xs:enumeration value="other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="PlugLoadExtensionType">
+    <xs:sequence>
+      <xs:element name="FracSensible" type="ZeroToOneDecimal" minOccurs="0"/>
+      <xs:element name="FracLatent" type="ZeroToOneDecimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LoadType">
+    <xs:sequence>
+      <xs:element name="Units" type="xs:string"/>
+      <xs:element name="Value" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ============================================================ -->
+  <!-- COMMON EXTENSION TYPE                                        -->
+  <!-- ============================================================ -->
+
+  <xs:complexType name="ExtensionType">
+    <xs:sequence>
+      <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

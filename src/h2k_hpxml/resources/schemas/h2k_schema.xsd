@@ -1,0 +1,3388 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd" />
+  <xs:complexType name="ProgramData">
+    <xs:sequence>
+      <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Program">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Labels" type="Labels" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Version" type="HouseFileVersion" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SdkVersion" type="HouseFileVersion" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Options" type="ProgramData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Results" type="ProgramData" />
+    </xs:all>
+    <xs:attribute name="class" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="LanguageText">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute ref="xml:lang" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:element name="Application" nillable="true" type="Application" />
+  <xs:complexType name="Application">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Version" type="HouseFileVersion" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SimulationSettings" type="SimulationSettings" />
+      <xs:element minOccurs="0" maxOccurs="1" name="LibraryVersion" type="HouseFileVersion" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="HouseFileVersion">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Labels" type="Labels" />
+    </xs:sequence>
+    <xs:attribute name="major" type="xs:unsignedInt" />
+    <xs:attribute name="minor" type="xs:unsignedInt" />
+    <xs:attribute name="build" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="Labels">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="SimulationSettings">
+    <xs:attribute name="simulateBaseHouse" type="xs:boolean" />
+    <xs:attribute name="simulateUpgradedHouse" type="xs:boolean" />
+    <xs:attribute name="simulateByCategory" type="xs:boolean" />
+  </xs:complexType>
+  <xs:element name="Cardinal" nillable="true" type="Cardinal" />
+  <xs:complexType name="Cardinal">
+    <xs:attribute name="south" type="xs:decimal" />
+    <xs:attribute name="southEast" type="xs:decimal" />
+    <xs:attribute name="east" type="xs:decimal" />
+    <xs:attribute name="northEast" type="xs:decimal" />
+    <xs:attribute name="north" type="xs:decimal" />
+    <xs:attribute name="northWest" type="xs:decimal" />
+    <xs:attribute name="west" type="xs:decimal" />
+    <xs:attribute name="southWest" type="xs:decimal" />
+  </xs:complexType>
+  <xs:element name="CodeReference" nillable="true" type="CodeReference" />
+  <xs:complexType name="CodeReference" mixed="true">
+    <xs:attribute name="idref" type="xs:string" />
+    <xs:attribute name="code" type="xs:string" />
+    <xs:attribute name="rValue" type="xs:decimal" />
+    <xs:attribute name="nominalInsulation" type="xs:decimal" />
+  </xs:complexType>
+  <xs:element name="eConversionType" type="eConversionType" />
+  <xs:simpleType name="eConversionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UNIT_RSI_2_R" />
+      <xs:enumeration value="UNIT_MM_2_IN" />
+      <xs:enumeration value="UNIT_RSIMM_2_RIN" />
+      <xs:enumeration value="UNIT_M_2_FT" />
+      <xs:enumeration value="UNIT_M2_2_FT2" />
+      <xs:enumeration value="UNIT_M3_2_FT3" />
+      <xs:enumeration value="UNIT_CM2_2_IN2" />
+      <xs:enumeration value="UNIT_W_2_BTUHR" />
+      <xs:enumeration value="UNIT_KW_2_BTUHR" />
+      <xs:enumeration value="UNIT_MJDAY_2_BTUHR" />
+      <xs:enumeration value="UNIT_MJM2DAY_2_BTUFT2HR" />
+      <xs:enumeration value="UNIT_L_2_GAL" />
+      <xs:enumeration value="UNIT_LSEC_2_CFM" />
+      <xs:enumeration value="UNIT_C_2_F" />
+      <xs:enumeration value="UNIT_KWH_2_MBTU" />
+      <xs:enumeration value="UNIT_GJ_2_MBTU" />
+      <xs:enumeration value="UNIT_MJ_2_BTU" />
+      <xs:enumeration value="UNIT_PERCC_2_PERCF" />
+      <xs:enumeration value="UNIT_KGS_2_LBMMIN" />
+      <xs:enumeration value="UNIT_LS_2_GPM" />
+      <xs:enumeration value="UNIT_WC_2_BTUHRF" />
+      <xs:enumeration value="UNIT_MCF_2_M3" />
+      <xs:enumeration value="UNIT_KGPM3_2_LBMPFT3" />
+      <xs:enumeration value="UNIT_KJPKGC_2_BTUPLBMF" />
+      <xs:enumeration value="UNIT_UVALUE" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eUnitType" type="eUnitType" />
+  <xs:simpleType name="eUnitType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="M_2_I" />
+      <xs:enumeration value="M_2_U" />
+      <xs:enumeration value="I_2_M" />
+      <xs:enumeration value="I_2_U" />
+      <xs:enumeration value="U_2_M" />
+      <xs:enumeration value="U_2_I" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="unit_classes" type="unit_classes" />
+  <xs:simpleType name="unit_classes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="METRIC_UNITS" />
+      <xs:enumeration value="IMP_UNITS" />
+      <xs:enumeration value="US_UNITS" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="unit_types" type="unit_types" />
+  <xs:simpleType name="unit_types">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="M" />
+      <xs:enumeration value="M2" />
+      <xs:enumeration value="M3" />
+      <xs:enumeration value="MM" />
+      <xs:enumeration value="RSI" />
+      <xs:enumeration value="W" />
+      <xs:enumeration value="MJ" />
+      <xs:enumeration value="PM3" />
+      <xs:enumeration value="PL" />
+      <xs:enumeration value="PMG" />
+      <xs:enumeration value="C" />
+      <xs:enumeration value="L" />
+      <xs:enumeration value="KWH" />
+      <xs:enumeration value="Mcf" />
+      <xs:enumeration value="LT" />
+      <xs:enumeration value="LITRES" />
+      <xs:enumeration value="MG" />
+      <xs:enumeration value="KW" />
+      <xs:enumeration value="CM2" />
+      <xs:enumeration value="LPS" />
+      <xs:enumeration value="RVAL" />
+      <xs:enumeration value="CM2PM2" />
+      <xs:enumeration value="MJPD" />
+      <xs:enumeration value="C18" />
+      <xs:enumeration value="MJPM2PD" />
+      <xs:enumeration value="KMPHR" />
+      <xs:enumeration value="RSIPMM" />
+      <xs:enumeration value="PERPDEGC" />
+      <xs:enumeration value="KGPSEC" />
+      <xs:enumeration value="WPDEGC" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="building_types" type="building_types" />
+  <xs:simpleType name="building_types">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HOUSE" />
+      <xs:enumeration value="MURB_ONE_UNIT" />
+      <xs:enumeration value="MURB_WHOLE_BUILDING" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="BooleanValue" nillable="true" type="BooleanValue" />
+  <xs:complexType name="BooleanValue">
+    <xs:attribute name="value" type="xs:boolean" />
+  </xs:complexType>
+  <xs:element name="CodeAndText" nillable="true" type="CodeAndText" />
+  <xs:complexType name="CodeAndText" mixed="true">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+    </xs:all>
+    <xs:attribute name="code" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="AdditionalOpening">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+    </xs:all>
+    <xs:attribute name="code" type="xs:string" />
+    <xs:attribute name="rank" type="xs:unsignedShort" />
+    <xs:attribute name="flueDiameter" type="xs:decimal" />
+    <xs:attribute name="damperClosed" type="xs:boolean" />
+    <xs:attribute name="numberOfOpenings" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:element name="CodeDescriptionAndComposite" nillable="true" type="CodeDescriptionAndComposite" />
+  <xs:complexType name="CodeDescriptionAndComposite">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Composite" type="ArrayOfRsiSection" />
+    </xs:all>
+    <xs:attribute name="idref" type="xs:string" />
+    <xs:attribute name="code" type="xs:string" />
+    <xs:attribute name="nominalInsulation" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfRsiSection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Section" nillable="true" type="RsiSection" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RsiSection">
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="percentage" type="xs:decimal" />
+    <xs:attribute name="rsi" type="xs:decimal" />
+    <xs:attribute name="nominalRsi" type="xs:decimal" />
+  </xs:complexType>
+  <xs:element name="CodeTextAndValue" nillable="true" type="CodeTextAndValue" />
+  <xs:complexType name="CodeTextAndValue">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+    </xs:all>
+    <xs:attribute name="code" type="xs:string" />
+    <xs:attribute name="value" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="EnergyFactor">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+    </xs:all>
+    <xs:attribute name="code" type="xs:string" />
+    <xs:attribute name="value" type="xs:decimal" />
+    <xs:attribute name="inputCapacity" type="xs:decimal" />
+    <xs:attribute name="thermalEfficiency" type="xs:decimal" />
+    <xs:attribute name="standbyHeatLoss" type="xs:decimal" />
+    <xs:attribute name="standbyHeatLossMode" type="xs:unsignedShort" />
+    <xs:attribute name="isUniform" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="OutputCapacity">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+    </xs:all>
+    <xs:attribute name="code" type="xs:string" />
+    <xs:attribute name="value" type="xs:decimal" />
+    <xs:attribute name="uiUnits" type="xs:string" />
+  </xs:complexType>
+  <xs:element name="CopSeerValue" nillable="true" type="CopSeerValue" />
+  <xs:complexType name="CopSeerValue">
+    <xs:attribute name="isCop" type="xs:boolean" />
+    <xs:attribute name="value" type="xs:decimal" />
+  </xs:complexType>
+  <xs:element name="LanguageOptions" type="LanguageOptions" />
+  <xs:complexType name="LanguageOptions" />
+  <xs:element name="OutputCapacity" nillable="true" type="OutputCapacity" />
+  <xs:element name="ProvinceOrTerritory" type="ProvinceOrTerritory" />
+  <xs:complexType name="ProvinceOrTerritory">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Xml">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:any processContents="lax" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SelectedAndValue" nillable="true" type="SelectedAndValue" />
+  <xs:complexType name="SelectedAndValue">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="selected" type="xs:boolean" />
+        <xs:attribute name="value" type="xs:decimal" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:element name="HouseFileError" nillable="true" type="HouseFileError" />
+  <xs:complexType name="HouseFileError">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="level" type="ErrorLevels" />
+      <xs:element minOccurs="0" maxOccurs="1" name="englishMessage" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="frenchMessage" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  <xs:simpleType name="ErrorLevels">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Warning" />
+      <xs:enumeration value="Error" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="StdSort" nillable="true" type="StdSort" />
+  <xs:complexType name="StdSort">
+    <xs:all />
+  </xs:complexType>
+  <xs:complexType name="ComparerOfString" abstract="true" />
+  <xs:element name="Labels" nillable="true" type="Labels" />
+  <xs:element name="MonthlyData" nillable="true" type="MonthlyData" />
+  <xs:complexType name="MonthlyData">
+    <xs:attribute name="january" type="xs:decimal" />
+    <xs:attribute name="february" type="xs:decimal" />
+    <xs:attribute name="march" type="xs:decimal" />
+    <xs:attribute name="april" type="xs:decimal" />
+    <xs:attribute name="may" type="xs:decimal" />
+    <xs:attribute name="june" type="xs:decimal" />
+    <xs:attribute name="july" type="xs:decimal" />
+    <xs:attribute name="august" type="xs:decimal" />
+    <xs:attribute name="september" type="xs:decimal" />
+    <xs:attribute name="october" type="xs:decimal" />
+    <xs:attribute name="november" type="xs:decimal" />
+    <xs:attribute name="december" type="xs:decimal" />
+  </xs:complexType>
+  <xs:element name="RankTextAndValue" nillable="true" type="RankTextAndValue" />
+  <xs:complexType name="RankTextAndValue">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="rank" type="xs:string" />
+        <xs:attribute name="value" type="xs:decimal" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:element name="HouseFile" nillable="true" type="HouseFile" />
+  <xs:complexType name="HouseFile">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Version" type="HouseFileVersion" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Application" type="Application" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ProgramInformation" type="ProgramInformation" />
+      <xs:element minOccurs="1" maxOccurs="1" name="House" type="House" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Codes" type="Codes" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergyUpgrades" type="EnergyUpgrades" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FuelCosts" type="FuelCosts" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AllResults" type="ArrayOfResults" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Program" type="Program" />
+    </xs:all>
+    <xs:attribute name="uiUnits" type="xs:string" />
+    <xs:attribute ref="xml:lang" />
+  </xs:complexType>
+  <xs:complexType name="ProgramInformation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Weather" type="Weather" />
+      <xs:element minOccurs="0" maxOccurs="1" name="File" type="File" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Client" type="Client" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Justifications" type="Justifications" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Information" type="ArrayOfCodeAndText" />
+    </xs:all>
+    <xs:attribute name="mixed" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="Weather">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Region" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Location" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="depthOfFrost" type="xs:decimal" />
+    <xs:attribute name="heatingDegreeDay" type="xs:decimal" />
+    <xs:attribute name="library" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="File">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Identification" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PreviousFileId" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnrollmentId" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TaxNumber" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnteredBy" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UserTelephone" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UserExtension" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CompanyTelephone" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CompanyExtension" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Company" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BuilderName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HomeownerAuthorizationId" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Ownership" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="evaluationDate" type="xs:date" />
+  </xs:complexType>
+  <xs:complexType name="Client">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="Name" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Telephone" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="StreetAddress" type="Address" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MailingAddress" type="MailingAddress" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Name">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="First" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Last" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Address">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Street" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UnitNumber" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="City" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Province" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PostalCode" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="MailingAddress">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Street" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UnitNumber" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="City" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Province" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PostalCode" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Justifications">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="PossessionDate" type="SelectedAndDate" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HeatingVolumeDecrease" type="SelectedAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CorrectedInsulation" type="CorrectedInsulation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Other" type="SelectedAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergyStar" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="nameplateEfficiency" type="xs:boolean" />
+    <xs:attribute name="combustionTestEfficiency" type="xs:boolean" />
+    <xs:attribute name="heatingCorrection" type="xs:boolean" />
+    <xs:attribute name="achCorrection" type="xs:boolean" />
+    <xs:attribute name="twoBlowerDoors" type="xs:boolean" />
+    <xs:attribute name="over18Months" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="SelectedAndDate">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="selected" type="xs:boolean" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="SelectedAndText">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="selected" type="xs:boolean" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="CorrectedInsulation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Ceilings" type="SelectedAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Walls" type="SelectedAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Basement" type="SelectedAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfCodeAndText">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Info" nillable="true" type="CodeAndText" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="House">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Labels" type="Labels" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Specifications" type="HouseSpecifications" />
+      <xs:element minOccurs="1" maxOccurs="1" name="BaseLoads" type="BaseLoads" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Generation" type="Generation" />
+      <xs:element minOccurs="1" maxOccurs="1" name="HeatingCooling" type="HeatingCooling" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FoundationAttachments" type="ArrayOfAttachment" />
+      <xs:element minOccurs="1" maxOccurs="1" name="NaturalAirInfiltration" type="NaturalAirInfiltration" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Temperatures" type="Temperatures" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Ventilation" type="Ventilation" />
+      <xs:element minOccurs="1" maxOccurs="1" name="WindowTightness" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="code" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="BaseComponent">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfChoice3">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element minOccurs="1" maxOccurs="1" name="Walkout" nillable="true" type="Walkout" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Floor" nillable="true" type="Floor" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Crawlspace" nillable="true" type="Crawlspace" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Door" nillable="true" type="Door" />
+      <xs:element minOccurs="1" maxOccurs="1" name="NaturalAirInfiltration" nillable="true" type="NaturalAirInfiltration" />
+      <xs:element minOccurs="1" maxOccurs="1" name="FloorHeader" nillable="true" type="FloorHeader" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Wall" nillable="true" type="Wall" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Basement" nillable="true" type="Basement" />
+      <xs:element minOccurs="1" maxOccurs="1" name="BaseLoads" nillable="true" type="BaseLoads" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Room" nillable="true" type="Room" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Temperatures" nillable="true" type="Temperatures" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Ventilation" nillable="true" type="Ventilation" />
+      <xs:element minOccurs="1" maxOccurs="1" name="HeatingCooling" nillable="true" type="HeatingCooling" />
+      <xs:element minOccurs="1" maxOccurs="1" name="HotWater" nillable="true" type="HotWater" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Slab" nillable="true" type="Slab" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Window" nillable="true" type="Window" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Foundation" nillable="true" type="Foundation" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Ceiling" nillable="true" type="Ceiling" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Generation" nillable="true" type="Generation" />
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="Walkout">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Configuration" type="Configuration" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="WalkoutMeasurements" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Floor" type="WalkoutFloor" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Wall" type="FoundationWall" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ExteriorSurfaces" type="ExteriorSurfaces" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Locations" type="Locations" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OpeningUpstairs" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RoomType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="isExposedSurface" type="xs:boolean" />
+    <xs:attribute name="exposedSurfacePerimeter" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="Foundation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Configuration" type="Configuration" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="isExposedSurface" type="xs:boolean" />
+    <xs:attribute name="exposedSurfacePerimeter" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="Component" abstract="true">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="BaseLoads">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Occupancy" type="Occupancy" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Summary" type="Summary" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WaterUsage" type="WaterUsage" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ElectricalUsage" type="ElectricalUsage" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AdvancedUserSpecified" type="AdvancedUserSpecified" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="basementFractionOfInternalGains" type="xs:decimal" />
+    <xs:attribute name="commonSpaceElectricalConsumption" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Occupancy">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Adults" type="OccupantsAtHome" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Children" type="OccupantsAtHome" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Infants" type="OccupantsAtHome" />
+    </xs:all>
+    <xs:attribute name="isOccupied" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="OccupantsAtHome">
+    <xs:attribute name="occupants" type="xs:unsignedShort" />
+    <xs:attribute name="atHome" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Summary">
+    <xs:attribute name="isSpecified" type="xs:boolean" />
+    <xs:attribute name="electricalAppliances" type="xs:decimal" />
+    <xs:attribute name="lighting" type="xs:decimal" />
+    <xs:attribute name="otherElectric" type="xs:decimal" />
+    <xs:attribute name="exteriorUse" type="xs:decimal" />
+    <xs:attribute name="hotWaterLoad" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="WaterUsage">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="BathroomFaucets" type="BathroomFaucets" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Shower" type="Shower" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ClothesWasher" type="ClothesWasher" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DishWasher" type="DishWasher" />
+    </xs:all>
+    <xs:attribute name="temperature" type="xs:decimal" />
+    <xs:attribute name="otherHotWaterUse" type="xs:decimal" />
+    <xs:attribute name="lowFlushToilets" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="BathroomFaucets">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+    </xs:all>
+    <xs:attribute name="code" type="xs:string" />
+    <xs:attribute name="value" type="xs:decimal" />
+    <xs:attribute name="numberPerOccupantPerDay" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Shower">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Temperature" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FlowRate" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="averageDuration" type="xs:decimal" />
+    <xs:attribute name="numberPerOccupantPerWeek" type="xs:decimal" />
+    <xs:attribute name="totalDurationPerDay" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ClothesWasher">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="RatedValues" type="RatedValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Temperature" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="numberPerOccupantPerWeek" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="RatedValue">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+    </xs:all>
+    <xs:attribute name="code" type="xs:string" />
+    <xs:attribute name="ratedWaterConsumptionPerCycle" type="xs:decimal" />
+    <xs:attribute name="ratedAnnualEnergyConsumption" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="DishWasher">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="RatedValues" type="RatedValue" />
+    </xs:sequence>
+    <xs:attribute name="numberPerOccupantPerWeek" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ElectricalUsage">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="ClothesDryer" type="ClothesDryer" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Stove" type="Stove" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Refrigerator" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="InteriorLighting" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="otherLoad" type="xs:decimal" />
+    <xs:attribute name="averageExteriorUse" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ClothesDryer">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Location" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RatedValue" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="installed" type="xs:boolean" />
+    <xs:attribute name="percentageOfWasherLoads" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Stove">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RatedValue" type="CodeTextAndValue" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="AdvancedUserSpecified">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="DryerLocation" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GasStove" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GasDryer" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="hotWaterTemperature" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Window">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="WindowConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="WindowMeasurements" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Shading" type="WindowShading" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FacingDirection" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="number" type="xs:decimal" />
+    <xs:attribute name="er" type="xs:decimal" />
+    <xs:attribute name="shgc" type="xs:decimal" />
+    <xs:attribute name="frameHeight" type="xs:decimal" />
+    <xs:attribute name="frameAreaFraction" type="xs:decimal" />
+    <xs:attribute name="edgeOfGlassFraction" type="xs:decimal" />
+    <xs:attribute name="centreOfGlassFraction" type="xs:decimal" />
+    <xs:attribute name="adjacentEnclosedSpace" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="WindowConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeReference" />
+    </xs:all>
+    <xs:attribute name="energyStar" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="Construction" abstract="true">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeReference" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FloorConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeReference" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="WallConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeReference" />
+      <xs:element minOccurs="0" maxOccurs="1" name="LintelType" type="CodeReference" />
+    </xs:all>
+    <xs:attribute name="corners" type="xs:decimal" />
+    <xs:attribute name="intersections" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FloorHeaderConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeReference" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="WindowMeasurements">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Tilt" type="CodeTextAndValue" />
+    </xs:sequence>
+    <xs:attribute name="height" type="xs:decimal" />
+    <xs:attribute name="width" type="xs:decimal" />
+    <xs:attribute name="headerHeight" type="xs:decimal" />
+    <xs:attribute name="overhangWidth" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="WindowShading">
+    <xs:attribute name="curtain" type="xs:decimal" />
+    <xs:attribute name="shutterRValue" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Wall">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="WallConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="WallMeasurements" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FacingDirection" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="adjacentEnclosedSpace" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="WallMeasurements">
+    <xs:attribute name="height" type="xs:decimal" />
+    <xs:attribute name="perimeter" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Ventilation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Rooms" type="Rooms" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Requirements" type="Requirements" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WholeHouse" type="WholeHouseParamaters" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WholeHouseVentilatorList" type="ArrayOfChoice1" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SupplementalVentilatorList" type="ArrayOfChoice2" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="Rooms">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="VentilationRate" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DepressurizationLimit" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="living" type="xs:unsignedInt" />
+    <xs:attribute name="bedrooms" type="xs:unsignedInt" />
+    <xs:attribute name="bathrooms" type="xs:unsignedInt" />
+    <xs:attribute name="utility" type="xs:unsignedInt" />
+    <xs:attribute name="otherHabitable" type="xs:unsignedInt" />
+  </xs:complexType>
+  <xs:complexType name="Requirements">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Use" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="ach" type="xs:decimal" />
+    <xs:attribute name="supply" type="xs:decimal" />
+    <xs:attribute name="exhaust" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="WholeHouseParamaters">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="AirDistributionType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AirDistributionFanPower" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OperationSchedule" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="temperatureControlLower" type="xs:decimal" />
+    <xs:attribute name="temperatureControlUpper" type="xs:decimal" />
+    <xs:attribute name="hviHrvErvInMurb" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfChoice1">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element minOccurs="1" maxOccurs="1" name="BaseVentilator" nillable="true" type="VentilatorObjects" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Dryer" nillable="true" type="Dryer" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Hrv" nillable="true" type="Hrv" />
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="VentilatorObjects">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="VentilatorType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OperationSchedule" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="supplyFlowrate" type="xs:decimal" />
+    <xs:attribute name="exhaustFlowrate" type="xs:decimal" />
+    <xs:attribute name="fanPower1" type="xs:decimal" />
+    <xs:attribute name="isDefaultFanpower" type="xs:boolean" />
+    <xs:attribute name="isEnergyStar" type="xs:boolean" />
+    <xs:attribute name="isHomeVentilatingInstituteCertified" type="xs:boolean" />
+    <xs:attribute name="isSupplemental" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="EquipmentInformation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Manufacturer" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Model" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="SupplementaryHeatEquipmentInformation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Manufacturer" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Model" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+    </xs:all>
+    <xs:attribute name="csaEpa" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="BaseboardsEquipmentInformation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Manufacturer" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Model" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+    </xs:all>
+    <xs:attribute name="numberOfElectronicThermostats" type="xs:unsignedInt" />
+  </xs:complexType>
+  <xs:complexType name="EnergyStarEquipmentInformation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Manufacturer" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Model" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+    </xs:all>
+    <xs:attribute name="energystar" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="HeatPumpEquipmentInformation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Manufacturer" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Model" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+    </xs:all>
+    <xs:attribute name="energystar" type="xs:boolean" />
+    <xs:attribute name="canCsaC448" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="Type1EquipmentInformation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Manufacturer" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Model" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+    </xs:all>
+    <xs:attribute name="energystar" type="xs:boolean" />
+    <xs:attribute name="epaCsa" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="Hrv">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="VentilatorType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OperationSchedule" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ColdAirDucts" type="HrvDucts" />
+    </xs:all>
+    <xs:attribute name="supplyFlowrate" type="xs:decimal" />
+    <xs:attribute name="exhaustFlowrate" type="xs:decimal" />
+    <xs:attribute name="fanPower1" type="xs:decimal" />
+    <xs:attribute name="isDefaultFanpower" type="xs:boolean" />
+    <xs:attribute name="isEnergyStar" type="xs:boolean" />
+    <xs:attribute name="isHomeVentilatingInstituteCertified" type="xs:boolean" />
+    <xs:attribute name="isSupplemental" type="xs:boolean" />
+    <xs:attribute name="temperatureCondition1" type="xs:decimal" />
+    <xs:attribute name="temperatureCondition2" type="xs:decimal" />
+    <xs:attribute name="fanPower2" type="xs:decimal" />
+    <xs:attribute name="efficiency1" type="xs:decimal" />
+    <xs:attribute name="efficiency2" type="xs:decimal" />
+    <xs:attribute name="preheaterCapacity" type="xs:decimal" />
+    <xs:attribute name="lowTempVentReduction" type="xs:decimal" />
+    <xs:attribute name="coolingEfficiency" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="HrvDucts">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Supply" type="HrvDuctSpec" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Exhaust" type="HrvDuctSpec" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="HrvDuctSpec">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Location" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Sealing" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="length" type="xs:decimal" />
+    <xs:attribute name="diameter" type="xs:decimal" />
+    <xs:attribute name="insulation" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Dryer">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="VentilatorType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OperationSchedule" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Exhaust" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="supplyFlowrate" type="xs:decimal" />
+    <xs:attribute name="exhaustFlowrate" type="xs:decimal" />
+    <xs:attribute name="fanPower1" type="xs:decimal" />
+    <xs:attribute name="isDefaultFanpower" type="xs:boolean" />
+    <xs:attribute name="isEnergyStar" type="xs:boolean" />
+    <xs:attribute name="isHomeVentilatingInstituteCertified" type="xs:boolean" />
+    <xs:attribute name="isSupplemental" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfChoice2">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element minOccurs="1" maxOccurs="1" name="BaseVentilator" nillable="true" type="VentilatorObjects" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Dryer" nillable="true" type="Dryer" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Hrv" nillable="true" type="Hrv" />
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="Temperatures">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MainFloors" type="MainFloors" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Basement" type="VentilationBasement" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Equipment" type="Equipment" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Crawlspace" type="TemperatureCrawlspace" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="MainFloors">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="AllowableRise" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="coolingSetPoint" type="xs:decimal" />
+    <xs:attribute name="daytimeHeatingSetPoint" type="xs:decimal" />
+    <xs:attribute name="nighttimeHeatingSetPoint" type="xs:decimal" />
+    <xs:attribute name="nighttimeSetbackDuration" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="VentilationBasement">
+    <xs:attribute name="heated" type="xs:boolean" />
+    <xs:attribute name="cooled" type="xs:boolean" />
+    <xs:attribute name="separateThermostat" type="xs:boolean" />
+    <xs:attribute name="heatingSetPoint" type="xs:decimal" />
+    <xs:attribute name="basementUnit" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="Equipment">
+    <xs:attribute name="heatingSetPoint" type="xs:decimal" />
+    <xs:attribute name="coolingSetPoint" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="TemperatureCrawlspace">
+    <xs:attribute name="heated" type="xs:boolean" />
+    <xs:attribute name="heatingSetPoint" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Room">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="RoomConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="RoomMeasurements" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="RoomConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="FoundationBelow" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Floor" type="CodeAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="RoomMeasurements">
+    <xs:attribute name="isRectangular" type="xs:boolean" />
+    <xs:attribute name="height" type="xs:decimal" />
+    <xs:attribute name="width" type="xs:decimal" />
+    <xs:attribute name="depth" type="xs:decimal" />
+    <xs:attribute name="perimeter" type="xs:decimal" />
+    <xs:attribute name="area" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="NaturalAirInfiltration">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="NaturalAirSpecifications" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OtherFactors" type="OtherFactors" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AirLeakageTestData" type="AirLeakageTestData" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="NaturalAirSpecifications">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="House" type="SpecificationsHouse" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BlowerTest" type="BlowerTest" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BuildingSite" type="BuildingSite" />
+      <xs:element minOccurs="0" maxOccurs="1" name="LocalShielding" type="LocalShielding" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ExhaustDevicesTest" type="ExhaustDevicesTest" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="SpecificationsHouse">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="AirTightnessTest" type="CodeTextAndValue" />
+    </xs:sequence>
+    <xs:attribute name="volume" type="xs:decimal" />
+    <xs:attribute name="includeCrawlspaceVolume" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="BlowerTest">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Pressure" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="airChangeRate" type="xs:decimal" />
+    <xs:attribute name="isCgsbTest" type="xs:boolean" />
+    <xs:attribute name="isCalculated" type="xs:boolean" />
+    <xs:attribute name="leakageArea" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="BuildingSite">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Terrain" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="highestCeiling" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="LocalShielding">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Walls" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Flue" type="CodeAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ExhaustDevicesTest">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="TestStatus" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="result" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="OtherFactors">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="WeatherStation" type="WeatherStation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="LeakageFractions" type="LeakageFractions" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="WeatherStation">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Terrain" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="anemometerHeight" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="LeakageFractions">
+    <xs:attribute name="useDefaults" type="xs:boolean" />
+    <xs:attribute name="ceilings" type="xs:decimal" />
+    <xs:attribute name="walls" type="xs:decimal" />
+    <xs:attribute name="floors" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="AirLeakageTestData">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="TestData" type="ArrayOfTest" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TestType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="hasCgsbConditions" type="xs:boolean" />
+    <xs:attribute name="outsideTemperature" type="xs:decimal" />
+    <xs:attribute name="barometricPressure" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfTest">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Test" nillable="true" type="Test" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Test">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Manometer" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Pressure" type="Pressure" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FanType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Data" type="ArrayOfDataPoint" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedShort" />
+    <xs:attribute name="equipment" type="xs:unsignedShort" />
+    <xs:attribute name="insideTemperature" type="xs:decimal" />
+    <xs:attribute name="zoneHeatedVolume" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Pressure">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Static" type="PressureData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Zone1" type="PressureData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Zone2" type="PressureData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="PressureData">
+    <xs:attribute name="initial" type="xs:decimal" />
+    <xs:attribute name="final" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfDataPoint">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DataPoint" nillable="true" type="DataPoint" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DataPoint">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="FlowRanges" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="rank" type="xs:unsignedShort" />
+    <xs:attribute name="housePressure" type="xs:decimal" />
+    <xs:attribute name="fanPressure" type="xs:decimal" />
+    <xs:attribute name="measuredFlow" type="xs:decimal" />
+    <xs:attribute name="zone1Pressure" type="xs:decimal" />
+    <xs:attribute name="zone2Pressure" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="HotWater">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Primary" type="HotWaterComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Secondary" type="HotWaterComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NumberOfDwhrSystems" type="NumberOfDwhrSystems" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NumberOfHotWaterSystems" type="NumberOfHotWaterSystems" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="HotWaterComponent">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergyFactor" type="EnergyFactor" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Solar" type="Solar" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DrainWaterHeatRecovery" type="DrainWaterHeatRecovery" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TankType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TankVolume" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DrawPattern" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TankLocation" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="hasDrainWaterHeatRecovery" type="xs:boolean" />
+    <xs:attribute name="insulatingBlanket" type="xs:decimal" />
+    <xs:attribute name="pilotEnergy" type="xs:decimal" />
+    <xs:attribute name="heatPumpCoefficient" type="xs:decimal" />
+    <xs:attribute name="combinedFlue" type="xs:boolean" />
+    <xs:attribute name="flueDiameter" type="xs:decimal" />
+    <xs:attribute name="energyStar" type="xs:boolean" />
+    <xs:attribute name="ecoEnergy" type="xs:boolean" />
+    <xs:attribute name="userDefinedPilot" type="xs:boolean" />
+    <xs:attribute name="fraction" type="xs:decimal" />
+    <xs:attribute name="connectedUnitsDwhr" type="xs:unsignedByte" />
+  </xs:complexType>
+  <xs:complexType name="Solar">
+    <xs:attribute name="rating" type="xs:decimal" />
+    <xs:attribute name="slope" type="xs:decimal" />
+    <xs:attribute name="azimuth" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="DrainWaterHeatRecovery">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Efficiency" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ShowerTemperature" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ShowerHead" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="showerLength" type="xs:decimal" />
+    <xs:attribute name="dailyShowers" type="xs:decimal" />
+    <xs:attribute name="preheatShowerTank" type="xs:boolean" />
+    <xs:attribute name="effectivenessAt9.5" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="NumberOfDwhrSystems">
+    <xs:attribute name="lowEfficiency" type="xs:unsignedByte" />
+    <xs:attribute name="highEfficiency" type="xs:unsignedByte" />
+  </xs:complexType>
+  <xs:complexType name="NumberOfHotWaterSystems">
+    <xs:attribute name="energyStarInstantaneousCondensing" type="xs:unsignedByte" />
+    <xs:attribute name="energyStarInstantaneous" type="xs:unsignedByte" />
+    <xs:attribute name="condensing" type="xs:unsignedByte" />
+    <xs:attribute name="instantaneous" type="xs:unsignedByte" />
+  </xs:complexType>
+  <xs:complexType name="Generation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PhotovoltaicSystems" type="ArrayOfPhotovoltaic" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="solarReady" type="xs:boolean" />
+    <xs:attribute name="windEnergyContribution" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPhotovoltaic">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="System" nillable="true" type="Photovoltaic" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Photovoltaic">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Array" type="Array" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Efficiency" type="Efficiency" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Module" type="Module" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="Array">
+    <xs:attribute name="area" type="xs:decimal" />
+    <xs:attribute name="slope" type="xs:decimal" />
+    <xs:attribute name="azimuth" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Efficiency">
+    <xs:attribute name="miscellaneousLosses" type="xs:decimal" />
+    <xs:attribute name="otherPowerLosses" type="xs:decimal" />
+    <xs:attribute name="inverterEfficiency" type="xs:decimal" />
+    <xs:attribute name="gridAbsorptionRate" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Module">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="efficiency" type="xs:decimal" />
+    <xs:attribute name="cellTemperature" type="xs:decimal" />
+    <xs:attribute name="coefficientOfEfficiency" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="HeatingCooling">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CoolingSeason" type="CoolingSeason" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type1" type="Type1" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type2" type="Type2" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MultipleSystems" type="MultipleSystems" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RadiantHeating" type="RadiantHeating" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AdditionalOpenings" type="ArrayOfAdditionalOpening" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SupplementaryHeatingSystems" type="ArrayOfSupplementaryHeat" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="CoolingSeason">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Start" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="End" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Design" type="CodeAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Type1">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="FansAndPump" type="FansAndPumpsHeating" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Baseboards" type="Baseboards" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Boiler" type="Boiler" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ComboHeatDhw" type="ComboHeatDhw" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Furnace" type="Furnace" />
+      <xs:element minOccurs="0" maxOccurs="1" name="P9" type="P9" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="FansAndPumpsHeating">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Power" type="FansAndPumpPowerHeating" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Mode" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="hasEnergyEfficientMotor" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="FansAndPumpPowerHeating">
+    <xs:attribute name="isCalculated" type="xs:boolean" />
+    <xs:attribute name="low" type="xs:decimal" />
+    <xs:attribute name="high" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Baseboards">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="BaseboardsEquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="BaseboardsSpecifications" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="BaseboardsSpecifications">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="OutputCapacity" type="OutputCapacity" />
+    </xs:sequence>
+    <xs:attribute name="sizingFactor" type="xs:decimal" />
+    <xs:attribute name="efficiency" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Boiler">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="Type1EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="CommonSpecifications" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ComboTankAndPump" type="ComboTankAndPump" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Equipment" type="BoilerEquipment" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Common">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="Type1EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="CommonSpecifications" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ComboTankAndPump" type="ComboTankAndPump" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="CommonSpecifications">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="OutputCapacity" type="OutputCapacity" />
+    </xs:sequence>
+    <xs:attribute name="sizingFactor" type="xs:decimal" />
+    <xs:attribute name="efficiency" type="xs:decimal" />
+    <xs:attribute name="isSteadyState" type="xs:boolean" />
+    <xs:attribute name="pilotLight" type="xs:decimal" />
+    <xs:attribute name="flueDiameter" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ComboTankAndPump">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergyFactor" type="ComboEnergyFactor" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TankLocation" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CirculationPump" type="CirculationPump" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TankCapacity" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="waterTemperature" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ComboEnergyFactor">
+    <xs:attribute name="useDefaults" type="xs:boolean" />
+    <xs:attribute name="value" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="CirculationPump">
+    <xs:attribute name="isCalculated" type="xs:boolean" />
+    <xs:attribute name="value" type="xs:decimal" />
+    <xs:attribute name="hasEnergyEfficientMotor" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="ComboHeatDhw">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="Type1EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="CommonSpecifications" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ComboTankAndPump" type="ComboTankAndPump" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Equipment" type="ComboHeatDhwEquipment" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ComboHeatDhwEquipment">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="isBiEnergy" type="xs:boolean" />
+    <xs:attribute name="switchoverTemperature" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="CommonEquipment">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="isBiEnergy" type="xs:boolean" />
+    <xs:attribute name="switchoverTemperature" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="BoilerEquipment">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="isBiEnergy" type="xs:boolean" />
+    <xs:attribute name="switchoverTemperature" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FurnaceEquipment">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="isBiEnergy" type="xs:boolean" />
+    <xs:attribute name="switchoverTemperature" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Furnace">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="Type1EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="CommonSpecifications" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ComboTankAndPump" type="ComboTankAndPump" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Equipment" type="FurnaceEquipment" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="P9">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="EquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TestData" type="TestData" />
+    </xs:all>
+    <xs:attribute name="numberOfSystems" type="xs:unsignedShort" />
+    <xs:attribute name="thermalPerformanceFactor" type="xs:decimal" />
+    <xs:attribute name="annualElectricity" type="xs:decimal" />
+    <xs:attribute name="spaceHeatingCapacity" type="xs:decimal" />
+    <xs:attribute name="spaceHeatingEfficiency" type="xs:decimal" />
+    <xs:attribute name="waterHeatingPerformanceFactor" type="xs:decimal" />
+    <xs:attribute name="burnerInput" type="xs:decimal" />
+    <xs:attribute name="recoveryEfficiency" type="xs:decimal" />
+    <xs:attribute name="isUserSpecified" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="TestData">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="NetEfficiency" type="P9LoadPerformance" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ElectricalUse" type="P9LoadPerformance" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BlowerPower" type="P9LoadPerformance" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="controlsPower" type="xs:decimal" />
+    <xs:attribute name="circulationPower" type="xs:decimal" />
+    <xs:attribute name="dailyUse" type="xs:decimal" />
+    <xs:attribute name="standbyLossWithFan" type="xs:decimal" />
+    <xs:attribute name="standbyLossWithoutFan" type="xs:decimal" />
+    <xs:attribute name="oneHourRatingHotWater" type="xs:decimal" />
+    <xs:attribute name="oneHourRatingConcurrent" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="P9LoadPerformance">
+    <xs:attribute name="loadPerformance15" type="xs:decimal" />
+    <xs:attribute name="loadPerformance40" type="xs:decimal" />
+    <xs:attribute name="loadPerformance100" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Type2">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="AirHeatPump" type="HeatPump" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WaterHeatPump" type="HeatPump" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GroundHeatPump" type="HeatPump" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AirConditioning" type="AirConditioning" />
+    </xs:all>
+    <xs:attribute name="shadingInF280Cooling" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="HeatPump">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="HeatPumpEquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Equipment" type="HeatPumpEquipment" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="HeatPumpSpecifications" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Temperature" type="HeatPumpTemperature" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SourceTemperature" type="SourceTemperature" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CoolingParameters" type="HeatPumpCoolingType" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="HeatPumpEquipment">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Function" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="crankcaseHeater" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Type2Equipment" abstract="true">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="crankcaseHeater" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="AirConditioningEquipment">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WindowUnits" type="WindowUnits" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CentralType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="crankcaseHeater" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="WindowUnits">
+    <xs:attribute name="totalCount" type="xs:unsignedShort" />
+    <xs:attribute name="numberOfEnergyStarUnits" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="HeatPumpSpecifications">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="OutputCapacity" type="OutputCapacity" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HeatingEfficiency" type="CopSeerValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CoolingEfficiency" type="CopSeerValue" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="HeatPumpTemperature">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="CutoffType" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RatingType" type="CodeTextAndValue" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="SourceTemperature">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Temperatures" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Use" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="depth" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="HeatPumpCoolingType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="FansAndPump" type="CoolingFansAndPumps" />
+    </xs:sequence>
+    <xs:attribute name="sensibleHeatRatio" type="xs:decimal" />
+    <xs:attribute name="openableWindowArea" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="CoolingFansAndPumps">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Power" type="FansAndPumpPowerCooling" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Mode" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="flowRate" type="xs:decimal" />
+    <xs:attribute name="hasEnergyEfficientMotor" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="FansAndPumpPowerCooling">
+    <xs:attribute name="isCalculated" type="xs:boolean" />
+    <xs:attribute name="value" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="AirConditioning">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="EnergyStarEquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Equipment" type="AirConditioningEquipment" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="AirConditioningSpecifications" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CoolingParameters" type="HeatPumpCoolingType" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="AirConditioningSpecifications">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="RatedCapacity" type="OutputCapacity" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Efficiency" type="CopSeerValue" />
+    </xs:all>
+    <xs:attribute name="sizingFactor" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="MultipleSystems">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="ArrayOfMultipleSystemsEquipment" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Summary" type="MultipleSystemsSummary" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfMultipleSystemsEquipment">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Equipment" nillable="true" type="MultipleSystemsEquipment" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MultipleSystemsEquipment">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Manufacturer" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Model" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EfficiencyType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedShort" />
+    <xs:attribute name="efficiency" type="xs:decimal" />
+    <xs:attribute name="flueDiameter" type="xs:decimal" />
+    <xs:attribute name="heatingCapacitykW" type="xs:decimal" />
+    <xs:attribute name="heatingCapacityUiUnits" type="xs:string" />
+    <xs:attribute name="pilotLight" type="xs:boolean" />
+    <xs:attribute name="energyStar" type="xs:boolean" />
+    <xs:attribute name="energyEfficientMotor" type="xs:boolean" />
+    <xs:attribute name="identicalSystems" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="MultipleSystemsSummary">
+    <xs:attribute name="energySaverHeatingSystems" type="xs:unsignedShort" />
+    <xs:attribute name="energySaverAirSourceHeatPump" type="xs:unsignedShort" />
+    <xs:attribute name="woodAppliances" type="xs:unsignedShort" />
+    <xs:attribute name="epaCsaHeatingSystems" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="RadiantHeating">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="AtticCeiling" type="RadiantHeatingComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FlatRoof" type="RadiantHeatingComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AboveCrawlspace" type="RadiantHeatingComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SlabOnGrade" type="RadiantHeatingComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AboveBasement" type="RadiantHeatingComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Basement" type="RadiantHeatingComponent" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="RadiantHeatingComponent">
+    <xs:attribute name="effectiveTemperature" type="xs:decimal" />
+    <xs:attribute name="fractionOfArea" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfAdditionalOpening">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Opening" nillable="true" type="AdditionalOpening" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfSupplementaryHeat">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="System" nillable="true" type="SupplementaryHeat" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SupplementaryHeat">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EquipmentInformation" type="SupplementaryHeatEquipmentInformation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Equipment" type="SupplementaryHeatEquipment" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Specifications" type="SupplementaryHeatSpecifications" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="SupplementaryHeatEquipment">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="EnergySource" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="SupplementaryHeatSpecifications">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="MonthlyUsage" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Flue" type="Flue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OutputCapacity" type="OutputCapacity" />
+      <xs:element minOccurs="0" maxOccurs="1" name="YearMade" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Usage" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="LocationHeated" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="efficiency" type="xs:decimal" />
+    <xs:attribute name="pilotLight" type="xs:decimal" />
+    <xs:attribute name="damperClosed" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="Flue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+    </xs:sequence>
+    <xs:attribute name="isInterior" type="xs:boolean" />
+    <xs:attribute name="diameter" type="xs:decimal" />
+    <xs:attribute name="area" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FloorHeader">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="FloorHeaderConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="FloorHeaderMeasurements" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FacingDirection" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="adjacentEnclosedSpace" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="FloorHeaderMeasurements">
+    <xs:attribute name="height" type="xs:decimal" />
+    <xs:attribute name="perimeter" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Floor">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="FloorConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="FloorMeasurements" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="adjacentEnclosedSpace" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="FloorMeasurements">
+    <xs:attribute name="area" type="xs:decimal" />
+    <xs:attribute name="length" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Door">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="DoorConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="DoorMeasurements" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="adjacentEnclosedSpace" type="xs:boolean" />
+    <xs:attribute name="rValue" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="DoorConstruction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeTextAndValue" />
+    </xs:sequence>
+    <xs:attribute name="energyStar" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="DoorMeasurements">
+    <xs:attribute name="height" type="xs:decimal" />
+    <xs:attribute name="width" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Ceiling">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="CeilingConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="CeilingMeasurements" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="CeilingConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="CeilingType" type="CodeReference" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="CeilingMeasurements">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Slope" type="CodeTextAndValue" />
+    </xs:sequence>
+    <xs:attribute name="area" type="xs:decimal" />
+    <xs:attribute name="length" type="xs:decimal" />
+    <xs:attribute name="heelHeight" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Configuration">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="type" type="xs:string" />
+        <xs:attribute name="subtype" type="xs:unsignedInt" />
+        <xs:attribute name="overlap" type="xs:decimal" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="Basement">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Configuration" type="Configuration" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Floor" type="FoundationFloor" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Wall" type="FoundationWall" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OpeningUpstairs" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RoomType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="isExposedSurface" type="xs:boolean" />
+    <xs:attribute name="exposedSurfacePerimeter" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="FoundationFloor">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="FoundationFloorConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="FoundationMeasurements" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="FoundationFloorConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="AddedToSlab" type="CodeReference" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FloorsAbove" type="CodeReference" />
+    </xs:all>
+    <xs:attribute name="isBelowFrostline" type="xs:boolean" />
+    <xs:attribute name="hasIntegralFooting" type="xs:boolean" />
+    <xs:attribute name="heatedFloor" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="FoundationMeasurements">
+    <xs:attribute name="isRectangular" type="xs:boolean" />
+    <xs:attribute name="area" type="xs:decimal" />
+    <xs:attribute name="width" type="xs:decimal" />
+    <xs:attribute name="length" type="xs:decimal" />
+    <xs:attribute name="perimeter" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FoundationWall">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="FoundationWallConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="FoundationWallMeasurements" />
+    </xs:all>
+    <xs:attribute name="hasPonyWall" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="FoundationWallConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="InteriorAddedInsulation" type="CodeDescriptionAndComposite" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ExteriorAddedInsulation" type="CodeDescriptionAndComposite" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Lintels" type="CodeReference" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PonyWallType" type="CodeDescriptionAndComposite" />
+    </xs:all>
+    <xs:attribute name="corners" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="FoundationWallMeasurements">
+    <xs:attribute name="height" type="xs:decimal" />
+    <xs:attribute name="depth" type="xs:decimal" />
+    <xs:attribute name="ponyWallHeight" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Slab">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Configuration" type="Configuration" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Floor" type="FoundationFloor" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Wall" type="SlabWall" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="isExposedSurface" type="xs:boolean" />
+    <xs:attribute name="exposedSurfacePerimeter" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="SlabWall">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="RValues" type="WallRValues" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="WallRValues">
+    <xs:attribute name="skirt" type="xs:decimal" />
+    <xs:attribute name="thermalBreak" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Crawlspace">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice3" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Configuration" type="Configuration" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Floor" type="FoundationFloor" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Wall" type="CrawlspaceWall" />
+      <xs:element minOccurs="0" maxOccurs="1" name="VentilationType" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="isExposedSurface" type="xs:boolean" />
+    <xs:attribute name="exposedSurfacePerimeter" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="CrawlspaceWall">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="CrawlspaceWallConstruction" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Measurements" type="CrawlspaceWallMeasurements" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RValues" type="WallRValues" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="CrawlspaceWallConstruction">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeDescriptionAndComposite" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Lintels" type="CodeReference" />
+    </xs:all>
+    <xs:attribute name="corners" type="xs:unsignedShort" />
+  </xs:complexType>
+  <xs:complexType name="CrawlspaceWallMeasurements">
+    <xs:attribute name="height" type="xs:decimal" />
+    <xs:attribute name="depth" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="WalkoutMeasurements">
+    <xs:attribute name="withSlab" type="xs:boolean" />
+    <xs:attribute name="height" type="xs:decimal" />
+    <xs:attribute name="d1" type="xs:decimal" />
+    <xs:attribute name="d2" type="xs:decimal" />
+    <xs:attribute name="d3" type="xs:decimal" />
+    <xs:attribute name="d4" type="xs:decimal" />
+    <xs:attribute name="d5" type="xs:decimal" />
+    <xs:attribute name="l1" type="xs:decimal" />
+    <xs:attribute name="l2" type="xs:decimal" />
+    <xs:attribute name="l3" type="xs:decimal" />
+    <xs:attribute name="l4" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="WalkoutFloor">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Construction" type="FoundationFloorConstruction" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ExteriorSurfaces">
+    <xs:attribute name="aboveGradeArea" type="xs:decimal" />
+    <xs:attribute name="belowGradeArea" type="xs:decimal" />
+    <xs:attribute name="ponyWallArea" type="xs:decimal" />
+    <xs:attribute name="slabPerimeter" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Locations">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="L1_1" type="Location" />
+      <xs:element minOccurs="0" maxOccurs="1" name="L1_2" type="Location" />
+      <xs:element minOccurs="0" maxOccurs="1" name="L2_1" type="Location" />
+      <xs:element minOccurs="0" maxOccurs="1" name="L2_2" type="Location" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Location">
+    <xs:attribute name="x1" type="xs:decimal" />
+    <xs:attribute name="x2" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="HouseSpecifications">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="RoofCavity" type="RoofCavity" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NumberOf" type="NumberOf" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HeatedFloorArea" type="HeatedFloorArea" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HouseType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PlanShape" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Storeys" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FacingDirection" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ThermalMass" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="YearBuilt" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WallColour" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SoilCondition" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RoofColour" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WaterLevel" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="effectiveMassFraction" type="xs:decimal" />
+    <xs:attribute name="defaultRoofCavity" type="xs:boolean" />
+    <xs:attribute name="buildingType" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="RoofCavity">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="GableEnds" type="GableEnds" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SlopedRoof" type="SlopedRoof" />
+    </xs:all>
+    <xs:attribute name="volume" type="xs:decimal" />
+    <xs:attribute name="ventilationRate" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="GableEnds">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="SheatingMaterial" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ExteriorMaterial" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="area" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="SlopedRoof">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="SheatingMaterial" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RoofingMaterial" type="CodeTextAndValue" />
+    </xs:all>
+    <xs:attribute name="area" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="NumberOf">
+    <xs:attribute name="storeysInBuilding" type="xs:unsignedInt" />
+    <xs:attribute name="dwellingUnits" type="xs:unsignedInt" />
+    <xs:attribute name="nonResUnits" type="xs:unsignedInt" />
+    <xs:attribute name="unitsVisited" type="xs:unsignedInt" />
+  </xs:complexType>
+  <xs:complexType name="HeatedFloorArea">
+    <xs:attribute name="aboveGrade" type="xs:decimal" />
+    <xs:attribute name="belowGrade" type="xs:decimal" />
+    <xs:attribute name="nonResUnits" type="xs:decimal" />
+    <xs:attribute name="commonSpace" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfAttachment">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Attachment" nillable="true" type="Attachment" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Attachment">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Foundation1" type="AttachmentFoundation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Foundation2" type="AttachmentFoundation" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="AttachmentFoundation">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+        <xs:attribute name="aboveGradeArea" type="xs:decimal" />
+        <xs:attribute name="belowGradeArea" type="xs:decimal" />
+        <xs:attribute name="slabLength" type="xs:decimal" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="Codes">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Wall" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Ceiling" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CeilingFlat" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Floor" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Lintel" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Window" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FloorsAbove" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FloorsAdded" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BasementWall" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CrawlspaceWall" type="CodesByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FloorHeader" type="CodesByType" />
+    </xs:all>
+    <xs:attribute name="readOnly" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="CodesByType">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Standard" type="ArrayOfStandard" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Favorite" type="ArrayOfStandard" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UserDefined" type="ArrayOfUserDefined" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfStandard">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Code" nillable="true" type="Standard" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Standard">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Layers" type="StandardLayer" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:string" />
+    <xs:attribute name="nominalRValue" type="xs:decimal" />
+    <xs:attribute name="value" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="Code">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:string" />
+    <xs:attribute name="nominalRValue" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="UserDefined">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Layers" type="ArrayOfChoice4" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:string" />
+    <xs:attribute name="nominalRValue" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfChoice4">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element minOccurs="1" maxOccurs="1" name="WoodFraming" nillable="true" type="WoodFramingLayer" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Lintel" nillable="true" type="LintelUserDefined" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ContinuousInsulation" nillable="true" type="ContinuousInsulation" />
+      <xs:element minOccurs="1" maxOccurs="1" name="WindowLegacy" nillable="true" type="WindowLegacy" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ContinuousMedium" nillable="true" type="ContinuousMedium" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SteelFraming" nillable="true" type="SteelFramingLayer" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Window" nillable="true" type="WindowUserDefined" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Strapping" nillable="true" type="StrappingLayer" />
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="WoodFramingLayer">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="CavityInsulation" type="UserDefinedComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="WoodFramingType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Framing" type="FramingComponent" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="isPrimary" type="xs:boolean" />
+    <xs:attribute name="studsPerCorner" type="xs:short" />
+    <xs:attribute name="studsPerInteriorWall" type="xs:short" />
+    <xs:attribute name="topAndBottomPlates" type="xs:short" />
+    <xs:attribute name="doubleStudsOnWindows" type="xs:boolean" />
+    <xs:attribute name="ridgeBoardWidth" type="xs:decimal" />
+    <xs:attribute name="blockingWidth" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FramingLayer">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="CavityInsulation" type="UserDefinedComponent" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="isPrimary" type="xs:boolean" />
+    <xs:attribute name="studsPerCorner" type="xs:short" />
+    <xs:attribute name="studsPerInteriorWall" type="xs:short" />
+    <xs:attribute name="topAndBottomPlates" type="xs:short" />
+    <xs:attribute name="doubleStudsOnWindows" type="xs:boolean" />
+    <xs:attribute name="ridgeBoardWidth" type="xs:decimal" />
+    <xs:attribute name="blockingWidth" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="UserDefinedLayer">
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+  </xs:complexType>
+  <xs:complexType name="UserDefinedBaseComponent">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Material" type="Material" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="resistivity" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Material">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Category" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="UserDefinedComponent">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Material" type="Material" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="resistivity" type="xs:decimal" />
+    <xs:attribute name="thickness" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ContinuousInsulation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Material" type="Material" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="resistivity" type="xs:decimal" />
+    <xs:attribute name="thickness" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FramingComponent">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Material" type="Material" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="resistivity" type="xs:decimal" />
+    <xs:attribute name="thickness" type="xs:decimal" />
+    <xs:attribute name="width" type="xs:decimal" />
+    <xs:attribute name="spacing" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ContinuousMedium">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Material" type="Material" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="resistivity" type="xs:decimal" />
+    <xs:attribute name="thickness" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Studs">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Material" type="Material" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Quantity" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="resistivity" type="xs:decimal" />
+    <xs:attribute name="isWood" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="WindowLegacy">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RsiValues" type="RsiValues" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="frameHeight" type="xs:decimal" />
+    <xs:attribute name="shgc" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="RsiValues">
+    <xs:attribute name="centreOfGlass" type="xs:decimal" />
+    <xs:attribute name="edgeOfGlass" type="xs:decimal" />
+    <xs:attribute name="frame" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="WindowUserDefined">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="GlazingType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OverallThermalResistance" type="CodeTextAndValue" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WindowStyle" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FillGas" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="LowECoating" type="CodeAndText" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="frameHeight" type="xs:decimal" />
+    <xs:attribute name="shgc" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="StrappingLayer">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Strapping" type="FramingComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CavityInsulation" type="UserDefinedComponent" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+  </xs:complexType>
+  <xs:complexType name="LintelUserDefined">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Studs" type="Studs" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Insulation" type="UserDefinedBaseComponent" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="totalThickness" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="SteelFramingLayer">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="CavityInsulation" type="UserDefinedComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Framing" type="SteelFraming" />
+    </xs:all>
+    <xs:attribute name="rank" type="xs:unsignedInt" />
+    <xs:attribute name="isPrimary" type="xs:boolean" />
+    <xs:attribute name="studsPerCorner" type="xs:short" />
+    <xs:attribute name="studsPerInteriorWall" type="xs:short" />
+    <xs:attribute name="topAndBottomPlates" type="xs:short" />
+    <xs:attribute name="doubleStudsOnWindows" type="xs:boolean" />
+    <xs:attribute name="ridgeBoardWidth" type="xs:decimal" />
+    <xs:attribute name="blockingWidth" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="SteelFraming">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="SteelGauge" type="CodeTextAndValue" />
+    </xs:sequence>
+    <xs:attribute name="thickness" type="xs:decimal" />
+    <xs:attribute name="width" type="xs:decimal" />
+    <xs:attribute name="spacing" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="WoodFramingType">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Structure" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Truss" type="CodeAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="StandardLayer">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="InsulationInFramingLayer" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ExtraInsulationLayer" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Framing" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="StructureType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ComponentTypeSize" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Spacing" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Insulation" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="InsulationLayer1" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="InsulationLayer2" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Interior" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="InteriorFinish" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Sheathing" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Exterior" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DropFraming" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Material" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="StudsCornerIntersection" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GlazingTypes" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CoatingsTints" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FillType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SpacerType" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FrameMaterial" type="CodeAndText" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfUserDefined">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Code" nillable="true" type="UserDefined" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="EnergyUpgrades">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Settings" type="Settings" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Components" type="ArrayOfChoice5" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Settings">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="CathedralCeilingsFlat" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Ceilings" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MainWalls" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Foundation" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Floor" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Windows" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AirTightness" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Doors" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Heating" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HotWater" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Ventilation" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Cooling" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TemperatureSetPoints" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Rooms" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Units" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PhotovoltaicGeneration" type="Setting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Baseloads" type="Setting" />
+    </xs:all>
+    <xs:attribute name="calculateSavingsIndividually" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="Setting">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Cost" type="Cardinal" />
+    </xs:sequence>
+    <xs:attribute name="cost" type="xs:decimal" />
+    <xs:attribute name="priority" type="xs:unsignedInt" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfChoice5">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element minOccurs="1" maxOccurs="1" name="Walkout" nillable="true" type="Walkout" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Floor" nillable="true" type="Floor" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Crawlspace" nillable="true" type="Crawlspace" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Door" nillable="true" type="Door" />
+      <xs:element minOccurs="1" maxOccurs="1" name="NaturalAirInfiltration" nillable="true" type="NaturalAirInfiltration" />
+      <xs:element minOccurs="1" maxOccurs="1" name="FloorHeader" nillable="true" type="FloorHeader" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Wall" nillable="true" type="Wall" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Basement" nillable="true" type="Basement" />
+      <xs:element minOccurs="1" maxOccurs="1" name="BaseLoads" nillable="true" type="BaseLoads" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Room" nillable="true" type="Room" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Temperatures" nillable="true" type="Temperatures" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Ventilation" nillable="true" type="Ventilation" />
+      <xs:element minOccurs="1" maxOccurs="1" name="HeatingCooling" nillable="true" type="HeatingCooling" />
+      <xs:element minOccurs="1" maxOccurs="1" name="HotWater" nillable="true" type="HotWater" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Slab" nillable="true" type="Slab" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Window" nillable="true" type="Window" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Foundation" nillable="true" type="Foundation" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Ceiling" nillable="true" type="Ceiling" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Generation" nillable="true" type="Generation" />
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="FuelCosts">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Electricity" type="ArrayOfFuelCostByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NaturalGas" type="ArrayOfFuelCostByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Oil" type="ArrayOfFuelCostByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Propane" type="ArrayOfFuelCostByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Wood" type="ArrayOfFuelCostByType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Monthly" type="FuelCostsMonthly" />
+    </xs:all>
+    <xs:attribute name="includeCostCalculations" type="xs:boolean" />
+    <xs:attribute name="library" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfFuelCostByType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Fuel" nillable="true" type="FuelCostByType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FuelCostByType">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Label" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Comment" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Units" type="CodeAndText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Minimum" type="FuelCostMinimum" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RateBlocks" type="FuelCostRateBlocks" />
+    </xs:all>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="FuelCostMinimum">
+    <xs:attribute name="units" type="xs:int" />
+    <xs:attribute name="charge" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FuelCostRateBlocks">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Block1" type="FuelCostRateBlock" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Block2" type="FuelCostRateBlock" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Block3" type="FuelCostRateBlock" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Block4" type="FuelCostRateBlock" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="FuelCostRateBlock">
+    <xs:attribute name="units" type="xs:int" />
+    <xs:attribute name="costPerUnit" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FuelCostsMonthly">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Electricity" type="FuelCostMonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NaturalGas" type="FuelCostMonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Oil" type="FuelCostMonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Propane" type="FuelCostMonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Wood" type="FuelCostMonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="FuelCostMonthlyData">
+    <xs:attribute name="january" type="xs:string" />
+    <xs:attribute name="february" type="xs:string" />
+    <xs:attribute name="march" type="xs:string" />
+    <xs:attribute name="april" type="xs:string" />
+    <xs:attribute name="may" type="xs:string" />
+    <xs:attribute name="june" type="xs:string" />
+    <xs:attribute name="july" type="xs:string" />
+    <xs:attribute name="august" type="xs:string" />
+    <xs:attribute name="september" type="xs:string" />
+    <xs:attribute name="october" type="xs:string" />
+    <xs:attribute name="november" type="xs:string" />
+    <xs:attribute name="december" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="ArrayOfResults">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Results" nillable="true" type="Results" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Results">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Labels" type="Labels" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Annual" type="AnnualResults" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Monthly" type="MonthlyResults" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Other" type="OtherResults" />
+    </xs:sequence>
+    <xs:attribute name="houseCode" type="xs:string" />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="sha256" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="AnnualResults">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Consumption" type="AnnualConsumption" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HotWaterDemand" type="HotWaterDemand" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Load" type="LoadAnnual" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HeatLoss" type="AnnualHeatLoss" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AirChangeRate" type="AirChangeRate" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UtilizedSolarGains" type="ValueOnly" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ActualFuelCosts" type="ActualFuelCosts" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="AnnualConsumption">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Electrical" type="ElectricalAnnual" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NaturalGas" type="NaturalGasAppliance" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Oil" type="Oil" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Propane" type="PropaneAppliance" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Wood" type="Wood" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SpaceHeating" type="PrimarySecondaryEnergy" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HotWater" type="PrimarySecondaryEnergy" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SupplementalHeating" type="SupplementalHeating" />
+    </xs:all>
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ElectricalAnnual">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="HotWater" type="HotWaterElectrical" />
+    </xs:sequence>
+    <xs:attribute name="baseload" type="xs:decimal" />
+    <xs:attribute name="airConditioning" type="xs:decimal" />
+    <xs:attribute name="appliance" type="xs:decimal" />
+    <xs:attribute name="lighting" type="xs:decimal" />
+    <xs:attribute name="heatPump" type="xs:decimal" />
+    <xs:attribute name="spaceHeating" type="xs:decimal" />
+    <xs:attribute name="spaceCooling" type="xs:decimal" />
+    <xs:attribute name="ventilation" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="HotWaterElectrical">
+    <xs:attribute name="dhw" type="xs:decimal" />
+    <xs:attribute name="primary" type="xs:decimal" />
+    <xs:attribute name="secondary" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="NaturalGasAppliance">
+    <xs:all />
+    <xs:attribute name="baseload" type="xs:decimal" />
+    <xs:attribute name="hotWater" type="xs:decimal" />
+    <xs:attribute name="spaceHeating" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+    <xs:attribute name="appliance" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Consummable">
+    <xs:attribute name="baseload" type="xs:decimal" />
+    <xs:attribute name="hotWater" type="xs:decimal" />
+    <xs:attribute name="spaceHeating" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Wood">
+    <xs:all />
+    <xs:attribute name="baseload" type="xs:decimal" />
+    <xs:attribute name="hotWater" type="xs:decimal" />
+    <xs:attribute name="spaceHeating" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="Oil">
+    <xs:all />
+    <xs:attribute name="baseload" type="xs:decimal" />
+    <xs:attribute name="hotWater" type="xs:decimal" />
+    <xs:attribute name="spaceHeating" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="PropaneAppliance">
+    <xs:all />
+    <xs:attribute name="baseload" type="xs:decimal" />
+    <xs:attribute name="hotWater" type="xs:decimal" />
+    <xs:attribute name="spaceHeating" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+    <xs:attribute name="appliance" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="PrimarySecondaryEnergy">
+    <xs:attribute name="primary" type="xs:decimal" />
+    <xs:attribute name="secondary" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="SupplementalHeating">
+    <xs:attribute name="system1" type="xs:decimal" />
+    <xs:attribute name="system2" type="xs:decimal" />
+    <xs:attribute name="system3" type="xs:decimal" />
+    <xs:attribute name="system4" type="xs:decimal" />
+    <xs:attribute name="system5" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="HotWaterDemand">
+    <xs:attribute name="base" type="xs:decimal" />
+    <xs:attribute name="primary" type="xs:decimal" />
+    <xs:attribute name="secondary" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="LoadAnnual">
+    <xs:attribute name="basementHeating" type="xs:decimal" />
+    <xs:attribute name="basementCooling" type="xs:decimal" />
+    <xs:attribute name="grossHeating" type="xs:decimal" />
+    <xs:attribute name="auxiliaryEnergy" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="AnnualHeatLoss">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="MainFloor" type="DoorAndWindows" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Basement" type="DoorAndWindows" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Crawlspace" type="DoorAndWindows" />
+    </xs:all>
+    <xs:attribute name="total" type="xs:decimal" />
+    <xs:attribute name="ceiling" type="xs:decimal" />
+    <xs:attribute name="mainWalls" type="xs:decimal" />
+    <xs:attribute name="windows" type="xs:decimal" />
+    <xs:attribute name="doors" type="xs:decimal" />
+    <xs:attribute name="exposedFloors" type="xs:decimal" />
+    <xs:attribute name="crawlspace" type="xs:decimal" />
+    <xs:attribute name="slab" type="xs:decimal" />
+    <xs:attribute name="basementBelowGradeWall" type="xs:decimal" />
+    <xs:attribute name="basementAboveGradeWall" type="xs:decimal" />
+    <xs:attribute name="basementFloorHeaders" type="xs:decimal" />
+    <xs:attribute name="ponyWall" type="xs:decimal" />
+    <xs:attribute name="floorsAboveBasement" type="xs:decimal" />
+    <xs:attribute name="airLeakageAndNaturalVentilation" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="DoorAndWindows">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Windows" type="Cardinal" />
+    </xs:sequence>
+    <xs:attribute name="door" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="AirChangeRate">
+    <xs:attribute name="natural" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ValueOnly">
+    <xs:attribute name="value" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="ActualFuelCosts">
+    <xs:attribute name="electrical" type="xs:decimal" />
+    <xs:attribute name="naturalGas" type="xs:decimal" />
+    <xs:attribute name="oil" type="xs:decimal" />
+    <xs:attribute name="propane" type="xs:decimal" />
+    <xs:attribute name="wood" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="MonthlyResults">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="FractionOfTimeHeatingSystemNotOperating" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SolarHotWaterEnergyContribution" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ElectricalConsumption" type="ElectricalMonthly" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Gains" type="Gains" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UtilizedAuxiliaryHeatRequired" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Temperatures" type="TemperaturesMonthly" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Load" type="LoadMonthly" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HeatLoss" type="MonthlyHeatLoss" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Factors" type="Factors" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AirChangeRate" type="MonthlyAirChangeRate" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ElectricalMonthly">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="ImsOrP9HeatingHours" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Gross" type="MonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Gains">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="UtilizedInternal" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UtilizedSolar" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CrawlspaceSolar" type="MonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="TemperaturesMonthly">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="CrawlSpace" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Attic" type="MonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="LoadMonthly">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="PhotoVoltaicUtilized" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PhotoVoltaicAvailable" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WindUtilized" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WindAvailable" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GrossThermal" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Basement" type="BasementLoadMonthly" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="BasementLoadMonthly">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Heating" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Cooling" type="MonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="MonthlyHeatLoss">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Ceiling" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MainWalls" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Doors" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ExposedFloors" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Crawlspace" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Slab" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Basement" type="BasementHeatLoss" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="BasementHeatLoss">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="AboveGrade" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BelowGrade" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AboveGradeWall" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FloorHeaders" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PonyWall" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FloorsAbove" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AirLeakageAndMechanicalVentilation" type="MonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="Factors">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="MainFloors" type="MainFloorsFactors" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Basement" type="BasementFactors" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="MainFloorsFactors">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="SolarUtilization" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GainLoadRatio" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MassGainRatio" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="InternalGainsUtilization" type="MonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="BasementFactors">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="SolarUtilization" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GainLoadRatio" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MassGainRatio" type="MonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="MonthlyAirChangeRate">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Natural" type="MonthlyData" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Total" type="MonthlyData" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="OtherResults">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Ventilation" type="VentilationResults" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FanEnergyConsumption" type="FanEnergyConsumption" />
+      <xs:element minOccurs="0" maxOccurs="1" name="GrossArea" type="GrossArea" />
+    </xs:all>
+    <xs:attribute name="designHeatLossRate" type="xs:decimal" />
+    <xs:attribute name="designCoolLossRate" type="xs:decimal" />
+    <xs:attribute name="seasonalHeatEfficiency" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="VentilationResults">
+    <xs:attribute name="roomCountCapacity" type="xs:decimal" />
+    <xs:attribute name="noLimitCapacity" type="xs:decimal" />
+    <xs:attribute name="minimumAirChangeRate" type="xs:decimal" />
+    <xs:attribute name="equivalentLeakageArea" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="FanEnergyConsumption">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Hrv" type="FanConsumption" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Heating" type="FanConsumption" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AirConditioning" type="FanConsumption" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HrvOrExhaust" type="FanConsumption" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SpaceHeating" type="FanConsumption" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SpaceCooling" type="FanConsumption" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="FanConsumption">
+    <xs:attribute name="heatingHours" type="xs:decimal" />
+    <xs:attribute name="neitherHours" type="xs:decimal" />
+    <xs:attribute name="coolingHours" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="GrossArea">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="MainFloors" type="GrossAreaMainFloors" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Basement" type="GrossAreaBasement" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Crawlspace" type="GrossAreaCrawlspace" />
+    </xs:all>
+    <xs:attribute name="ceiling" type="xs:decimal" />
+    <xs:attribute name="doors" type="xs:decimal" />
+    <xs:attribute name="exposedFloors" type="xs:decimal" />
+    <xs:attribute name="slab" type="xs:decimal" />
+    <xs:attribute name="ponyWall" type="xs:decimal" />
+    <xs:attribute name="buildingSurfaceArea" type="xs:decimal" />
+    <xs:attribute name="houseVolumeWithoutCrawlspace" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="GrossAreaMainFloors">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Windows" type="GrossAreaWindows" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Door" type="GrossAreaComponent" />
+    </xs:all>
+    <xs:attribute name="mainWalls" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="GrossAreaFloor">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Windows" type="GrossAreaWindows" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Door" type="GrossAreaComponent" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="GrossAreaWindows">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="South" type="GrossAreaComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SouthEast" type="GrossAreaComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="East" type="GrossAreaComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NorthEast" type="GrossAreaComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="North" type="GrossAreaComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NorthWest" type="GrossAreaComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="West" type="GrossAreaComponent" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SouthWest" type="GrossAreaComponent" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="GrossAreaComponent">
+    <xs:attribute name="grossArea" type="xs:decimal" />
+    <xs:attribute name="rsiValue" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="GrossAreaCrawlspace">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Windows" type="GrossAreaWindows" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Door" type="GrossAreaComponent" />
+    </xs:all>
+    <xs:attribute name="wall" type="xs:decimal" />
+    <xs:attribute name="floor" type="xs:decimal" />
+    <xs:attribute name="floorHeader" type="xs:decimal" />
+  </xs:complexType>
+  <xs:complexType name="GrossAreaBasement">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Windows" type="GrossAreaWindows" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Door" type="GrossAreaComponent" />
+    </xs:all>
+    <xs:attribute name="aboveGrade" type="xs:decimal" />
+    <xs:attribute name="belowGrade" type="xs:decimal" />
+    <xs:attribute name="floorSlab" type="xs:decimal" />
+    <xs:attribute name="floorHeader" type="xs:decimal" />
+    <xs:attribute name="floorsAbove" type="xs:decimal" />
+  </xs:complexType>
+  <xs:element name="Utf8Helper" nillable="true" type="Utf8Helper" />
+  <xs:complexType name="Utf8Helper" />
+  <xs:element name="RsiSection" nillable="true" type="RsiSection" />
+  <xs:element name="SelectedAndDate" nillable="true" type="SelectedAndDate" />
+  <xs:element name="SelectedAndText" nillable="true" type="SelectedAndText" />
+  <xs:element name="SelectedValueAndUnits" nillable="true" type="SelectedValueAndUnits" />
+  <xs:complexType name="SelectedValueAndUnits">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="selected" type="xs:boolean" />
+        <xs:attribute name="value" type="xs:decimal" />
+        <xs:attribute name="uiUnits" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:element name="SimulationSettings" nillable="true" type="SimulationSettings" />
+  <xs:element name="ValueOnly" nillable="true" type="ValueOnly" />
+  <xs:element name="Version" nillable="true" type="HouseFileVersion" />
+  <xs:element name="WeatherLibrary" nillable="true" type="WeatherLibrary" />
+  <xs:complexType name="WeatherLibrary">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="Locations" type="ArrayOfWeatherLocation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Regions" type="ArrayOfWeatherRegion" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfWeatherLocation">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="WeatherLocation" nillable="true" type="WeatherLocation" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="WeatherLocation">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="region" type="WeatherRegion" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="WeatherRegion">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="English" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="French" type="LanguageText" />
+      <xs:element minOccurs="0" maxOccurs="1" name="WeatherRegions" type="ArrayOfWeatherLocation" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfWeatherRegion">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="WeatherRegion" nillable="true" type="WeatherRegion" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="WeatherLocation" nillable="true" type="WeatherLocation" />
+  <xs:element name="WeatherRegion" nillable="true" type="WeatherRegion" />
+  <xs:element name="FuelCostsMonthly" nillable="true" type="FuelCostsMonthly" />
+  <xs:element name="FuelCostMonthlyData" nillable="true" type="FuelCostMonthlyData" />
+  <xs:element name="FuelCostRateBlock" nillable="true" type="FuelCostRateBlock" />
+  <xs:element name="FuelCostRateBlocks" nillable="true" type="FuelCostRateBlocks" />
+  <xs:element name="FuelCostMinimum" nillable="true" type="FuelCostMinimum" />
+  <xs:element name="FuelCostByType" nillable="true" type="FuelCostByType" />
+  <xs:element name="FuelCosts" nillable="true" type="FuelCosts" />
+  <xs:element name="EnergyUpgrades" nillable="true" type="EnergyUpgrades" />
+  <xs:element name="Setting" nillable="true" type="Setting" />
+  <xs:element name="Settings" nillable="true" type="Settings" />
+  <xs:element name="CeilingTypes" nillable="true" type="CeilingTypes" />
+  <xs:complexType name="CeilingTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:complexType name="ResourceList" />
+  <xs:element name="CeilingSlopes" nillable="true" type="CeilingSlopes" />
+  <xs:complexType name="CeilingSlopes">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="ResourceValueList">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="DoorTypes" nillable="true" type="DoorTypes" />
+  <xs:complexType name="DoorTypes">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="FloorHeaderDirections" nillable="true" type="FloorHeaderDirections" />
+  <xs:complexType name="FloorHeaderDirections">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="WallDirections" nillable="true" type="WallDirections" />
+  <xs:complexType name="WallDirections">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="WindowDirections" nillable="true" type="WindowDirections" />
+  <xs:complexType name="WindowDirections">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HouseDirections" nillable="true" type="HouseDirections" />
+  <xs:complexType name="HouseDirections">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="WindowTilts" nillable="true" type="WindowTilts" />
+  <xs:complexType name="WindowTilts">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="DhwEnergySources" nillable="true" type="DhwEnergySources" />
+  <xs:complexType name="DhwEnergySources">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DhwDrawPatterns" nillable="true" type="DhwDrawPatterns" />
+  <xs:complexType name="DhwDrawPatterns">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DhwTankTypeElectric" nillable="true" type="DhwTankTypeElectric" />
+  <xs:complexType name="DhwTankTypeElectric">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DhwTankTypeGasPropane" nillable="true" type="DhwTankTypeGasPropane" />
+  <xs:complexType name="DhwTankTypeGasPropane">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DhwTankTypeOil" nillable="true" type="DhwTankTypeOil" />
+  <xs:complexType name="DhwTankTypeOil">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DhwTankTypeWood" nillable="true" type="DhwTankTypeWood" />
+  <xs:complexType name="DhwTankTypeWood">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DhwTankTypeSolar" nillable="true" type="DhwTankTypeSolar" />
+  <xs:complexType name="DhwTankTypeSolar">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DhwTankVolumes" nillable="true" type="DhwTankVolumes" />
+  <xs:complexType name="DhwTankVolumes">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="DhwTankLocations" nillable="true" type="DhwTankLocations" />
+  <xs:complexType name="DhwTankLocations">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="PhotovoltaicModules" nillable="true" type="PhotovoltaicModules" />
+  <xs:complexType name="PhotovoltaicModules">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="RoomTypes" nillable="true" type="RoomTypes" />
+  <xs:complexType name="RoomTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="RoomFloors" nillable="true" type="RoomFloors" />
+  <xs:complexType name="RoomFloors">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HouseOwnerships" nillable="true" type="HouseOwnerships" />
+  <xs:complexType name="HouseOwnerships">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HousePlanShapes" nillable="true" type="HousePlanShapes" />
+  <xs:complexType name="HousePlanShapes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HouseStoreys" nillable="true" type="HouseStoreys" />
+  <xs:complexType name="HouseStoreys">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HouseTypes" nillable="true" type="HouseTypes" />
+  <xs:complexType name="HouseTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HouseTypesMurb" nillable="true" type="HouseTypesMurb" />
+  <xs:complexType name="HouseTypesMurb">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ThermalMass" nillable="true" type="ThermalMass" />
+  <xs:complexType name="ThermalMass">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="YearBuilt" nillable="true" type="YearBuilt" />
+  <xs:complexType name="YearBuilt">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="SoilConditions" nillable="true" type="SoilConditions" />
+  <xs:complexType name="SoilConditions">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="Colours" nillable="true" type="Colours" />
+  <xs:complexType name="Colours">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="WindowAirTightness" nillable="true" type="WindowAirTightness" />
+  <xs:complexType name="WindowAirTightness">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="VentilationRate" nillable="true" type="VentilationRate" />
+  <xs:complexType name="VentilationRate">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="DepressurizationLimits" nillable="true" type="DepressurizationLimits" />
+  <xs:complexType name="DepressurizationLimits">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="WaterTableLevels" nillable="true" type="WaterTableLevels" />
+  <xs:complexType name="WaterTableLevels">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="SheathingMaterials" nillable="true" type="SheathingMaterials" />
+  <xs:complexType name="SheathingMaterials">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="ExteriorMaterials" nillable="true" type="ExteriorMaterials" />
+  <xs:complexType name="ExteriorMaterials">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="RoofingMaterials" nillable="true" type="RoofingMaterials" />
+  <xs:complexType name="RoofingMaterials">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="AirTightnessTypes" nillable="true" type="AirTightnessTypes" />
+  <xs:complexType name="AirTightnessTypes">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="BlowerTestPressures" nillable="true" type="BlowerTestPressures" />
+  <xs:complexType name="BlowerTestPressures">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="AllowableRise" nillable="true" type="AllowableRise" />
+  <xs:complexType name="AllowableRise">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="Terrains" nillable="true" type="Terrains" />
+  <xs:complexType name="Terrains">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="TestStatuses" nillable="true" type="TestStatuses" />
+  <xs:complexType name="TestStatuses">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="LocalShieldings" nillable="true" type="LocalShieldings" />
+  <xs:complexType name="LocalShieldings">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="AirLeakageTestTypes" nillable="true" type="AirLeakageTestTypes" />
+  <xs:complexType name="AirLeakageTestTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="OpeningsUpstairs" nillable="true" type="OpeningsUpstairs" />
+  <xs:complexType name="OpeningsUpstairs">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="VentilationTypes" nillable="true" type="VentilationTypes" />
+  <xs:complexType name="VentilationTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="VentilationUses" nillable="true" type="VentilationUses" />
+  <xs:complexType name="VentilationUses">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="AirDistributionTypes" nillable="true" type="AirDistributionTypes" />
+  <xs:complexType name="AirDistributionTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="AirDistributionFanPowerLevels" nillable="true" type="AirDistributionFanPowerLevels" />
+  <xs:complexType name="AirDistributionFanPowerLevels">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="OperationSchedules" nillable="true" type="OperationSchedules" />
+  <xs:complexType name="OperationSchedules">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="VentilatorTypes" nillable="true" type="VentilatorTypes" />
+  <xs:complexType name="VentilatorTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DuctLocations" nillable="true" type="DuctLocations" />
+  <xs:complexType name="DuctLocations">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DuctTypes" nillable="true" type="DuctTypes" />
+  <xs:complexType name="DuctTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="DuctSealingCharacteristics" nillable="true" type="DuctSealingCharacteristics" />
+  <xs:complexType name="DuctSealingCharacteristics">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ShowerTemperatures" nillable="true" type="ShowerTemperatures" />
+  <xs:complexType name="ShowerTemperatures">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ShowerFlowRates" nillable="true" type="ShowerFlowRates" />
+  <xs:complexType name="ShowerFlowRates">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="BaseShowerTemperatures" nillable="true" type="BaseShowerTemperatures" />
+  <xs:complexType name="BaseShowerTemperatures">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="BaseShowerFlowRates" nillable="true" type="BaseShowerFlowRates" />
+  <xs:complexType name="BaseShowerFlowRates">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="BaseFaucetFlowRates" nillable="true" type="BaseFaucetFlowRates" />
+  <xs:complexType name="BaseFaucetFlowRates">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="ApplianceEnergySources" nillable="true" type="ApplianceEnergySources" />
+  <xs:complexType name="ApplianceEnergySources">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ClothesWasherTemperatures" nillable="true" type="ClothesWasherTemperatures" />
+  <xs:complexType name="ClothesWasherTemperatures">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ApplianceEnergySourceSpecified" nillable="true" type="ApplianceEnergySourceSpecified" />
+  <xs:complexType name="ApplianceEnergySourceSpecified">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="InteriorLightingTypes" nillable="true" type="InteriorLightingTypes" />
+  <xs:complexType name="InteriorLightingTypes">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="DryerRatedConsumptions" nillable="true" type="DryerRatedConsumptions" />
+  <xs:complexType name="DryerRatedConsumptions">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="StoveRatedConsumptions" nillable="true" type="StoveRatedConsumptions" />
+  <xs:complexType name="StoveRatedConsumptions">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="RefrigeratorRatedConsumptions" nillable="true" type="RefrigeratorRatedConsumptions" />
+  <xs:complexType name="RefrigeratorRatedConsumptions">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="Months" nillable="true" type="Months" />
+  <xs:complexType name="Months">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HeatingFanModes" nillable="true" type="HeatingFanModes" />
+  <xs:complexType name="HeatingFanModes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="CoolingFanModes" nillable="true" type="CoolingFanModes" />
+  <xs:complexType name="CoolingFanModes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HeatingCoolingUses" nillable="true" type="HeatingCoolingUses" />
+  <xs:complexType name="HeatingCoolingUses">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HeatingLocations" nillable="true" type="HeatingLocations" />
+  <xs:complexType name="HeatingLocations">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="YearMade" nillable="true" type="YearMade" />
+  <xs:complexType name="YearMade">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HeatingUsages" nillable="true" type="HeatingUsages" />
+  <xs:complexType name="HeatingUsages">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HeatPumpCutoffTypes" nillable="true" type="HeatPumpCutoffTypes" />
+  <xs:complexType name="HeatPumpCutoffTypes">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="HeatPumpRatingTypes" nillable="true" type="HeatPumpRatingTypes" />
+  <xs:complexType name="HeatPumpRatingTypes">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="Value" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="HeatPumpFunctions" nillable="true" type="HeatPumpFunctions" />
+  <xs:complexType name="HeatPumpFunctions">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="CentralEquipmentTypes" nillable="true" type="CentralEquipmentTypes" />
+  <xs:complexType name="CentralEquipmentTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="HeatingEnergySources" nillable="true" type="HeatingEnergySources" />
+  <xs:complexType name="HeatingEnergySources">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="SupplementaryEnergySources" nillable="true" type="SupplementaryEnergySources" />
+  <xs:complexType name="SupplementaryEnergySources">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="MultipleSystemsEnergySources" nillable="true" type="MultipleSystemsEnergySources" />
+  <xs:complexType name="MultipleSystemsEnergySources">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="P9EnergySources" nillable="true" type="P9EnergySources" />
+  <xs:complexType name="P9EnergySources">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="FlueTypes" nillable="true" type="FlueTypes" />
+  <xs:complexType name="FlueTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ElectricBoilerTypes" nillable="true" type="ElectricBoilerTypes" />
+  <xs:complexType name="ElectricBoilerTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="GasPropaneBoilerTypes" nillable="true" type="GasPropaneBoilerTypes" />
+  <xs:complexType name="GasPropaneBoilerTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="OilBoilerTypes" nillable="true" type="OilBoilerTypes" />
+  <xs:complexType name="OilBoilerTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="WoodBoilerTypes" nillable="true" type="WoodBoilerTypes" />
+  <xs:complexType name="WoodBoilerTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="WoodFurnaceTypes" nillable="true" type="WoodFurnaceTypes" />
+  <xs:complexType name="WoodFurnaceTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ElectricFurnaceTypes" nillable="true" type="ElectricFurnaceTypes" />
+  <xs:complexType name="ElectricFurnaceTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="GasPropaneFurnaceTypes" nillable="true" type="GasPropaneFurnaceTypes" />
+  <xs:complexType name="GasPropaneFurnaceTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="OilFurnaceTypes" nillable="true" type="OilFurnaceTypes" />
+  <xs:complexType name="OilFurnaceTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="GasPropaneComboHeatDhwTypes" nillable="true" type="GasPropaneComboHeatDhwTypes" />
+  <xs:complexType name="GasPropaneComboHeatDhwTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="OilComboHeatDhwTypes" nillable="true" type="OilComboHeatDhwTypes" />
+  <xs:complexType name="OilComboHeatDhwTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ElectricSupplementaryHeatingTypes" nillable="true" type="ElectricSupplementaryHeatingTypes" />
+  <xs:complexType name="ElectricSupplementaryHeatingTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="GasPropaneSupplementaryHeatingTypes" nillable="true" type="GasPropaneSupplementaryHeatingTypes" />
+  <xs:complexType name="GasPropaneSupplementaryHeatingTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="OilSupplementaryHeatingTypes" nillable="true" type="OilSupplementaryHeatingTypes" />
+  <xs:complexType name="OilSupplementaryHeatingTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="WoodSupplementaryHeatingTypes" nillable="true" type="WoodSupplementaryHeatingTypes" />
+  <xs:complexType name="WoodSupplementaryHeatingTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="MultipleSystemsElectricity" nillable="true" type="MultipleSystemsElectricity" />
+  <xs:complexType name="MultipleSystemsElectricity">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="MultipleSystemsGasPropane" nillable="true" type="MultipleSystemsGasPropane" />
+  <xs:complexType name="MultipleSystemsGasPropane">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="MultipleSystemsOil" nillable="true" type="MultipleSystemsOil" />
+  <xs:complexType name="MultipleSystemsOil">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="MultipleSystemsWood" nillable="true" type="MultipleSystemsWood" />
+  <xs:complexType name="MultipleSystemsWood">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="MultipleSystemsEfficiencyTypes" nillable="true" type="MultipleSystemsEfficiencyTypes" />
+  <xs:complexType name="MultipleSystemsEfficiencyTypes">
+    <xs:all />
+  </xs:complexType>
+  <xs:element name="ResourceList" nillable="true" type="ResourceList" />
+  <xs:element name="ResourceValueList" nillable="true" type="ResourceValueList" />
+  <xs:element name="BaseComponent" nillable="true" type="BaseComponent" />
+  <xs:element name="Component" nillable="true" type="Component" />
+  <xs:element name="Construction" nillable="true" type="Construction" />
+  <xs:element name="EnergyStarEquipmentInformation" nillable="true" type="EnergyStarEquipmentInformation" />
+  <xs:element name="EquipmentInformation" nillable="true" type="EquipmentInformation" />
+  <xs:element name="Array" nillable="true" type="Array" />
+  <xs:element name="Efficiency" nillable="true" type="Efficiency" />
+  <xs:element name="Generation" nillable="true" type="Generation" />
+  <xs:element name="Module" nillable="true" type="Module" />
+  <xs:element name="Photovoltaic" nillable="true" type="Photovoltaic" />
+  <xs:element name="Floor" nillable="true" type="Floor" />
+  <xs:element name="FloorConstruction" nillable="true" type="FloorConstruction" />
+  <xs:element name="FloorMeasurements" nillable="true" type="FloorMeasurements" />
+  <xs:element name="Window" nillable="true" type="Window" />
+  <xs:element name="WindowMeasurements" nillable="true" type="WindowMeasurements" />
+  <xs:element name="WindowConstruction" nillable="true" type="WindowConstruction" />
+  <xs:element name="WindowShading" nillable="true" type="WindowShading" />
+  <xs:element name="Wall" nillable="true" type="Wall" />
+  <xs:element name="WallConstruction" nillable="true" type="WallConstruction" />
+  <xs:element name="WallMeasurements" nillable="true" type="WallMeasurements" />
+  <xs:element name="ExhaustLocationOptions" nillable="true" type="ExhaustLocationOptions" />
+  <xs:complexType name="ExhaustLocationOptions">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Xml">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:any processContents="lax" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HrvDucts" nillable="true" type="HrvDucts" />
+  <xs:element name="HrvDuctSpec" nillable="true" type="HrvDuctSpec" />
+  <xs:element name="Requirements" nillable="true" type="Requirements" />
+  <xs:element name="Rooms" nillable="true" type="Rooms" />
+  <xs:element name="VentilatorObjects" nillable="true" type="VentilatorObjects" />
+  <xs:element name="WholeHouseParamaters" nillable="true" type="WholeHouseParamaters" />
+  <xs:element name="Dryer" nillable="true" type="Dryer" />
+  <xs:element name="Hrv" nillable="true" type="Hrv" />
+  <xs:element name="Ventilation" nillable="true" type="Ventilation" />
+  <xs:element name="RoomConstruction" nillable="true" type="RoomConstruction" />
+  <xs:element name="Room" nillable="true" type="Room" />
+  <xs:element name="RoomMeasurements" nillable="true" type="RoomMeasurements" />
+  <xs:element name="Consummable" nillable="true" type="Consummable" />
+  <xs:element name="ActualFuelCosts" nillable="true" type="ActualFuelCosts" />
+  <xs:element name="Oil" nillable="true" type="Oil" />
+  <xs:element name="PropaneAppliance" nillable="true" type="PropaneAppliance" />
+  <xs:element name="MonthlyAirChangeRate" nillable="true" type="MonthlyAirChangeRate" />
+  <xs:element name="ResultsType" type="ResultsType" />
+  <xs:complexType name="ResultsType" />
+  <xs:element name="AirChangeRate" nillable="true" type="AirChangeRate" />
+  <xs:element name="AnnualConsumption" nillable="true" type="AnnualConsumption" />
+  <xs:element name="AnnualHeatLoss" nillable="true" type="AnnualHeatLoss" />
+  <xs:element name="AnnualResults" nillable="true" type="AnnualResults" />
+  <xs:element name="BasementHeatLoss" nillable="true" type="BasementHeatLoss" />
+  <xs:element name="BasementLoadMonthly" nillable="true" type="BasementLoadMonthly" />
+  <xs:element name="Wood" nillable="true" type="Wood" />
+  <xs:element name="BasementFactors" nillable="true" type="BasementFactors" />
+  <xs:element name="GrossAreaCrawlspace" nillable="true" type="GrossAreaCrawlspace" />
+  <xs:element name="GrossAreaBasement" nillable="true" type="GrossAreaBasement" />
+  <xs:element name="DoorAndWindows" nillable="true" type="DoorAndWindows" />
+  <xs:element name="ElectricalAnnual" nillable="true" type="ElectricalAnnual" />
+  <xs:element name="ElectricalMonthly" nillable="true" type="ElectricalMonthly" />
+  <xs:element name="Factors" nillable="true" type="Factors" />
+  <xs:element name="FanConsumption" nillable="true" type="FanConsumption" />
+  <xs:element name="FanEnergyConsumption" nillable="true" type="FanEnergyConsumption" />
+  <xs:element name="Gains" nillable="true" type="Gains" />
+  <xs:element name="GrossArea" nillable="true" type="GrossArea" />
+  <xs:element name="GrossAreaComponent" nillable="true" type="GrossAreaComponent" />
+  <xs:element name="GrossAreaFloor" nillable="true" type="GrossAreaFloor" />
+  <xs:element name="GrossAreaMainFloors" nillable="true" type="GrossAreaMainFloors" />
+  <xs:element name="GrossAreaWindows" nillable="true" type="GrossAreaWindows" />
+  <xs:element name="HotWaterDemand" nillable="true" type="HotWaterDemand" />
+  <xs:element name="HotWaterElectrical" nillable="true" type="HotWaterElectrical" />
+  <xs:element name="LoadAnnual" nillable="true" type="LoadAnnual" />
+  <xs:element name="LoadMonthly" nillable="true" type="LoadMonthly" />
+  <xs:element name="MainFloorsFactors" nillable="true" type="MainFloorsFactors" />
+  <xs:element name="MonthlyHeatLoss" nillable="true" type="MonthlyHeatLoss" />
+  <xs:element name="NaturalGasAppliance" nillable="true" type="NaturalGasAppliance" />
+  <xs:element name="OtherResults" nillable="true" type="OtherResults" />
+  <xs:element name="MonthlyResults" nillable="true" type="MonthlyResults" />
+  <xs:element name="PrimarySecondaryEnergy" nillable="true" type="PrimarySecondaryEnergy" />
+  <xs:element name="PropaneConsummable" nillable="true" type="PropaneConsummable" />
+  <xs:complexType name="PropaneConsummable">
+    <xs:all />
+    <xs:attribute name="baseload" type="xs:decimal" />
+    <xs:attribute name="hotWater" type="xs:decimal" />
+    <xs:attribute name="spaceHeating" type="xs:decimal" />
+    <xs:attribute name="total" type="xs:decimal" />
+    <xs:attribute name="appliance" type="xs:decimal" />
+  </xs:complexType>
+  <xs:element name="Results" nillable="true" type="Results" />
+  <xs:element name="SupplementalHeating" nillable="true" type="SupplementalHeating" />
+  <xs:element name="TemperaturesMonthly" nillable="true" type="TemperaturesMonthly" />
+  <xs:element name="VentilationResults" nillable="true" type="VentilationResults" />
+  <xs:element name="BlowerTest" nillable="true" type="BlowerTest" />
+  <xs:element name="BuildingSite" nillable="true" type="BuildingSite" />
+  <xs:element name="ExhaustDevicesTest" nillable="true" type="ExhaustDevicesTest" />
+  <xs:element name="LocalShielding" nillable="true" type="LocalShielding" />
+  <xs:element name="NaturalAirSpecifications" nillable="true" type="NaturalAirSpecifications" />
+  <xs:element name="SpecificationsHouse" nillable="true" type="SpecificationsHouse" />
+  <xs:element name="WeatherStation" nillable="true" type="WeatherStation" />
+  <xs:element name="LeakageFractions" nillable="true" type="LeakageFractions" />
+  <xs:element name="NaturalAirInfiltration" nillable="true" type="NaturalAirInfiltration" />
+  <xs:element name="OtherFactors" nillable="true" type="OtherFactors" />
+  <xs:element name="AirLeakageTestData" nillable="true" type="AirLeakageTestData" />
+  <xs:element name="DataPoint" nillable="true" type="DataPoint" />
+  <xs:element name="Pressure" nillable="true" type="Pressure" />
+  <xs:element name="PressureData" nillable="true" type="PressureData" />
+  <xs:element name="Test" nillable="true" type="Test" />
+  <xs:element name="File" nillable="true" type="File" />
+  <xs:element name="House" nillable="true" type="House" />
+  <xs:element name="MainFloors" nillable="true" type="MainFloors" />
+  <xs:element name="AttachmentFoundation" nillable="true" type="AttachmentFoundation" />
+  <xs:element name="Address" nillable="true" type="Address" />
+  <xs:element name="Attachment" nillable="true" type="Attachment" />
+  <xs:element name="VentilationBasement" nillable="true" type="VentilationBasement" />
+  <xs:element name="Client" nillable="true" type="Client" />
+  <xs:element name="CorrectedInsulation" nillable="true" type="CorrectedInsulation" />
+  <xs:element name="TemperatureCrawlspace" nillable="true" type="TemperatureCrawlspace" />
+  <xs:element name="Equipment" nillable="true" type="Equipment" />
+  <xs:element name="ProgramInformation" nillable="true" type="ProgramInformation" />
+  <xs:element name="Justifications" nillable="true" type="Justifications" />
+  <xs:element name="MailingAddress" nillable="true" type="MailingAddress" />
+  <xs:element name="Name" nillable="true" type="Name" />
+  <xs:element name="Temperatures" nillable="true" type="Temperatures" />
+  <xs:element name="Weather" nillable="true" type="Weather" />
+  <xs:element name="GableEnds" nillable="true" type="GableEnds" />
+  <xs:element name="HeatedFloorArea" nillable="true" type="HeatedFloorArea" />
+  <xs:element name="NumberOf" nillable="true" type="NumberOf" />
+  <xs:element name="SlopedRoof" nillable="true" type="SlopedRoof" />
+  <xs:element name="HouseSpecifications" nillable="true" type="HouseSpecifications" />
+  <xs:element name="RoofCavity" nillable="true" type="RoofCavity" />
+  <xs:element name="DrainWaterHeatRecovery" nillable="true" type="DrainWaterHeatRecovery" />
+  <xs:element name="HotWaterComponent" nillable="true" type="HotWaterComponent" />
+  <xs:element name="NumberOfDwhrSystems" nillable="true" type="NumberOfDwhrSystems" />
+  <xs:element name="NumberOfHotWaterSystems" nillable="true" type="NumberOfHotWaterSystems" />
+  <xs:element name="EnergyFactor" nillable="true" type="EnergyFactor" />
+  <xs:element name="Solar" nillable="true" type="Solar" />
+  <xs:element name="HotWater" nillable="true" type="HotWater" />
+  <xs:element name="CoolingSeason" nillable="true" type="CoolingSeason" />
+  <xs:element name="MultipleSystemsEquipment" nillable="true" type="MultipleSystemsEquipment" />
+  <xs:element name="MultipleSystems" nillable="true" type="MultipleSystems" />
+  <xs:element name="MultipleSystemsSummary" nillable="true" type="MultipleSystemsSummary" />
+  <xs:element name="RadiantHeating" nillable="true" type="RadiantHeating" />
+  <xs:element name="RadiantHeatingComponent" nillable="true" type="RadiantHeatingComponent" />
+  <xs:element name="AdditionalOpening" nillable="true" type="AdditionalOpening" />
+  <xs:element name="HeatingCooling" nillable="true" type="HeatingCooling" />
+  <xs:element name="AirConditioningEquipment" nillable="true" type="AirConditioningEquipment" />
+  <xs:element name="CoolingFansAndPumps" nillable="true" type="CoolingFansAndPumps" />
+  <xs:element name="HeatPumpEquipment" nillable="true" type="HeatPumpEquipment" />
+  <xs:element name="HeatPumpTemperature" nillable="true" type="HeatPumpTemperature" />
+  <xs:element name="SourceTemperature" nillable="true" type="SourceTemperature" />
+  <xs:element name="Type2Equipment" nillable="true" type="Type2Equipment" />
+  <xs:element name="AirConditioning" nillable="true" type="AirConditioning" />
+  <xs:element name="AirConditioningSpecifications" nillable="true" type="AirConditioningSpecifications" />
+  <xs:element name="HeatPumpCoolingType" nillable="true" type="HeatPumpCoolingType" />
+  <xs:element name="FansAndPumpPowerCooling" nillable="true" type="FansAndPumpPowerCooling" />
+  <xs:element name="HeatPump" nillable="true" type="HeatPump" />
+  <xs:element name="HeatPumpEquipmentInformation" nillable="true" type="HeatPumpEquipmentInformation" />
+  <xs:element name="HeatPumpSpecifications" nillable="true" type="HeatPumpSpecifications" />
+  <xs:element name="Type2" nillable="true" type="Type2" />
+  <xs:element name="WindowUnits" nillable="true" type="WindowUnits" />
+  <xs:element name="Boiler" nillable="true" type="Boiler" />
+  <xs:element name="BoilerEquipment" nillable="true" type="BoilerEquipment" />
+  <xs:element name="ComboHeatDhw" nillable="true" type="ComboHeatDhw" />
+  <xs:element name="ComboHeatDhwEquipment" nillable="true" type="ComboHeatDhwEquipment" />
+  <xs:element name="ComboTankAndPump" nillable="true" type="ComboTankAndPump" />
+  <xs:element name="CommonEquipment" nillable="true" type="CommonEquipment" />
+  <xs:element name="FansAndPumpsHeating" nillable="true" type="FansAndPumpsHeating" />
+  <xs:element name="Furnace" nillable="true" type="Furnace" />
+  <xs:element name="FurnaceEquipment" nillable="true" type="FurnaceEquipment" />
+  <xs:element name="TestData" nillable="true" type="TestData" />
+  <xs:element name="BaseboardsEquipmentInformation" nillable="true" type="BaseboardsEquipmentInformation" />
+  <xs:element name="Baseboards" nillable="true" type="Baseboards" />
+  <xs:element name="BaseboardsSpecifications" nillable="true" type="BaseboardsSpecifications" />
+  <xs:element name="CirculationPump" nillable="true" type="CirculationPump" />
+  <xs:element name="ComboEnergyFactor" nillable="true" type="ComboEnergyFactor" />
+  <xs:element name="Common" nillable="true" type="Common" />
+  <xs:element name="CommonSpecifications" nillable="true" type="CommonSpecifications" />
+  <xs:element name="FansAndPumpPowerHeating" nillable="true" type="FansAndPumpPowerHeating" />
+  <xs:element name="P9" nillable="true" type="P9" />
+  <xs:element name="P9LoadPerformance" nillable="true" type="P9LoadPerformance" />
+  <xs:element name="Type1" nillable="true" type="Type1" />
+  <xs:element name="Type1EquipmentInformation" nillable="true" type="Type1EquipmentInformation" />
+  <xs:element name="Flue" nillable="true" type="Flue" />
+  <xs:element name="SupplementaryHeatEquipment" nillable="true" type="SupplementaryHeatEquipment" />
+  <xs:element name="SupplementaryHeatSpecifications" nillable="true" type="SupplementaryHeatSpecifications" />
+  <xs:element name="System" nillable="true" type="SupplementaryHeat" />
+  <xs:element name="SupplementaryHeatEquipmentInformation" nillable="true" type="SupplementaryHeatEquipmentInformation" />
+  <xs:element name="Basement" nillable="true" type="Basement" />
+  <xs:element name="Crawlspace" nillable="true" type="Crawlspace" />
+  <xs:element name="ExposedSurfaces" nillable="true" type="ExposedSurfaces" />
+  <xs:complexType name="ExposedSurfaces">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="ExteriorAboveGroundArea" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ExteriorBelowGroundArea" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="InteriorAboveGroundArea" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="InteriorBelowGroundArea" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PonyWallArea" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="WalkoutPerimeter" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ExposedPerimeter" type="xs:decimal" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="FoundationFloorConstruction" nillable="true" type="FoundationFloorConstruction" />
+  <xs:element name="Walkout" nillable="true" type="Walkout" />
+  <xs:element name="CrawlspaceWall" nillable="true" type="CrawlspaceWall" />
+  <xs:element name="CrawlspaceWallConstruction" nillable="true" type="CrawlspaceWallConstruction" />
+  <xs:element name="CrawlspaceWallMeasurements" nillable="true" type="CrawlspaceWallMeasurements" />
+  <xs:element name="ExteriorSurfaces" nillable="true" type="ExteriorSurfaces" />
+  <xs:element name="Foundation" nillable="true" type="Foundation" />
+  <xs:element name="FoundationFloor" nillable="true" type="FoundationFloor" />
+  <xs:element name="FoundationMeasurements" nillable="true" type="FoundationMeasurements" />
+  <xs:element name="FoundationWall" nillable="true" type="FoundationWall" />
+  <xs:element name="FoundationWallConstruction" nillable="true" type="FoundationWallConstruction" />
+  <xs:element name="FoundationWallMeasurements" nillable="true" type="FoundationWallMeasurements" />
+  <xs:element name="Location" nillable="true" type="Location" />
+  <xs:element name="Locations" nillable="true" type="Locations" />
+  <xs:element name="Slab" nillable="true" type="Slab" />
+  <xs:element name="SlabWall" nillable="true" type="SlabWall" />
+  <xs:element name="WalkoutFloor" nillable="true" type="WalkoutFloor" />
+  <xs:element name="WalkoutMeasurements" nillable="true" type="WalkoutMeasurements" />
+  <xs:element name="WallRValues" nillable="true" type="WallRValues" />
+  <xs:element name="Configuration" nillable="true" type="Configuration" />
+  <xs:element name="FloorHeader" nillable="true" type="FloorHeader" />
+  <xs:element name="FloorHeaderConstruction" nillable="true" type="FloorHeaderConstruction" />
+  <xs:element name="FloorHeaderMeasurements" nillable="true" type="FloorHeaderMeasurements" />
+  <xs:element name="DoorConstruction" nillable="true" type="DoorConstruction" />
+  <xs:element name="Door" nillable="true" type="Door" />
+  <xs:element name="DoorMeasurements" nillable="true" type="DoorMeasurements" />
+  <xs:element name="CeilingConstruction" nillable="true" type="CeilingConstruction" />
+  <xs:element name="CeilingMeasurements" nillable="true" type="CeilingMeasurements" />
+  <xs:element name="Ceiling" nillable="true" type="Ceiling" />
+  <xs:element name="AdvancedUserSpecified" nillable="true" type="AdvancedUserSpecified" />
+  <xs:element name="ClothesDryer" nillable="true" type="ClothesDryer" />
+  <xs:element name="ClothesWasher" nillable="true" type="ClothesWasher" />
+  <xs:element name="ElectricalUsage" nillable="true" type="ElectricalUsage" />
+  <xs:element name="Shower" nillable="true" type="Shower" />
+  <xs:element name="Stove" nillable="true" type="Stove" />
+  <xs:element name="BathroomFaucets" nillable="true" type="BathroomFaucets" />
+  <xs:element name="DishWasher" nillable="true" type="DishWasher" />
+  <xs:element name="RatedValue" nillable="true" type="RatedValue" />
+  <xs:element name="Summary" nillable="true" type="Summary" />
+  <xs:element name="Occupancy" nillable="true" type="Occupancy" />
+  <xs:element name="OccupantsAtHome" nillable="true" type="OccupantsAtHome" />
+  <xs:element name="OptionalFeatures" nillable="true" type="OptionalFeatures" />
+  <xs:complexType name="OptionalFeatures">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="ElectronicThermostats" type="SelectedValueAndUnits" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Ventilation" type="SelectedValueAndUnits" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="OtherCredits" nillable="true" type="OtherCredits" />
+  <xs:complexType name="OtherCredits">
+    <xs:all>
+      <xs:element minOccurs="0" maxOccurs="1" name="OtherCredit1" type="SelectedValueAndUnits" />
+      <xs:element minOccurs="0" maxOccurs="1" name="OtherCredit2" type="SelectedValueAndUnits" />
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="WaterUsage" nillable="true" type="WaterUsage" />
+  <xs:element name="BaseLoads" nillable="true" type="BaseLoads" />
+  <xs:element name="Code" nillable="true" type="Code" />
+  <xs:element name="ContinuousInsulation" nillable="true" type="ContinuousInsulation" />
+  <xs:element name="FramingComponent" nillable="true" type="FramingComponent" />
+  <xs:element name="SteelFraming" nillable="true" type="SteelFraming" />
+  <xs:element name="SteelFramingLayer" nillable="true" type="SteelFramingLayer" />
+  <xs:element name="StrappingLayer" nillable="true" type="StrappingLayer" />
+  <xs:element name="UserDefinedBaseComponent" nillable="true" type="UserDefinedBaseComponent" />
+  <xs:element name="UserDefinedComponent" nillable="true" type="UserDefinedComponent" />
+  <xs:element name="ContinuousMedium" nillable="true" type="ContinuousMedium" />
+  <xs:element name="LintelUserDefined" nillable="true" type="LintelUserDefined" />
+  <xs:element name="Material" nillable="true" type="Material" />
+  <xs:element name="RsiValues" nillable="true" type="RsiValues" />
+  <xs:element name="StandardLayer" nillable="true" type="StandardLayer" />
+  <xs:element name="Standard" nillable="true" type="Standard" />
+  <xs:element name="Codes" nillable="true" type="Codes" />
+  <xs:element name="CodesByType" nillable="true" type="CodesByType" />
+  <xs:element name="Studs" nillable="true" type="Studs" />
+  <xs:element name="UserDefined" nillable="true" type="UserDefined" />
+  <xs:element name="UserDefinedLayer" nillable="true" type="UserDefinedLayer" />
+  <xs:element name="WindowUserDefined" nillable="true" type="WindowUserDefined" />
+  <xs:element name="WindowLegacy" nillable="true" type="WindowLegacy" />
+  <xs:element name="FramingLayer" nillable="true" type="FramingLayer" />
+  <xs:element name="WoodFramingLayer" nillable="true" type="WoodFramingLayer" />
+  <xs:element name="WoodFramingType" nillable="true" type="WoodFramingType" />
+</xs:schema>

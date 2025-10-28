@@ -64,7 +64,8 @@ dev = [
     "sphinx-autobuild>=2021.3.14",
     "black>=23.9.1",
     "ruff>=0.0.241",
-    "mypy>=1.4.1"
+    "mypy>=1.4.1",
+    "lxml>=4.9.0"
 ]
 
 [project.urls]
