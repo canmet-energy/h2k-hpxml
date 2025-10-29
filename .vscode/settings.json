@@ -1,0 +1,95 @@
+{
+    "python.defaultInterpreterPath": "./.venv/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": false,
+    "python.linting.mypyEnabled": true,
+    "python.linting.mypyArgs": [
+        "--config-file=pyproject.toml"
+    ],
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=120"
+    ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportOptionalOperand": "none",
+        "reportOptionalMemberAccess": "none",
+        "reportUnknownMemberType": "none",
+        "reportUnknownArgumentType": "none",
+        "reportUnknownVariableType": "none",
+        "reportGeneralTypeIssues": "warning",
+        "reportOptionalSubscript": "none",
+        "reportOptionalCall": "none",
+        "reportOptionalIterable": "none",
+        "reportOptionalContextManager": "none",
+        "reportIncompatibleMethodOverride": "warning",
+        "reportIncompatibleVariableOverride": "warning",
+        "reportAttributeAccessIssue": "none",
+        "reportOperatorIssue": "none",
+        "reportArgumentType": "none",
+        "reportCallIssue": "none",
+        "reportReturnType": "none"
+    },
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoSearchPaths": true,
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "**/.pytest_cache": true,
+        "**/.mypy_cache": true,
+        "**/logs": false
+    },
+    "files.watcherExclude": {
+        "**/__pycache__/**": true
+    },
+    "python.terminal.activateEnvironment": false,
+    "python.terminal.activateEnvInCurrentTerminal": false,
+    "terminal.integrated.profiles.linux": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+        },
+        "uv-shell": {
+            "path": "bash",
+            "icon": "terminal-bash",
+            "args": [],
+            "env": {
+                "UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
+            }
+        }
+    },
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "icon": "terminal-powershell"
+        },
+        "uv-shell": {
+            "path": "powershell.exe",
+            "icon": "terminal-powershell",
+            "args": [],
+            "env": {
+                "UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
+            }
+        }
+    },
+    "terminal.integrated.profiles.osx": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+        },
+        "uv-shell": {
+            "path": "bash",
+            "icon": "terminal-bash",
+            "args": [],
+            "env": {
+                "UV_PROJECT_ENVIRONMENT": "${workspaceFolder}/.venv"
+            }
+        }
+    },
+    "python.testing.unittestEnabled": false
+}

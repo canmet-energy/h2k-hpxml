@@ -1,0 +1,277 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "h2k-hpxml"
+description = "H2K to HPXML to EnergyPlus translation tool for Canadian building energy models"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "H2K HPXML Team"}
+]
+keywords = ["energy", "building", "simulation", "h2k", "hpxml", "energyplus"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+requires-python = ">=3.10,<3.14"
+version = "1.9.0.1.1"
+dependencies = [
+    "numpy==1.26.2",
+    "pandas>=2.2.0",
+    "python-dateutil==2.8.2",
+    "pytz==2023.3.post1",
+    "six==1.16.0",
+    "tzdata==2023.3",
+    "xmltodict==0.13.0",
+    "unidecode==1.3.8",
+    "click==8.1.7",
+    "colorama==0.4.6",
+    "pyfiglet==1.0.2",
+    "requests>=2.32.4",  # Security: CVE-2024-47081
+    "filelock==3.18.0",
+    "pyyaml==6.0.1",
+    "packaging>=20.0",
+    "openstudio==3.9.0",
+    "rich>=13.0.0",
+    "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest==8.3.3",
+]
+dev = [
+    "pytest==8.3.3",
+    "pytest-xdist>=3.0.0",
+    "pytest-cov>=4.0.0",
+    "pre-commit>=3.0.0",
+    "tox>=4.0.0",
+    "tox-uv>=1.0.0",
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "sphinx-autodoc-typehints>=1.25.0",
+    "myst-parser>=2.0.0",
+    "sphinx-copybutton>=0.5.0",
+    "sphinx-autobuild>=2021.3.14",
+    "black>=23.9.1",
+    "ruff>=0.0.241",
+    "mypy>=1.4.1",
+    "lxml>=4.9.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/canmet-energy/h2k-hpxml"
+Repository = "https://github.com/canmet-energy/h2k-hpxml"
+Documentation = "https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md"
+
+[project.scripts]
+h2k-hpxml = "h2k_hpxml.cli.convert:main"
+h2k-demo = "h2k_hpxml.cli.demo:run_interactive_demo"
+h2k-resilience = "h2k_hpxml.cli.resilience:main"
+os-setup = "h2k_hpxml.utils.dependencies:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"h2k_hpxml.examples" = ["*.h2k", "*.H2K"]
+"h2k_hpxml.resources" = ["*.json", "*.xml", "template_base.xml", "**/*.json", "**/*.epw", "**/*.zip"]
+
+# Removed setuptools_scm; using static version in [project]
+# H2K-HPXML Dependency Versions
+# Single source of truth for OpenStudio and OpenStudio-HPXML versions
+[tool.h2k-hpxml.dependencies]
+openstudio_version = "3.9.0"
+openstudio_sha = "c77fbb9569"
+openstudio_hpxml_version = "v1.9.1"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+]
+markers = [
+    "baseline_generation: tests for generating baseline data (use with --run-baseline flag)",
+    "integration: integration tests that check external services and URLs",
+]
+
+[tool.coverage.run]
+source = ["src/h2k_hpxml"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if False:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+disallow_untyped_decorators = false
+no_implicit_optional = false
+disallow_any_unimported = false
+disallow_any_expr = false
+disallow_any_decorated = false
+disallow_any_explicit = false
+disallow_any_generics = false
+disallow_subclassing_any = false
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "xmltodict.*",
+    "openstudio.*",
+    "pyfiglet.*",
+    "colorama.*",
+    "filelock.*",
+    "unidecode.*",
+]
+ignore_missing_imports = true
+
+[tool.black]
+line-length = 100
+target-version = ['py310','py311', 'py312', 'py313']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    # directories
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | tests/fixtures
+)/
+'''
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "tests/fixtures",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex, we'll address case by case
+    "B904",  # raise from None, not critical for this project
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py files
+"tests/**/*" = [
+    "B011",  # Do not call assert False since python -O removes these calls
+    "F401",  # Allow unused imports in tests
+    "F811",  # Allow redefinition of unused variables in tests
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["h2k_hpxml"]
+force-single-line = true
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+requires =
+    tox>=4
+    tox-uv>=1.0.0
+env_list = py310,py311,py312,py313
+skip_missing_interpreters = true
+
+[testenv]
+description = Run unit and integration tests
+runner = uv-venv-runner
+package = wheel
+wheel_build_env = .pkg
+deps =
+    pytest==8.3.3
+    pytest-xdist>=3.0.0
+    pytest-cov>=4.0.0
+commands =
+    pytest {posargs}
+"""
+
+[dependency-groups]
+dev = [
+    "black>=25.9.0",
+]

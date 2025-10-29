@@ -1,12 +1,17 @@
-# Byte-compiled / optimized / DLL files
+# Output directories
+output/
+logs/
+*.log
+
+# Python cache and build artifacts
 __pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+*.pyc
+*.pyo
+*.pyd
 .Python
 build/
 develop-eggs/
@@ -18,6 +23,48 @@ lib/
 lib64/
 parts/
 sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Wine directories
+.wine*/
+
+# IDE and editor files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# Test results
+test_results_*.txt
+
+# Workflow outputs (keep old workflow directory temporarily)
+workflow/
 var/
 wheels/
 share/python-wheels/
@@ -166,3 +213,37 @@ h2k_files
 # Weather files
 *_CWEC2020.zip*
 
+# Ignore all .epw files in the h2ktohpxml/resources/weather directory
+h2ktohpxml/resources/weather/*.epw
+
+# Ignore baseline backup directories
+tests/fixtures/expected_outputs/golden_files/baseline_backup*
+
+# Ignore installer executables
+tools/installer/*.exe
+
+venv/
+
+# Local configuration files (OS-specific paths)
+# Project-level configs are now user-specific and should not be committed
+config/conversionconfig.ini
+config/conversionconfig.dev.ini
+config/conversionconfig.test.ini
+
+# Keep templates and defaults in version control
+!config/templates/
+!config/defaults/
+!config/**/*.template.ini
+
+# Don't include src_deps
+src/h2k_hpxml/_deps/
+
+# Dont include certificates
+.devcontainer/certs/*.certificates
+.devcontainer/certs/*.pem
+.devcontainer/certs/*.crt
+
+docs/build/
+docs/source/_build/
+housing-archetypes/
+src/h2k_hpxml/utils/*.zip*

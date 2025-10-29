@@ -2,31 +2,118 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/universal
 {
 	"name": "H2K_HPXML",
-	// use a pre-built image 
-	// see https://github.com/canmet-energy/h2k_hpxml_container/blob/main/Dockerfile
-	"image": "canmet/model_dev_container:3.9.0",
-	"containerUser": "vscode",
+	"build": {
+		"dockerfile": "./Dockerfile",
+		"context": ".."
+	},
+	"containerEnv": {
+		"UV_PROJECT_ENVIRONMENT": "${containerWorkspaceFolder}/.venv",
+		"UV_PYTHON_PREFERENCE": "managed",
+		"UV_LINK_MODE": "copy",
+		"ENABLE_GPU_AI": "0", // Set to 0 to skip GPU AI/LLM stack (PyTorch etc.) installation
+		"DEVCONTAINER_NODE_VERSION": "22.11.0", // Node.js version installed by install-user-nodejs.sh (override as needed)
+		"DEVCONTAINER_UV_VERSION": "0.8.15", // UV (Python package manager) version installed by install-user-uv.sh
+		"DEVCONTAINER_PYTHON_VERSION": "3.12", // Python version used when creating the virtual environment
+		"DEVCONTAINER_RUBY_VERSION": "3.2.2", // Ruby version used when creating the virtual environment
+		"DEVCONTAINER_OS_STANDARDS": "0.8.4" //OS standards ruby gem version. 
+	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"castwide.solargraph",
 				"ms-azuretools.vscode-docker",
-				"KoichiSasada.vscode-rdbg",
 				"karyfoundation.idf",
 				"ms-python.python",
+				"ms-python.black-formatter",
+				"ms-python.isort",
+				"ms-python.mypy-type-checker",
 				"mechatroner.rainbow-csv",
 				"janisdd.vscode-edit-csv",
 				"qwtel.sqlite-viewer",
-				"ms-toolsai.jupyter"
+				"ms-toolsai.jupyter",
+				"openai.chatgpt"
 			],
 			"settings": {
-                "files.associations": {
-                    "*.h2k": "xml",
-					"*.hpxml": "xml"
-                }
-            },
+				// Copies ~/.gitconfig (and relevant includes) into the container
+				"dev.containers.copyGitConfig": true,
+				// Persists host credentials (e.g., Git Credential Manager) for Git in the container
+				"dev.containers.persistGitCredentials": true,
+				"files.associations": {
+					"*.h2k": "xml",
+					"*.hpxml": "xml",
+					"*.sql": "sqlite"
+				},
+				"python.terminal.activateEnvironment": true,
+				"python.defaultInterpreterPath": "./.venv/bin/python",
+				"python.terminal.activateEnvInCurrentTerminal": true,
+				"python.terminal.executeInFileDir": false,
+				"python.formatting.provider": "black",
+				"python.linting.enabled": true,
+				"python.linting.mypyEnabled": true,
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": "explicit"
+				},
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash",
+						"args": [
+							"--login"
+						]
+					}
+				},
+				"terminal.integrated.defaultProfile.linux": "bash"
+			}
 		}
 	},
-  "remoteUser": "vscode",
-  "postCreateCommand": "/venv/bin/python -m venv /workspaces/h2k_hpxml/venv && /workspaces/h2k_hpxml/venv/bin/pip install -r /workspaces/h2k_hpxml/requirements.txt"
+	"remoteEnv": {
+		// Certificate environment variables now managed by certctl-safe
+		// These were removed: NODE_EXTRA_CA_CERTS, SSL_CERT_FILE, REQUESTS_CA_BUNDLE, AWS_CA_BUNDLE, UV_NATIVE_TLS
+	},
+	"runArgs": [
+		// WSLg support for GUI applications
+		"--env=DISPLAY=${localEnv:DISPLAY:-:0}",
+		"--env=WAYLAND_DISPLAY=${localEnv:WAYLAND_DISPLAY:-wayland-0}",
+		"--env=XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir",
+		"--env=PULSE_SERVER=/mnt/wslg/PulseServer",
+		// OpenGL and GUI framework compatibility
+		"--env=LIBGL_ALWAYS_INDIRECT=1",
+		"--env=QT_X11_NO_MITSHM=1",
+		"--env=_JAVA_AWT_WM_NONREPARENTING=1",
+		// WSL2 X11 socket mount (using correct WSL2 paths)
+		"--volume=/run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix",
+		"--volume=/run/desktop/mnt/host/wslg:/mnt/wslg",
+		// GPU support
+		"--gpus=all"
+	],
+	"forwardPorts": [
+		8080,
+		8000,
+		3000
+	],
+	"portsAttributes": {
+		"8080": {
+			"visibility": "public",
+			"protocol": "http",
+			"label": "Claude Code Auth"
+		},
+		"8000": {
+			"visibility": "public",
+			"protocol": "http",
+			"label": "Development Server"
+		},
+		"3000": {
+			"visibility": "public",
+			"protocol": "http",
+			"label": "Web App"
+		}
+	},
+	"mounts": [
+		// AWS credentials support - works for both Windows and Unix-like systems
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind,readonly",
+		// Docker socket for Docker-in-Docker support
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
+	"postCreateCommand": ".devcontainer/scripts/post-create.sh",
+	"containerUser": "vscode",
+	"remoteUser": "vscode"
 }

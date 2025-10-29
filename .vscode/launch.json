@@ -1,0 +1,78 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: H2K to HPXML Translation",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/h2k_hpxml/cli/convert.py",
+            "args": ["${workspaceFolder}/tests/fixtures/input/WizardHouse.h2k"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
+        },
+        {
+            "name": "Python: Pytest Current File",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["${file}"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "UV: Run Current File",
+            "type": "shell",
+            "request": "launch",
+            "command": "uv run python ${file}",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "UV: Debug with PDB",
+            "type": "python",
+            "request": "launch",
+            "module": "pdb",
+            "args": ["${file}"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "UV: H2K to HPXML (with debugger)",
+            "type": "python",
+            "request": "launch",
+            "module": "h2k_hpxml.cli.convert",
+            "args": ["${input:h2kFile}"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "h2kFile",
+            "type": "promptString",
+            "description": "Path to H2K file",
+            "default": "${workspaceFolder}/examples/WizardHouse.h2k"
+        }
+    ]
+}

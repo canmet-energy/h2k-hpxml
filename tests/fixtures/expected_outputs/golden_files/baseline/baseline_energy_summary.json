@@ -1,0 +1,56 @@
+{
+  "generated_date": "2025-09-05T20:28:50.812452",
+  "results": {
+    "WizardHouse_0.13.h2k": {
+      "source_file": "WizardHouse_0.13.h2k",
+      "baseline_file": "baseline_WizardHouse_0.13.json",
+      "hpxml_baseline": "baseline_WizardHouse_0.13.xml",
+      "sql_records": 14,
+      "processed_date": "2025-09-05T20:27:08.647050"
+    },
+    "ERS-EX-10000.H2K": {
+      "source_file": "ERS-EX-10000.H2K",
+      "baseline_file": "baseline_ERS-EX-10000.json",
+      "hpxml_baseline": "baseline_ERS-EX-10000.xml",
+      "sql_records": 14,
+      "processed_date": "2025-09-05T20:27:26.904823"
+    },
+    "WizardHouse.h2k": {
+      "source_file": "WizardHouse.h2k",
+      "baseline_file": "baseline_WizardHouse.json",
+      "hpxml_baseline": "baseline_WizardHouse.xml",
+      "sql_records": 14,
+      "processed_date": "2025-09-05T20:27:43.234979"
+    },
+    "WizardHouse_0.26.h2k": {
+      "source_file": "WizardHouse_0.26.h2k",
+      "baseline_file": "baseline_WizardHouse_0.26.json",
+      "hpxml_baseline": "baseline_WizardHouse_0.26.xml",
+      "sql_records": 14,
+      "processed_date": "2025-09-05T20:27:59.487253"
+    },
+    "ERS-EX-10001.H2K": {
+      "source_file": "ERS-EX-10001.H2K",
+      "baseline_file": "baseline_ERS-EX-10001.json",
+      "hpxml_baseline": "baseline_ERS-EX-10001.xml",
+      "sql_records": 14,
+      "processed_date": "2025-09-05T20:28:17.849906"
+    },
+    "WizardHouse_0.195.h2k": {
+      "source_file": "WizardHouse_0.195.h2k",
+      "baseline_file": "baseline_WizardHouse_0.195.json",
+      "hpxml_baseline": "baseline_WizardHouse_0.195.xml",
+      "sql_records": 14,
+      "processed_date": "2025-09-05T20:28:34.235094"
+    },
+    "WizardHouse_0.325.h2k": {
+      "source_file": "WizardHouse_0.325.h2k",
+      "baseline_file": "baseline_WizardHouse_0.325.json",
+      "hpxml_baseline": "baseline_WizardHouse_0.325.xml",
+      "sql_records": 14,
+      "processed_date": "2025-09-05T20:28:50.812437"
+    }
+  },
+  "total_files": 7,
+  "generated_by": "test_generate_baseline.py"
+}

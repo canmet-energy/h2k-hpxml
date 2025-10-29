@@ -1,0 +1,11 @@
+# Test temporary outputs (regenerated each test run)
+temp/
+fixtures/expected_outputs/.pytest_cache/
+fixtures/expected_outputs/golden_files/comparison/
+
+# Transitory report files (regenerated each test run)
+fixtures/expected_outputs/energy_comparison_report.json
+fixtures/expected_outputs/processing_results.md
+
+# Keep only golden files under version control
+# All simulation outputs are regenerated during test runs

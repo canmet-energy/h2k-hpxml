@@ -1,50 +1,88 @@
-# H2K -> HPXML -> EnergyPlus Initiative 
+# H2K-HPXML Documentation
 
-## Background
+Welcome to the complete documentation for H2K-HPXML, the Canadian tool for converting Hot2000 (H2K) building energy models to HPXML format for EnergyPlus simulation.
 
-CMHC is investigating energy use in Canada’s existing housing stock and exploring policy measures to enhance energy efficiency and affordability for Canadians. The primary tool used to evaluate building energy performance in Canada is NRCan’s Hot2000 (H2K) software. H2K is a building energy simulator that estimates the annual energy consumption of homes across Canada. NRCan has also developed a comprehensive database of archetypes representing housing across the country, using over 30 years of data from the EnerGuide for housing program. This location-specific database includes more than 6,000 archetypes, each reflecting regional housing characteristics.
+## 📜 [Background](docs/BACKGROUND.md)
 
-However, H2K has some limitations, including the inability to provide hourly energy data.  H2K only produces annual energy estimates. This lack of hourly resolution restricts its capacity to support analyses of modern energy conservation measures, such as thermal and electrical storage technologies, renewable energy, advanced building automation, and other innovative solutions. Furthermore, H2K cannot assess the effects of time-of-use (TOU) electricity rates or peak demand on housing affordability.
+## 📊 Project Status
 
-In contrast, the software created by the U.S. Department of Energy (U.S. DOE), EnergyPlus/HPXML, provides high resolution sub-hourly outputs.  EnergyPlus/HPXML was developed in 2001 to be the standard simulation tool used by the U.S. DOE to support housing and building energy analysis.  Over $3M is annually invested in EnergyPlus/HPXML to support R&D, as well as national programs.  It provides detailed simulation information at a sub-hourly resolution that can examine time-of-use (TOU) technologies and help examine evaluate several advanced energy conservation measures. 
+| Component | Status | Documentation |
+|-----------|--------|---------------|
+| **Phase 1: Loads** | ✅ Complete | [Status](docs/status/status.md) |
+| **Phase 2: HVAC Systems** | ✅ Complete | [Report](docs/reports/H2k-HPXML-Systems-Report.pdf) |
+| **Phase 3: Multi-Unit Buildings** | 🔄 Planned | TBD |
 
-The goal of this work is to leverage the 6000 H2K archetype model data, by translating them to EnergyPlus/HPXML. These new models will then produce sub-hourly natural gas and electricity usage profiles to better analyze the Canadian housing stock. This will create an unprecedented level of information on how these homes consume electricity and natural gas on a sub hourly basis.  It can also provide estimates on the hourly temperatures these homes experience in extreme weather events. 
-
-This data could be used to better understand thermal safety measures (overheating) that could be applied to existing and new homes.  The affordability of different HVAC systems combined with TOU electricity rates could show what are the most cost-effective systems based on TOU electric utility rates.  It could also be used to explore new technologies such as energy storage to support electrification. This and other analyses are possible and open up a door to a wealth of analysis for housing down the road.
-
-## Why use HPXML?
-HPXML, or Home Performance eXtensible Markup Language, is a standardized data format designed for the residential energy efficiency industry. It enables consistent data collection, sharing, and analysis across different software systems, tools, and stakeholders involved in home energy performance. Developed by the Building Performance Institute (BPI) and managed by the National Renewable Energy Laboratory (NREL), HPXML provides a common structure for information about home energy audits, improvements, and performance metrics. By using HPXML, organizations can streamline processes, improve data accuracy, and easily integrate with energy efficiency programs, certifications, and incentives. More information on the HPXML standard can be found [here](https://hpxml-guide.readthedocs.io/en/latest/overview.html)
-
-## Roadmap
-The overall goal of this project is to have full support of all H2K features translated to OS/EnergyPlus via HPXML format. We have taken an incremental approach to release the translator as we add funtionality. This allows researchers and stakeholders to use, and evaluate the translation capabilities as we develop them. 
-
-The timeline is as follows: 
-
-| Phase | Description | Target Completion Date | Status |  |
-|---|---|---|---|---|
-| 1 | Loads Translations. This includes schedules, occupancy, plug loads, envelope charecteristics & climate file mapping. Default fixed HVAC  |Summer 2024| Completed & available for use. Presentation comparing results available [here](docs/H2k-HPXML-20240214-V2.pdf)|
-| 2 | HVAC Systems. This includes all systems and fuel types.|Spring 2025| Completed - Beta Testing. Report and presentation comparing results available [here](docs/H2k-HPXML-Systems-Report.pdf) and [here](docs/H2k-HPXML-EPlus-Systems-Update-20250326.pdf)|
-| 3 | Multi-Urban Residential Buildings | TBD | Not Started |
-
-**Note**: Versioning of components targeted for each OS SDK is kept [here](https://github.com/canmet-energy/model-dev-container/blob/main/versioning.md). This will keep the development and results consistent across development as we upgrade components.
-
-Here is a [list](docs/status.md) of the current completed sections related to the HPXML standard. This is a list of the assumptions and issues that were found in the translation work.
-
-## Usage
-During development, we've created a separate Docker command-line interface (CLI) application that translates and runs H2K data files in EnergyPlus. To use it, simply install Docker Desktop on your machine. Comprehensive installation and usage documentation is available [here](https://github.com/canmet-energy/model-dev-container)
-
-## Development Environment
-
-The project integrates several key components to achieve its goals:
-
-* EnergyPlus
-* OpenStudio SDK
-* NREL's HPXML-OpenStudio Python source code
-* Python 3 and necessary libraries
-
-To streamline development, we've created a [Visual Studio Code](https://code.visualstudio.com/), [devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) environment that automatically installs all required libraries with their correct versions on your computer, ensuring a smooth setup and consistent configuration.
-
-Full instructions on how to set up the development environment are [here](docs/vscode.md)
+## Current Capabilities
+- ✅ Single zone simulation to mimic Hot2000 approach for validation. 
+- ✅ Building envelope (walls, windows, doors, foundations)
+- ✅ All HVAC system types (heating, cooling, ventilation)
+- ✅ Domestic hot water systems
+- ✅ Lighting and plug loads
+- ✅ Weather data mapping (Canadian → US weather files)
+- ✅ Both translation modes (SOC and ASHRAE140)
+- ✅ Parallel processing for batch operations
+- ✅ Comprehensive error handling and validation
 
 
-Contributions are encouraged! If you find a bug, submit an "Issue" on the tab above.  Please understand that this is still under heavy development and should not be used for any production level of work. 
+## 🚀 Getting Started
+
+New to H2K-HPXML? Start here:
+
+- **[Installation Guide](docs/INSTALLATION.md)** - Complete setup instructions for all platforms
+- **[User Guide](docs/USER_GUIDE.md)** - Command-line usage and workflows and demo.
+
+### Technical References
+- **[API Reference](docs/API.md)** - Complete Python API/Library documentation
+- **[Development Guide](docs/DEVELOPMENT.md)** - Contributing with VSCode
+
+
+## 🔍 Detailed Status & Features
+
+### Implementation Status
+- **[Current Status](docs/status/status.md)** - Detailed feature completion matrix
+- **[Assumptions](docs/status/assumptions.md)** - Translation assumptions and limitations
+- **[Known Issues](docs/status/issues.md)** - Current limitations and workarounds
+
+### Technical Reports
+- **[Systems Report](docs/reports/H2k-HPXML-Systems-Report.pdf)** - HVAC systems validation
+- **[Presentations](docs/presentations/)** - Research presentations and results
+
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+### For Users
+- **Report Issues**: [GitHub Issues](https://github.com/canmet-energy/h2k-hpxml/issues)
+- **Request Features**: Describe your use case and requirements
+- **Share Examples**: Help improve documentation with real-world examples
+
+### For Developers
+- **Read**: [Development Guide](docs/DEVELOPMENT.md) for complete setup
+- **Quick Start**: Use VSCode DevContainer for instant development environment
+- **Follow Standards**: Code style, testing, and documentation requirements
+- **Submit PRs**: Follow the contribution workflow
+
+
+
+## 📞 Support & Community
+
+### Official Resources
+- **GitHub Repository**: [canmet-energy/h2k-hpxml](https://github.com/canmet-energy/h2k-hpxml)
+- **Issue Tracker**: [GitHub Issues](https://github.com/canmet-energy/h2k-hpxml/issues)
+- **Releases**: [GitHub Releases](https://github.com/canmet-energy/h2k-hpxml/releases)
+
+### Related Projects
+- **OpenStudio**: [OpenStudio Documentation](https://openstudio.net/)
+- **OpenStudio-HPXML**: [NREL/OpenStudio-HPXML](https://github.com/NREL/OpenStudio-HPXML)
+- **HPXML Standard**: [HPXML Guide](https://hpxml-guide.readthedocs.io/)
+
+### Citing This Work
+
+If you use H2K-HPXML in your research, please cite:
+
+```
+NRCan/CMHC H2K-HPXML Translation Tool
+Canada Mortgage and Housing Corporation and Natural Resources Canada
+https://github.com/canmet-energy/h2k-hpxml
+```
