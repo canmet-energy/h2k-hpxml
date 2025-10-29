@@ -117,7 +117,7 @@ which h2k-hpxml  # Should show path
 
 # If not found, reinstall/update
 uv tool uninstall h2k-hpxml
-uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git
 
 # Alternative: use Python module syntax
 python -m h2k_hpxml.cli.convert input.h2k
@@ -142,7 +142,7 @@ python -c "import h2k_hpxml; print('OK')"
 
 # Reinstall package
 uv tool uninstall h2k-hpxml
-uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git
 ```
 
 ### Getting Help
@@ -200,5 +200,5 @@ When reporting issues, include:
 Once you're comfortable with the CLI tools:
 
 - **Python API**: See [API.md](API.md) for Python library usage
-- **Docker Usage**: See [DOCKER.md](DOCKER.md) for containerized processing
+- **Docker Usage**: See [DOCKER.md](DOCKER.md) for containerized processing (Unavailable until Nov 2025)
 - **Development**: See [DEVELOPMENT.md](DEVELOPMENT.md) to contribute

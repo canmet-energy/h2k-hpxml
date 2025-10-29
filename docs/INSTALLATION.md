@@ -28,7 +28,7 @@ uv --native-tls python install 3.12
 ### 2. Install H2K-HPXML Globally
 
 ```bash
-uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git@refactor
+uv tool install git+https://github.com/canmet-energy/h2k-hpxml.git
 ```
 
 ### 3. Setup Dependencies
