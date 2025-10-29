@@ -150,7 +150,7 @@ def show_credits():
     "--debug",
     "-d",
     is_flag=True,
-    default=False,
+    default=True,
     help="Enable debug mode and all extra file outputs.",
 )
 @click.option(

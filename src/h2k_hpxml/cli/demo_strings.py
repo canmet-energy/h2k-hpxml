@@ -119,6 +119,25 @@ DEMO_STRINGS = {
             "stdout_energyplus_log": "EnergyPlus standard output during simulation",
             # Reports and tables
             "eplustbl_htm": "EnergyPlus HTML report with detailed tables and summaries",
+            # EnergyPlus raw output files (debug mode)
+            "eplusmtr_csv": "Energy meter data in CSV format - consumption by end use category",
+            "eplusout_audit": "Simulation audit trail - timestamped record of all processing steps",
+            "eplusout_bnd": "HVAC branch/node details - system topology and node connections",
+            "eplusout_csv": "EnergyPlus standard CSV output - raw simulation variables",
+            "eplusout_eio": "EnergyPlus initialization summary - system sizing and design conditions",
+            "eplusout_eso": "EnergyPlus standard output - all requested variables in native format",
+            "eplusout_hourly_json": "Hourly simulation data in JSON format for data processing",
+            "eplusout_json": "Complete simulation output in JSON format",
+            "eplusout_mdd": "Meter Data Dictionary - complete list of available energy meters",
+            "eplusout_mtd": "Meter details file - meter definitions and relationships",
+            "eplusout_mtr": "Energy meter data - fuel consumption by end use in native format",
+            "eplusout_perflog_csv": "Simulation performance log - timing and resource usage statistics",
+            "eplusout_rdd": "Report Data Dictionary - complete list of all available output variables",
+            "eplusout_runperiod_json": "Annual simulation period data in JSON format",
+            "eplusout_shd": "Solar shading calculations - shadow casting and receiving surface details",
+            "eplusout_sql": "SQLite database with comprehensive simulation results and hourly data",
+            "in_epw": "EnergyPlus weather file - hourly climate data used for simulation",
+            "sqlite_err": "SQLite database error messages (if any issues occurred)",
             # Source files
             "h2k_file": "Original Hot2000 building energy model input file",
             # Fallbacks
@@ -250,6 +269,25 @@ DEMO_STRINGS = {
             "stdout_energyplus_log": "Sortie standard EnergyPlus durant simulation",
             # Reports and tables
             "eplustbl_htm": "Rapport HTML EnergyPlus avec tableaux et résumés détaillés",
+            # Fichiers de sortie bruts EnergyPlus (mode débogage)
+            "eplusmtr_csv": "Données de compteur d'énergie en format CSV - consommation par catégorie d'usage final",
+            "eplusout_audit": "Piste d'audit de simulation - enregistrement horodaté de toutes les étapes de traitement",
+            "eplusout_bnd": "Détails branches/nœuds CVC - topologie du système et connexions des nœuds",
+            "eplusout_csv": "Sortie CSV standard EnergyPlus - variables de simulation brutes",
+            "eplusout_eio": "Résumé d'initialisation EnergyPlus - dimensionnement des systèmes et conditions de conception",
+            "eplusout_eso": "Sortie standard EnergyPlus - toutes les variables demandées en format natif",
+            "eplusout_hourly_json": "Données de simulation horaires en format JSON pour traitement de données",
+            "eplusout_json": "Sortie de simulation complète en format JSON",
+            "eplusout_mdd": "Dictionnaire de données de compteur - liste complète des compteurs d'énergie disponibles",
+            "eplusout_mtd": "Fichier de détails de compteur - définitions et relations des compteurs",
+            "eplusout_mtr": "Données de compteur d'énergie - consommation de combustible par usage final en format natif",
+            "eplusout_perflog_csv": "Journal de performance de simulation - statistiques de temps et d'utilisation des ressources",
+            "eplusout_rdd": "Dictionnaire de données de rapport - liste complète de toutes les variables de sortie disponibles",
+            "eplusout_runperiod_json": "Données de période de simulation annuelle en format JSON",
+            "eplusout_shd": "Calculs d'ombrage solaire - détails des surfaces de projection et de réception d'ombre",
+            "eplusout_sql": "Base de données SQLite avec résultats de simulation complets et données horaires",
+            "in_epw": "Fichier météo EnergyPlus - données climatiques horaires utilisées pour la simulation",
+            "sqlite_err": "Messages d'erreur de base de données SQLite (si des problèmes sont survenus)",
             # Source files
             "h2k_file": "Fichier d'entrée original de modèle énergétique Hot2000",
             # Fallbacks

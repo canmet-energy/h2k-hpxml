@@ -234,7 +234,7 @@ class H2KDemo:
                     # Build simulation flags (with hourly outputs to showcase capabilities)
                     flags = _build_simulation_flags(
                         add_component_loads=True,
-                        debug=False,
+                        debug=True,
                         skip_validation=False,
                         output_format="csv",
                         timestep=(),  # Empty tuple - no timestep outputs
@@ -465,6 +465,42 @@ class H2KDemo:
             return file_descriptions.get("stdout_energyplus_log", "Standard output")
         elif "eplustbl.htm" == filename_lower:
             return file_descriptions.get("eplustbl_htm", "HTML report")
+        elif "eplusmtr.csv" == filename_lower:
+            return file_descriptions.get("eplusmtr_csv", "Meter data")
+        elif "eplusout.audit" == filename_lower:
+            return file_descriptions.get("eplusout_audit", "Audit trail")
+        elif "eplusout.bnd" == filename_lower:
+            return file_descriptions.get("eplusout_bnd", "Branch details")
+        elif "eplusout.csv" == filename_lower:
+            return file_descriptions.get("eplusout_csv", "CSV output")
+        elif "eplusout.eio" == filename_lower:
+            return file_descriptions.get("eplusout_eio", "Initialization")
+        elif "eplusout.eso" == filename_lower:
+            return file_descriptions.get("eplusout_eso", "Standard output")
+        elif "eplusout_hourly.json" == filename_lower:
+            return file_descriptions.get("eplusout_hourly_json", "Hourly JSON")
+        elif "eplusout.json" == filename_lower:
+            return file_descriptions.get("eplusout_json", "JSON output")
+        elif "eplusout.mdd" == filename_lower:
+            return file_descriptions.get("eplusout_mdd", "Meter dictionary")
+        elif "eplusout.mtd" == filename_lower:
+            return file_descriptions.get("eplusout_mtd", "Meter details")
+        elif "eplusout.mtr" == filename_lower:
+            return file_descriptions.get("eplusout_mtr", "Meter data")
+        elif "eplusout_perflog.csv" == filename_lower:
+            return file_descriptions.get("eplusout_perflog_csv", "Performance log")
+        elif "eplusout.rdd" == filename_lower:
+            return file_descriptions.get("eplusout_rdd", "Report dictionary")
+        elif "eplusout_runperiod.json" == filename_lower:
+            return file_descriptions.get("eplusout_runperiod_json", "Annual JSON")
+        elif "eplusout.shd" == filename_lower:
+            return file_descriptions.get("eplusout_shd", "Shadow calc")
+        elif "eplusout.sql" == filename_lower:
+            return file_descriptions.get("eplusout_sql", "SQLite database")
+        elif "in.epw" == filename_lower:
+            return file_descriptions.get("in_epw", "Weather file")
+        elif "sqlite.err" == filename_lower:
+            return file_descriptions.get("sqlite_err", "SQLite errors")
         elif filename_lower.endswith(".h2k"):
             return file_descriptions.get("h2k_file", "H2K file")
 
