@@ -107,8 +107,8 @@ DEMO_STRINGS = {
             "eplusout_runperiod_msgpack": "Full year simulation data in compressed format",
             "eplusout_msgpack": "Complete EnergyPlus output data in binary format",
             # Financial/billing results
-            "results_bills_csv": "Annual utility bills and costs breakdown by fuel type",
-            "results_bills_monthly_csv": "Monthly utility bills with seasonal variations",
+            "results_bills_csv": "Annual utility bills and costs breakdown by fuel type (Currently Invalid)",
+            "results_bills_monthly_csv": "Monthly utility bills with seasonal variations (Currently Invalid)",
             # Design and load calculations
             "results_design_load_details_csv": "Peak heating/cooling loads for equipment sizing",
             # Simulation logs and diagnostics
@@ -257,8 +257,8 @@ DEMO_STRINGS = {
             "eplusout_runperiod_msgpack": "Données de simulation annuelle en format compressé",
             "eplusout_msgpack": "Données complètes de sortie EnergyPlus en format binaire",
             # Financial/billing results
-            "results_bills_csv": "Factures et coûts annuels par type de combustible",
-            "results_bills_monthly_csv": "Factures mensuelles avec variations saisonnières",
+            "results_bills_csv": "Factures et coûts annuels par type de combustible (incorrect pour l’instant)",
+            "results_bills_monthly_csv": "Factures mensuelles avec variations saisonnières(incorrect pour l’instant)",
             # Design and load calculations
             "results_design_load_details_csv": "Charges de pointe chauffage/climatisation pour dimensionnement",
             # Simulation logs and diagnostics
