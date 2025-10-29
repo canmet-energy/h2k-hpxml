@@ -9,6 +9,11 @@ def get_val(obj, path):
         The value at the specified path, or the original object if not found
     """
     for key in path.split(","):
+        # Check if obj is a dictionary before calling .get()
+        # This handles cases where intermediate values are None or non-dict types
+        if not isinstance(obj, dict):
+            return obj
+
         # returns itself if nothing found so we can use paths containing higher level info
         obj = obj.get(key, obj)
 

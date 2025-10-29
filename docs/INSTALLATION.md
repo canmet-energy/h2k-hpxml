@@ -76,7 +76,7 @@ h2k-demo
 |-------|----------|
 | "Command not found: h2k-hpxml" | Restart terminal or run `os-setup --add-to-path` (Windows) |
 | "OpenStudio not found" | Run `os-setup --auto-install` or `os-setup --check-only` |
-| Permission errors (Linux) | Use `sudo os-setup --auto-install` or Docker |
+| Permission errors (Linux) | Use `sudo os-setup --auto-install`|
 | Python version issues | `uv python install 3.12` then `uv venv --python 3.12` |
 
 
@@ -106,7 +106,7 @@ After installation:
 3. **Read guides**:
    - [User Guide](USER_GUIDE.md) - CLI usage and workflows
    - [API Reference](API.md) - Python API documentation
-   - [Docker Guide](DOCKER.md) - Container usage
+   - [Docker Guide](DOCKER.md) - Container usage (UNAVAILABLE until Nov 2025)
    - [Development Guide](DEVELOPMENT.md) - Contributing
 
 Welcome to H2K-HPXML! 🎉

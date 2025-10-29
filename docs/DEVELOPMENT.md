@@ -32,6 +32,10 @@ Guide for contributing to the H2K-HPXML project.
  6. Check if eveything works with these commands
     * os-setup --check-only
     * pytest -v
+ 7. If contributing development, ensure that your account is setup using the following command. 
+ ```
+ git config --global user.email '<your email>' && git config --global user.name '<Your First and Last Name>'
+ ```
 
 
 The DevContainer automatically configures Python, OpenStudio, EnergyPlus, and all development tools. They should all be available on in the terminal when typed. 
