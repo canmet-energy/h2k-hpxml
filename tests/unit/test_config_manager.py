@@ -3,14 +3,11 @@
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from h2k_hpxml.config.manager import ConfigManager
-from h2k_hpxml.config.manager import get_config_manager
-from h2k_hpxml.config.manager import reset_config_manager
+from h2k_hpxml.config.manager import ConfigManager, get_config_manager, reset_config_manager
 from h2k_hpxml.exceptions import ConfigurationError
 
 

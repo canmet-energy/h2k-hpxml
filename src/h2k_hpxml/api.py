@@ -11,6 +11,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+import sys
 import time
 import traceback
 from pathlib import Path
@@ -142,22 +143,61 @@ def _run_hpxml_simulation(
     """
     # Get OpenStudio binary path
     openstudio_binary = get_openstudio_path()
-    command = [openstudio_binary, ruby_hpxml_path, "-x", os.path.abspath(hpxml_path)]
+
+    # On Windows, OpenStudio's embedded Ruby decodes ARGV via the OEM codepage (cp437),
+    # which can't represent non-ASCII chars (e.g. è, ì). Shorten only the parent directory
+    # to its 8.3 ASCII form; keep the filename as-is to preserve the lowercase .xml extension
+    # (GetShortPathNameW uppercases extensions, which OpenStudio's XMLValidator rejects).
+    abs_hpxml_path = os.path.abspath(hpxml_path)
+    if sys.platform == "win32":
+        try:
+            import ctypes
+
+            _buf = ctypes.create_unicode_buffer(32767)
+            _n = ctypes.windll.kernel32.GetShortPathNameW(
+                os.path.dirname(abs_hpxml_path), _buf, 32767
+            )
+            if _n > 0:
+                abs_hpxml_path = os.path.join(_buf.value, os.path.basename(abs_hpxml_path))
+        except Exception:
+            pass
+
+    command = [openstudio_binary, ruby_hpxml_path, "-x", abs_hpxml_path]
 
     # Convert flags to a list of strings
     flags_list = flags.split()
     command.extend(flags_list)
 
+    # Strip system Ruby env vars that corrupt OpenStudio's bundled Ruby gem resolution.
+    env = os.environ.copy()
+    for _ruby_var in (
+        "GEM_HOME",
+        "GEM_PATH",
+        "GEM_ROOT",
+        "RUBYOPT",
+        "RUBYLIB",
+        "BUNDLE_GEMFILE",
+        "BUNDLE_BIN_PATH",
+    ):
+        env.pop(_ruby_var, None)
+
     try:
         logger.info(f"Running simulation for file: {hpxml_path}")
         result = subprocess.run(
-            command, cwd=hpxml_os_path, check=True, capture_output=True, text=True
+            command,
+            cwd=hpxml_os_path,
+            check=True,
+            capture_output=True,
+            text=True,
+            errors="replace",
+            env=env,
         )
         logger.info(f"Simulation result: {result}")
         return "Success", ""
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error during simulation: {e.stderr}")
-        return "Failure", e.stderr
+        error_output = e.stderr or e.stdout or ""
+        logger.error(f"Error during simulation: {error_output}")
+        return "Failure", error_output
 
 
 def _handle_conversion_error(
