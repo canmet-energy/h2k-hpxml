@@ -394,6 +394,18 @@ def cli(
                 )
 
                 if status == "Success":
+                    # Convert results_timeseries.csv to parquet if it exists
+                    try:
+                        import pandas as pd
+                        csv_path = os.path.join(os.path.dirname(hpxml_path), "run", "results_timeseries.csv")
+                        if os.path.exists(csv_path):
+                            df = pd.read_csv(csv_path, low_memory=False)
+                            parquet_path = csv_path.replace(".csv", ".parquet")
+                            df.to_parquet(parquet_path, index=False, engine='pyarrow')
+                            logger.info(f"Created parquet file: {parquet_path}")
+                    except Exception as e:
+                        logger.debug(f"Could not create parquet file: {e}")
+                    
                     # Record success to database
                     results_db.record_success(
                         filepath=filepath,
