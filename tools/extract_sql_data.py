@@ -1,11 +1,45 @@
 #!/usr/bin/env python3
 """
-Extract conditioned floor area from EnergyPlus SQL output files.
+Extract annual and hourly data from EnergyPlus SQL output files.
 
-Usage:
-    python extract_sql_data.py <output_directory> [--output results.csv]
-
+This script extracts building performance metrics from OpenStudio-HPXML simulation results.
 CSV column headers comply with BTAP output format conventions.
+
+Usage Examples:
+
+    # Extract annual data only (all buildings in one CSV)
+    python extract_sql_data.py output/
+    # Output: output/sql_data.csv
+
+    # Extract annual data with custom output location
+    python extract_sql_data.py output/ --output my_results.csv
+
+    # Extract hourly data (all hourly variables, BTAP format)
+    # Produces one CSV per building with timestamps as columns
+    python extract_sql_data.py output/ --hourly
+    # Output: output/BUILDING_NAME/BUILDING_NAME_hourly.csv (one per building)
+
+    # Extract timestep data (sub-hourly, BTAP format)
+    # Produces one CSV per building with timesteps as rows
+    python extract_sql_data.py output/ --timestep
+    # Output: output/BUILDING_NAME/BUILDING_NAME_timestep.csv (one per building)
+
+Annual CSV columns:
+    - Building metadata (name, type, location, weather file)
+    - Floor area, EUI (energy use intensity)
+    - Unmet hours (heating/cooling)
+    - End-use EUI breakdown (heating, cooling, fans, pumps, etc.)
+    - Fuel type EUI breakdown (electricity, natural gas, etc.)
+
+Hourly CSV format (BTAP-compatible):
+    - Rows: All hourly variables (Output:Meter and Output:Variable)
+    - Columns: 8760 hourly timestamps (2006-01-01 01:00 to 2006-12-31 24:00)
+    - Metadata columns: datapoint_id, Name, KeyValue, Units
+
+Timestep CSV format (BTAP-compatible):
+    - Rows: All timestep data points (one row per timestep per variable)
+    - Columns: Index, Timestep, datapoint_id, Name, KeyValue, Units, Value
+    - Timesteps per hour: Auto-detected from simulation data
 """
 
 import argparse
@@ -401,10 +435,247 @@ def extract_fuel_type_eui(sql_path: str, floor_area: float) -> dict:
     return result
 
 
+def extract_hourly_data(sql_path: str, output_csv: str, house_name: str = None) -> bool:
+    """
+    Extract hourly simulation data in BTAP format (timestamps as columns, variables as rows).
+    
+    Extracts all variables with ReportingFrequency = 'Hourly' from the SQL database,
+    including both Output:Meter (IsMeter=1) and Output:Variable (IsMeter=0) objects.
+    
+    Args:
+        sql_path: Path to eplusout.sql file
+        output_csv: Path for output CSV file
+        house_name: Optional identifier for the datapoint
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    from datetime import datetime, timedelta
+    
+    try:
+        with sqlite3.connect(sql_path) as conn:
+            cursor = conn.cursor()
+            
+            # Generate timestamps for 8760 hours (full year)
+            start_time = datetime(2006, 1, 1, 1, 0)  # Match BTAP's year convention
+            hours_of_year = []
+            for hour in range(8760):
+                timestamp = start_time + timedelta(hours=hour)
+                hours_of_year.append(timestamp.strftime('%Y-%m-%d %H:%M'))
+            
+            # Find all hourly outputs available (both Output:Meter and Output:Variable)
+            cursor.execute("""
+                SELECT ReportDataDictionaryIndex
+                FROM ReportDataDictionary
+                WHERE ReportingFrequency = 'Hourly'
+                ORDER BY IsMeter DESC, Name
+            """)
+            
+            rdd_indices = cursor.fetchall()
+            if not rdd_indices:
+                print(f"  No hourly data found in {os.path.basename(sql_path)}")
+                return False
+            
+            array_of_data = []
+            
+            # Process each hourly output variable
+            for (rdd_index,) in rdd_indices:
+                # Get Name
+                cursor.execute("""
+                    SELECT Name
+                    FROM ReportDataDictionary
+                    WHERE ReportDataDictionaryIndex = ?
+                """, (rdd_index,))
+                name = cursor.fetchone()[0]
+                
+                # Get KeyValue (may be NULL)
+                cursor.execute("""
+                    SELECT KeyValue
+                    FROM ReportDataDictionary
+                    WHERE ReportDataDictionaryIndex = ?
+                """, (rdd_index,))
+                key_value_result = cursor.fetchone()
+                key_value = key_value_result[0] if key_value_result[0] else ""
+                
+                # Get Units
+                cursor.execute("""
+                    SELECT Units
+                    FROM ReportDataDictionary
+                    WHERE ReportDataDictionaryIndex = ?
+                """, (rdd_index,))
+                units = cursor.fetchone()[0]
+                
+                # Get hourly values
+                cursor.execute("""
+                    SELECT Value
+                    FROM ReportData
+                    WHERE ReportDataDictionaryIndex = ?
+                """, (rdd_index,))
+                hourly_values = [row[0] for row in cursor.fetchall()]
+                
+                # Create data row with metadata + hourly values (BTAP format)
+                data_row = {
+                    'datapoint_id': house_name or '',
+                    'Name': name,
+                    'KeyValue': key_value,
+                    'Units': units
+                }
+                
+                # Add hourly values with timestamp keys (timestamps become column headers)
+                for timestamp, value in zip(hours_of_year, hourly_values):
+                    data_row[timestamp] = value
+                
+                array_of_data.append(data_row)
+            
+            # Write to CSV (variables as rows, timestamps as columns)
+            if array_of_data:
+                with open(output_csv, 'w', newline='') as f:
+                    fieldnames = ['datapoint_id', 'Name', 'KeyValue', 'Units'] + hours_of_year
+                    writer = csv.DictWriter(f, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(array_of_data)
+                
+                print(f"  ✓ Extracted {len(array_of_data)} hourly variables to {os.path.basename(output_csv)}")
+                return True
+            
+            return False
+            
+    except Exception as e:
+        print(f"  Error extracting hourly data: {e}")
+        return False
+
+
+def extract_timestep_data(sql_path: str, output_csv: str, house_name: str = None, timesteps_per_hour: int = None) -> bool:
+    """
+    Extract timestep simulation data in BTAP format (long format with one Value column for all variables).
+    
+    Extracts all variables with ReportingFrequency = 'Zone Timestep' from the SQL database
+    and outputs in long format matching BTAP's timestep output (one row per timestep per variable).
+    
+    Args:
+        sql_path: Path to eplusout.sql file
+        output_csv: Path for output CSV file
+        house_name: Optional identifier for the datapoint
+        timesteps_per_hour: Number of timesteps per hour (default: auto-detect from data)
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    from datetime import datetime, timedelta
+    
+    try:
+        with sqlite3.connect(sql_path) as conn:
+            cursor = conn.cursor()
+            
+            # Find all timestep outputs available
+            cursor.execute("""
+                SELECT ReportDataDictionaryIndex
+                FROM ReportDataDictionary
+                WHERE ReportingFrequency = 'Zone Timestep'
+                ORDER BY IsMeter DESC, Name
+            """)
+            
+            rdd_indices = cursor.fetchall()
+            if not rdd_indices:
+                print(f"  No timestep data found in {os.path.basename(sql_path)}")
+                return False
+            
+            # Auto-detect timesteps per hour if not provided
+            if timesteps_per_hour is None:
+                # Get count of timestep values for first variable to determine timesteps per hour
+                cursor.execute("""
+                    SELECT COUNT(*)
+                    FROM ReportVariableData
+                    WHERE ReportVariableDataDictionaryIndex = ?
+                """, (rdd_indices[0][0],))
+                total_timesteps = cursor.fetchone()[0]
+                
+                # Calculate timesteps per hour (assuming 365 days * 24 hours)
+                timesteps_per_hour = total_timesteps // (365 * 24)
+                if timesteps_per_hour == 0:
+                    timesteps_per_hour = 1  # Fallback to hourly
+            
+            # Calculate total timesteps for the year
+            number_of_timesteps_of_year = 365 * 24 * timesteps_per_hour
+            
+            # Generate timestamps for all timesteps
+            start_time = datetime(2006, 1, 1, 0, 0)  # Match BTAP's year convention
+            timesteps_of_year = []
+            minutes_per_timestep = 60 // timesteps_per_hour
+            
+            for timestep_num in range(number_of_timesteps_of_year):
+                timestamp = start_time + timedelta(minutes=timestep_num * minutes_per_timestep)
+                timesteps_of_year.append(timestamp.strftime('%Y-%m-%d %H:%M'))
+            
+            # Collect all variables data
+            variables_data = {}
+            
+            for (rdd_index,) in rdd_indices:
+                # Get metadata
+                cursor.execute("""
+                    SELECT Name, KeyValue, Units
+                    FROM ReportDataDictionary
+                    WHERE ReportDataDictionaryIndex = ?
+                """, (rdd_index,))
+                name, key_value, units = cursor.fetchone()
+                key_value = key_value or ""
+                
+                # Get timestep values from ReportVariableData table
+                cursor.execute("""
+                    SELECT VariableValue
+                    FROM ReportVariableData
+                    WHERE ReportVariableDataDictionaryIndex = ?
+                """, (rdd_index,))
+                timestep_values = [row[0] for row in cursor.fetchall()]
+                
+                # Create unique column identifier
+                col_name = f"{name}|{key_value}|{units}"
+                variables_data[col_name] = timestep_values
+            
+            # Write transposed CSV (timesteps as rows, variables as columns)
+            # This matches BTAP's format
+            with open(output_csv, 'w', newline='') as f:
+                header = ['Index', 'Timestep', 'datapoint_id', 'Name', 'KeyValue', 'Units', 'Value']
+                writer = csv.writer(f)
+                writer.writerow(header)
+                
+                for col_name, values in variables_data.items():
+                    # Parse column name back to components
+                    parts = col_name.split('|')
+                    var_name = parts[0]
+                    var_key = parts[1] if len(parts) > 1 else ""
+                    var_units = parts[2] if len(parts) > 2 else ""
+                    
+                    # Write one row per timestep for this variable
+                    for idx, (timestamp, value) in enumerate(zip(timesteps_of_year[:len(values)], values)):
+                        writer.writerow([
+                            idx,
+                            timestamp,
+                            house_name or '',
+                            var_name,
+                            var_key,
+                            var_units,
+                            value
+                        ])
+            
+            print(f"  ✓ Extracted {len(variables_data)} timestep variables ({len(timestep_values)} timesteps each, {timesteps_per_hour}/hr) to {os.path.basename(output_csv)}")
+            return True
+            
+    except Exception as e:
+        print(f"  Error extracting timestep data: {e}")
+        return False
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Extract floor area from EnergyPlus SQL files")
+    parser = argparse.ArgumentParser(description="Extract data from EnergyPlus SQL files")
     parser.add_argument('input_dir', help='Directory containing eplusout.sql files')
-    parser.add_argument('--output', '-o', help='Output CSV file (default: sql_data.csv in input_dir)')
+    parser.add_argument('--output', '-o', help='Output CSV file for annual data (default: sql_data.csv in input_dir)')
+    parser.add_argument('--hourly', action='store_true', 
+                       help='Extract hourly simulation data in BTAP format (one CSV per building)')
+    parser.add_argument('--timestep', action='store_true',
+                       help='Extract sub-hourly timestep data in BTAP format (one CSV per building)')
+    parser.add_argument('--timesteps-per-hour', type=int, default=None,
+                       help='Override auto-detected timesteps per hour for --timestep option')
     args = parser.parse_args()
     
     if not os.path.isdir(args.input_dir):
@@ -510,8 +781,20 @@ def main():
             unmet_cooling_str = f", Unmet Cooling: {unmet_hours_cooling_total:.1f} hrs ({unmet_hours_cooling_occupied:.1f} occupied)" if unmet_hours_cooling_total is not None and unmet_hours_cooling_occupied is not None else ""
             unmet_heating_str = f", Unmet Heating: {unmet_hours_heating_total:.1f} hrs ({unmet_hours_heating_occupied:.1f} occupied)" if unmet_hours_heating_total is not None and unmet_hours_heating_occupied is not None else ""
             print(f"{house_name}: {floor_area:.2f} m²{type_str}{net_eui_str}{total_eui_str} GJ/m²{unmet_cooling_str}{unmet_heating_str}")
+        
+        # Extract hourly data if requested
+        if args.hourly:
+            house_dir = os.path.dirname(sql_path).replace('/run', '')
+            hourly_csv = os.path.join(house_dir, f"{house_name}_hourly.csv")
+            extract_hourly_data(sql_path, hourly_csv, house_name)
+        
+        # Extract timestep data if requested
+        if args.timestep:
+            house_dir = os.path.dirname(sql_path).replace('/run', '')
+            timestep_csv = os.path.join(house_dir, f"{house_name}_timestep.csv")
+            extract_timestep_data(sql_path, timestep_csv, house_name, args.timesteps_per_hour)
     
-    # Write CSV
+    # Write annual results CSV
     if results:
         with open(output_csv, 'w', newline='') as f:
             # Automatically sort columns alphabetically, keeping house_name first
