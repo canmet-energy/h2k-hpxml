@@ -30,6 +30,7 @@ Annual CSV columns:
     - Unmet hours (heating/cooling)
     - End-use EUI breakdown (heating, cooling, fans, pumps, etc.)
     - Fuel type EUI breakdown (electricity, natural gas, etc.)
+    - Peak loads (W/m²): annual peaks for facility, heating, cooling, water systems
 
 Hourly CSV format (BTAP-compatible):
     - Rows: All hourly variables (Output:Meter and Output:Variable)
@@ -363,6 +364,146 @@ def extract_end_use_eui(sql_path: str, floor_area: float) -> dict:
         # Calculate EUI
         eui = total_energy / floor_area
         result[key] = eui
+    
+    return result
+
+
+def extract_energy_peak_data(sql_path: str, floor_area: float) -> dict:
+    """
+    Extract peak load data similar to BTAP's energy_peak_data method.
+    
+    Extracts peak power demands (W/m²) for various end uses from EnergyPlus SQL output.
+    
+    Returns dict with keys:
+        - energy_principal_heating_source: Primary heating fuel type (from LEED summary)
+        - energy_peak_electric_w_per_m_sq: Peak facility electricity demand (W/m²)
+        - energy_peak_natural_gas_w_per_m_sq: Peak facility natural gas demand (W/m²)
+        - heating_peak_w_per_m_sq: Peak heating load across all fuel types (W/m²)
+        - cooling_peak_w_per_m_sq: Peak cooling load across all fuel types (W/m²)
+        - energy_peak_water_systems_w_per_m_sq: Peak DHW load across all fuel types (W/m²)
+    """
+    from datetime import datetime
+    from dateutil import parser as date_parser
+    
+    result = {}
+    
+    if not floor_area or floor_area == 0:
+        return result
+    
+    try:
+        with sqlite3.connect(sql_path) as conn:
+            cursor = conn.cursor()
+            
+            # Extract principal heating source
+            cursor.execute("""
+                SELECT Value
+                FROM TabularDataWithStrings
+                WHERE ReportName='LEEDsummary'
+                AND ReportForString='Entire Facility'
+                AND TableName='Sec1.1A-General Information'
+                AND RowName = 'Principal Heating Source'
+                AND ColumnName='Data'
+            """)
+            heating_source = cursor.fetchone()
+            result['energy_principal_heating_source'] = heating_source[0] if heating_source and heating_source[0] else 'unknown'
+            
+            # Extract electric peak (W)
+            cursor.execute("""
+                SELECT Value
+                FROM TabularDataWithStrings
+                WHERE ReportName='EnergyMeters'
+                AND ReportForString='Entire Facility'
+                AND TableName='Annual and Peak Values - Electricity'
+                AND RowName='Electricity:Facility'
+                AND ColumnName LIKE '%Maximum Value'
+                AND Units='W'
+            """)
+            electric_peak = cursor.fetchone()
+            result['energy_peak_electric_w_per_m_sq'] = (float(electric_peak[0]) / floor_area) if (electric_peak and electric_peak[0]) else 0.0
+            
+            # Extract natural gas peak (W)
+            cursor.execute("""
+                SELECT Value
+                FROM TabularDataWithStrings
+                WHERE ReportName='EnergyMeters'
+                AND ReportForString='Entire Facility'
+                AND TableName='Annual and Peak Values - Natural Gas'
+                AND RowName='NaturalGas:Facility'
+                AND ColumnName LIKE '%Maximum Value'
+                AND Units='W'
+            """)
+            natural_gas_peak = cursor.fetchone()
+            result['energy_peak_natural_gas_w_per_m_sq'] = (float(natural_gas_peak[0]) / floor_area) if (natural_gas_peak and natural_gas_peak[0]) else 0.0
+            
+            # Extract heating peaks across all fuel types
+            # Query all EnergyMeters tables for any Heating:* meters
+            cursor.execute("""
+                SELECT Value
+                FROM TabularDataWithStrings
+                WHERE ReportName='EnergyMeters'
+                AND ReportForString='Entire Facility'
+                AND TableName LIKE 'Annual and Peak Values - %'
+                AND RowName LIKE 'Heating:%'
+                AND ColumnName LIKE '%Maximum Value'
+                AND Units='W'
+            """)
+            heating_peak_values = cursor.fetchall()
+            
+            # Find the maximum heating peak across all fuel types
+            heating_peak_w = 0.0
+            if heating_peak_values:
+                heating_peak_w = max(
+                    float(row[0]) for row in heating_peak_values if row[0]
+                )
+            
+            result['heating_peak_w_per_m_sq'] = heating_peak_w / floor_area if heating_peak_w > 0 else 0.0
+            
+            # Extract cooling peaks across all fuel types
+            cursor.execute("""
+                SELECT Value
+                FROM TabularDataWithStrings
+                WHERE ReportName='EnergyMeters'
+                AND ReportForString='Entire Facility'
+                AND TableName LIKE 'Annual and Peak Values - %'
+                AND RowName LIKE 'Cooling:%'
+                AND ColumnName LIKE '%Maximum Value'
+                AND Units='W'
+            """)
+            cooling_peak_values = cursor.fetchall()
+            
+            # Find the maximum cooling peak across all fuel types
+            cooling_peak_w = 0.0
+            if cooling_peak_values:
+                cooling_peak_w = max(
+                    float(row[0]) for row in cooling_peak_values if row[0]
+                )
+            
+            result['cooling_peak_w_per_m_sq'] = cooling_peak_w / floor_area if cooling_peak_w > 0 else 0.0
+            
+            # Extract water systems peaks across all fuel types
+            cursor.execute("""
+                SELECT Value
+                FROM TabularDataWithStrings
+                WHERE ReportName='EnergyMeters'
+                AND ReportForString='Entire Facility'
+                AND TableName LIKE 'Annual and Peak Values - %'
+                AND RowName LIKE 'WaterSystems:%'
+                AND ColumnName LIKE '%Maximum Value'
+                AND Units='W'
+            """)
+            water_peak_values = cursor.fetchall()
+            
+            # Find the maximum water systems peak across all fuel types
+            water_peak_w = 0.0
+            if water_peak_values:
+                water_peak_w = max(
+                    float(row[0]) for row in water_peak_values if row[0]
+                )
+            
+            result['energy_peak_water_systems_w_per_m_sq'] = water_peak_w / floor_area if water_peak_w > 0 else 0.0            
+                
+    except Exception as e:
+        print(f"  Error extracting peak data: {e}")
     
     return result
 
@@ -712,6 +853,7 @@ def main():
         # Extract end use and fuel type EUI data
         end_use_eui = {}
         fuel_type_eui = {}
+        peak_data = {}
         if floor_area:
             # Define allowed end use columns to keep in output
             allowed_end_use_columns = {
@@ -732,6 +874,9 @@ def main():
             
             # Extract all fuel type EUI (no filtering - include all dynamically extracted fuel types)
             fuel_type_eui = extract_fuel_type_eui(sql_path, floor_area)
+            
+            # Extract peak load data
+            peak_data = extract_energy_peak_data(sql_path, floor_area)
         
         # Look for H2K file in parent directory
         h2k_path = os.path.join(parent_dir, f"{house_name}.H2K")
@@ -773,6 +918,9 @@ def main():
             
             # Add fuel type EUI data
             result.update(fuel_type_eui)
+            
+            # Add peak load data
+            result.update(peak_data)
             
             results.append(result)
             type_str = f" ({house_type})" if house_type else ""
