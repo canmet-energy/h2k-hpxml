@@ -381,9 +381,11 @@ def extract_energy_peak_data(sql_path: str, floor_area: float) -> dict:
         - heating_peak_w_per_m_sq: Peak heating load across all fuel types (W/m²)
         - cooling_peak_w_per_m_sq: Peak cooling load across all fuel types (W/m²)
         - energy_peak_water_systems_w_per_m_sq: Peak DHW load across all fuel types (W/m²)
+        - energy_peak_electric_w_per_m_sq_winter: Peak facility electricity demand in winter months (Dec, Jan, Feb) (W/m²)
+        - energy_peak_electric_heating_w_per_m_sq_winter: Peak electricity heating demand in winter months (W/m²)
+        - energy_peak_electric_water_systems_w_per_m_sq_winter: Peak water systems electricity demand in winter months (W/m²)
     """
-    from datetime import datetime
-    from dateutil import parser as date_parser
+    from datetime import datetime, timedelta
     
     result = {}
     
@@ -500,7 +502,195 @@ def extract_energy_peak_data(sql_path: str, floor_area: float) -> dict:
                     float(row[0]) for row in water_peak_values if row[0]
                 )
             
-            result['energy_peak_water_systems_w_per_m_sq'] = water_peak_w / floor_area if water_peak_w > 0 else 0.0            
+            result['energy_peak_water_systems_w_per_m_sq'] = water_peak_w / floor_area if water_peak_w > 0 else 0.0
+            
+            # Extract winter peak electricity data (Dec, Jan, Feb) from hourly simulation
+            # Generate timestamps for full year (hourly)
+            number_of_timesteps_per_hour = 1
+            timestep_seconds = 3600 / number_of_timesteps_per_hour
+            number_of_timesteps_of_year = 365 * 24 * number_of_timesteps_per_hour
+            
+            start_time = datetime(2006, 1, 1, 0, 0)
+            months_of_year = []
+            
+            for increment in range(int(number_of_timesteps_of_year)):
+                timestamp = start_time + timedelta(hours=increment)
+                months_of_year.append(timestamp.month)
+            
+            # Extract winter peak electricity (Electricity:Facility)
+            cursor.execute("""
+                SELECT ReportDataDictionaryIndex
+                FROM ReportDataDictionary
+                WHERE Name='Electricity:Facility' 
+                AND ReportingFrequency='Hourly' 
+                AND Units='J'
+            """)
+            index_result = cursor.fetchone()
+            
+            if index_result:
+                index_electricity = index_result[0]
+                
+                # Get hourly values - try ReportData first (for meters), then ReportVariableData
+                cursor.execute("""
+                    SELECT Value
+                    FROM ReportData
+                    WHERE ReportDataDictionaryIndex = ?
+                """, (index_electricity,))
+                hourly_values = cursor.fetchall()
+                
+                if not hourly_values:
+                    # Try ReportVariableData (for variables)
+                    cursor.execute("""
+                        SELECT VariableValue
+                        FROM ReportVariableData
+                        WHERE ReportVariableDataDictionaryIndex = ?
+                    """, (index_electricity,))
+                    hourly_values = cursor.fetchall()
+                
+                if hourly_values:
+                    # Group by month
+                    monthly_data = {}
+                    for month, value_tuple in zip(months_of_year, hourly_values):
+                        value = value_tuple[0]
+                        if month not in monthly_data:
+                            monthly_data[month] = []
+                        monthly_data[month].append(value)
+                    
+                    # Find monthly peaks (J)
+                    monthly_peaks_J = {month: max(values) for month, values in monthly_data.items()}
+                    
+                    # Convert to W (divide by seconds per timestep)
+                    monthly_peaks_W = {month: peak_J / timestep_seconds for month, peak_J in monthly_peaks_J.items()}
+                    
+                    # Get winter peak (Dec=12, Jan=1, Feb=2)
+                    winter_peak_W = max(
+                        monthly_peaks_W.get(12, 0.0),
+                        monthly_peaks_W.get(1, 0.0),
+                        monthly_peaks_W.get(2, 0.0)
+                    )
+                    
+                    # Normalize by floor area
+                    result['energy_peak_electric_w_per_m_sq_winter'] = winter_peak_W / floor_area
+                else:
+                    result['energy_peak_electric_w_per_m_sq_winter'] = 0.0
+            else:
+                result['energy_peak_electric_w_per_m_sq_winter'] = 0.0
+            
+            # Extract winter peak electricity heating (Heating:Electricity)
+            cursor.execute("""
+                SELECT ReportDataDictionaryIndex
+                FROM ReportDataDictionary
+                WHERE Name='Heating:Electricity' 
+                AND ReportingFrequency='Hourly' 
+                AND Units='J'
+            """)
+            index_result = cursor.fetchone()
+            
+            if index_result:
+                index_heating = index_result[0]
+                
+                # Get hourly values
+                cursor.execute("""
+                    SELECT Value
+                    FROM ReportData
+                    WHERE ReportDataDictionaryIndex = ?
+                """, (index_heating,))
+                hourly_values = cursor.fetchall()
+                
+                if not hourly_values:
+                    cursor.execute("""
+                        SELECT VariableValue
+                        FROM ReportVariableData
+                        WHERE ReportVariableDataDictionaryIndex = ?
+                    """, (index_heating,))
+                    hourly_values = cursor.fetchall()
+                
+                if hourly_values:
+                    # Group by month
+                    monthly_data = {}
+                    for month, value_tuple in zip(months_of_year, hourly_values):
+                        value = value_tuple[0]
+                        if month not in monthly_data:
+                            monthly_data[month] = []
+                        monthly_data[month].append(value)
+                    
+                    # Find monthly peaks (J)
+                    monthly_peaks_J = {month: max(values) for month, values in monthly_data.items()}
+                    
+                    # Convert to W
+                    monthly_peaks_W = {month: peak_J / timestep_seconds for month, peak_J in monthly_peaks_J.items()}
+                    
+                    # Get winter peak (Dec, Jan, Feb)
+                    winter_peak_W = max(
+                        monthly_peaks_W.get(12, 0.0),
+                        monthly_peaks_W.get(1, 0.0),
+                        monthly_peaks_W.get(2, 0.0)
+                    )
+                    
+                    # Normalize by floor area
+                    result['energy_peak_electric_heating_w_per_m_sq_winter'] = winter_peak_W / floor_area
+                else:
+                    result['energy_peak_electric_heating_w_per_m_sq_winter'] = 0.0
+            else:
+                result['energy_peak_electric_heating_w_per_m_sq_winter'] = 0.0
+            
+            # Extract winter peak water systems electricity (WaterSystems:Electricity)
+            cursor.execute("""
+                SELECT ReportDataDictionaryIndex
+                FROM ReportDataDictionary
+                WHERE Name='WaterSystems:Electricity' 
+                AND ReportingFrequency='Hourly' 
+                AND Units='J'
+            """)
+            index_result = cursor.fetchone()
+            
+            if index_result:
+                index_water_systems = index_result[0]
+                
+                # Get hourly values
+                cursor.execute("""
+                    SELECT Value
+                    FROM ReportData
+                    WHERE ReportDataDictionaryIndex = ?
+                """, (index_water_systems,))
+                hourly_values = cursor.fetchall()
+                
+                if not hourly_values:
+                    cursor.execute("""
+                        SELECT VariableValue
+                        FROM ReportVariableData
+                        WHERE ReportVariableDataDictionaryIndex = ?
+                    """, (index_water_systems,))
+                    hourly_values = cursor.fetchall()
+                
+                if hourly_values:
+                    # Group by month
+                    monthly_data = {}
+                    for month, value_tuple in zip(months_of_year, hourly_values):
+                        value = value_tuple[0]
+                        if month not in monthly_data:
+                            monthly_data[month] = []
+                        monthly_data[month].append(value)
+                    
+                    # Find monthly peaks (J)
+                    monthly_peaks_J = {month: max(values) for month, values in monthly_data.items()}
+                    
+                    # Convert to W
+                    monthly_peaks_W = {month: peak_J / timestep_seconds for month, peak_J in monthly_peaks_J.items()}
+                    
+                    # Get winter peak (Dec, Jan, Feb)
+                    winter_peak_W = max(
+                        monthly_peaks_W.get(12, 0.0),
+                        monthly_peaks_W.get(1, 0.0),
+                        monthly_peaks_W.get(2, 0.0)
+                    )
+                    
+                    # Normalize by floor area
+                    result['energy_peak_electric_water_systems_w_per_m_sq_winter'] = winter_peak_W / floor_area
+                else:
+                    result['energy_peak_electric_water_systems_w_per_m_sq_winter'] = 0.0
+            else:
+                result['energy_peak_electric_water_systems_w_per_m_sq_winter'] = 0.0            
                 
     except Exception as e:
         print(f"  Error extracting peak data: {e}")
