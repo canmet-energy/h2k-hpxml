@@ -204,7 +204,7 @@ def extract_unmet_hours_heating(sql_path: str) -> float | None:
 
 
 def extract_house_type(h2k_path: str) -> str | None:
-    """Extract HouseType from H2K XML file."""
+    """Extract HouseType from H2K file."""
     try:
         tree = ET.parse(h2k_path)
         root = tree.getroot()
@@ -215,7 +215,7 @@ def extract_house_type(h2k_path: str) -> str | None:
 
 
 def extract_location_city(h2k_path: str) -> str | None:
-    """Extract Location (city) from H2K XML file."""
+    """Extract Location (city) from H2K file."""
     try:
         tree = ET.parse(h2k_path)
         root = tree.getroot()
@@ -226,12 +226,51 @@ def extract_location_city(h2k_path: str) -> str | None:
 
 
 def extract_region(h2k_path: str) -> str | None:
-    """Extract Region (province/state) from H2K XML file."""
+    """Extract Region (province/state) from H2K file."""
     try:
         tree = ET.parse(h2k_path)
         root = tree.getroot()
         region = root.find('.//Weather/Region/English')
         return region.text if region is not None else None
+    except:
+        return None
+
+
+def extract_primary_space_heating_fuel(h2k_path: str) -> str | None:
+    """Extract primary space heating fuel type from H2K file."""
+    try:
+        tree = ET.parse(h2k_path)
+        root = tree.getroot()
+        
+        # Primary heating system is in Type1
+        # Could be Boiler, Furnace, Baseboards, P9, or ComboHeatDhw
+        type1 = root.find('.//HeatingCooling/Type1')
+        if type1 is None:
+            return None
+        
+        # Check for Baseboards (always electric - no Equipment/EnergySource element)
+        if type1.find('.//Baseboards') is not None:
+            return "Electricity"
+        
+        # Search for EnergySource within any Type1 system type
+        # Path: Type1/{SystemType}/Equipment/EnergySource/English
+        energy_source = type1.find('.//Equipment/EnergySource/English')
+        
+        return energy_source.text if energy_source is not None else None
+    except:
+        return None
+
+
+def extract_primary_dhw_fuel(h2k_path: str) -> str | None:
+    """Extract primary domestic hot water fuel type from H2K file."""
+    try:
+        tree = ET.parse(h2k_path)
+        root = tree.getroot()
+        
+        # Primary DHW system is in Components/HotWater/Primary
+        dhw_fuel = root.find('.//Components/HotWater/Primary/EnergySource/English')
+        
+        return dhw_fuel.text if dhw_fuel is not None else None
     except:
         return None
 
@@ -1077,10 +1116,14 @@ def main():
             house_type = extract_house_type(h2k_path)
             location_city = extract_location_city(h2k_path)
             region = extract_region(h2k_path)
+            primary_space_heating_fuel = extract_primary_space_heating_fuel(h2k_path)
+            primary_dhw_fuel = extract_primary_dhw_fuel(h2k_path)
         else:
             house_type = None
             location_city = None
             region = None
+            primary_space_heating_fuel = None
+            primary_dhw_fuel = None
         
         # Look for HPXML file in the house output directory
         house_dir = os.path.dirname(sql_path).replace('/run', '')
@@ -1094,6 +1137,8 @@ def main():
                 'location_city': location_city or '',
                 'location_state_province_region': region or '',
                 'location_weather_file': weather_file or '',
+                'primary_space_heating_fuel': primary_space_heating_fuel or '',
+                'primary_dhw_fuel': primary_dhw_fuel or '',
                 'bldg_conditioned_floor_area_m_sq': floor_area,
                 'net_site_eui_gj_per_m_sq': net_site_eui if net_site_eui is not None else '',
                 'total_site_eui_gj_per_m_sq': total_site_eui if total_site_eui is not None else '',
