@@ -9,7 +9,7 @@ Usage Examples:
 
     # Extract annual data only (all buildings in one CSV)
     python extract_sql_data.py output/
-    # Output: output/sql_data.csv
+    # Output: output/temporary_output_folder/sql_annual.csv
 
     # Extract annual data with custom output location
     python extract_sql_data.py output/ --output my_results.csv
@@ -17,12 +17,12 @@ Usage Examples:
     # Extract hourly data (all hourly variables, BTAP format)
     # Produces one CSV per building with timestamps as columns
     python extract_sql_data.py output/ --hourly
-    # Output: output/BUILDING_NAME/BUILDING_NAME_hourly.csv (one per building)
+    # Output: output/temporary_output_folder/BUILDING_NAME/sql_hourly.csv (one per building)
 
     # Extract timestep data (sub-hourly, BTAP format)
     # Produces one CSV per building with timesteps as rows
     python extract_sql_data.py output/ --timestep
-    # Output: output/BUILDING_NAME/BUILDING_NAME_timestep.csv (one per building)
+    # Output: output/temporary_output_folder/BUILDING_NAME/sql_timestep.csv (one per building)
 
 Annual CSV columns:
     - Building metadata (name, type, location, weather file)
@@ -1039,7 +1039,7 @@ def extract_timestep_data(sql_path: str, output_csv: str, house_name: str = None
 def main():
     parser = argparse.ArgumentParser(description="Extract data from EnergyPlus SQL files")
     parser.add_argument('input_dir', help='Directory containing eplusout.sql files')
-    parser.add_argument('--output', '-o', help='Output CSV file for annual data (default: sql_data.csv in input_dir)')
+    parser.add_argument('--output', '-o', help='Output CSV file for annual data (default: temporary_output_folder/sql_annual.csv in input_dir)')
     parser.add_argument('--hourly', action='store_true', 
                        help='Extract hourly simulation data in BTAP format (one CSV per building)')
     parser.add_argument('--timestep', action='store_true',
@@ -1052,7 +1052,11 @@ def main():
         print(f"Error: Directory '{args.input_dir}' does not exist")
         sys.exit(1)
     
-    output_csv = args.output or os.path.join(args.input_dir, "sql_data.csv")
+    # Create temporary_output_folder for annual CSV
+    temp_output_dir = os.path.join(args.input_dir, "temporary_output_folder")
+    os.makedirs(temp_output_dir, exist_ok=True)
+    
+    output_csv = args.output or os.path.join(temp_output_dir, "sql_annual.csv")
     parent_dir = os.path.dirname(os.path.abspath(args.input_dir))
     
     # Find SQL files
@@ -1167,14 +1171,16 @@ def main():
         
         # Extract hourly data if requested
         if args.hourly:
-            house_dir = os.path.dirname(sql_path).replace('/run', '')
-            hourly_csv = os.path.join(house_dir, f"{house_name}_hourly.csv")
+            house_subdir = os.path.join(temp_output_dir, house_name)
+            os.makedirs(house_subdir, exist_ok=True)
+            hourly_csv = os.path.join(house_subdir, "sql_hourly.csv")
             extract_hourly_data(sql_path, hourly_csv, house_name)
         
         # Extract timestep data if requested
         if args.timestep:
-            house_dir = os.path.dirname(sql_path).replace('/run', '')
-            timestep_csv = os.path.join(house_dir, f"{house_name}_timestep.csv")
+            house_subdir = os.path.join(temp_output_dir, house_name)
+            os.makedirs(house_subdir, exist_ok=True)
+            timestep_csv = os.path.join(house_subdir, "sql_timestep.csv")
             extract_timestep_data(sql_path, timestep_csv, house_name, args.timesteps_per_hour)
     
     # Write annual results CSV
