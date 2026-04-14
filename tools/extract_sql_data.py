@@ -543,53 +543,67 @@ def extract_energy_peak_data(sql_path: str, floor_area: float) -> dict:
             
             result['energy_peak_water_systems_w_per_m_sq'] = water_peak_w / floor_area if water_peak_w > 0 else 0.0
             
-            # Extract winter peak electricity data (Dec, Jan, Feb) from hourly simulation
-            # Generate timestamps for full year (hourly)
-            number_of_timesteps_per_hour = 1
-            timestep_seconds = 3600 / number_of_timesteps_per_hour
-            number_of_timesteps_of_year = 365 * 24 * number_of_timesteps_per_hour
-            
-            start_time = datetime(2006, 1, 1, 0, 0)
-            months_of_year = []
-            
-            for increment in range(int(number_of_timesteps_of_year)):
-                timestamp = start_time + timedelta(hours=increment)
-                months_of_year.append(timestamp.month)
-            
-            # Extract winter peak electricity (Electricity:Facility)
+            # Extract winter peak electricity data (Dec, Jan, Feb) from timestep simulation
+            # Auto-detect number of timesteps per hour from actual data
             cursor.execute("""
                 SELECT ReportDataDictionaryIndex
                 FROM ReportDataDictionary
                 WHERE Name='Electricity:Facility' 
-                AND ReportingFrequency='Hourly' 
+                AND ReportingFrequency='Zone Timestep' 
                 AND Units='J'
             """)
-            index_result = cursor.fetchone()
+            electricity_index_result = cursor.fetchone()
             
-            if index_result:
-                index_electricity = index_result[0]
+            if not electricity_index_result:
+                # Fallback: try Hourly if available (though typically not)
+                cursor.execute("""
+                    SELECT ReportDataDictionaryIndex
+                    FROM ReportDataDictionary
+                    WHERE Name='Electricity:Facility' 
+                    AND ReportingFrequency='Hourly' 
+                    AND Units='J'
+                """)
+                electricity_index_result = cursor.fetchone()
+            
+            if electricity_index_result:
+                index_electricity = electricity_index_result[0]
                 
-                # Get hourly values - try ReportData first (for meters), then ReportVariableData
+                # Get timestep values - try ReportData first (for meters), then ReportVariableData
                 cursor.execute("""
                     SELECT Value
                     FROM ReportData
                     WHERE ReportDataDictionaryIndex = ?
                 """, (index_electricity,))
-                hourly_values = cursor.fetchall()
+                timestep_values = cursor.fetchall()
                 
-                if not hourly_values:
+                if not timestep_values:
                     # Try ReportVariableData (for variables)
                     cursor.execute("""
                         SELECT VariableValue
                         FROM ReportVariableData
                         WHERE ReportVariableDataDictionaryIndex = ?
                     """, (index_electricity,))
-                    hourly_values = cursor.fetchall()
+                    timestep_values = cursor.fetchall()
                 
-                if hourly_values:
+                if timestep_values:
+                    # Auto-detect number of timesteps per hour
+                    total_timesteps = len(timestep_values)
+                    expected_hours = 365 * 24  # 8760 hours per year
+                    number_of_timesteps_per_hour = max(1, total_timesteps / expected_hours)
+                    timestep_seconds = 3600 / number_of_timesteps_per_hour
+                    
+                    # Generate month mapping for all timesteps
+                    start_time = datetime(2006, 1, 1, 0, 0)
+                    timestep_minutes = 60 / number_of_timesteps_per_hour
+                    months_of_year = []
+                    
+                    for i in range(total_timesteps):
+                        timestamp = start_time + timedelta(minutes=i * timestep_minutes)
+                        months_of_year.append(timestamp.month)
+                    
                     # Group by month
                     monthly_data = {}
-                    for month, value_tuple in zip(months_of_year, hourly_values):
+                    for month, value_tuple in zip(months_of_year, timestep_values):
                         value = value_tuple[0]
                         if month not in monthly_data:
                             monthly_data[month] = []
@@ -616,14 +630,26 @@ def extract_energy_peak_data(sql_path: str, floor_area: float) -> dict:
                 result['energy_peak_electric_w_per_m_sq_winter'] = 0.0
             
             # Extract winter peak electricity heating (Heating:Electricity)
+            # Try Zone Timestep first, then Hourly
             cursor.execute("""
                 SELECT ReportDataDictionaryIndex
                 FROM ReportDataDictionary
                 WHERE Name='Heating:Electricity' 
-                AND ReportingFrequency='Hourly' 
+                AND ReportingFrequency='Zone Timestep' 
                 AND Units='J'
             """)
             index_result = cursor.fetchone()
+            
+            if not index_result:
+                # Fallback to Hourly if available
+                cursor.execute("""
+                    SELECT ReportDataDictionaryIndex
+                    FROM ReportDataDictionary
+                    WHERE Name='Heating:Electricity' 
+                    AND ReportingFrequency='Hourly' 
+                    AND Units='J'
+                """)
+                index_result = cursor.fetchone()
             
             if index_result:
                 index_heating = index_result[0]
@@ -674,14 +700,26 @@ def extract_energy_peak_data(sql_path: str, floor_area: float) -> dict:
                 result['energy_peak_electric_heating_w_per_m_sq_winter'] = 0.0
             
             # Extract winter peak water systems electricity (WaterSystems:Electricity)
+            # Try Zone Timestep first, then Hourly
             cursor.execute("""
                 SELECT ReportDataDictionaryIndex
                 FROM ReportDataDictionary
                 WHERE Name='WaterSystems:Electricity' 
-                AND ReportingFrequency='Hourly' 
+                AND ReportingFrequency='Zone Timestep' 
                 AND Units='J'
             """)
             index_result = cursor.fetchone()
+            
+            if not index_result:
+                # Fallback to Hourly if available
+                cursor.execute("""
+                    SELECT ReportDataDictionaryIndex
+                    FROM ReportDataDictionary
+                    WHERE Name='WaterSystems:Electricity' 
+                    AND ReportingFrequency='Hourly' 
+                    AND Units='J'
+                """)
+                index_result = cursor.fetchone()
             
             if index_result:
                 index_water_systems = index_result[0]
