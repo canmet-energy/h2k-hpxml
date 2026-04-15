@@ -282,6 +282,11 @@ def cli(
     config_manager = ConfigManager()
     hpxml_os_path = str(config_manager.hpxml_os_path)
     ruby_hpxml_path = os.path.join(hpxml_os_path, "workflow", "run_simulation.rb")
+    
+    # Get custom meters from configuration
+    custom_meters = config_manager.custom_meters
+    if custom_meters:
+        logger.info(f"Custom Output:Meter objects will be added: {[m['name'] for m in custom_meters]}")
 
     # Get source and destination paths
     source_h2k_path = input_path
@@ -392,6 +397,7 @@ def cli(
                     ruby_hpxml_path=ruby_hpxml_path,
                     hpxml_os_path=hpxml_os_path,
                     flags=flags,
+                    custom_meters=custom_meters,
                 )
 
                 if status == "Success":

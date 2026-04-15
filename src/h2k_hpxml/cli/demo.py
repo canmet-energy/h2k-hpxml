@@ -223,6 +223,9 @@ class H2KDemo:
                     # Get configuration
                     config = ConfigManager()
                     hpxml_os_path = config.hpxml_os_path  # Use property accessor for auto-detection
+                    
+                    # Get custom meters from configuration
+                    custom_meters = config.custom_meters
 
                     # Check if path was found
                     if not hpxml_os_path:
@@ -251,6 +254,7 @@ class H2KDemo:
                         ruby_hpxml_path=ruby_hpxml_path,
                         hpxml_os_path=hpxml_os_path,
                         flags=flags,
+                        custom_meters=custom_meters,
                     )
 
                     progress.update(task, advance=1)

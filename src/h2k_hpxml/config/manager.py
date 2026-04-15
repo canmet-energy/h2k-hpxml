@@ -385,6 +385,24 @@ class ConfigManager:
         return self.get("simulation", "flags", "")
 
     @property
+    def custom_meters(self):
+        """Custom Output:Meter objects to add to IDF files.
+        
+        Returns:
+            List of meter configurations, e.g.:
+            [{'name': 'Heating:Electricity', 'frequency': 'Hourly'}]
+        """
+        meters_str = self.get("simulation", "custom_meters", "")
+        frequency = self.get("simulation", "meter_frequency", "Hourly")
+        
+        if not meters_str:
+            return []
+        
+        # Parse comma-separated meter names
+        meter_names = [m.strip() for m in meters_str.split(",") if m.strip()]
+        return [{'name': name, 'frequency': frequency} for name in meter_names]
+
+    @property
     def weather_library(self):
         """Weather library to use (historic, etc.)."""
         return self.get("weather", "weather_library", "historic")
