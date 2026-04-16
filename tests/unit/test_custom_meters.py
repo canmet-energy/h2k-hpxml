@@ -44,11 +44,20 @@ def test_idf_postprocessor():
     print("=" * 60)
     
     # Find an existing IDF file to test with
-    test_idf = Path("sara/output/ERS-EX-10622/run/in.idf")
+    # Search in standard output directory for any building
+    output_dir = Path("output")
+    test_idf = None
     
-    if not test_idf.exists():
-        print(f"\n⚠ Test IDF file not found: {test_idf}")
+    if output_dir.exists():
+        # Look for any in.idf file in output/*/run/in.idf
+        for idf_path in output_dir.glob("*/run/in.idf"):
+            test_idf = idf_path
+            break
+    
+    if not test_idf or not test_idf.exists():
+        print(f"\n⚠ No test IDF file found in output directory")
         print("  Run h2k-hpxml first to generate an IDF file for testing")
+        print("  Example: h2k-hpxml input.h2k")
         return False
     
     print(f"\nTest IDF file: {test_idf}")
@@ -93,47 +102,6 @@ def test_idf_postprocessor():
         print("\n✗ IDF postprocessor test failed")
         return False
 
-
-def show_usage_examples():
-    """Show usage examples for custom meters."""
-    print("\n" + "=" * 60)
-    print("Usage Examples")
-    print("=" * 60)
-    
-    print("\n1. Configure custom meters in config file:")
-    print("   Edit: config/conversionconfig.ini")
-    print("""
-   [simulation]
-   custom_meters = Heating:Electricity,WaterSystems:Electricity
-   meter_frequency = Hourly
-   """)
-    
-    print("2. Run h2k-hpxml normally:")
-    print("   $ h2k-hpxml input.h2k")
-    print("""
-   → H2K converted to HPXML
-   → IDF generated
-   → Custom meters added automatically
-   → EnergyPlus simulation runs with custom meters
-   """)
-    
-    print("3. Check meter outputs:")
-    print("   - Standard output: output/ERS-EX-XXXXX/run/eplusmtr.csv")
-    print("   - Hourly data: output/ERS-EX-XXXXX/run/eplusout.csv")
-    print("   - Results: output/ERS-EX-XXXXX/run/results_annual.csv")
-    
-    print("\n4. Available meter names (examples):")
-    print("   - Heating:Electricity")
-    print("   - WaterSystems:Electricity")
-    print("   - Cooling:Electricity")
-    print("   - InteriorLights:Electricity")
-    print("   - ExteriorLights:Electricity")
-    print("   - Fans:Electricity")
-    print("   - Pumps:Electricity")
-    print("""
-   → See eplusout.mdd file for complete list of available meters""")
-
-
 if __name__ == "__main__":
     print("\n" + "=" * 60)
     print("H2K-HPXML Custom Meters Integration Test")
@@ -144,9 +112,6 @@ if __name__ == "__main__":
     
     # Test 2: IDF Postprocessor
     test_idf_postprocessor()
-    
-    # Show usage examples
-    show_usage_examples()
     
     print("\n" + "=" * 60)
     print("All tests completed!")

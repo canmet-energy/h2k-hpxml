@@ -109,7 +109,7 @@ h2k-hpxml input.h2k --hourly ALL --debug
 
 ## Workflow Options
 
-### Option 1: Automatic + Manual Re-run (Recommended)
+### Option 1: Automatic + Manual Re-run
 
 The automatic workflow adds meters but may have timing issues with the re-run. Simple two-step process:
 
@@ -126,40 +126,65 @@ Your custom meter data is now in `eplusmtr.csv` and `eplusout.sql`!
 
 ### Option 2: Use Postprocessor Directly
 
-```python
-from h2k_hpxml.utils.idf_postprocessor import add_output_meters_to_idf
-
-# Define your meters
-meters = [
-    {'name': 'Heating:Electricity', 'frequency': 'Hourly'},
-    {'name': 'WaterSystems:Electricity', 'frequency': 'Hourly'},
-]
-
-# Add to existing IDF
-add_output_meters_to_idf('output/{building-id}/run/in.idf', meters)
-```
-
-### Option 3: Separate Convert and Simulate
+For when you already have a completed simulation and want to add meters and re-run:
 
 ```bash
-# Step 1: Convert without simulation
-h2k-hpxml input.h2k --do-not-sim
-
-# Step 2: Add custom meters via Python
+# Add meters to an existing IDF file
 python << EOF
-from h2k_hpxml.utils.idf_postprocessor import process_hpxml_output_folder
+from h2k_hpxml.utils.idf_postprocessor import add_output_meters_to_idf
+
 meters = [
     {'name': 'Heating:Electricity', 'frequency': 'Hourly'},
     {'name': 'WaterSystems:Electricity', 'frequency': 'Hourly'},
 ]
-process_hpxml_output_folder('output/{building-id}/{building-id}.xml', meters)
+
+# Replace ERS-EX-10622 with your actual building ID
+add_output_meters_to_idf('output/ERS-EX-10622/run/in.idf', meters)
 EOF
 
-# Step 3: Run simulation manually
+# Re-run EnergyPlus with the modified IDF
+cd output/ERS-EX-10622/run
+energyplus -w *.epw -d . in.idf
+```
+
+### Option 3: Full Manual Control (Advanced)
+
+Complete control over each stage - convert, generate IDF, add meters, then simulate:
+
+```bash
+# Step 1: Convert H2K to HPXML only
+h2k-hpxml input.h2k --do-not-sim
+# Creates: output/{building-id}/{building-id}.xml
+
+# Step 2: Generate IDF with OpenStudio (run full simulation)
 cd output/{building-id}
 openstudio ~/.local/share/OpenStudio-HPXML-v1.9.1/workflow/run_simulation.rb \
-  -x {building-id}.xml --hourly ALL --debug
+  -x {building-id}.xml \
+  --hourly ALL \
+  --debug
+# Creates: run/in.idf and runs EnergyPlus
+
+# Step 3: Add custom meters to the IDF
+python << EOF
+from h2k_hpxml.utils.idf_postprocessor import add_output_meters_to_idf
+
+meters = [
+    {'name': 'Heating:Electricity', 'frequency': 'Hourly'},
+    {'name': 'WaterSystems:Electricity', 'frequency': 'Hourly'},
+]
+
+add_output_meters_to_idf('run/in.idf', meters)
+EOF
+
+# Step 4: Re-run EnergyPlus with custom meters
+cd run
+energyplus -w *.epw -d . in.idf
 ```
+
+**When to use each option:**
+- **Option 1**: Best for most users - automatic and simple
+- **Option 2**: Quick re-run with meters when you already have output files
+- **Option 3**: Maximum control - useful for debugging or customizing each step
 
 ---
 
@@ -167,12 +192,10 @@ openstudio ~/.local/share/OpenStudio-HPXML-v1.9.1/workflow/run_simulation.rb \
 
 ### Facility-Level Meters (Hourly Maximum)
 
-**Hourly is the finest resolution** for facility-level aggregated meters:
+**Hourly is the finest resolution** for some facility-level aggregated meters:
 - `Heating:Electricity`
 - `WaterSystems:Electricity`
 - `Cooling:Electricity`
-- `Electricity:Facility`
-- `NaturalGas:Facility`
 
 **Supported frequencies:**
 - ✅ `Hourly` (finest available)
@@ -188,144 +211,21 @@ openstudio ~/.local/share/OpenStudio-HPXML-v1.9.1/workflow/run_simulation.rb \
 
 EnergyPlus will **silently ignore** the request and produce **no meter data** in your outputs. You won't see an error - the meters simply won't appear in `eplusmtr.csv` or `eplusout.sql`.
 
-### How to Get Timestep-Level Data
+## API Usage (For Python Developers)
 
-For sub-hourly resolution, you need **component-level meters** instead of facility aggregates:
+**Note:** This section is only relevant if you're writing Python scripts that import and call h2k-hpxml functions. If you only use the command-line tool (`h2k-hpxml`), you can skip this section.
 
-1. Run a simulation with `--debug` flag
-2. Check `output/{building-id}/run/eplusout.mdd` for available meters
-3. Look for equipment-specific meters (e.g., `heat_pump:Heating:Electricity`)
-4. These component meters may support `Zone Timestep` frequency
+### For Automation & Integration Scripts
 
-**Example from eplusout.mdd:**
-```
-Output:Meter,Heating:Electricity,hourly;                       !- Facility level (hourly only)
-Output:Meter,heat_pump:Heating:Electricity,Zone Timestep;      !- Component level (timestep available)
-```
+When writing Python scripts for batch processing or workflow automation, custom meters work automatically - no special code required!
 
----
-
-## Output Files
-
-After simulation, check these files for meter data:
-
-### 1. **eplusmtr.csv** (Native EnergyPlus Meter Output)
-Location: `output/{building-id}/run/eplusmtr.csv`
-
-Contains raw meter data for all requested meters at the specified frequency.
-
-Example content:
-```csv
-Date/Time,Heating:Electricity [J](Hourly),WaterSystems:Electricity [J](Hourly)
-01/01  01:00:00,1.8E+07,2.5E+06
-01/01  02:00:00,1.9E+07,2.4E+06
-...
-```
-
-### 2. **eplusout.mdd** (Meter Data Dictionary)
-Location: `output/{building-id}/run/eplusout.mdd`
-
-Lists ALL available meters in the simulation. Use this to discover meter names for configuration.
-
-### 3. **results_annual.csv** (HPXML Annual Results)
-Location: `output/{building-id}/run/results_annual.csv`
-
-OpenStudio-HPXML's processed annual results (already includes many end-use meters).
-
-### 4. **results_timeseries.csv** (If hourly output requested)
-Location: `output/{building-id}/run/results_timeseries.csv`
-
-Hourly timeseries data processed by OpenStudio-HPXML.
-
-### 5. **eplusout.sql** (SQL Database)
-Location: `output/{building-id}/run/eplusout.sql`
-
-SQL database with meter data - queryable for custom analysis.
-
-## Common EnergyPlus Meters
-
-Here are commonly used meter names:
-
-### HVAC Meters
-- `Heating:Electricity` - All electric heating (heat pumps, resistance heaters, etc.)
-- `Cooling:Electricity` - All cooling equipment electricity
-- `Fans:Electricity` - All fan electricity
-- `Pumps:Electricity` - All pump electricity
-
-### Water System Meters
-- `WaterSystems:Electricity` - Water heater electricity
-- `WaterSystems:NaturalGas` - Water heater natural gas
-- `WaterSystems:Propane` - Water heater propane
-
-### Other End Uses
-- `InteriorLights:Electricity` - Interior lighting
-- `ExteriorLights:Electricity` - Exterior lighting
-- `InteriorEquipment:Electricity` - All plug loads and appliances
-- `ExteriorEquipment:Electricity` - Exterior equipment
-
-### Facility-Level Totals
-- `Electricity:Facility` - Total building electricity
-- `NaturalGas:Facility` - Total building natural gas
-- `DistrictHeating:Facility` - District heating
-- `DistrictCooling:Facility` - District cooling
-
-**Tip:** Run simulation once with `--debug` flag to get `eplusout.mdd` file, which lists ALL available meters for your specific building configuration.
-
-## Examples
-
-### Example 1: Track Electric Heating and Water Heating
-
-**Config:**
-```ini
-custom_meters = Heating:Electricity,WaterSystems:Electricity
-meter_frequency = Hourly
-```
-
-**Command:**
-```bash
-h2k-hpxml house.h2k --hourly ALL
-```
-
-**Result:** Hourly heating and water heating electricity data in `eplusmtr.csv`
-
-### Example 2: Monthly HVAC Energy Breakdown
-
-**Config:**
-```ini
-custom_meters = Heating:Electricity,Cooling:Electricity,Fans:Electricity,Pumps:Electricity
-meter_frequency = Monthly
-```
-
-**Command:**
-```bash
-h2k-hpxml house.h2k
-```
-
-**Result:** Monthly HVAC component energy breakdown
-
-### Example 3: Timestep Resolution for Detailed Analysis
-
-**Config:**
-```ini
-custom_meters = Electricity:Facility,NaturalGas:Facility
-meter_frequency = Timestep
-```
-
-**Command:**
-```bash
-h2k-hpxml house.h2k --timestep ALL
-```
-
-**Result:** Sub-hourly total energy consumption (very detailed for peak load analysis)
-
-## API Usage
-
-If using the Python API directly:
+**You do NOT need to pass custom_meters as a parameter.** The `run_full_workflow()` function automatically reads them from `config/conversionconfig.ini`:
 
 ```python
 from h2k_hpxml import run_full_workflow
 
-# Custom meters are read automatically from configuration
+# Custom meters are loaded automatically from config
+# No need to pass them as a function parameter!
 results = run_full_workflow(
     'house.h2k',
     simulate=True,
@@ -334,35 +234,22 @@ results = run_full_workflow(
 
 print(f"Processed with custom meters: {results['successful_conversions']} files")
 ```
-
----
-
-## Advanced: SQL Queries
-
-Query meter data from the SQL database:
-
+#### Example: Batch Processing Script
 ```python
-import sqlite3
-import pandas as pd
 
-# Connect to database
-conn = sqlite3.connect('output/{building-id}/run/eplusout.sql')
+from h2k_hpxml import run_full_workflow
+import glob
 
-# Query custom meters
-query = """
-    SELECT rd.Name, rd.ReportingFrequency, t.Month, t.Day, t.Hour, rdata.VariableValue
-    FROM ReportData rdata
-    JOIN ReportDataDictionary rd ON rdata.ReportDataDictionaryIndex = rd.ReportDataDictionaryIndex
-    JOIN Time t ON rdata.TimeIndex = t.TimeIndex
-    WHERE rd.Name IN ('Heating:Electricity', 'WaterSystems:Electricity')
-    ORDER BY t.Month, t.Day, t.Hour
-"""
-
-df = pd.read_sql(query, conn)
-conn.close()
-
-print(df.head())
+# Process multiple files - custom meters applied to all
+for h2k_file in glob.glob('*.h2k'):
+    results = run_full_workflow(
+        h2k_file,
+        simulate=True,
+        hourly_outputs=['total', 'fuels']
+    )
+    print(f"✓ {h2k_file}: {results['successful_conversions']} converted")
 ```
+
 
 ---
 
@@ -377,29 +264,6 @@ python tests/unit/test_custom_meters.py
 # Or use pytest
 pytest tests/unit/test_custom_meters.py -v
 ```
-
-## Utility Functions
-
-The implementation provides utility functions for advanced use cases:
-
-```python
-from h2k_hpxml.utils.idf_postprocessor import add_output_meters_to_idf
-
-# Manually add meters to an existing IDF
-meters = [
-    {'name': 'Heating:Electricity', 'frequency': 'Hourly'},
-    {'name': 'WaterSystems:Electricity', 'frequency': 'Hourly'},
-]
-
-add_output_meters_to_idf('path/to/in.idf', meters)
-```
----
-
-## Why Manual Re-run Is Needed
-
-The automatic re-run attempts to use EnergyPlus's `-r` (rerun) flag, but this has issues when output files already exist (file locking, permissions, timing). The safest and most reliable approach is the manual re-run shown in Workflow Option 1.
-
-This is a known limitation and may be improved in future versions.
 
 ---
 
@@ -463,6 +327,18 @@ python -c "from h2k_hpxml.config import ConfigManager; \
 
 **Solution:** See verification commands above.
 
+### Issue: IDF File Not Created with --skip-simulation
+
+**Symptom:** Running OpenStudio with `--skip-simulation` flag doesn't create `in.idf` file.
+
+**Cause:** The `--skip-simulation` flag stops processing after creating the OSM file, before IDF generation.
+
+**Solution:** Either:
+1. Remove `--skip-simulation` to let the full workflow run (creates IDF and runs EnergyPlus)
+2. Use Option 1 (automatic workflow) instead - much simpler!
+
+**Note:** You cannot add meters to an IDF that doesn't exist yet. The IDF is created when OpenStudio translates the OSM file, which happens during the simulation workflow.
+
 ## Implementation Details
 
 ### Files Modified
@@ -504,18 +380,3 @@ The feature is **fully backward compatible**:
 - EnergyPlus simulation time unchanged
 
 For batch processing of 1000+ files, the overhead is negligible compared to total simulation time.
-
-## Future Enhancements
-
-Potential future improvements:
-
-1. **CLI flag for dynamic meters:** `--add-meter "Heating:Electricity,Hourly"`
-2. **Preset meter profiles:** `--meter-profile hvac-detailed`
-3. **Output:Variable support:** Similar functionality for output variables
-4. **Post-processing integration:** Automatic analysis of custom meter data
-
-## References
-
-- [EnergyPlus Input/Output Reference - Output:Meter](https://energyplus.net/assets/nrel_custom/pdfs/pdfs_v9.5.0/InputOutputReference.pdf)
-- [OpenStudio-HPXML Documentation](https://github.com/NREL/OpenStudio-HPXML)
-- [H2K-HPXML User Guide](docs/USER_GUIDE.md)
