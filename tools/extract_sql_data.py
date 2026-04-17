@@ -21,11 +21,18 @@ Usage Examples:
     python extract_sql_data.py output/ --timestep
     # Output: output/temporary_output_folder/BUILDING_NAME/sql_timestep.parquet (one per building)
 
+    # Copy h2k-hpxml output files (.H2K, .xml, results CSVs) to house folders
+    # Source .H2K files are automatically found in parent directory
+    python extract_sql_data.py output/
+
     # Delete results_timeseries.parquet files from house folders
     python extract_sql_data.py output/ --delete-timeseries
 
     # Delete timeseries and extract hourly data
     python extract_sql_data.py output/ --delete-timeseries --hourly
+
+    # Extract annual data (source files are copied automatically)
+    python extract_sql_data.py output/
 
 Annual CSV columns:
     - Building metadata (name, type, location, weather file)
@@ -1108,6 +1115,113 @@ def extract_timestep_data(sql_path: str, output_csv: str, house_name: str = None
         return False
 
 
+def copy_h2k_output_files(input_dir: str, source_h2k_dir: str = None) -> int:
+    """
+    Copy h2k-hpxml generated files to each house folder in temporary_output_folder.
+    
+    Copies the following files for each house:
+        - Original .H2K file (from source_h2k_dir)
+        - Generated .xml file (HPXML)
+        - results_timeseries.csv → converted to hpxml_results_timeseries.parquet
+        - results_annual.csv → converted to hpxml_results_annual.parquet
+    
+    Note: CSV files are converted to Parquet format and the CSV versions are deleted.
+    
+    Args:
+        input_dir: Directory containing output folders from h2k-hpxml
+        source_h2k_dir: Directory containing source .H2K files (default: parent dir of input_dir)
+        
+    Returns:
+        Number of houses processed
+    """
+    import shutil
+    
+    temp_output_dir = os.path.join(input_dir, "temporary_output_folder")
+    
+    if not os.path.exists(temp_output_dir):
+        os.makedirs(temp_output_dir, exist_ok=True)
+        print(f"Created: {temp_output_dir}")
+    
+    # Default source directory is parent of input_dir (where .H2K files typically are)
+    if source_h2k_dir is None:
+        source_h2k_dir = os.path.dirname(os.path.abspath(input_dir))
+    
+    # Find all house folders in input_dir
+    house_folders = []
+    for item in os.listdir(input_dir):
+        item_path = os.path.join(input_dir, item)
+        if os.path.isdir(item_path) and item != "temporary_output_folder":
+            house_folders.append((item, item_path))
+    
+    if not house_folders:
+        print(f"No house folders found in {input_dir}")
+        return 0
+    
+    copied_count = 0
+    
+    for house_name, house_path in sorted(house_folders):
+        # Create destination folder in temporary_output_folder
+        dest_folder = os.path.join(temp_output_dir, house_name)
+        os.makedirs(dest_folder, exist_ok=True)
+        
+        files_copied = []
+        
+        # 1. Copy .H2K file from source directory
+        h2k_source = os.path.join(source_h2k_dir, f"{house_name}.H2K")
+        if not os.path.exists(h2k_source):
+            h2k_source = os.path.join(source_h2k_dir, f"{house_name}.h2k")
+        
+        if os.path.exists(h2k_source):
+            h2k_dest = os.path.join(dest_folder, os.path.basename(h2k_source))
+            shutil.copy2(h2k_source, h2k_dest)
+            files_copied.append(os.path.basename(h2k_source))
+        
+        # 2. Copy .xml file (HPXML) from house folder
+        xml_source = os.path.join(house_path, f"{house_name}.xml")
+        if os.path.exists(xml_source):
+            xml_dest = os.path.join(dest_folder, f"{house_name}.xml")
+            shutil.copy2(xml_source, xml_dest)
+            files_copied.append(f"{house_name}.xml")
+        
+        # 3. Copy results CSV files from run/ subfolder with "hpxml_" prefix
+        # Convert to Parquet and delete CSV files
+        run_folder = os.path.join(house_path, "run")
+        if os.path.exists(run_folder):
+            result_files = [
+                "results_timeseries.csv",
+                "results_annual.csv"
+            ]
+            
+            for result_file in result_files:
+                source_file = os.path.join(run_folder, result_file)
+                if os.path.exists(source_file):
+                    # Add "hpxml_" prefix to destination filename
+                    dest_filename = f"hpxml_{result_file}"
+                    dest_csv = os.path.join(dest_folder, dest_filename)
+                    
+                    # Copy CSV file
+                    shutil.copy2(source_file, dest_csv)
+                    
+                    # Convert to Parquet
+                    dest_parquet = dest_csv.replace('.csv', '.parquet')
+                    df = pd.read_csv(dest_csv, low_memory=False)
+                    df.to_parquet(dest_parquet, index=False)
+                    
+                    # Delete CSV file after Parquet conversion
+                    os.remove(dest_csv)
+                    
+                    # Track the Parquet file as copied
+                    files_copied.append(dest_filename.replace('.csv', '.parquet'))
+        
+        if files_copied:
+            copied_count += 1
+            print(f"  {house_name}: Copied {', '.join(files_copied)}")
+        else:
+            print(f"  {house_name}: No files found to copy")
+    
+    return copied_count
+
+
 def main():
     parser = argparse.ArgumentParser(description="Extract data from EnergyPlus SQL files")
     parser.add_argument('input_dir', help='Directory containing eplusout.sql files')
@@ -1117,7 +1231,7 @@ def main():
                        help='Extract sub-hourly timestep data in BTAP format (one parquet file per building)')
     parser.add_argument('--timesteps-per-hour', type=int, default=None,
                        help='Override auto-detected timesteps per hour for --timestep option')
-    parser.add_argument('--delete-timeseries', action='store_true',
+    parser.add_argument('--delete-timeseries', action='store_true', #TODO delete this script and in the code that it generates this
                        help='Delete results_timeseries.parquet files from house ID folders in temporary_output_folder')
     args = parser.parse_args()
     
@@ -1128,6 +1242,15 @@ def main():
     # Create temporary_output_folder for annual CSV
     temp_output_dir = os.path.join(args.input_dir, "temporary_output_folder")
     os.makedirs(temp_output_dir, exist_ok=True)
+    
+    # Copy source files (always done by default)
+    # Source .H2K files are automatically found in parent directory of input_dir
+    print("Copying h2k-hpxml output files to house folders...")
+    copied_count = copy_h2k_output_files(args.input_dir, source_h2k_dir=None)
+    if copied_count > 0:
+        print(f"✓ Copied files for {copied_count} houses\n")
+    else:
+        print("No files copied\n")
     
     # Delete results_timeseries.parquet files if requested
     if args.delete_timeseries:
