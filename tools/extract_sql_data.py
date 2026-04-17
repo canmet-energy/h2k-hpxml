@@ -15,14 +15,14 @@ Usage Examples:
     python extract_sql_data.py output/ --output my_results.csv
 
     # Extract hourly data (all hourly variables, BTAP format)
-    # Produces one CSV per building with timestamps as columns
+    # Produces one parquet file per building with timestamps as columns
     python extract_sql_data.py output/ --hourly
-    # Output: output/temporary_output_folder/BUILDING_NAME/sql_hourly.csv (one per building)
+    # Output: output/temporary_output_folder/BUILDING_NAME/sql_hourly.parquet (one per building)
 
     # Extract timestep data (sub-hourly, BTAP format)
-    # Produces one CSV per building with timesteps as rows
+    # Produces one parquet file per building with timesteps as rows
     python extract_sql_data.py output/ --timestep
-    # Output: output/temporary_output_folder/BUILDING_NAME/sql_timestep.csv (one per building)
+    # Output: output/temporary_output_folder/BUILDING_NAME/sql_timestep.parquet (one per building)
 
 Annual CSV columns:
     - Building metadata (name, type, location, weather file)
@@ -50,6 +50,7 @@ import sqlite3
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
+import pandas as pd
 
 
 def extract_floor_area(sql_path: str) -> float | None:
@@ -935,7 +936,7 @@ def extract_hourly_data(sql_path: str, output_csv: str, house_name: str = None) 
                 
                 array_of_data.append(data_row)
             
-            # Write to CSV (variables as rows, timestamps as columns)
+            # Write to CSV temporarily (variables as rows, timestamps as columns)
             if array_of_data:
                 with open(output_csv, 'w', newline='') as f:
                     fieldnames = ['datapoint_id', 'Name', 'KeyValue', 'Units'] + hours_of_year
@@ -943,7 +944,14 @@ def extract_hourly_data(sql_path: str, output_csv: str, house_name: str = None) 
                     writer.writeheader()
                     writer.writerows(array_of_data)
                 
-                print(f"  ✓ Extracted {len(array_of_data)} hourly variables to {os.path.basename(output_csv)}")
+                # Convert to parquet (keeping CSV for checking)
+                output_parquet = output_csv.replace('.csv', '.parquet')
+                df = pd.read_csv(output_csv, low_memory=False)
+                df.to_parquet(output_parquet, index=False)
+                # Uncomment the line below to delete CSV after parquet conversion
+                # os.remove(output_csv)
+                
+                print(f"  ✓ Extracted {len(array_of_data)} hourly variables to {os.path.basename(output_parquet)} (CSV also saved)")
                 return True
             
             return False
@@ -1040,7 +1048,7 @@ def extract_timestep_data(sql_path: str, output_csv: str, house_name: str = None
                 col_name = f"{name}|{key_value}|{units}"
                 variables_data[col_name] = timestep_values
             
-            # Write transposed CSV (timesteps as rows, variables as columns)
+            # Write transposed CSV temporarily (timesteps as rows, variables as columns)
             # This matches BTAP's format
             with open(output_csv, 'w', newline='') as f:
                 header = ['Index', 'Timestep', 'datapoint_id', 'Name', 'KeyValue', 'Units', 'Value']
@@ -1066,7 +1074,14 @@ def extract_timestep_data(sql_path: str, output_csv: str, house_name: str = None
                             value
                         ])
             
-            print(f"  ✓ Extracted {len(variables_data)} timestep variables ({len(timestep_values)} timesteps each, {timesteps_per_hour}/hr) to {os.path.basename(output_csv)}")
+            # Convert to parquet (keeping CSV for checking)
+            output_parquet = output_csv.replace('.csv', '.parquet')
+            df = pd.read_csv(output_csv, low_memory=False)
+            df.to_parquet(output_parquet, index=False)
+            # Uncomment the line below to delete CSV after parquet conversion
+            # os.remove(output_csv)
+            
+            print(f"  ✓ Extracted {len(variables_data)} timestep variables ({len(timestep_values)} timesteps each, {timesteps_per_hour}/hr) to {os.path.basename(output_parquet)} (CSV also saved)")
             return True
             
     except Exception as e:
@@ -1079,9 +1094,9 @@ def main():
     parser.add_argument('input_dir', help='Directory containing eplusout.sql files')
     parser.add_argument('--output', '-o', help='Output CSV file for annual data (default: temporary_output_folder/sql_annual.csv in input_dir)')
     parser.add_argument('--hourly', action='store_true', 
-                       help='Extract hourly simulation data in BTAP format (one CSV per building)')
+                       help='Extract hourly simulation data in BTAP format (one parquet file per building)')
     parser.add_argument('--timestep', action='store_true',
-                       help='Extract sub-hourly timestep data in BTAP format (one CSV per building)')
+                       help='Extract sub-hourly timestep data in BTAP format (one parquet file per building)')
     parser.add_argument('--timesteps-per-hour', type=int, default=None,
                        help='Override auto-detected timesteps per hour for --timestep option')
     args = parser.parse_args()
@@ -1211,14 +1226,14 @@ def main():
         if args.hourly:
             house_subdir = os.path.join(temp_output_dir, house_name)
             os.makedirs(house_subdir, exist_ok=True)
-            hourly_csv = os.path.join(house_subdir, "sql_hourly.csv")
+            hourly_csv = os.path.join(house_subdir, "sql_hourly.csv")  # Will be converted to .parquet
             extract_hourly_data(sql_path, hourly_csv, house_name)
         
         # Extract timestep data if requested
         if args.timestep:
             house_subdir = os.path.join(temp_output_dir, house_name)
             os.makedirs(house_subdir, exist_ok=True)
-            timestep_csv = os.path.join(house_subdir, "sql_timestep.csv")
+            timestep_csv = os.path.join(house_subdir, "sql_timestep.csv")  # Will be converted to .parquet
             extract_timestep_data(sql_path, timestep_csv, house_name, args.timesteps_per_hour)
     
     # Write annual results CSV
