@@ -279,6 +279,22 @@ def extract_primary_dhw_fuel(h2k_path: str) -> str | None:
         return None
 
 
+def extract_year_built(h2k_path: str) -> int | None:
+    """Extract YearBuilt from H2K file."""
+    try:
+        tree = ET.parse(h2k_path)
+        root = tree.getroot()
+        
+        # YearBuilt is in House/Specifications/YearBuilt with a 'value' attribute
+        year_built = root.find('.//House/Specifications/YearBuilt')
+        if year_built is not None and year_built.get('value'):
+            return int(year_built.get('value'))
+        
+        return None
+    except:
+        return None
+
+
 def extract_weather_file(hpxml_path: str) -> str | None:
     """Extract weather file name from HPXML file."""
     try:
@@ -1197,12 +1213,14 @@ def main():
             region = extract_region(h2k_path)
             primary_space_heating_fuel = extract_primary_space_heating_fuel(h2k_path)
             primary_dhw_fuel = extract_primary_dhw_fuel(h2k_path)
+            year_built = extract_year_built(h2k_path)
         else:
             house_type = None
             location_city = None
             region = None
             primary_space_heating_fuel = None
             primary_dhw_fuel = None
+            year_built = None
         
         # Look for HPXML file in the house output directory
         house_dir = os.path.dirname(sql_path).replace('/run', '')
@@ -1216,6 +1234,7 @@ def main():
                 'location_city': location_city or '',
                 'location_state_province_region': region or '',
                 'location_weather_file': weather_file or '',
+                'vintage': year_built if year_built is not None else '',
                 'primary_space_heating_fuel': primary_space_heating_fuel or '',
                 'primary_dhw_fuel': primary_dhw_fuel or '',
                 'bldg_conditioned_floor_area_m_sq': floor_area,
