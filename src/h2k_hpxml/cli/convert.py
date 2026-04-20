@@ -400,51 +400,7 @@ def cli(
                     custom_meters=custom_meters,
                 )
 
-                if status == "Success":
-                    # Convert results_timeseries.csv to parquet if it exists
-                    try:
-                        import pandas as pd
-                        csv_path = os.path.join(os.path.dirname(hpxml_path), "run", "results_timeseries.csv")
-                        if os.path.exists(csv_path):
-                            df = pd.read_csv(csv_path, low_memory=False)
-                            parquet_path = csv_path.replace(".csv", ".parquet")
-                            df.to_parquet(parquet_path, index=False, engine='pyarrow')
-                            logger.info(f"Created parquet file: {parquet_path}")
-                    except Exception as e:
-                        logger.debug(f"Could not create parquet file: {e}")
-                    
-                    # Copy output files to temporary_output_folder
-                    try:
-                        # Get H2K filename without extension
-                        h2k_filename = pathlib.Path(filepath).stem
-                        
-                        # Create temporary_output_folder in the destination path
-                        temp_output_root = os.path.join(dest_hpxml_path, "temporary_output_folder")
-                        h2k_output_folder = os.path.join(temp_output_root, h2k_filename)
-                        os.makedirs(h2k_output_folder, exist_ok=True)
-                        
-                        # Define source run directory
-                        run_dir = os.path.join(os.path.dirname(hpxml_path), "run")
-                        
-                        # Files to copy
-                        files_to_copy = [
-                            "results_timeseries.parquet",
-                            "eplusout.sql",
-                            "eplustbl.htm"
-                        ]
-                        
-                        # Copy each file if it exists
-                        for filename in files_to_copy:
-                            src_file = os.path.join(run_dir, filename)
-                            if os.path.exists(src_file):
-                                dst_file = os.path.join(h2k_output_folder, filename)
-                                shutil.copy2(src_file, dst_file)
-                                logger.debug(f"Copied {filename} to {h2k_output_folder}")
-                        
-                        logger.info(f"Output files copied to: {h2k_output_folder}")
-                    except Exception as e:
-                        logger.warning(f"Could not copy output files to temporary folder: {e}")
-                    
+                if status == "Success":                 
                     # Record success to database
                     results_db.record_success(
                         filepath=filepath,

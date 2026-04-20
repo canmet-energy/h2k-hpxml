@@ -7,32 +7,13 @@ CSV column headers comply with BTAP output format conventions.
 
 Usage Examples:
 
-    # Extract annual data (one sql_annual.csv per building in each house folder)
+    # Extract all data (annual, hourly, timestep) and copy source files
     python extract_sql_data.py output/
-    # Output: output/temporary_output_folder/BUILDING_NAME/sql_annual.csv (one per building)
-
-    # Extract hourly data (all hourly variables, BTAP format)
-    # Produces one parquet file per building with timestamps as columns
-    python extract_sql_data.py output/ --hourly
-    # Output: output/temporary_output_folder/BUILDING_NAME/sql_hourly.parquet (one per building)
-
-    # Extract timestep data (sub-hourly, BTAP format)
-    # Produces one parquet file per building with timesteps as rows
-    python extract_sql_data.py output/ --timestep
-    # Output: output/temporary_output_folder/BUILDING_NAME/sql_timestep.parquet (one per building)
-
-    # Copy h2k-hpxml output files (.H2K, .xml, results CSVs) to house folders
-    # Source .H2K files are automatically found in parent directory
-    python extract_sql_data.py output/
-
-    # Delete results_timeseries.parquet files from house folders
-    python extract_sql_data.py output/ --delete-timeseries
-
-    # Delete timeseries and extract hourly data
-    python extract_sql_data.py output/ --delete-timeseries --hourly
-
-    # Extract annual data (source files are copied automatically)
-    python extract_sql_data.py output/
+    # Output:
+    #   - output/temporary_output_folder/BUILDING_NAME/sql_annual.csv (annual metrics)
+    #   - output/temporary_output_folder/BUILDING_NAME/sql_hourly.parquet (8760 hourly values)
+    #   - output/temporary_output_folder/BUILDING_NAME/sql_timestep.parquet (sub-hourly data)
+    #   - Source files (.H2K, .xml, results parquet files) automatically copied
 
 Annual CSV columns:
     - Building metadata (name, type, location, weather file)
@@ -1124,6 +1105,8 @@ def copy_h2k_output_files(input_dir: str, source_h2k_dir: str = None) -> int:
         - Generated .xml file (HPXML)
         - results_timeseries.csv → converted to hpxml_results_timeseries.parquet
         - results_annual.csv → converted to hpxml_results_annual.parquet
+        - eplustbl.htm (EnergyPlus tabular output)
+        - eplusout.sql (EnergyPlus SQL database)
     
     Note: CSV files are converted to Parquet format and the CSV versions are deleted.
     
@@ -1212,6 +1195,19 @@ def copy_h2k_output_files(input_dir: str, source_h2k_dir: str = None) -> int:
                     
                     # Track the Parquet file as copied
                     files_copied.append(dest_filename.replace('.csv', '.parquet'))
+            
+            # 4. Copy EnergyPlus output files from run/ subfolder
+            energyplus_files = [
+                "eplustbl.htm",
+                "eplusout.sql"
+            ]
+            
+            for ep_file in energyplus_files:
+                source_file = os.path.join(run_folder, ep_file)
+                if os.path.exists(source_file):
+                    dest_file = os.path.join(dest_folder, ep_file)
+                    shutil.copy2(source_file, dest_file)
+                    files_copied.append(ep_file)
         
         if files_copied:
             copied_count += 1
@@ -1225,14 +1221,6 @@ def copy_h2k_output_files(input_dir: str, source_h2k_dir: str = None) -> int:
 def main():
     parser = argparse.ArgumentParser(description="Extract data from EnergyPlus SQL files")
     parser.add_argument('input_dir', help='Directory containing eplusout.sql files')
-    parser.add_argument('--hourly', action='store_true', 
-                       help='Extract hourly simulation data in BTAP format (one parquet file per building)')
-    parser.add_argument('--timestep', action='store_true',
-                       help='Extract sub-hourly timestep data in BTAP format (one parquet file per building)')
-    parser.add_argument('--timesteps-per-hour', type=int, default=None,
-                       help='Override auto-detected timesteps per hour for --timestep option')
-    parser.add_argument('--delete-timeseries', action='store_true', #TODO delete this script and in the code that it generates this
-                       help='Delete results_timeseries.parquet files from house ID folders in temporary_output_folder')
     args = parser.parse_args()
     
     if not os.path.isdir(args.input_dir):
@@ -1250,27 +1238,8 @@ def main():
     if copied_count > 0:
         print(f"✓ Copied files for {copied_count} houses\n")
     else:
-        print("No files copied\n")
-    
-    # Delete results_timeseries.parquet files if requested
-    if args.delete_timeseries:
-        deleted_count = 0
-        for item in os.listdir(temp_output_dir):
-            item_path = os.path.join(temp_output_dir, item)
-            if os.path.isdir(item_path):
-                timeseries_file = os.path.join(item_path, "results_timeseries.parquet")
-                if os.path.exists(timeseries_file):
-                    os.remove(timeseries_file)
-                    deleted_count += 1
-                    print(f"  Deleted: {item}/results_timeseries.parquet")
-        if deleted_count > 0:
-            print(f"✓ Deleted {deleted_count} results_timeseries.parquet files\n")
-        else:
-            print("No results_timeseries.parquet files found to delete\n")
-        # Exit after cleanup if no other operations requested
-        if not args.hourly and not args.timestep:
-            return
-    
+        print("No files copied\n")    
+        
     parent_dir = os.path.dirname(os.path.abspath(args.input_dir))
     
     # Find SQL files
@@ -1401,19 +1370,15 @@ def main():
             unmet_heating_str = f", Unmet Heating: {unmet_hours_heating_total:.1f} hrs ({unmet_hours_heating_occupied:.1f} occupied)" if unmet_hours_heating_total is not None and unmet_hours_heating_occupied is not None else ""
             print(f"{house_name}: {floor_area:.2f} m²{type_str}{net_eui_str}{total_eui_str} GJ/m²{unmet_cooling_str}{unmet_heating_str} → sql_annual.csv")
         
-        # Extract hourly data if requested
-        if args.hourly:
-            house_subdir = os.path.join(temp_output_dir, house_name)
-            os.makedirs(house_subdir, exist_ok=True)
-            hourly_csv = os.path.join(house_subdir, "sql_hourly.csv")  # Will be converted to .parquet
-            extract_hourly_data(sql_path, hourly_csv, house_name)
+        # Extract hourly data (automatic)
+        house_subdir = os.path.join(temp_output_dir, house_name)
+        os.makedirs(house_subdir, exist_ok=True)
+        hourly_csv = os.path.join(house_subdir, "sql_hourly.csv")  # Will be converted to .parquet
+        extract_hourly_data(sql_path, hourly_csv, house_name)
         
-        # Extract timestep data if requested
-        if args.timestep:
-            house_subdir = os.path.join(temp_output_dir, house_name)
-            os.makedirs(house_subdir, exist_ok=True)
-            timestep_csv = os.path.join(house_subdir, "sql_timestep.csv")  # Will be converted to .parquet
-            extract_timestep_data(sql_path, timestep_csv, house_name, args.timesteps_per_hour)
+        # Extract timestep data (automatic)
+        timestep_csv = os.path.join(house_subdir, "sql_timestep.csv")  # Will be converted to .parquet
+        extract_timestep_data(sql_path, timestep_csv, house_name, timesteps_per_hour=None)
     
     # Print summary
     if processed_count > 0:
