@@ -1096,126 +1096,85 @@ def extract_timestep_data(sql_path: str, output_csv: str, house_name: str = None
         return False
 
 
-def copy_h2k_output_files(input_dir: str, source_h2k_dir: str = None) -> int:
+
+def delete_house_folder(house_path: str, house_name: str) -> bool:
     """
-    Copy h2k-hpxml generated files to each house folder in temporary_output_folder.
-    
-    Copies the following files for each house:
-        - Original .H2K file (from source_h2k_dir)
-        - Generated .xml file (HPXML)
-        - results_timeseries.csv → converted to hpxml_results_timeseries.parquet
-        - results_annual.csv → converted to hpxml_results_annual.parquet
-        - eplustbl.htm (EnergyPlus tabular output)
-        - eplusout.sql (EnergyPlus SQL database)
-    
-    Note: CSV files are converted to Parquet format and the CSV versions are deleted.
+    Delete the house folder and all its contents after successful extraction.
     
     Args:
-        input_dir: Directory containing output folders from h2k-hpxml
-        source_h2k_dir: Directory containing source .H2K files (default: parent dir of input_dir)
+        house_path: Path to the house folder to delete
+        house_name: Name of the house (for logging)
         
     Returns:
-        Number of houses processed
+        True if successful, False otherwise
     """
     import shutil
     
-    temp_output_dir = os.path.join(input_dir, "temporary_output_folder")
+    try:
+        if os.path.exists(house_path):
+            shutil.rmtree(house_path)
+            print(f"  ✓ Deleted source folder: {house_name}")
+            return True
+        return False
+    except Exception as e:
+        print(f"  ✗ Error deleting folder {house_name}: {e}")
+        return False
+
+
+def copy_house_files(house_name: str, house_path: str, dest_folder: str, source_h2k_dir: str) -> list:
+    """
+    Copy h2k-hpxml generated files for a single house to temporary_output_folder.
     
-    if not os.path.exists(temp_output_dir):
-        os.makedirs(temp_output_dir, exist_ok=True)
-        print(f"Created: {temp_output_dir}")
+    Returns:
+        List of filenames that were copied
+    """
+    import shutil
     
-    # Default source directory is parent of input_dir (where .H2K files typically are)
-    if source_h2k_dir is None:
-        source_h2k_dir = os.path.dirname(os.path.abspath(input_dir))
+    os.makedirs(dest_folder, exist_ok=True)
+    files_copied = []
     
-    # Find all house folders in input_dir
-    house_folders = []
-    for item in os.listdir(input_dir):
-        item_path = os.path.join(input_dir, item)
-        if os.path.isdir(item_path) and item != "temporary_output_folder":
-            house_folders.append((item, item_path))
+    # 1. Copy .H2K file from source directory
+    h2k_source = os.path.join(source_h2k_dir, f"{house_name}.H2K")
+    if not os.path.exists(h2k_source):
+        h2k_source = os.path.join(source_h2k_dir, f"{house_name}.h2k")
     
-    if not house_folders:
-        print(f"No house folders found in {input_dir}")
-        return 0
+    if os.path.exists(h2k_source):
+        h2k_dest = os.path.join(dest_folder, os.path.basename(h2k_source))
+        shutil.copy2(h2k_source, h2k_dest)
+        files_copied.append(os.path.basename(h2k_source))
     
-    copied_count = 0
+    # 2. Copy .xml file (HPXML) from house folder
+    xml_source = os.path.join(house_path, f"{house_name}.xml")
+    if os.path.exists(xml_source):
+        xml_dest = os.path.join(dest_folder, f"{house_name}.xml")
+        shutil.copy2(xml_source, xml_dest)
+        files_copied.append(f"{house_name}.xml")
     
-    for house_name, house_path in sorted(house_folders):
-        # Create destination folder in temporary_output_folder
-        dest_folder = os.path.join(temp_output_dir, house_name)
-        os.makedirs(dest_folder, exist_ok=True)
+    # 3. Copy results CSV files from run/ subfolder with "hpxml_" prefix
+    run_folder = os.path.join(house_path, "run")
+    if os.path.exists(run_folder):
+        for result_file in ["results_timeseries.csv", "results_annual.csv"]:
+            source_file = os.path.join(run_folder, result_file)
+            if os.path.exists(source_file):
+                dest_filename = f"hpxml_{result_file}"
+                dest_csv = os.path.join(dest_folder, dest_filename)
+                shutil.copy2(source_file, dest_csv)
+                dest_parquet = dest_csv.replace('.csv', '.parquet')
+                df = pd.read_csv(dest_csv, low_memory=False)
+                df.to_parquet(dest_parquet, index=False)
+                os.remove(dest_csv)
+                files_copied.append(dest_filename.replace('.csv', '.parquet'))
         
-        files_copied = []
-        
-        # 1. Copy .H2K file from source directory
-        h2k_source = os.path.join(source_h2k_dir, f"{house_name}.H2K")
-        if not os.path.exists(h2k_source):
-            h2k_source = os.path.join(source_h2k_dir, f"{house_name}.h2k")
-        
-        if os.path.exists(h2k_source):
-            h2k_dest = os.path.join(dest_folder, os.path.basename(h2k_source))
-            shutil.copy2(h2k_source, h2k_dest)
-            files_copied.append(os.path.basename(h2k_source))
-        
-        # 2. Copy .xml file (HPXML) from house folder
-        xml_source = os.path.join(house_path, f"{house_name}.xml")
-        if os.path.exists(xml_source):
-            xml_dest = os.path.join(dest_folder, f"{house_name}.xml")
-            shutil.copy2(xml_source, xml_dest)
-            files_copied.append(f"{house_name}.xml")
-        
-        # 3. Copy results CSV files from run/ subfolder with "hpxml_" prefix
-        # Convert to Parquet and delete CSV files
-        run_folder = os.path.join(house_path, "run")
-        if os.path.exists(run_folder):
-            result_files = [
-                "results_timeseries.csv",
-                "results_annual.csv"
-            ]
-            
-            for result_file in result_files:
-                source_file = os.path.join(run_folder, result_file)
-                if os.path.exists(source_file):
-                    # Add "hpxml_" prefix to destination filename
-                    dest_filename = f"hpxml_{result_file}"
-                    dest_csv = os.path.join(dest_folder, dest_filename)
-                    
-                    # Copy CSV file
-                    shutil.copy2(source_file, dest_csv)
-                    
-                    # Convert to Parquet
-                    dest_parquet = dest_csv.replace('.csv', '.parquet')
-                    df = pd.read_csv(dest_csv, low_memory=False)
-                    df.to_parquet(dest_parquet, index=False)
-                    
-                    # Delete CSV file after Parquet conversion
-                    os.remove(dest_csv)
-                    
-                    # Track the Parquet file as copied
-                    files_copied.append(dest_filename.replace('.csv', '.parquet'))
-            
-            # 4. Copy EnergyPlus output files from run/ subfolder
-            energyplus_files = [
-                "eplustbl.htm",
-                "eplusout.sql"
-            ]
-            
-            for ep_file in energyplus_files:
-                source_file = os.path.join(run_folder, ep_file)
-                if os.path.exists(source_file):
-                    dest_file = os.path.join(dest_folder, ep_file)
-                    shutil.copy2(source_file, dest_file)
-                    files_copied.append(ep_file)
-        
-        if files_copied:
-            copied_count += 1
-            print(f"  {house_name}: Copied {', '.join(files_copied)}")
-        else:
-            print(f"  {house_name}: No files found to copy")
+        # 4. Copy EnergyPlus output files
+        for ep_file in ["eplustbl.htm", "eplusout.sql"]:
+            source_file = os.path.join(run_folder, ep_file)
+            if os.path.exists(source_file):
+                dest_file = os.path.join(dest_folder, ep_file)
+                shutil.copy2(source_file, dest_file)
+                files_copied.append(ep_file)
     
-    return copied_count
+    return files_copied
+
 
 
 def main():
@@ -1231,15 +1190,7 @@ def main():
     temp_output_dir = os.path.join(args.input_dir, "temporary_output_folder")
     os.makedirs(temp_output_dir, exist_ok=True)
     
-    # Copy source files (always done by default)
     # Source .H2K files are automatically found in parent directory of input_dir
-    print("Copying h2k-hpxml output files to house folders...")
-    copied_count = copy_h2k_output_files(args.input_dir, source_h2k_dir=None)
-    if copied_count > 0:
-        print(f"✓ Copied files for {copied_count} houses\n")
-    else:
-        print("No files copied\n")    
-        
     parent_dir = os.path.dirname(os.path.abspath(args.input_dir))
     
     # Find SQL files
@@ -1255,9 +1206,21 @@ def main():
         print(f"No eplusout.sql files found in {args.input_dir}")
         sys.exit(1)
     
-    # Extract data
+    # Process each house: copy files → extract data → delete source folder
     processed_count = 0
+    print(f"Processing {len(sql_files)} houses (copy → extract → delete)...\n")
+    
     for house_name, sql_path in sorted(sql_files):
+        print(f"[{processed_count + 1}/{len(sql_files)}] {house_name}")
+        
+        # Step 1: Copy files for this house to temporary_output_folder
+        house_path = os.path.dirname(sql_path).replace('/run', '')
+        dest_folder = os.path.join(temp_output_dir, house_name)
+        files_copied = copy_house_files(house_name, house_path, dest_folder, parent_dir)
+        if files_copied:
+            print(f"  ✓ Copied: {', '.join(files_copied[:3])}{'...' if len(files_copied) > 3 else ''}")
+        
+        # Step 2: Extract data from SQL file
         floor_area = extract_floor_area(sql_path)
         net_site_eui = extract_net_site_eui(sql_path)
         total_site_eui = extract_total_site_eui(sql_path)
@@ -1368,7 +1331,7 @@ def main():
             total_eui_str = f", Total EUI: {total_site_eui:.3f}" if total_site_eui is not None else ""
             unmet_cooling_str = f", Unmet Cooling: {unmet_hours_cooling_total:.1f} hrs ({unmet_hours_cooling_occupied:.1f} occupied)" if unmet_hours_cooling_total is not None and unmet_hours_cooling_occupied is not None else ""
             unmet_heating_str = f", Unmet Heating: {unmet_hours_heating_total:.1f} hrs ({unmet_hours_heating_occupied:.1f} occupied)" if unmet_hours_heating_total is not None and unmet_hours_heating_occupied is not None else ""
-            print(f"{house_name}: {floor_area:.2f} m²{type_str}{net_eui_str}{total_eui_str} GJ/m²{unmet_cooling_str}{unmet_heating_str} → sql_annual.csv")
+            print(f"  ✓ Extracted annual: {floor_area:.2f} m²{type_str}{net_eui_str}{total_eui_str} GJ/m²")
         
         # Extract hourly data (automatic)
         house_subdir = os.path.join(temp_output_dir, house_name)
@@ -1379,10 +1342,18 @@ def main():
         # Extract timestep data (automatic)
         timestep_csv = os.path.join(house_subdir, "sql_timestep.csv")  # Will be converted to .parquet
         extract_timestep_data(sql_path, timestep_csv, house_name, timesteps_per_hour=None)
+        
+        # Step 3: Delete source folder to free up space
+        delete_house_folder(house_path, house_name)
+        print()  # Blank line between houses
     
     # Print summary
     if processed_count > 0:
-        print(f"\n✓ Processed {processed_count} buildings - sql_annual.csv saved in each house folder")
+        print(f"\n{'='*60}")
+        print(f"✓ Successfully processed {processed_count} buildings")
+        print(f"✓ Output saved to: {temp_output_dir}")
+        print(f"✓ Source folders deleted to free up space")
+        print(f"{'='*60}")
     else:
         print("No data extracted")
         sys.exit(1)
