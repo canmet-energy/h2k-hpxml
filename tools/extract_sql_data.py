@@ -42,6 +42,8 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 import pandas as pd
+from multiprocessing import Pool, cpu_count
+from functools import partial
 
 
 def extract_floor_area(sql_path: str) -> float | None:
@@ -1177,48 +1179,30 @@ def copy_house_files(house_name: str, house_path: str, dest_folder: str, source_
 
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Extract data from EnergyPlus SQL files")
-    parser.add_argument('input_dir', help='Directory containing eplusout.sql files')
-    args = parser.parse_args()
+
+def process_single_house(house_info, temp_output_dir, parent_dir):
+    """
+    Process a single house: copy files, extract data, delete source folder.
     
-    if not os.path.isdir(args.input_dir):
-        print(f"Error: Directory '{args.input_dir}' does not exist")
-        sys.exit(1)
+    Args:
+        house_info: Tuple of (house_name, sql_path, index, total)
+        temp_output_dir: Path to temporary output folder
+        parent_dir: Path to parent directory containing source .H2K files
+        
+    Returns:
+        Tuple of (house_name, success, message)
+    """
+    house_name, sql_path, idx, total = house_info
     
-    # Create temporary_output_folder for annual CSV
-    temp_output_dir = os.path.join(args.input_dir, "temporary_output_folder")
-    os.makedirs(temp_output_dir, exist_ok=True)
-    
-    # Source .H2K files are automatically found in parent directory of input_dir
-    parent_dir = os.path.dirname(os.path.abspath(args.input_dir))
-    
-    # Find SQL files
-    sql_files = []
-    for item in os.listdir(args.input_dir):
-        item_path = os.path.join(args.input_dir, item)
-        if os.path.isdir(item_path):
-            run_sql = os.path.join(item_path, "run", "eplusout.sql")
-            if os.path.exists(run_sql):
-                sql_files.append((item, run_sql))
-    
-    if not sql_files:
-        print(f"No eplusout.sql files found in {args.input_dir}")
-        sys.exit(1)
-    
-    # Process each house: copy files → extract data → delete source folder
-    processed_count = 0
-    print(f"Processing {len(sql_files)} houses (copy → extract → delete)...\n")
-    
-    for house_name, sql_path in sorted(sql_files):
-        print(f"[{processed_count + 1}/{len(sql_files)}] {house_name}")
+    try:
+        print(f"[{idx}/{total}] {house_name}")
         
         # Step 1: Copy files for this house to temporary_output_folder
         house_path = os.path.dirname(sql_path).replace('/run', '')
         dest_folder = os.path.join(temp_output_dir, house_name)
         files_copied = copy_house_files(house_name, house_path, dest_folder, parent_dir)
         if files_copied:
-            print(f"  ✓ Copied: {', '.join(files_copied[:3])}{'...' if len(files_copied) > 3 else ''}")
+            print(f"  ✓ Copied: {', '.join(files_copied)}")
         
         # Step 2: Extract data from SQL file
         floor_area = extract_floor_area(sql_path)
@@ -1325,12 +1309,9 @@ def main():
                 writer.writeheader()
                 writer.writerow(result)
             
-            processed_count += 1
             type_str = f" ({house_type})" if house_type else ""
             net_eui_str = f", Net EUI: {net_site_eui:.3f}" if net_site_eui is not None else ""
             total_eui_str = f", Total EUI: {total_site_eui:.3f}" if total_site_eui is not None else ""
-            unmet_cooling_str = f", Unmet Cooling: {unmet_hours_cooling_total:.1f} hrs ({unmet_hours_cooling_occupied:.1f} occupied)" if unmet_hours_cooling_total is not None and unmet_hours_cooling_occupied is not None else ""
-            unmet_heating_str = f", Unmet Heating: {unmet_hours_heating_total:.1f} hrs ({unmet_hours_heating_occupied:.1f} occupied)" if unmet_hours_heating_total is not None and unmet_hours_heating_occupied is not None else ""
             print(f"  ✓ Extracted annual: {floor_area:.2f} m²{type_str}{net_eui_str}{total_eui_str} GJ/m²")
         
         # Extract hourly data (automatic)
@@ -1346,17 +1327,109 @@ def main():
         # Step 3: Delete source folder to free up space
         delete_house_folder(house_path, house_name)
         print()  # Blank line between houses
+        
+        return (house_name, True, "Success")
+        
+    except Exception as e:
+        error_msg = f"Error processing {house_name}: {e}"
+        print(f"  ✗ {error_msg}")
+        print()
+        return (house_name, False, error_msg)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Extract data from EnergyPlus SQL files (parallel processing by default)"
+    )
+    parser.add_argument('input_dir', help='Directory containing eplusout.sql files')
+    parser.add_argument(
+        '--sequential', 
+        action='store_true',
+        help='Process files sequentially instead of in parallel (slower but easier to debug)'
+    )
+    parser.add_argument(
+        '--workers',
+        type=int,
+        default=None,
+        help='Number of parallel workers (default: CPU cores - 1, max with your CPU)'
+    )
+    args = parser.parse_args()
+    
+    if not os.path.isdir(args.input_dir):
+        print(f"Error: Directory '{args.input_dir}' does not exist")
+        sys.exit(1)
+    
+    # Determine number of workers
+    if args.sequential:
+        num_workers = 1
+    elif args.workers is not None:
+        num_workers = max(1, min(args.workers, cpu_count()))
+    else:
+        # Default: use all cores minus 1 (leave one for system)
+        num_workers = max(1, cpu_count() - 1)
+    
+    # Create temporary_output_folder for output
+    temp_output_dir = os.path.join(args.input_dir, "temporary_output_folder")
+    os.makedirs(temp_output_dir, exist_ok=True)
+    
+    # Source .H2K files are automatically found in parent directory of input_dir
+    parent_dir = os.path.dirname(os.path.abspath(args.input_dir))
+    
+    # Find SQL files
+    sql_files = []
+    for item in os.listdir(args.input_dir):
+        item_path = os.path.join(args.input_dir, item)
+        if os.path.isdir(item_path):
+            run_sql = os.path.join(item_path, "run", "eplusout.sql")
+            if os.path.exists(run_sql):
+                sql_files.append((item, run_sql))
+    
+    if not sql_files:
+        print(f"No eplusout.sql files found in {args.input_dir}")
+        sys.exit(1)
+    
+    # Add index and total count to each house info tuple
+    total_files = len(sql_files)
+    house_info_list = [
+        (house_name, sql_path, idx + 1, total_files)
+        for idx, (house_name, sql_path) in enumerate(sorted(sql_files))
+    ]
+    
+    # Process houses
+    print(f"Processing {total_files} houses with {num_workers} worker(s)...\n")
+    
+    if num_workers == 1:
+        # Sequential processing
+        results = []
+        for house_info in house_info_list:
+            result = process_single_house(house_info, temp_output_dir, parent_dir)
+            results.append(result)
+    else:
+        # Parallel processing
+        process_func = partial(process_single_house, temp_output_dir=temp_output_dir, parent_dir=parent_dir)
+        
+        with Pool(num_workers) as pool:
+            results = pool.map(process_func, house_info_list)
+    
+    # Count successes and failures
+    successes = [r for r in results if r[1]]
+    failures = [r for r in results if not r[1]]
+    processed_count = len(successes)
     
     # Print summary
+    print(f"\n{'='*60}")
     if processed_count > 0:
-        print(f"\n{'='*60}")
-        print(f"✓ Successfully processed {processed_count} buildings")
+        print(f"✓ Successfully processed {processed_count}/{total_files} buildings")
+        if failures:
+            print(f"✗ Failed to process {len(failures)} buildings:")
+            for house_name, _, error_msg in failures:
+                print(f"  - {house_name}: {error_msg}")
         print(f"✓ Output saved to: {temp_output_dir}")
         print(f"✓ Source folders deleted to free up space")
-        print(f"{'='*60}")
     else:
-        print("No data extracted")
+        print("✗ No data extracted - all files failed")
         sys.exit(1)
+    print(f"{'='*60}")
 
 
 if __name__ == "__main__":
