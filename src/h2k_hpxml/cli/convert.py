@@ -46,16 +46,23 @@ def get_openstudio_binary_path() -> str:
     except ImportError:
         pass
 
-    # Then try DependencyManager for backward compatibility
-    dep_manager = DependencyManager()
+    # Then try the known install locations and PATH for backward compatibility
+    import shutil
 
-    # Try to find OpenStudio binary in common locations
-    for openstudio_path in dep_manager._get_openstudio_paths():
-        if dep_manager._test_binary_path(openstudio_path):
-            return openstudio_path
+    from ..utils.dependencies import get_openstudio_paths
+
+    dep_manager = DependencyManager()
+    candidate_paths = get_openstudio_paths(
+        dep_manager.REQUIRED_OPENSTUDIO_VERSION,
+        dep_manager.OPENSTUDIO_BUILD_HASH,
+        None,
+    )
+    for openstudio_path in candidate_paths:
+        if os.path.exists(openstudio_path):
+            return str(openstudio_path)
 
     # Try the command in PATH
-    if dep_manager._test_openstudio_command():
+    if shutil.which("openstudio"):
         return "openstudio"  # Found in PATH
 
     # Fallback to platform-specific defaults
@@ -308,9 +315,7 @@ def cli(
         if recursive:
             # Recursively search subdirectories for .h2k files
             source_path = pathlib.Path(source_h2k_path)
-            h2k_files = [
-                str(f) for f in source_path.rglob("*.[hH]2[kK]")
-            ]
+            h2k_files = [str(f) for f in source_path.rglob("*.[hH]2[kK]")]
         else:
             # Only search top-level directory
             h2k_files = [
@@ -331,7 +336,8 @@ def cli(
     if batch_mode:
         # Suppress verbose logging for batch processing
         import logging
-        logging.getLogger('h2k_hpxml').setLevel(logging.WARNING)
+
+        logging.getLogger("h2k_hpxml").setLevel(logging.WARNING)
         logger.info(f"Batch mode enabled: Processing {len(h2k_files)} files with progress bar")
 
     def categorize_error_for_display(error_message: str) -> str:
@@ -396,9 +402,7 @@ def cli(
                 if status == "Success":
                     # Record success to database
                     results_db.record_success(
-                        filepath=filepath,
-                        hpxml_output_path=hpxml_path,
-                        start_time=start_time
+                        filepath=filepath, hpxml_output_path=hpxml_path, start_time=start_time
                     )
                     return (filepath, "Success", "")
                 else:
@@ -412,17 +416,13 @@ def cli(
                     )
                     # Record failure to database
                     results_db.record_failure(
-                        filepath=filepath,
-                        error_message=error_details,
-                        start_time=start_time
+                        filepath=filepath, error_message=error_details, start_time=start_time
                     )
                     return (filepath, "Failure", error_details)
             else:
                 # Conversion-only mode (no simulation)
                 results_db.record_success(
-                    filepath=filepath,
-                    hpxml_output_path=hpxml_path,
-                    start_time=start_time
+                    filepath=filepath, hpxml_output_path=hpxml_path, start_time=start_time
                 )
                 return (filepath, "Success", "")
 
@@ -436,9 +436,7 @@ def cli(
             )
             # Record failure to database
             results_db.record_failure(
-                filepath=filepath,
-                error_message=error_details,
-                start_time=start_time
+                filepath=filepath, error_message=error_details, start_time=start_time
             )
             return (filepath, "Failure", error_details)
 
@@ -455,7 +453,7 @@ def cli(
             desc="Processing H2K files",
             unit="file",
             ncols=100,
-            bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]'
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
         ) as pbar:
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_file = {executor.submit(process_file, f): f for f in h2k_files}
@@ -475,7 +473,7 @@ def cli(
                         tqdm.write(f"❌ Failed: {filename} ({error_type})")
 
                     # Update progress bar with failure count
-                    pbar.set_postfix({'failures': failures}, refresh=False)
+                    pbar.set_postfix({"failures": failures}, refresh=False)
                     pbar.update(1)
     else:
         # Single file - use current verbose output
@@ -502,14 +500,14 @@ def cli(
     print(f"Successes: {summary['successes']} ({summary['success_rate']:.1f}%)")
     print(f"Failures: {summary['failures']} ({100 - summary['success_rate']:.1f}%)")
 
-    if summary['error_categories']:
+    if summary["error_categories"]:
         print("\nTop Error Categories:")
-        for category, count in summary['error_categories']:
+        for category, count in summary["error_categories"]:
             print(f"  - {category}: {count}")
 
-    if summary['top_error_types']:
+    if summary["top_error_types"]:
         print("\nTop 10 Error Types:")
-        for error_type, count in summary['top_error_types'][:10]:
+        for error_type, count in summary["top_error_types"][:10]:
             print(f"  - {error_type}: {count}")
 
     print(f"\nResults saved to:")

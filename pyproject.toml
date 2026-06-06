@@ -43,7 +43,13 @@ dependencies = [
     "openstudio>=3.9.0",
     "rich>=13.0.0",
     "tqdm>=4.66.0",
+    "openstudio-deps>=0.1.0",  # Reusable OpenStudio dependency manager (os-setup core)
 ]
+
+# During local development, resolve openstudio-deps from the sibling checkout.
+# Replace with a pinned git tag (or a published PyPI release) for distribution.
+[tool.uv.sources]
+openstudio-deps = { path = "../openstudio-deps", editable = true }
 
 [project.optional-dependencies]
 test = [
@@ -77,7 +83,7 @@ Documentation = "https://github.com/canmet-energy/h2k-hpxml/blob/main/README.md"
 h2k-hpxml = "h2k_hpxml.cli.convert:main"
 h2k-demo = "h2k_hpxml.cli.demo:run_interactive_demo"
 h2k-resilience = "h2k_hpxml.cli.resilience:main"
-os-setup = "h2k_hpxml.utils.dependencies:main"
+os-setup = "h2k_hpxml.cli.os_setup:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -91,12 +97,9 @@ where = ["src"]
 "h2k_hpxml.resources" = ["*.json", "*.xml", "template_base.xml", "**/*.json", "**/*.epw", "**/*.zip"]
 
 # Removed setuptools_scm; using static version in [project]
-# H2K-HPXML Dependency Versions
-# Single source of truth for OpenStudio and OpenStudio-HPXML versions
-[tool.h2k-hpxml.dependencies]
-openstudio_version = "3.11.0"
-openstudio_sha = "241b8abb4d"
-openstudio_hpxml_version = "v1.9.1"
+# Dependency versions (OpenStudio / OpenStudio-HPXML) are the single source of truth in
+# src/h2k_hpxml/resources/dependency_versions.json. They are injected into the reusable
+# `osdep` package at import via h2k_hpxml.utils.dependencies._h2k_versions.
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

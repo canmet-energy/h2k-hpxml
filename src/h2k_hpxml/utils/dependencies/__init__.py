@@ -1,105 +1,75 @@
 """
-Dependency management for h2k_hpxml.
+Backward-compatibility shim for h2k_hpxml dependency management.
 
-This package provides modular dependency management for OpenStudio and OpenStudio-HPXML.
+The dependency management code now lives in the standalone, reusable ``osdep``
+package (openstudio-deps). This module re-exports osdep's public API so existing
+``from h2k_hpxml.utils.dependencies import ...`` imports keep working, and injects
+h2k-hpxml's pinned versions globally so every zero-argument helper call resolves to
+the versions h2k is built against.
 """
 
-import platform
-import shutil
-from pathlib import Path
+from osdep import DependencyConfig
+from osdep import DependencyManager
+from osdep import download_file
+from osdep import get_default_hpxml_path
+from osdep import get_default_openstudio_path
+from osdep import get_dependency_paths
+from osdep import get_energyplus_binary
+from osdep import get_hpxml_os_path
+from osdep import get_openstudio_binary
+from osdep import get_openstudio_hpxml_path
+from osdep import get_openstudio_hpxml_path_static
+from osdep import get_openstudio_path
+from osdep import get_openstudio_path_static
+from osdep import get_openstudio_paths
+from osdep import get_user_data_dir
+from osdep import resolve_config
+from osdep import safe_echo
+from osdep import set_default_config
+from osdep import validate_dependencies as _validate_dependencies
+from osdep import verify_installation
 
-from .cli import main
-from .cli import validate_dependencies
-from .download_utils import download_file
-from .download_utils import safe_echo
+from ._h2k_versions import H2K_CONFIG
 
-# Core functionality
-from .manager import DependencyManager
-from .platform_utils import get_default_hpxml_path
-from .platform_utils import get_default_openstudio_path
-from .platform_utils import get_openstudio_paths
-from .platform_utils import get_user_data_dir
-
-# Platform utilities (available for direct use)
-from .platform_utils import load_dependency_config
-
-
-# Lightweight helper functions (don't create DependencyManager instances!)
-def get_dependency_paths():
-    """Get all dependency paths in a single call."""
-    load_dependency_config()
-    openstudio_binary = get_openstudio_binary()
-    hpxml_os_path = get_hpxml_os_path()
-
-    # EnergyPlus is bundled with OpenStudio
-    energyplus_binary = None
-    if openstudio_binary:
-        openstudio_dir = Path(openstudio_binary).parent.parent
-        if Path(openstudio_binary).name == "openstudio.exe":
-            energyplus_binary = str(openstudio_dir / "EnergyPlus" / "energyplus.exe")
-        else:
-            energyplus_binary = str(openstudio_dir / "EnergyPlus" / "energyplus")
-
-        if not Path(energyplus_binary).exists():
-            energyplus_binary = None
-
-    return {
-        "openstudio_binary": openstudio_binary,
-        "hpxml_os_path": hpxml_os_path,
-        "energyplus_binary": energyplus_binary,
-    }
+# Inject h2k-hpxml's pinned versions globally. After this, every osdep helper that
+# resolves config with no explicit override (e.g. the lazy properties in
+# h2k_hpxml.config.manager and h2k_hpxml.api) uses H2K_CONFIG.
+set_default_config(H2K_CONFIG)
 
 
-def get_openstudio_binary():
-    """Get OpenStudio binary path without creating DependencyManager."""
-    config = load_dependency_config()
-    paths = get_openstudio_paths(config["openstudio_version"], config["openstudio_sha"], None)
-
-    for path in paths:
-        if Path(path).exists():
-            return str(path)
-
-    # Fallback to system PATH
-    system_path = shutil.which("openstudio")
-    if system_path:
-        return system_path
-
-    return None
+def validate_dependencies(*args, **kwargs):
+    """h2k-flavored validate_dependencies: defaults config to h2k's pinned versions."""
+    kwargs.setdefault("config", H2K_CONFIG)
+    return _validate_dependencies(*args, **kwargs)
 
 
-def get_hpxml_os_path():
-    """Get OpenStudio-HPXML path without creating DependencyManager."""
-    config = load_dependency_config()
-    hpxml_path = get_default_hpxml_path(config["openstudio_hpxml_version"], None)
+def load_dependency_config():
+    """Deprecated: return h2k's pinned versions as a dict.
 
-    if hpxml_path.exists():
-        return str(hpxml_path)
-
-    return None
-
-
-def get_energyplus_binary():
-    """Get EnergyPlus binary path."""
-    paths = get_dependency_paths()
-    return paths["energyplus_binary"]
+    Retained for backward compatibility with callers that expected the old
+    ``load_dependency_config()`` dict. Prefer ``resolve_config()`` /
+    ``DependencyConfig`` from osdep.
+    """
+    return H2K_CONFIG.as_dict()
 
 
-# Aliases for backward compatibility
-get_openstudio_path = get_openstudio_binary
-get_openstudio_hpxml_path = get_hpxml_os_path
-get_openstudio_path_static = get_openstudio_binary
-get_openstudio_hpxml_path_static = get_hpxml_os_path
+# The generic os-setup entry point now lives in h2k_hpxml.cli.os_setup. This alias
+# is kept so any lingering references to the old entry point still resolve.
+def main():
+    """Backward-compatible entry point; delegates to the h2k os-setup wrapper."""
+    from h2k_hpxml.cli.os_setup import main as _h2k_main
 
-# Export all public APIs
+    return _h2k_main()
+
+
 __all__ = [
-    # Core classes and functions
     "DependencyManager",
+    "DependencyConfig",
     "validate_dependencies",
+    "verify_installation",
     "main",
-    # Download utilities
     "download_file",
     "safe_echo",
-    # Compatibility functions
     "get_dependency_paths",
     "get_openstudio_binary",
     "get_hpxml_os_path",
@@ -108,10 +78,12 @@ __all__ = [
     "get_openstudio_hpxml_path",
     "get_openstudio_path_static",
     "get_openstudio_hpxml_path_static",
-    # Platform utilities
     "load_dependency_config",
+    "resolve_config",
+    "set_default_config",
     "get_user_data_dir",
     "get_openstudio_paths",
     "get_default_hpxml_path",
     "get_default_openstudio_path",
+    "H2K_CONFIG",
 ]

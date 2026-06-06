@@ -37,16 +37,21 @@ def get_openstudio_binary_path():
     except ImportError:
         pass
 
-    # Then try DependencyManager for backward compatibility
-    dep_manager = DependencyManager()
+    # Then try the known install locations and PATH for backward compatibility
+    from ..utils.dependencies import get_openstudio_paths
 
-    # Try to find OpenStudio binary in common locations
-    for openstudio_path in dep_manager._get_openstudio_paths():
-        if dep_manager._test_binary_path(openstudio_path):
-            return openstudio_path
+    dep_manager = DependencyManager()
+    candidate_paths = get_openstudio_paths(
+        dep_manager.REQUIRED_OPENSTUDIO_VERSION,
+        dep_manager.OPENSTUDIO_BUILD_HASH,
+        None,
+    )
+    for openstudio_path in candidate_paths:
+        if os.path.exists(openstudio_path):
+            return str(openstudio_path)
 
     # Try the command in PATH
-    if dep_manager._test_openstudio_command():
+    if shutil.which("openstudio"):
         return "openstudio"  # Found in PATH
 
     # Fallback to platform-specific defaults
