@@ -34,20 +34,6 @@ jobs:
 
       - name: Run unit tests
         # Integration tests (tests/integration/) require an OpenStudio + OpenStudio-HPXML
-        # install and a working simulation, so they are not run here.
-        #
-        # The deselected tests below are not hermetic on a clean runner:
-        #   * test_path_validation_warnings — pre-existing stale test (the validated-paths
-        #     set was refactored away in ConfigManager._validate_paths, but the test still
-        #     asserts the old "does not exist" warning).
-        #   * test_property_accessors / test_demo_* — assert get_hpxml_os_path() auto-detects
-        #     a path, which requires an installed OpenStudio-HPXML toolchain (present in the
-        #     Docker image / dev container, absent on a clean CI runner).
-        # They are deselected here, not skipped in source, so they stay visible to fix
-        # separately (e.g. by mocking the dependency path).
-        run: >-
-          uv run pytest tests/unit/ -q
-          --deselect "tests/unit/test_config_manager.py::TestConfigManager::test_path_validation_warnings"
-          --deselect "tests/unit/test_config_manager.py::TestConfigManager::test_property_accessors"
-          --deselect "tests/unit/test_demo_paths.py::test_demo_ruby_hpxml_path_construction"
-          --deselect "tests/unit/test_demo_paths.py::test_config_does_not_have_ruby_hpxml_path"
+        # install and a working simulation, so they are not run here. The unit suite is
+        # hermetic (dependency-path resolution is mocked where needed).
+        run: uv run pytest tests/unit/ -q

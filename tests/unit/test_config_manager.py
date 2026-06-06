@@ -189,12 +189,24 @@ log_level = INFO
                 ConfigManager(auto_create=False)
 
     def test_path_validation_warnings(self):
-        """Test path validation generates warnings for missing required paths."""
-        config_content = """
+        """Path validation warns when the destination directory cannot be created.
+
+        ConfigManager._validate_paths no longer treats source_h2k_path/hpxml_os_path
+        as required (they are CLI-provided / auto-detected), so the only path it
+        validates is dest_hpxml_path, which it tries to make creatable. This test
+        points dest_hpxml_path under a regular file so the parent directory cannot be
+        created, and asserts the corresponding warning fires.
+        """
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # A regular file used as the parent of dest_hpxml_path -> mkdir() fails.
+            blocker = Path(temp_dir) / "blocker"
+            blocker.write_text("not a directory")
+            dest = blocker / "output"
+
+            config_content = f"""
 [paths]
 source_h2k_path = /nonexistent/input
-hpxml_os_path = /nonexistent/openstudio
-dest_hpxml_path = /test/output
+dest_hpxml_path = {dest}
 
 [simulation]
 flags = --test
@@ -206,8 +218,6 @@ weather_vintage = TEST2020
 [logging]
 log_level = INFO
 """
-
-        with tempfile.TemporaryDirectory() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
             os.chdir(temp_dir)
@@ -215,9 +225,11 @@ log_level = INFO
             with patch("h2k_hpxml.config.manager.logger") as mock_logger:
                 ConfigManager(auto_create=False)
 
-                # Should generate warnings for nonexistent required paths
+                # Should warn that the destination parent directory cannot be created.
                 warning_calls = mock_logger.warning.call_args_list
-                assert any("does not exist" in str(call) for call in warning_calls)
+                assert any(
+                    "Cannot create parent directory" in str(call) for call in warning_calls
+                ), warning_calls
 
     def test_get_methods_with_fallbacks(self):
         """Test get methods with fallback values."""
@@ -330,13 +342,18 @@ log_to_file = false
             assert str(config.source_h2k_path) == "/test/input"
             assert str(config.dest_hpxml_path) == "/test/output"
 
-            # hpxml_os_path and openstudio_binary are now auto-detected (not in config)
-            # In test environment with real OpenStudio installation, these should be found
-            hpxml_path = config.hpxml_os_path
-            assert hpxml_path is not None, "Should auto-detect HPXML installation path"
+            # hpxml_os_path and openstudio_binary are now auto-detected (not in config).
+            # Mock the dependency-path resolution so the test is hermetic (no installed
+            # toolchain required).
+            with patch(
+                "h2k_hpxml.utils.dependencies.get_hpxml_os_path",
+                return_value="/fake/OpenStudio-HPXML",
+            ):
+                hpxml_path = config.hpxml_os_path
+                assert hpxml_path is not None, "Should auto-detect HPXML installation path"
 
-            openstudio_binary = config.openstudio_binary
-            assert openstudio_binary is not None, "Should auto-detect OpenStudio binary path"
+                openstudio_binary = config.openstudio_binary
+                assert openstudio_binary is not None, "Should auto-detect OpenStudio binary path"
 
             # Test other properties
             assert config.simulation_flags == "--debug --verbose"
