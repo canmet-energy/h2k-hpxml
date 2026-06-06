@@ -46,10 +46,11 @@ dependencies = [
     "openstudio-deps>=0.1.0",  # Reusable OpenStudio dependency manager (os-setup core)
 ]
 
-# During local development, resolve openstudio-deps from the sibling checkout.
-# Replace with a pinned git tag (or a published PyPI release) for distribution.
+# Resolve openstudio-deps from the published repo at a pinned tag.
+# For local development against a sibling checkout, override with:
+#   openstudio-deps = { path = "../openstudio-deps", editable = true }
 [tool.uv.sources]
-openstudio-deps = { path = "../openstudio-deps", editable = true }
+openstudio-deps = { git = "https://github.com/canmet-energy/openstudio-deps.git", tag = "v0.1.0" }
 
 [project.optional-dependencies]
 test = [
