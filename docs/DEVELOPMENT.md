@@ -18,32 +18,71 @@ Guide for contributing to the H2K-HPXML project.
 
 ### Prerequisites
 
-- [VSCode](https://code.visualstudio.com/) with Microsoft Dev Container Extension Installed.
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [VS Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/macOS) or Docker Engine (Linux)
 
-### Setup
+### Windows — WSL bootstrap (one-time)
 
-### Clone Repository into Container Volume.
- 1. Open vscode. 
- 2. Ctrl + Shift + P and Type "Dev Containers: Clone Repository in container volume" and select from list.
- 3. Enter the github repo url.  
- 4. Let it build.
- 5. Optionally if you are on a secured network like NRCan, add your certs file to the .devcontainer/certs/ folder and rebuild (Ctrl+Shift+P and Type "Dev Containers: Rebuild.) See [Corporate Networks](../.devcontainer/certs/README.md)
- 6. Check if eveything works with these commands
-    * os-setup --check-only
-    * pytest -v
- 7. If contributing development, ensure that your account is setup using the following command. 
- ```
- git config --global user.email '<your email>' && git config --global user.name '<Your First and Last Name>'
- ```
+Corporate Windows machines need WSL + Docker Desktop before they can run
+DevContainers. Use the
+[canmet-energy/development_config](https://github.com/canmet-energy/development_config/tree/main/wsl)
+bootstrap scripts:
 
+**1. Admin phase** — run once from an **elevated** PowerShell as your admin account:
 
-The DevContainer automatically configures Python, OpenStudio, EnergyPlus, and all development tools. They should all be available on in the terminal when typed. 
+```powershell
+& "<path-to-repo>\wsl\Install-WslDevEnvironment-Admin.ps1"
+```
 
-**Learn more**: [VSCode DevContainers Guide](https://code.visualstudio.com/docs/devcontainers/containers)
+This installs Docker Desktop and adds your daily-use account to the local
+`docker-users` group. Launch Docker Desktop once to accept the license, then
+**log out and back in**.
 
+**2. User phase** — run as your **daily-use** account from a **normal** (non-elevated) PowerShell:
 
-**VSCode Extensions**: See `.vscode/extensions.json` for recommended extensions. [VSCode Python Setup](https://code.visualstudio.com/docs/python/python-tutorial)
+```powershell
+& "<path-to-repo>\wsl\Install-WslDevEnvironment.ps1" -ResetDistro -DebugLog
+```
+
+> **Important:** Run unelevated so the WSL distro registers under *your*
+> profile. If you run elevated, the distro lands under the admin account.
+
+This installs Ubuntu 24.04 LTS (registered as `nrcan_ubuntu`), creates your
+Linux user, installs corporate root CAs, configures Kerberos, and sets up
+Docker Desktop WSL integration.
+
+| Flag | Meaning |
+|------|---------|
+| `-ResetDistro` | Unregister and reinstall the distro from scratch |
+| `-DebugLog` | Capture run to `%USERPROFILE%\Install-WslDevEnvironment.log` |
+| `-SkipKerberos` | Skip Kerberos/SQL setup (non-domain machines) |
+
+### Setup — Clone Repository into Container Volume
+
+Once Docker Desktop is running (Windows/WSL) or Docker Engine is installed (Linux):
+
+1. Open VS Code
+2. `Ctrl+Shift+P` → **Dev Containers: Clone Repository in Container Volume**
+3. Enter the repo URL: `https://github.com/canmet-energy/h2k-hpxml.git`
+4. Wait for the container to build
+5. *(Optional — corporate networks)* Add your certs to `.devcontainer/certs/`
+   and rebuild (`Ctrl+Shift+P` → **Dev Containers: Rebuild Container**). See [Corporate Networks](../.devcontainer/certs/README.md)
+6. Verify the environment:
+   ```bash
+   os-setup --check-only        # Verify OpenStudio + HPXML dependencies
+   pytest -v                    # Run the full test suite
+   ```
+7. If contributing, configure your git identity:
+   ```bash
+   git config --global user.email '<your email>'
+   git config --global user.name '<Your First and Last Name>'
+   ```
+
+The DevContainer automatically configures Python, OpenStudio, EnergyPlus, and all development tools.
+
+**Learn more**: [VS Code DevContainers Guide](https://code.visualstudio.com/docs/devcontainers/containers)
+
+**VS Code Extensions**: See `.vscode/extensions.json` for recommended extensions. [VS Code Python Setup](https://code.visualstudio.com/docs/python/python-tutorial)
 
 ## Project Architecture
 
