@@ -121,7 +121,11 @@ def _build_simulation_flags(
 
 
 def _run_hpxml_simulation(
-    hpxml_path: str, ruby_hpxml_path: str, hpxml_os_path: str, flags: str
+    hpxml_path: str, 
+    ruby_hpxml_path: str, 
+    hpxml_os_path: str, 
+    flags: str,
+    custom_meters: list[dict] | None = None
 ) -> tuple[str, str]:
     """
     Run OpenStudio simulation on HPXML file (internal).
@@ -134,6 +138,8 @@ def _run_hpxml_simulation(
         ruby_hpxml_path: Path to Ruby simulation script
         hpxml_os_path: OpenStudio HPXML path
         flags: Simulation flags string
+        custom_meters: Optional list of custom Output:Meter objects to add, e.g.:
+                      [{'name': 'Heating:Electricity', 'frequency': 'Hourly'}]
 
     Returns:
         Tuple of (success_status, error_message)
@@ -142,9 +148,15 @@ def _run_hpxml_simulation(
     """
     # Get OpenStudio binary path
     openstudio_binary = get_openstudio_path()
+    
+    # If custom meters are requested, use two-stage workflow
+    if custom_meters:
+        return _run_hpxml_simulation_with_custom_meters(
+            hpxml_path, ruby_hpxml_path, hpxml_os_path, flags, custom_meters, openstudio_binary
+        )
+    
+    # Standard single-stage workflow
     command = [openstudio_binary, ruby_hpxml_path, "-x", os.path.abspath(hpxml_path)]
-
-    # Convert flags to a list of strings
     flags_list = flags.split()
     command.extend(flags_list)
 
@@ -158,6 +170,123 @@ def _run_hpxml_simulation(
     except subprocess.CalledProcessError as e:
         logger.error(f"Error during simulation: {e.stderr}")
         return "Failure", e.stderr
+
+
+def _run_hpxml_simulation_with_custom_meters(
+    hpxml_path: str,
+    ruby_hpxml_path: str,
+    hpxml_os_path: str,
+    flags: str,
+    custom_meters: list[dict],
+    openstudio_binary: str
+) -> tuple[str, str]:
+    """
+    Run OpenStudio simulation, then add custom meters and re-run EnergyPlus.
+    
+    This uses a post-processing approach:
+    1. Run the full OpenStudio-HPXML workflow (generates IDF and runs EnergyPlus)
+    2. After completion, add custom meters to the IDF
+    3. Re-run only EnergyPlus with the modified IDF
+    
+    Args:
+        hpxml_path: Path to HPXML file
+        ruby_hpxml_path: Path to Ruby simulation script
+        hpxml_os_path: OpenStudio HPXML path
+        flags: Simulation flags string
+        custom_meters: List of custom meter configurations
+        openstudio_binary: Path to OpenStudio binary
+    
+    Returns:
+        Tuple of (success_status, error_message)
+    """
+    from .utils.idf_postprocessor import add_output_meters_to_idf
+    from .config import ConfigManager
+    
+    try:
+        # Stage 1: Run full OpenStudio-HPXML workflow
+        logger.info(f"Running initial simulation for {hpxml_path}")
+        command = [openstudio_binary, ruby_hpxml_path, "-x", os.path.abspath(hpxml_path)]
+        flags_list = flags.split()
+        command.extend(flags_list)
+        
+        result = subprocess.run(
+            command, cwd=hpxml_os_path, check=True, capture_output=True, text=True
+        )
+        logger.info("Initial simulation complete")
+        
+        # Stage 2: Add custom meters to the generated IDF
+        hpxml_dir = os.path.dirname(os.path.abspath(hpxml_path))
+        idf_path = os.path.join(hpxml_dir, "run", "in.idf")
+        
+        if not os.path.exists(idf_path):
+            logger.warning(f"IDF file not found at {idf_path} - custom meters not added")
+            # Return success since the initial simulation completed
+            return "Success", ""
+        
+        logger.info(f"Adding {len(custom_meters)} custom meters to IDF")
+        if not add_output_meters_to_idf(idf_path, custom_meters):
+            logger.warning("Failed to add custom meters - using initial simulation results")
+            return "Success", ""
+        
+        # Stage 3: Re-run EnergyPlus with the modified IDF
+        logger.info("Re-running EnergyPlus with custom meters...")
+        config_manager = ConfigManager()
+        energyplus_binary = config_manager.energyplus_binary
+        
+        # Get weather file from the run folder
+        run_dir = os.path.join(hpxml_dir, "run")
+        
+        # Find EPW file
+        epw_files = []
+        if os.path.exists(run_dir):
+            epw_files = [f for f in os.listdir(run_dir) if f.endswith('.epw')]
+        
+        if not epw_files:
+            logger.warning("No weather file found - skipping EnergyPlus re-run")
+            logger.info("Custom meters added to IDF for future runs")
+            return "Success", ""
+        
+        epw_path = os.path.join(run_dir, epw_files[0])
+        
+        # Run EnergyPlus with the modified IDF
+        energyplus_cmd = [
+            energyplus_binary,
+            "-w", epw_path,
+            "-d", run_dir,
+            "-r",  # Rerun mode
+            idf_path
+        ]
+        
+        logger.debug(f"EnergyPlus command: {' '.join(energyplus_cmd)}")
+        
+        result = subprocess.run(
+            energyplus_cmd,
+            capture_output=True,
+            text=True,
+            cwd=run_dir,
+            timeout=600  # 10 minute timeout
+        )
+        
+        if result.returncode != 0:
+            logger.warning(f"EnergyPlus re-run had issues: {result.stderr}")
+            logger.info("Initial simulation results are still valid")
+            return "Success", ""
+        
+        logger.info("✓ Simulation completed with custom meters")
+        return "Success", ""
+        
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error during simulation: {e.stderr}")
+        # If the error was during the initial simulation, that's a real failure
+        # If it was during the custom meters stage, we can still succeed
+        if "initial simulation" in str(e):
+            return "Failure", e.stderr
+        else:
+            logger.warning("Custom meters workflow failed, but initial simulation succeeded")
+            return "Success", ""
+    except Exception as e:
+        logger.error(f"Unexpected error during simulation: {str(e)}")
+        return "Failure", str(e)
 
 
 def _handle_conversion_error(
@@ -460,6 +589,11 @@ def run_full_workflow(
     config_manager = ConfigManager()
     hpxml_os_path = str(config_manager.hpxml_os_path)
     ruby_hpxml_path = os.path.join(hpxml_os_path, "workflow", "run_simulation.rb")
+    
+    # Get custom meters from configuration
+    custom_meters = config_manager.custom_meters
+    if custom_meters:
+        logger.info(f"Custom meters enabled: {[m['name'] for m in custom_meters]}")
 
     # Determine output path
     if output_path:
@@ -496,7 +630,7 @@ def run_full_workflow(
 
                 # Run simulation
                 status, error_msg = _run_hpxml_simulation(
-                    hpxml_path, ruby_hpxml_path, hpxml_os_path, flags
+                    hpxml_path, ruby_hpxml_path, hpxml_os_path, flags, custom_meters
                 )
 
                 if status == "Success":

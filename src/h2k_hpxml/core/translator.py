@@ -74,4 +74,4 @@ def h2ktohpxml(h2k_string="", config=None):
     _process_systems_and_loads(h2k_dict, hpxml_dict, model_data)
 
     # ================ 9. Finalize HPXML output ================
-    return _finalize_hpxml_output(hpxml_dict, h2k_dict, model_data, translation_mode)
+    return _finalize_hpxml_output(hpxml_dict, h2k_dict, model_data, translation_mode, config_manager)

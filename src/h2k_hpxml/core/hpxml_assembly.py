@@ -15,7 +15,7 @@ from ..utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def finalize_hpxml_output(hpxml_dict, h2k_dict, model_data, translation_mode):
+def finalize_hpxml_output(hpxml_dict, h2k_dict, model_data, translation_mode, config_manager):
     """
     Apply final processing and generate HPXML output string.
 
@@ -24,6 +24,7 @@ def finalize_hpxml_output(hpxml_dict, h2k_dict, model_data, translation_mode):
         h2k_dict: Parsed H2K dictionary
         model_data: ModelData instance for tracking building information
         translation_mode: Translation mode ('SOC' or 'ASHRAE140')
+        config_manager: ConfigManager instance for accessing configuration
 
     Returns:
         str: Final HPXML formatted string
@@ -34,6 +35,14 @@ def finalize_hpxml_output(hpxml_dict, h2k_dict, model_data, translation_mode):
     logger.info("Finalizing HPXML output")
 
     try:
+        # ================ Apply simulation timestep from configuration ================
+        timestep = config_manager.get('nonh2k', 'timestep', fallback='60')
+        if 'HPXML' in hpxml_dict and 'SoftwareInfo' in hpxml_dict['HPXML']:
+            software_info = hpxml_dict['HPXML']['SoftwareInfo']
+            if 'extension' in software_info and 'SimulationControl' in software_info['extension']:
+                software_info['extension']['SimulationControl']['Timestep'] = str(timestep)
+                logger.info(f"Set simulation timestep to {timestep} minutes from configuration")
+
         # ================ Apply overall translation mode specifications ================
         if translation_mode == "ASHRAE140":
             hpxml_dict = apply_ashrae_140(hpxml_dict, h2k_dict, model_data)
