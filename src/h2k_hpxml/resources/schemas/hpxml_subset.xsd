@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  HPXML v4.0 Subset Schema for H2K-HPXML Conversion Tool
+  HPXML v5.0 Subset Schema for H2K-HPXML Conversion Tool
 
-  This is a streamlined subset of the full HPXML v4.0 schema containing only
+  This is a streamlined subset of the full HPXML v5.0 schema containing only
   the 266 elements actually used by the H2K to HPXML conversion tool.
 
   Source: Generated from analysis of h2k-hpxml conversion source code and
           5000+ generated HPXML files from Canadian housing archetypes.
 
   Full HPXML Specification: https://hpxml.nrel.gov/
-  HPXML Version: 4.0
-  Namespace: http://hpxmlonline.com/2023/09
+  HPXML Version: 5.0
+  Namespace: http://hpxmlonline.com/2025/12
 
   Differences from Full HPXML v4.0:
   - Contains only ~266 elements (vs. 10,000+ in full spec)
@@ -23,8 +23,8 @@
 -->
 <xs:schema
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://hpxmlonline.com/2023/09"
-  xmlns="http://hpxmlonline.com/2023/09"
+  targetNamespace="http://hpxmlonline.com/2025/12"
+  xmlns="http://hpxmlonline.com/2025/12"
   elementFormDefault="qualified">
 
   <xs:import namespace="http://www.w3.org/XML/1998/namespace"
@@ -41,7 +41,7 @@
         <xs:element name="SoftwareInfo" type="SoftwareInfoType" minOccurs="0"/>
         <xs:element name="Building" type="BuildingType" maxOccurs="unbounded"/>
       </xs:sequence>
-      <xs:attribute name="schemaVersion" type="xs:string" fixed="4.0"/>
+      <xs:attribute name="schemaVersion" type="xs:string" fixed="5.0"/>
     </xs:complexType>
 
     <!-- Define keys for referential integrity -->
@@ -775,7 +775,7 @@
   <xs:simpleType name="InteriorFinishEnum">
     <xs:restriction base="xs:string">
       <xs:enumeration value="gypsum board"/>
-      <xs:enumeration value="none"/>
+      <xs:enumeration value="not present"/>
     </xs:restriction>
   </xs:simpleType>
 

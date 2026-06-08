@@ -406,8 +406,8 @@ When modifying core translation:
 
 ### Dependencies
 Critical external dependencies:
-- **OpenStudio SDK** (3.9.0) - Building energy modeling platform
-- **OpenStudio-HPXML** (v1.9.1) - NREL's HPXML implementation 
+- **OpenStudio SDK** (3.11.0) - Building energy modeling platform
+- **OpenStudio-HPXML** (v1.12.0) - NREL's HPXML implementation 
 - **EnergyPlus** - Simulation engine (managed via OpenStudio)
 
 Managed via `os-setup` command which auto-detects and installs on Windows/Linux:

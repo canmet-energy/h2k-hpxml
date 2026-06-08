@@ -3,15 +3,15 @@
   "valid_files": 7,
   "invalid_files": 0,
   "files": {
-    "baseline_WizardHouse_0.13": {
-      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.13.xml",
+    "baseline_WizardHouse_0.325": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.325.xml",
       "is_valid": true,
       "errors": [],
       "warnings": [],
       "structure_info": {
-        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-        "total_elements": 597,
-        "file_size_bytes": 25764,
+        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+        "total_elements": 598,
+        "file_size_bytes": 25798,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -43,25 +43,75 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 25764,
-          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "file_size": 25798,
+          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
-          "total_elements": 597
+          "total_elements": 598
         },
         "simulation_control": {
           "timestep": "60"
         }
       }
     },
-    "baseline_ERS-EX-10000": {
-      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_ERS-EX-10000.xml",
+    "baseline_WizardHouse_0.13": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.13.xml",
       "is_valid": true,
       "errors": [],
       "warnings": [],
       "structure_info": {
-        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-        "total_elements": 794,
-        "file_size_bytes": 33840,
+        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+        "total_elements": 598,
+        "file_size_bytes": 25798,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "2583.34",
+          "conditioned_building_volume": "21199.4",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 3,
+          "windows": 8,
+          "doors": 1,
+          "floors": 1,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 1,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 1
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 25798,
+          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+          "namespace": null,
+          "total_elements": 598
+        },
+        "simulation_control": {
+          "timestep": "60"
+        }
+      }
+    },
+    "baseline_ERS-EX-10001": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_ERS-EX-10001.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+        "total_elements": 795,
+        "file_size_bytes": 33884,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -93,10 +143,10 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 33840,
-          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "file_size": 33884,
+          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
-          "total_elements": 794
+          "total_elements": 795
         },
         "simulation_control": {
           "timestep": "60"
@@ -109,9 +159,9 @@
       "errors": [],
       "warnings": [],
       "structure_info": {
-        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-        "total_elements": 604,
-        "file_size_bytes": 25888,
+        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+        "total_elements": 605,
+        "file_size_bytes": 25922,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -143,10 +193,10 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 25888,
-          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "file_size": 25922,
+          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
-          "total_elements": 604
+          "total_elements": 605
         },
         "simulation_control": {
           "timestep": "60"
@@ -159,9 +209,9 @@
       "errors": [],
       "warnings": [],
       "structure_info": {
-        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-        "total_elements": 597,
-        "file_size_bytes": 25660,
+        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+        "total_elements": 598,
+        "file_size_bytes": 25694,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -193,25 +243,75 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 25660,
-          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "file_size": 25694,
+          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
-          "total_elements": 597
+          "total_elements": 598
         },
         "simulation_control": {
           "timestep": "60"
         }
       }
     },
-    "baseline_ERS-EX-10001": {
-      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_ERS-EX-10001.xml",
+    "baseline_WizardHouse_0.195": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.195.xml",
       "is_valid": true,
       "errors": [],
       "warnings": [],
       "structure_info": {
-        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-        "total_elements": 794,
-        "file_size_bytes": 33840,
+        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+        "total_elements": 598,
+        "file_size_bytes": 25694,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "2583.34",
+          "conditioned_building_volume": "21199.4",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 3,
+          "windows": 8,
+          "doors": 1,
+          "floors": 1,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 1,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 1
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 25694,
+          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+          "namespace": null,
+          "total_elements": 598
+        },
+        "simulation_control": {
+          "timestep": "60"
+        }
+      }
+    },
+    "baseline_ERS-EX-10000": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_ERS-EX-10000.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+        "total_elements": 795,
+        "file_size_bytes": 33884,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -243,110 +343,10 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 33840,
-          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
+          "file_size": 33884,
+          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
-          "total_elements": 794
-        },
-        "simulation_control": {
-          "timestep": "60"
-        }
-      }
-    },
-    "baseline_WizardHouse_0.195": {
-      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.195.xml",
-      "is_valid": true,
-      "errors": [],
-      "warnings": [],
-      "structure_info": {
-        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-        "total_elements": 597,
-        "file_size_bytes": 25660,
-        "has_building": true,
-        "has_climate": false,
-        "has_enclosure": true,
-        "has_systems": true
-      },
-      "key_elements": {
-        "building_info": {
-          "site_type": null,
-          "building_type": null,
-          "conditioned_floor_area": "2583.34",
-          "conditioned_building_volume": "21199.4",
-          "number_of_bedrooms": "3",
-          "number_of_bathrooms": "2"
-        },
-        "enclosure": {
-          "walls": 3,
-          "windows": 8,
-          "doors": 1,
-          "floors": 1,
-          "slabs": 1,
-          "roofs": 1
-        },
-        "systems": {
-          "heatingsystems": 1,
-          "coolingsystems": 1,
-          "hvacdistributions": 1,
-          "water_heating_systems": 1,
-          "ventilation_fans": 1
-        },
-        "climate": {},
-        "validation": {
-          "file_size": 25660,
-          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-          "namespace": null,
-          "total_elements": 597
-        },
-        "simulation_control": {
-          "timestep": "60"
-        }
-      }
-    },
-    "baseline_WizardHouse_0.325": {
-      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.325.xml",
-      "is_valid": true,
-      "errors": [],
-      "warnings": [],
-      "structure_info": {
-        "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-        "total_elements": 597,
-        "file_size_bytes": 25764,
-        "has_building": true,
-        "has_climate": false,
-        "has_enclosure": true,
-        "has_systems": true
-      },
-      "key_elements": {
-        "building_info": {
-          "site_type": null,
-          "building_type": null,
-          "conditioned_floor_area": "2583.34",
-          "conditioned_building_volume": "21199.4",
-          "number_of_bedrooms": "3",
-          "number_of_bathrooms": "2"
-        },
-        "enclosure": {
-          "walls": 3,
-          "windows": 8,
-          "doors": 1,
-          "floors": 1,
-          "slabs": 1,
-          "roofs": 1
-        },
-        "systems": {
-          "heatingsystems": 1,
-          "coolingsystems": 1,
-          "hvacdistributions": 1,
-          "water_heating_systems": 1,
-          "ventilation_fans": 1
-        },
-        "climate": {},
-        "validation": {
-          "file_size": 25764,
-          "root_element": "{http://hpxmlonline.com/2023/09}HPXML",
-          "namespace": null,
-          "total_elements": 597
+          "total_elements": 795
         },
         "simulation_control": {
           "timestep": "60"
@@ -354,6 +354,6 @@
       }
     }
   },
-  "generated_date": "2025-09-05T20:28:50.850133",
+  "generated_date": "2026-06-08T17:17:14.126628",
   "generated_by": "test_generate_baseline.py"
 }

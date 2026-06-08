@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HPXML xmlns="http://hpxmlonline.com/2023/09" schemaVersion="4.0">
+<HPXML xmlns="http://hpxmlonline.com/2025/12" schemaVersion="5.0">
 	<XMLTransactionHeaderInformation>
 		<XMLType>HPXML</XMLType>
 		<XMLGeneratedBy>h2ktohpxml.py</XMLGeneratedBy>
@@ -137,9 +137,9 @@
 			<ClimateandRiskZones>
 				<WeatherStation>
 					<SystemIdentifier id="WeatherStation"/>
-					<Name>/workspaces/h2k-hpxml/src/h2k_hpxml/_deps/OpenStudio-HPXML/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020</Name>
+					<Name>/home/vscode/.local/share/OpenStudio-HPXML-v1.12.0/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020</Name>
 					<extension>
-						<EPWFilePath>/workspaces/h2k-hpxml/src/h2k_hpxml/_deps/OpenStudio-HPXML/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020.epw</EPWFilePath>
+						<EPWFilePath>/home/vscode/.local/share/OpenStudio-HPXML-v1.12.0/weather/CAN_ON_Ottawa.Intl.AP.716280_CWEC2020.epw</EPWFilePath>
 					</extension>
 				</WeatherStation>
 			</ClimateandRiskZones>
@@ -604,6 +604,7 @@
 							<DistributionSystem idref="HVACAirDistribution1"/>
 							<CoolingSystemType>central air conditioner</CoolingSystemType>
 							<CoolingSystemFuel>electricity</CoolingSystemFuel>
+							<CompressorType>two stage</CompressorType>
 							<FractionCoolLoadServed>1</FractionCoolLoadServed>
 							<AnnualCoolingEfficiency>
 								<Units>SEER</Units>

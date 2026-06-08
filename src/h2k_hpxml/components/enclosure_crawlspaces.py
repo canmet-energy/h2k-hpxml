@@ -244,7 +244,7 @@ def get_crawlspaces(h2k_dict, model_data=None):
             "FloorOrCeiling": "floor",
             "FloorType": {"WoodFrame": None},  # for now, always WoodStud
             "Area": foundation_tot_area,  # [ft2]
-            "InteriorFinish": {"Type": "none"},  # default for non-ceiling floors
+            "InteriorFinish": {"Type": "not present"},  # default for non-ceiling floors
             "Insulation": {
                 "SystemIdentifier": {"@id": f"{floor_id}Insulation"},
                 "AssemblyEffectiveRValue": round(floors_above_rval, 2),

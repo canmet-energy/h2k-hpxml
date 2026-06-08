@@ -330,6 +330,7 @@ dependencies = [
     { name = "filelock" },
     { name = "numpy" },
     { name = "openstudio" },
+    { name = "openstudio-deps" },
     { name = "packaging" },
     { name = "pandas" },
     { name = "pyfiglet" },
@@ -386,7 +387,8 @@ requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.4.1" },
     { name = "myst-parser", marker = "extra == 'dev'", specifier = ">=2.0.0" },
     { name = "numpy", specifier = "==1.26.2" },
-    { name = "openstudio", specifier = ">=3.9.0" },
+    { name = "openstudio", specifier = ">=3.11.0" },
+    { name = "openstudio-deps", git = "https://github.com/canmet-energy/openstudio-deps.git?tag=v0.2.0" },
     { name = "packaging", specifier = ">=20.0" },
     { name = "pandas", specifier = ">=2.2.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.0.0" },
@@ -754,17 +756,30 @@ wheels = [
 
 [[package]]
 name = "openstudio"
-version = "3.9.0"
+version = "3.11.0"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/23/dcfbc1d97efb7b204ad38a11d7c510957b8f446be89f734a9458a5777992/openstudio-3.9.0-cp310-cp310-win_amd64.whl", hash = "sha256:70085f896174a7ddb2b500d8bdfbe676eea7876abbc40096889d82bfb104f61f", size = 55334897, upload-time = "2024-11-14T10:11:32.821Z" },
-    { url = "https://files.pythonhosted.org/packages/07/96/5beae36c8879416899304117acd4ce432940e715a61985e1cfe9a0628c26/openstudio-3.9.0-cp311-cp311-win_amd64.whl", hash = "sha256:d1e4a97abb6d2e3f65da4a53e191fee3df6cc6bfc5e7f99b0833dc186736ea17", size = 55337352, upload-time = "2024-11-14T10:11:37.442Z" },
-    { url = "https://files.pythonhosted.org/packages/f4/e1/7f003d89ab9b689c9a14197bb5095c200f4d0f92fe37902bbf9cb7ddfd02/openstudio-3.9.0-cp312-cp312-win_amd64.whl", hash = "sha256:03e4c4aa0afb4f189c9e9bfd790d72efe5458f0b6ff24b5f096a320b5f5121f2", size = 55366067, upload-time = "2024-11-14T10:11:41.647Z" },
-    { url = "https://files.pythonhosted.org/packages/0e/db/00333b704f5058041e94fb3a3c48a919761d3bbd67033480ba7917978cfa/openstudio-3.9.0-cp313-cp313-win_amd64.whl", hash = "sha256:e6c2a0aa063504a95549f12bcdc3b6e301e9c552309a7b1b430d36403223ad4e", size = 55368078, upload-time = "2024-11-14T10:11:45.921Z" },
-    { url = "https://files.pythonhosted.org/packages/af/9f/8337f1d9b40d9581d1230c133cde3ff92c9437f1515ecdc53f336e21ef04/openstudio-3.9.0-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:6f2049c7901e6ad4c7878577427b8f10598acb370c0c30c5a0aada61c0a2c39c", size = 62363234, upload-time = "2024-11-14T10:12:04.561Z" },
-    { url = "https://files.pythonhosted.org/packages/b6/52/218efdde6e82cf67e89d18c3fce3f9e12121411a21bc9117cc4a36b96379/openstudio-3.9.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:11d5bb25b21984ded0c5b7a79c8fca0c541dfa1621dfe4b927a02f9b87c65d6e", size = 60155306, upload-time = "2024-11-14T10:12:09.396Z" },
-    { url = "https://files.pythonhosted.org/packages/46/4d/30828110330e07032eef9c8a68094a788f3c46e10f8d9ef7e69b75c6c143/openstudio-3.9.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:62f7dbd013b85b4f3e355f354a5a231791059e10501b37a6e319da184199aa6b", size = 76304699, upload-time = "2024-11-14T10:12:17.023Z" },
-    { url = "https://files.pythonhosted.org/packages/7f/b9/66dbb2928d480c8e824e20f68c1a7d506c3940911143957afb71139e1b30/openstudio-3.9.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:c6c862a7738fcf817f2417cb3454f95f908835401566c807713e07201c86eacc", size = 71750423, upload-time = "2024-11-18T15:38:37.406Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/b1/303cfc092520b88222419661322a28d5e76a67b0c20fea5b9891ad6d5104/openstudio-3.11.0-cp310-cp310-win_amd64.whl", hash = "sha256:2f591b83cedc2708396f8c88ced0e6d9a643fbdfd8c796c413e70ad244b3f025", size = 54691213, upload-time = "2026-01-15T19:26:36.142Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/2a/9122850b438ebcce7aad835698db89863423f24cf742dd9464e961a98eeb/openstudio-3.11.0-cp311-cp311-win_amd64.whl", hash = "sha256:6ab9dc75d58ed75b23ec28ec90f70f161829325cc6f130dbcc9bc2029883922d", size = 54696144, upload-time = "2026-01-15T19:26:39.753Z" },
+    { url = "https://files.pythonhosted.org/packages/01/af/baff8138e5f9f7a5cb9280c3a1531b8b447a42ea798554474b7873636eef/openstudio-3.11.0-cp312-cp312-win_amd64.whl", hash = "sha256:0c25324b9a4a680c6bfe5c599ef30da9b03b37858e1a0d8584b3581da1fbbf03", size = 54718575, upload-time = "2026-01-15T19:26:42.929Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/75/7f6bf6f992dc83bb541261024592ee2a2068127b50c63f21d867b675de5d/openstudio-3.11.0-cp313-cp313-win_amd64.whl", hash = "sha256:c7155acd6b6b917d051d0e929efa4b95a08028b6a3e165af2da2fb761dda1839", size = 54717105, upload-time = "2026-01-15T19:26:46.156Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/1f/89b722bada459fe2714e3c2bb5cea102b391c5bd2e6af94ffd6871d42287/openstudio-3.11.0-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:cbcabf329565d2d86982e15a0909d52a6ba609fae79b18760ae4b9fddeab820c", size = 64167599, upload-time = "2026-01-15T19:26:59.12Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/88/0deeb3e182bc337521d95f115575b4d383f5458903aa70302442f0251df2/openstudio-3.11.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:7e9516a180bf322551836e13adb67e4592b17e83c9cdf36f2100d7cf758ec99e", size = 61302534, upload-time = "2026-01-15T19:27:02.538Z" },
+    { url = "https://files.pythonhosted.org/packages/f8/31/1df7509892fe8be1b953337310d8416d0192aba59ec545fdeb6395d5e9ca/openstudio-3.11.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:4d909e8e2fa6a9f7b35ca467bdedcca5f2dc53d539f1f9dc39f1697303a9ea2a", size = 78702566, upload-time = "2026-01-15T19:27:06.193Z" },
+    { url = "https://files.pythonhosted.org/packages/03/76/ca6fccf10e4fffaa05e4e764bbe375c518641aeceefd79a1e46b802a15dd/openstudio-3.11.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:3f3b401b3b3098ce49be8096c1b922ddbf757d88cc01cb279b30361c07400e7c", size = 74067456, upload-time = "2026-01-15T19:27:10.073Z" },
+]
+
+[[package]]
+name = "openstudio-deps"
+version = "0.2.0"
+source = { git = "https://github.com/canmet-energy/openstudio-deps.git?tag=v0.2.0#20aa9ebdec4d76ee50e8385573b1d4a295f4313c" }
+dependencies = [
+    { name = "click" },
+    { name = "filelock" },
+    { name = "packaging" },
+    { name = "requests" },
+    { name = "rich" },
+    { name = "tqdm" },
 ]
 
 [[package]]

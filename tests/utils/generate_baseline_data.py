@@ -53,7 +53,12 @@ def test_generate_baseline(check_openstudio_bindings):
 
     print(f"✅ Cleanup completed successfully. Cleaned {len(cleaned_items)} items.")
 
-    examples_dir = "examples"
+    try:
+        from h2k_hpxml.examples import get_examples_directory
+
+        examples_dir = str(get_examples_directory())
+    except ImportError:
+        examples_dir = "examples"
     # Use temp folder for simulation outputs, golden_files for JSON baselines
     temp_output_dir = "tests/temp"
     golden_files_dir = "tests/fixtures/expected_outputs/golden_files/baseline"
@@ -90,10 +95,8 @@ def test_generate_baseline(check_openstudio_bindings):
                 "python",
                 "-m",
                 "h2k_hpxml.cli.convert",
-                "run",
-                "--input_path",
                 input_path,
-                "--output_path",
+                "--output",
                 temp_output_dir,
                 "--debug",
             ],

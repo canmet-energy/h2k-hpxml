@@ -142,7 +142,7 @@ def _run_hpxml_simulation(
     """
     # Get OpenStudio binary path
     openstudio_binary = get_openstudio_path()
-    command = [openstudio_binary, ruby_hpxml_path, "-x", os.path.abspath(hpxml_path)]
+    command = [openstudio_binary, ruby_hpxml_path, "-x", os.path.abspath(hpxml_path), "-d"]
 
     # Convert flags to a list of strings
     flags_list = flags.split()

@@ -5,7 +5,6 @@ This package provides tools for converting Canadian Hot2000 (H2K) building energ
 models to US DOE's HPXML format for EnergyPlus simulation.
 """
 
-import os
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _pkg_version
 
@@ -14,18 +13,6 @@ try:
 except PackageNotFoundError:
     # Fallback for running from source without an installed distribution
     __version__ = "1.7.0.1.1"
-
-# Check dependencies on first import (unless disabled by CLI tools)
-if os.environ.get("H2K_SKIP_AUTO_INSTALL") != "1":
-    try:
-        from .utils.dependencies import validate_dependencies
-
-        # Only check dependencies, don't auto-install on import
-        # Users can run os-setup --install-quiet for installation
-        validate_dependencies(interactive=False, check_only=True)
-    except Exception:
-        # Don't fail package import if dependency check fails
-        pass
 
 # Import high-level API functions
 from .api import convert_h2k_file

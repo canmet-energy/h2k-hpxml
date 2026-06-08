@@ -49,8 +49,7 @@ def get_air_conditioning(h2k_dict, model_data):
             "CoolingSystemType": "central air conditioner",
             "CoolingSystemFuel": "electricity",
             **({} if is_auto_sized else {"CoolingCapacity": ac_capacity}),
-            # "CompressorType": "single stage", #Using HPXML's built-in defaulting at the moment
-            # defaults to “single stage” if SEER <= 15, else “two stage” if SEER <= 21, else “variable speed”.
+            "CompressorType": "single stage" if ac_cooling_seer <= 15 else "two stage" if ac_cooling_seer <= 21 else "variable speed",
             "FractionCoolLoadServed": 1,
             "AnnualCoolingEfficiency": {
                 "Units": "SEER",  # only option

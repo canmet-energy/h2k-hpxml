@@ -87,7 +87,7 @@ def test_quick_installation():
 
     # Test 3: Dependencies (delegated to osdep with h2k versions)
     try:
-        manager = DependencyManager(config=H2K_CONFIG)
+        manager = DependencyManager(config=H2K_CONFIG, include_hpxml=True)
         deps_ok = manager.check_only()
         tests.append(("Dependencies", deps_ok, "✅" if deps_ok else "❌ Missing dependencies"))
     except Exception as e:
@@ -200,7 +200,7 @@ def test_comprehensive_installation():
     click.echo("=" * 50)
 
     # Generic dependency verification first
-    if not verify_installation(config=H2K_CONFIG):
+    if not verify_installation(config=H2K_CONFIG, include_hpxml=True):
         click.echo("❌ Dependency verification failed, skipping conversion test")
         return False
 
@@ -251,11 +251,7 @@ def test_comprehensive_installation():
 def main():
     """Entry point for the h2k-hpxml ``os-setup`` command."""
     import argparse
-    import os
     import sys
-
-    # Prevent auto-install when running os-setup CLI
-    os.environ["H2K_SKIP_AUTO_INSTALL"] = "1"
 
     parser = argparse.ArgumentParser(
         prog="os-setup",
@@ -332,6 +328,7 @@ Examples:
             hpxml_path=args.hpxml_path,
             openstudio_path=args.openstudio_path,
             config=H2K_CONFIG,
+            include_hpxml=True,
         )
         success = manager.uninstall_dependencies()
     elif args.check_only:
@@ -339,6 +336,7 @@ Examples:
             check_only=True,
             hpxml_path=args.hpxml_path,
             openstudio_path=args.openstudio_path,
+            include_hpxml=True,
         )
     elif args.install_quiet or args.auto_install:
         success = validate_dependencies(
@@ -347,6 +345,7 @@ Examples:
             skip_deps=args.skip_deps,
             hpxml_path=args.hpxml_path,
             openstudio_path=args.openstudio_path,
+            include_hpxml=True,
         )
     else:
         success = validate_dependencies(
@@ -354,6 +353,7 @@ Examples:
             skip_deps=args.skip_deps,
             hpxml_path=args.hpxml_path,
             openstudio_path=args.openstudio_path,
+            include_hpxml=True,
         )
 
     sys.exit(0 if success else 1)
