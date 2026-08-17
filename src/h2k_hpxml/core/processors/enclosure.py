@@ -121,8 +121,17 @@ def process_enclosure_components(h2k_dict, hpxml_dict, model_data, add_test_wall
         foundation_details = model_data.get_foundation_details()
         total_foundation_area = sum([fnd["total_area"] for fnd in foundation_details])
 
+
+        # TODO: MURB - Update conditioned floor area after confirming if h2k includes those fields
         ag_heated_floor_area = model_data.get_building_detail("ag_heated_floor_area")
         bg_heated_floor_area = model_data.get_building_detail("bg_heated_floor_area")
+
+        # These two fields are only used for whole-murb buildings
+        extra_murb_area = 0
+        if model_data.get_building_detail("building_type") == "whole-murb":
+            murb_common_space_area = model_data.get_building_detail("common_space_area")
+            murb_non_res_unit_area = model_data.get_building_detail("non_res_unit_area")
+            extra_murb_area = murb_common_space_area + murb_non_res_unit_area
 
         # Check here to ensure no errors in HPXML, since bg_heated_floor_area is an input in h2k that is separate from the actual component areas
         if total_foundation_area > bg_heated_floor_area:
@@ -132,7 +141,7 @@ def process_enclosure_components(h2k_dict, hpxml_dict, model_data, add_test_wall
         building_const_dict = hpxml_dict["HPXML"]["Building"]["BuildingDetails"]["BuildingSummary"][
             "BuildingConstruction"
         ]
-        building_const_dict["ConditionedFloorArea"] = ag_heated_floor_area + bg_heated_floor_area
+        building_const_dict["ConditionedFloorArea"] = ag_heated_floor_area + bg_heated_floor_area + extra_murb_area
 
         logger.info(f"Heated Floor Area (ft2): {building_const_dict['ConditionedFloorArea']}")
         logger.debug("Building enclosure components processed successfully")

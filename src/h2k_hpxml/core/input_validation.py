@@ -6,10 +6,14 @@ This module provides validation functions for H2K input files and configuration 
 
 from ..exceptions import ConfigurationError
 from ..exceptions import H2KParsingError
+from ..config.translation_modes import VALID_TRANSLATION_MODES
+from ..config.translation_modes import normalize_translation_mode
 from ..utils.logging import get_logger
 
 # Get logger for this module
 logger = get_logger(__name__)
+
+VALID_OPERATING_CONDITIONS = ("SOC", "ROC", "General")
 
 
 def validate_and_load_configuration(h2k_string, config):
@@ -21,7 +25,7 @@ def validate_and_load_configuration(h2k_string, config):
         config: Configuration dictionary for translation options
 
     Returns:
-        tuple: (add_test_wall, translation_mode) configuration parameters
+        tuple: (add_test_wall, translation_mode, operating_condition)
 
     Raises:
         H2KParsingError: If H2K input is invalid
@@ -29,30 +33,46 @@ def validate_and_load_configuration(h2k_string, config):
     """
     logger.info("Validating inputs and loading configuration")
 
-    # Validate H2K input
     if not h2k_string or not h2k_string.strip():
         raise H2KParsingError("H2K input string is empty or None")
 
-    # Validate configuration
     if not isinstance(config, dict):
         raise ConfigurationError(
             "Configuration must be a dictionary", config_value=str(type(config))
         )
 
-    # Extract configuration parameters
     add_test_wall = config.get("add_test_wall", False)
-    translation_mode = config.get("translation_mode", "SOC")
+    translation_mode = normalize_translation_mode(
+        config.get("translation_mode", "STANDARD"),
+        warn=logger.warning,
+    )
+    operating_condition = config.get("operating_condition", "SOC")
 
-    # Validate translation mode
-    valid_modes = ["SOC", "ASHRAE140"]
-    if translation_mode not in valid_modes:
+    if translation_mode not in VALID_TRANSLATION_MODES:
         raise ConfigurationError(
-            f"Invalid translation mode: {translation_mode}. Must be one of {valid_modes}",
+            f"Invalid translation mode: {translation_mode}. "
+            f"Must be one of {VALID_TRANSLATION_MODES}",
             config_key="translation_mode",
             config_value=translation_mode,
         )
 
-    logger.info(f"Translation Mode: {translation_mode}")
-    logger.debug(f"Add test wall: {add_test_wall}")
+    if operating_condition not in VALID_OPERATING_CONDITIONS:
+        raise ConfigurationError(
+            f"Invalid operating condition: {operating_condition}. "
+            f"Must be one of {VALID_OPERATING_CONDITIONS}",
+            config_key="operating_condition",
+            config_value=operating_condition,
+        )
 
-    return add_test_wall, translation_mode
+    if translation_mode == "ASHRAE140" and operating_condition != "SOC":
+        logger.warning(
+            "Operating condition %s is ignored for ASHRAE140 translation; "
+            "using asset/H2K-driven loads instead.",
+            operating_condition,
+        )
+
+    logger.info("Translation Mode: %s", translation_mode)
+    logger.info("Operating Condition: %s", operating_condition)
+    logger.debug("Add test wall: %s", add_test_wall)
+
+    return add_test_wall, translation_mode, operating_condition

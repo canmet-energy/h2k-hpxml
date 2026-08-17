@@ -10,7 +10,7 @@ Welcome to the complete documentation for H2K-HPXML, the Canadian tool for conve
 |-----------|--------|---------------|
 | **Phase 1: Loads** | ✅ Complete | [Status](docs/status/status.md) |
 | **Phase 2: HVAC Systems** | ✅ Complete | [Report](docs/reports/H2k-HPXML-Systems-Report.pdf) |
-| **Phase 3: Multi-Unit Buildings** | 🔄 Planned | TBD |
+| **Phase 3: Multi-Unit Buildings** | ✅ Complete | TBD |
 
 ## Current Capabilities
 - ✅ Single zone simulation to mimic Hot2000 approach for validation. 
@@ -19,7 +19,7 @@ Welcome to the complete documentation for H2K-HPXML, the Canadian tool for conve
 - ✅ Domestic hot water systems
 - ✅ Lighting and plug loads
 - ✅ Weather data mapping (Canadian → US weather files)
-- ✅ Both translation modes (SOC and ASHRAE140)
+- ✅ Both translation modes (STANDARD and ASHRAE140)
 - ✅ Parallel processing for batch operations
 - ✅ Comprehensive error handling and validation
 

@@ -23,7 +23,7 @@ These are standalone scripts used for development/debugging and are not part of 
 ### Utility Scripts
 
 - **`cleanup.py`** - Cross-platform cleanup script that removes Python cache files, tool caches, and temporary files while preserving directory structure (works on Windows, Linux, macOS)
-- **`compare.py`** - Analysis comparison utility that compares H2K vs HPXML/EnergyPlus simulation results, supporting both SOC and ASHRAE140 translation modes
+- **`compare.py`** - Analysis comparison utility that compares H2K vs HPXML/EnergyPlus simulation results, supporting both STANDARD and ASHRAE140 translation modes
 
 ## Usage
 

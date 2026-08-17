@@ -1,5 +1,6 @@
 import os
 from collections.abc import MutableMapping
+from pathlib import Path
 
 import pandas as pd
 import xmltodict
@@ -20,15 +21,19 @@ def read_os_results(path="", return_type="dict"):
     if path == "":
         return {}
 
-    results_folder_path = f"{path}run/"
+    results_folder = Path(path) / "run"
+    if not results_folder.is_dir():
+        return {}
 
-    dir_contents = os.listdir(results_folder_path)
+    dir_contents = os.listdir(results_folder)
 
     if "results_annual.csv" not in dir_contents:
         return {}
 
     columns = ["parameter", "value"]
-    res_df = pd.read_csv(f"{results_folder_path}results_annual.csv", header=None, names=columns)
+    res_df = pd.read_csv(
+        results_folder / "results_annual.csv", header=None, names=columns
+    )
 
     if return_type == "dict":
         return dict(zip(res_df.parameter, res_df.value, strict=False))
@@ -301,6 +306,25 @@ def compare_os_h2k_annual(h2k_results=None, os_results=None):
         * 3.78541
         / 365,
     }
+
+    # compare_dict["Clothes Washer Usage Gpd"] = {
+    #     "h2k": -1,
+    #     "hpxml": os_results.get("Hot Water: Clothes Washer (gal)", 0) / 365,
+    # }
+
+    # compare_dict["Dishwasher Usage Gpd"] = {
+    #     "h2k": -1,
+    #     "hpxml": os_results.get("Hot Water: Dishwasher (gal)", 0) / 365,
+    # }
+
+    # compare_dict["Fixtures Usage Gpd"] = {
+    #     "h2k": -1,
+    #     "hpxml": os_results.get("Hot Water: Fixtures (gal)", 0) / 365,
+    # }
+    # compare_dict["Distribution Waste Usage Gpd"] = {
+    #     "h2k": -1,
+    #     "hpxml": os_results.get("Hot Water: Distribution Waste (gal)", 0) / 365,
+    # }
 
     # Fuel use
     fuel_compare_dict = {

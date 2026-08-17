@@ -385,6 +385,14 @@ class ConfigManager:
         return self.get("simulation", "flags", "")
 
     @property
+    def translation_mode(self) -> str:
+        mode = self.get("translation", "mode", "STANDARD")
+        return "STANDARD" if mode == "SOC" else mode
+    @property
+    def operating_condition(self) -> str:
+        return self.get("operating_conditions", "mode", "SOC")
+
+    @property
     def weather_library(self):
         """Weather library to use (historic, etc.)."""
         return self.get("weather", "weather_library", "historic")

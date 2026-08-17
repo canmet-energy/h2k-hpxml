@@ -1,23 +1,16 @@
 from ..core import data_utils as obj
 from ..core import h2k_parser as h2k
+from ..utils.hot_water_setpoint import resolve_hot_water_setpoint_f
 
 
 # Here we always return an array of objects, because we could be dealing with a primary + secondary system configuration
 def get_hot_water_systems(h2k_dict, model_data):
-    hot_water_temperature = h2k.get_number_field(h2k_dict, "hot_water_temperature")
-    hot_water_temperature_adv_uspec = h2k.get_number_field(
-        h2k_dict, "hot_water_temperature_adv_uspec"
-    )
+    hot_water_temperature = model_data.get_building_detail("hot_water_setpoint_f")
+    if hot_water_temperature is None:
+        hot_water_temperature = resolve_hot_water_setpoint_f(h2k_dict)
+        model_data.set_building_details({"hot_water_setpoint_f": hot_water_temperature})
 
-    model_data.set_building_details(
-        {
-            "hot_water_temperature": (
-                hot_water_temperature
-                if hot_water_temperature > 0
-                else hot_water_temperature_adv_uspec
-            ),
-        }
-    )
+    model_data.set_building_details({"hot_water_temperature": hot_water_temperature})
 
     hpxml_dhw = []
     hpxml_solar_dhw = {}
@@ -101,8 +94,32 @@ def get_single_dhw_system(system_dict, sys_id, model_data):
     is_uef = obj.get_val(system_dict, "EnergyFactor,@isUniform")
     uef_draw_pattern = h2k.get_selection_field(system_dict, "hot_water_uef_draw_pattern")
 
+    is_standby = obj.get_val(system_dict, "EnergyFactor,@code") == "3"
+
     energy_factor_obj = {}
-    if is_uef == "true":
+    if is_standby:
+        #Must estimate EF based on standby inputs (can't apply to UEF)
+
+        # if mode is "1", inputs in %/hr, otherwise in W
+        standby_heat_loss_mode = obj.get_val(system_dict, "EnergyFactor,@standbyHeatLossMode")
+
+        standby_heat_loss = h2k.get_number_field(system_dict, "hot_water_standby_heat_loss")
+        standby_thermal_efficiency = h2k.get_number_field(system_dict, "hot_water_standby_thermal_efficiency")
+        standby_input_capacity = h2k.get_number_field(system_dict, "hot_water_standby_input_capacity")
+
+        standby_heat_loss_W = standby_heat_loss
+        if standby_heat_loss_mode == "1":
+            #Note that if volume is 0, standby losses will be 0 (makes sense, no tank)
+            # in that case, the equation below will reduce to the thermal efficiency.
+            standby_heat_loss_W = 0.432 * standby_heat_loss * tank_volume * (3.78541) # From H2k: SL(W) = 0.432 * SL(%) * V(L)
+
+        calc_energy_factor = 43.3 / ((43.3/standby_thermal_efficiency) + (standby_heat_loss_W*(0.084 - (43.3/(standby_thermal_efficiency*standby_input_capacity)))))
+
+        energy_factor_obj = {
+            "EnergyFactor": calc_energy_factor,
+        }
+
+    elif is_uef == "true":
         energy_factor_obj = {
             "UniformEnergyFactor": energy_factor,
             "UsageBin": uef_draw_pattern,

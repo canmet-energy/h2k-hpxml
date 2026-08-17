@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -12,6 +13,18 @@ from h2k_hpxml.config.manager import ConfigManager
 from h2k_hpxml.config.manager import get_config_manager
 from h2k_hpxml.config.manager import reset_config_manager
 from h2k_hpxml.exceptions import ConfigurationError
+
+
+@contextmanager
+def temp_working_dir():
+    """Use a temp directory as cwd; restore before cleanup (required on Windows)."""
+    original_cwd = os.getcwd()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        os.chdir(temp_dir)
+        try:
+            yield Path(temp_dir)
+        finally:
+            os.chdir(original_cwd)
 
 
 def cleanup_user_configs():
@@ -62,9 +75,7 @@ class TestConfigManager:
 
     def test_config_manager_initialization_with_missing_file(self):
         """Test ConfigManager raises error when config file not found."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            os.chdir(temp_dir)  # Change to directory without config file
-
+        with temp_working_dir():
             with pytest.raises(ConfigurationError, match="Configuration file not found"):
                 ConfigManager(auto_create=False)
 
@@ -87,11 +98,9 @@ weather_vintage = TEST2020
 log_level = DEBUG
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             config = ConfigManager(auto_create=False)
 
             assert config.get("paths", "source_h2k_path") == "/test/input"
@@ -117,11 +126,9 @@ weather_vintage = CWEC2020
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             # Test config loads regardless of environment parameter
             config_dev = ConfigManager(environment="dev", auto_create=False)
             config_prod = ConfigManager(environment="prod", auto_create=False)
@@ -151,11 +158,9 @@ weather_vintage = ORIGINAL2020
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             # Set environment variables
             with patch.dict(
                 os.environ,
@@ -180,11 +185,9 @@ source_h2k_path = /test/input
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(incomplete_config)
-            os.chdir(temp_dir)
-
             with pytest.raises(ConfigurationError, match="Missing required configuration section"):
                 ConfigManager(auto_create=False)
 
@@ -197,7 +200,7 @@ log_level = INFO
         points dest_hpxml_path under a regular file so the parent directory cannot be
         created, and asserts the corresponding warning fires.
         """
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             # A regular file used as the parent of dest_hpxml_path -> mkdir() fails.
             blocker = Path(temp_dir) / "blocker"
             blocker.write_text("not a directory")
@@ -220,8 +223,6 @@ log_level = INFO
 """
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             with patch("h2k_hpxml.config.manager.logger") as mock_logger:
                 ConfigManager(auto_create=False)
 
@@ -251,11 +252,9 @@ log_level = INFO
 log_to_file = true
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             config = ConfigManager(auto_create=False)
 
             # Test get with fallback
@@ -291,17 +290,15 @@ weather_vintage = TEST2020
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             config = ConfigManager(auto_create=False)
 
-            # Test absolute path
+            # Test absolute path (POSIX-style config paths resolve per OS)
             path = config.get_path("paths", "source_h2k_path")
             assert isinstance(path, Path)
-            assert str(path) == "/test/input"
+            assert path.as_posix().endswith("test/input")
 
             # Test relative path resolution
             rel_path = config.get_path("paths", "relative_path")
@@ -331,16 +328,14 @@ log_level = WARNING
 log_to_file = false
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             config = ConfigManager(auto_create=False)
 
-            # Test path properties
-            assert str(config.source_h2k_path) == "/test/input"
-            assert str(config.dest_hpxml_path) == "/test/output"
+            # Test path properties (POSIX-style config paths resolve per OS)
+            assert Path(config.source_h2k_path).as_posix().endswith("test/input")
+            assert Path(config.dest_hpxml_path).as_posix().endswith("test/output")
 
             # hpxml_os_path and openstudio_binary are now auto-detected (not in config).
             # Mock the dependency-path resolution so the test is hermetic (no installed
@@ -381,11 +376,9 @@ weather_vintage = TEST2020
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             config = ConfigManager(auto_create=False)
 
             # Test resource path method (will raise error for nonexistent resource)
@@ -416,11 +409,9 @@ weather_vintage = TEST2020
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             config = ConfigManager(auto_create=False)
 
             # Test get_section
@@ -455,11 +446,9 @@ weather_vintage = TEST2020
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             config = ConfigManager(auto_create=False)
             config_dict = config.to_dict()
 
@@ -508,11 +497,9 @@ weather_vintage = TEST2020
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             # Get config manager twice
             config1 = get_config_manager()
             config2 = get_config_manager()
@@ -539,11 +526,9 @@ weather_vintage = TEST2020
 log_level = INFO
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             config_path = Path(temp_dir) / "conversionconfig.ini"
             config_path.write_text(config_content)
-            os.chdir(temp_dir)
-
             # Get initial config manager
             config1 = get_config_manager()
 
@@ -560,9 +545,7 @@ log_level = INFO
         import tempfile
         from unittest.mock import patch
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            os.chdir(temp_dir)  # Change to directory without config file
-
+        with temp_working_dir() as temp_dir:
             # Mock the user config path to use a temporary directory
             mock_user_config_dir = Path(temp_dir) / "user_config"
 
@@ -622,12 +605,10 @@ weather_vintage = USER2020
 log_level = DEBUG
 """
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with temp_working_dir() as temp_dir:
             # Create project config file
             project_config_path = Path(temp_dir) / "conversionconfig.ini"
             project_config_path.write_text(project_config)
-            os.chdir(temp_dir)
-
             # Create user config directory and file
             mock_user_config_dir = Path(temp_dir) / "user_config"
             mock_user_config_dir.mkdir()

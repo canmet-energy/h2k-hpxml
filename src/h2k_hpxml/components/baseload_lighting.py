@@ -1,5 +1,8 @@
 def get_lighting(h2k_dict, model_data):
-    building_type = model_data.get_building_detail("building_type")
+    # building_type = model_data.get_building_detail("building_type")
+
+    daily_elec_interior_lighting = model_data.get_operating_condition("daily_elec_interior_lighting")
+    daily_elec_exterior_use = model_data.get_operating_condition("daily_elec_exterior_use")
 
     # TODO: account for lighting fractions to change LightingType
     return {
@@ -11,7 +14,7 @@ def get_lighting(h2k_dict, model_data):
                 # "LightingType": {"CompactFluorescent": None},
                 "Load": {
                     "Units": "kWh/year",
-                    "Value": 2.6 * 365 if building_type == "house" else 1.7 * 365,
+                    "Value": daily_elec_interior_lighting * 365,
                 },
             },
             {
@@ -21,7 +24,7 @@ def get_lighting(h2k_dict, model_data):
                 # "LightingType": {"CompactFluorescent": None},
                 "Load": {
                     "Units": "kWh/year",
-                    "Value": 0.9 * 365 if building_type == "house" else 0.4 * 365,
+                    "Value": daily_elec_exterior_use * 365,
                 },
             },
         ]

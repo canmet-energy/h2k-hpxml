@@ -113,6 +113,8 @@ addopts = [
 markers = [
     "baseline_generation: tests for generating baseline data (use with --run-baseline flag)",
     "integration: integration tests that check external services and URLs",
+    "equation_contract: verify mirrored OS-HPXML equations against installed workflow",
+    "operating_parity: H2K vs HPXML baseload and hot water parity (requires --run-operating-parity)",
 ]
 
 [tool.coverage.run]

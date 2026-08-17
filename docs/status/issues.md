@@ -30,5 +30,12 @@ HPXML has an input for the heat pump capacity at 17F (-8.33C), but h2k files don
 HPXML requires that a DHW system be present, you can have a valid h2k simulation (general mode only) without one. At the moment, files without DHW systems will not be able to produce results in HPXML
 
 
+#### MURB - Connected DWHR Units
+HPXML doesn't support more than one DWHR system per Hot Water Distribution system, and only provides the ability to choose whether one or all showers are connected. A whole-building MURB in HOT2000 also does not separate the individual units in any way. Therefore, if HOT2000 species that a DWHR system is connected to a subset of units in the building, there is no direct way to represent this in the HPXML file, and we must connect the DWHR to all MURB units. In the future, it may be possible to make an assumption around the number of occupants and their hot water usage distributed across units and create separate hot water distribution systems for each unit. However, this will require extensive comparison between simulation outputs, and must be done after the correlation between occupants and water usage is finalized.
+
 #### Supplementary Heating System FractionHeatLoadServed
 This parameter does not have a straightforward means of computation. For now, it is set to 0 for all supplementary heating systems
+
+#### Flue Diameters & Additional Openings
+HPXML has no way of directly representing flue diameter. If any flue at all is present, it is indicated with the HasFlueOrChimneyInConditionedSpace extension in the AirInfiltration section
+

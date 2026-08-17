@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "description": "H2K SOC reference values and max relative error vs OpenStudio-HPXML simulation.",
+  "default_max_rel_error": {
+    "hot_water_usage_Lperday": 0.005,
+    "baseloads_elec_GJ": 0.02
+  },
+  "cases": {
+    "ERS-EX-10296-HouseAttached.H2K": {
+      "hot_water_usage_Lperday_h2k": 187.7767,
+      "baseloads_elec_GJ_h2k": 25.622644531
+    },
+    "ERS-EX-12616-MurbSingle.h2k": {
+      "hot_water_usage_Lperday_h2k": 122.156,
+      "baseloads_elec_GJ_h2k": 15.347152344
+    },
+    "ERS-EX-12620-HouseAttached.H2K": {
+      "hot_water_usage_Lperday_h2k": 186.4655,
+      "baseloads_elec_GJ_h2k": 25.622644531
+    },
+    "ERS-EX-1576-Mobile.h2k": {
+      "hot_water_usage_Lperday_h2k": 188.3615,
+      "baseloads_elec_GJ_h2k": 25.622644531
+    },
+    "ERS-EX-18311-HouseDetached.h2k": {
+      "hot_water_usage_Lperday_h2k": 192.4977,
+      "baseloads_elec_GJ_h2k": 25.622644531
+    },
+    "ERS-EX-25937-MurbSingle.h2k": {
+      "hot_water_usage_Lperday_h2k": 124.8868,
+      "baseloads_elec_GJ_h2k": 15.347152344
+    },
+    "ERS-EX-26985-MurbWhole_4Unit.h2k": {
+      "hot_water_usage_Lperday_h2k": 501.0328,
+      "baseloads_elec_GJ_h2k": 61.388609375
+    },
+    "ERS-EX-5112-MurbWhole_2Unit.h2k": {
+      "hot_water_usage_Lperday_h2k": 250.5164,
+      "baseloads_elec_GJ_h2k": 30.694304688
+    },
+    "ERS-EX-60099-HouseDetached.H2K": {
+      "hot_water_usage_Lperday_h2k": 188.5936,
+      "baseloads_elec_GJ_h2k": 25.622644531
+    },
+    "NRCan-arch10-HouseAttached.h2k": {
+      "hot_water_usage_Lperday_h2k": 188.5936,
+      "baseloads_elec_GJ_h2k": 25.622644531
+    },
+    "NRCan-arch4-HouseDetached.h2k": {
+      "hot_water_usage_Lperday_h2k": 188.3615,
+      "baseloads_elec_GJ_h2k": 25.622644531
+    }
+  }
+}

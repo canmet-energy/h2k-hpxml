@@ -194,7 +194,7 @@ def batch_convert_h2k_files(
     input_files: List[str],
     output_directory: str,
     simulate: bool = True,
-    mode: str = 'SOC',
+    mode: str = 'STANDARD',
     max_workers: Optional[int] = None,
     progress_callback: Optional[Callable[[int, int], None]] = None
 ) -> Dict[str, Any]
@@ -204,7 +204,7 @@ def batch_convert_h2k_files(
 - `input_files` (List[str]): List of H2K file paths to convert
 - `output_directory` (str): Directory for output files
 - `simulate` (bool): Run EnergyPlus simulation. Default: True
-- `mode` (str): Translation mode. Default: 'SOC'
+- `mode` (str): Translation mode. Default: 'STANDARD'
 - `max_workers` (int, optional): Number of parallel workers. Auto-detected if None
 - `progress_callback` (Callable, optional): Function called with (completed, total) for progress tracking
 
@@ -543,7 +543,7 @@ from typing import Dict, List, Optional, Union, Any, Callable
 from pathlib import Path
 
 # Translation mode
-TranslationMode = Literal['SOC', 'ASHRAE140']
+TranslationMode = Literal['STANDARD', 'ASHRAE140']
 
 # Hourly output types
 HourlyOutputType = Literal[
@@ -571,7 +571,7 @@ def convert_h2k_file(
     input_path: str,
     output_path: Optional[str] = None,
     simulate: bool = True,
-    mode: TranslationMode = 'SOC',
+    mode: TranslationMode = 'STANDARD',
     hourly_outputs: Optional[List[HourlyOutputType]] = None,
     debug: bool = False
 ) -> str: ...
@@ -580,7 +580,7 @@ def batch_convert_h2k_files(
     input_files: List[str],
     output_directory: str,
     simulate: bool = True,
-    mode: TranslationMode = 'SOC',
+    mode: TranslationMode = 'STANDARD',
     max_workers: Optional[int] = None,
     progress_callback: Optional[Callable[[int, int], None]] = None
 ) -> ConversionResult: ...

@@ -11,14 +11,20 @@ from ...core.model import ModelData
 from ...exceptions import HPXMLGenerationError
 from ...types import H2KDict
 from ...types import HPXMLDict
+from ...utils.hot_water_setpoint import resolve_hot_water_setpoint_f
 from ...utils.logging import get_logger
+from ...utils.operating_conditions import apply_operating_conditions
 
 # Get logger for this module
 logger = get_logger(__name__)
 
 
 def process_building_details(
-    h2k_dict: H2KDict, hpxml_dict: HPXMLDict, model_data: ModelData
+    h2k_dict: H2KDict,
+    hpxml_dict: HPXMLDict,
+    model_data: ModelData,
+    translation_mode: str = "STANDARD",
+    operating_condition: str = "SOC",
 ) -> None:
     """
     Process building details and populate model data and HPXML structure.
@@ -60,8 +66,14 @@ def process_building_details(
             }
         )
 
+        building_type = model_data.get_building_detail("building_type")
+        logger.info(f"BUILDING TYPE: {building_type}")
         # Handle multi-unit residential building (MURB) details
+        # Note that HPXML has a method of modelling individual dwellings, but coming from an h2k file, everything will always be a whole building/unit simulation.
+        # There is no explicit difference between how a house and single-murb are modelled. All differences com from the set up of components.
         if model_data.get_building_detail("building_type") != "house":
+            # MURB Types are: "single-murb", "whole-murb"
+            # Most of these are not used by HPXML (in the way they're defined in h2k)
             murb_unit_counts = obj.get_val(h2k_dict, "HouseFile,House,Specifications,NumberOf")
             model_data.set_building_details(
                 {
@@ -72,6 +84,26 @@ def process_building_details(
                     "common_space_area": h2k.get_number_field(h2k_dict, "common_space_area"),
                     "non_res_unit_area": h2k.get_number_field(h2k_dict, "non_res_unit_area"),
                 }
+            )
+
+            #Other fields updated when building type is "whole-murb":
+            # Conditioned floor area is updated with two extra fields: common_space_area and non_res_unit_area
+
+        if translation_mode == "STANDARD":
+            apply_operating_conditions(h2k_dict, model_data, operating_condition)
+        else:
+            logger.info(
+                "Skipping operating condition tables for %s translation",
+                translation_mode,
+            )
+        model_data.set_building_details(
+            {"hot_water_setpoint_f": resolve_hot_water_setpoint_f(h2k_dict)}
+        )
+        if translation_mode == "STANDARD":
+            logger.info(
+                "Operating condition: %s (%s occupants)",
+                model_data.get_operating_condition_mode(),
+                model_data.get_operating_condition("num_occupants"),
             )
 
         # ================ 5. HPXML Section: Building Summary ================
@@ -95,8 +127,9 @@ def process_building_details(
             h2k_dict, "ground_conductivity"
         )
 
-        # Building occupancy
-        num_occupants = 3  # SOC Hardcoded
+        # Building occupancy — NumberofResidents selects OS-HPXML's operational
+        # (n_occ) path for appliance/fixture hot water; omit it and OS uses asset (nbeds) equations.
+        num_occupants = model_data.get_operating_condition("num_occupants", 3)
         hpxml_dict["HPXML"]["Building"]["BuildingDetails"]["BuildingSummary"][
             "BuildingOccupancy"
         ] = {"NumberofResidents": num_occupants}

@@ -62,6 +62,12 @@ tests/fixtures/expected_outputs/
    python -m pytest tests/integration/ -v
    ```
 
+4. **SOC operating parity** (opt-in; baseload + hot water vs H2K, requires OpenStudio-HPXML):
+   ```bash
+   python -m pytest tests/integration/test_operating_parity.py --run-operating-parity -v
+   ```
+   See `tests/fixtures/soc_operating/README.md`.
+
 ## File Naming Convention
 
 - `baseline_*.json`: Golden master files for each H2K simulation

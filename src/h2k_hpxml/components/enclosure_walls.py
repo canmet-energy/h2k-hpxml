@@ -109,6 +109,33 @@ def get_walls(h2k_dict, model_data=None):
         rim_joists_output = get_rim_joists(h2k_floor_headers, "Wall", model_data)
         hpxml_rim_joists = [*hpxml_rim_joists, *rim_joists_output["hpxml_rim_joists"]]
 
+
+    #Check for common surface walls in MURB single-unit MURB files
+    if model_data.get_building_detail("building_type") == "single-murb":
+        murb_common_wall_area = h2k.get_number_field(h2k_dict, "murb_common_wall_area")
+        if murb_common_wall_area > 0:
+            #Note that we're not incrementing the wall count here because it doesn't impact the ID system
+            new_wall = {
+                "SystemIdentifier": {"@id": "CommonSurfaceWall1"},
+                "ExteriorAdjacentTo": "other housing unit",
+                "InteriorAdjacentTo": "conditioned space",  # always
+                "WallType": {"WoodStud": None},  # for now, always WoodStud
+                "Area": murb_common_wall_area,  # [ft2]
+                "Siding": "wood siding",  # for now, always wood siding
+                "SolarAbsorptance": wall_absorptance,
+                "Emittance": "0.9",  # Default
+                "InteriorFinish": {
+                    "Type": "gypsum board"
+                },  # for now, always gypsum board, note default thickness is 0.5"
+                "Insulation": {
+                    "SystemIdentifier": {"@id": "CommonSurfaceWall1Insulation"},
+                    "AssemblyEffectiveRValue": 100, #Assumed to be an adiabatic wall, but we'll put a high value to be safe
+                },
+                "extension": {"H2kLabel": "CommonSurfaceWall1"},
+            }
+
+            hpxml_walls = [*hpxml_walls, new_wall]
+
     return {
         "walls": hpxml_walls,
         "windows": [*hpxml_windows, *hpxml_windows_doors],
@@ -147,10 +174,6 @@ def get_attached_walls(h2k_dict, model_data=None, add_test_wall=False):
 
     if (len(foundation_perimeters) == 1) and attached_unit:
         foundation_perimeter_dict = foundation_perimeters[0]
-        model_data.inc_wall_count()
-        wall_id = f"Wall{model_data.get_wall_count()}"
-
-        print("ADDING AN ATTACHED WALL only one foundation (simple approach)")
         wall_segments = model_data.get_wall_segments()
 
         tot_exp_wall_area = functools.reduce(
@@ -163,39 +186,43 @@ def get_attached_walls(h2k_dict, model_data=None, add_test_wall=False):
             / foundation_perimeter_dict["exposed_fraction"]
         )
 
-        # weighted average wall height
-        functools.reduce(
-            lambda prev, curr: prev + curr["height"] * (curr["area"] / tot_exp_wall_area),
-            wall_segments,
-            0,
-        )
+        if (attached_wall_area > 0):
+            model_data.inc_wall_count()
+            wall_id = f"Wall{model_data.get_wall_count()}"
+            print("ADDING AN ATTACHED WALL only one foundation (simple approach)")
+            # weighted average wall height
+            functools.reduce(
+                lambda prev, curr: prev + curr["height"] * (curr["area"] / tot_exp_wall_area),
+                wall_segments,
+                0,
+            )
 
-        wall_area_list = [wall["area"] for wall in wall_segments]
+            wall_area_list = [wall["area"] for wall in wall_segments]
 
-        index_max = max(range(len(wall_area_list)), key=wall_area_list.__getitem__)
+            index_max = max(range(len(wall_area_list)), key=wall_area_list.__getitem__)
 
-        wall_common_rval = wall_segments[index_max]["rval"]
+            wall_common_rval = wall_segments[index_max]["rval"]
 
-        new_attached_wall = {
-            "SystemIdentifier": {"@id": wall_id},
-            "ExteriorAdjacentTo": "other housing unit",
-            "InteriorAdjacentTo": "conditioned space",  # always
-            "WallType": {"WoodStud": None},  # for now, always WoodStud
-            "Area": attached_wall_area,  # [ft2]
-            "Siding": "wood siding",  # for now, always wood siding
-            "SolarAbsorptance": wall_absorptance,
-            "Emittance": "0.9",  # Default
-            "InteriorFinish": {
-                "Type": "gypsum board"
-            },  # for now, always gypsum board, note default thickness is 0.5"
-            "Insulation": {
-                "SystemIdentifier": {"@id": f"{wall_id}Insulation"},
-                "AssemblyEffectiveRValue": round(wall_common_rval, 2),
-            },
-            "extension": {"H2kLabel": "No H2k Component - Attached Wall"},
-        }
+            new_attached_wall = {
+                "SystemIdentifier": {"@id": wall_id},
+                "ExteriorAdjacentTo": "other housing unit",
+                "InteriorAdjacentTo": "conditioned space",  # always
+                "WallType": {"WoodStud": None},  # for now, always WoodStud
+                "Area": attached_wall_area,  # [ft2]
+                "Siding": "wood siding",  # for now, always wood siding
+                "SolarAbsorptance": wall_absorptance,
+                "Emittance": "0.9",  # Default
+                "InteriorFinish": {
+                    "Type": "gypsum board"
+                },  # for now, always gypsum board, note default thickness is 0.5"
+                "Insulation": {
+                    "SystemIdentifier": {"@id": f"{wall_id}Insulation"},
+                    "AssemblyEffectiveRValue": round(wall_common_rval, 2),
+                },
+                "extension": {"H2kLabel": "No H2k Component - Attached Wall"},
+            }
 
-        hpxml_walls = [*hpxml_walls, new_attached_wall]
+            hpxml_walls = [*hpxml_walls, new_attached_wall]
 
     elif (len(foundation_perimeters) >= 2) and attached_unit:
         model_data.add_warning_message(
@@ -226,12 +253,6 @@ def get_attached_walls(h2k_dict, model_data=None, add_test_wall=False):
                 "walls": hpxml_walls,
             }
 
-        # Only here are we committed to creating a new wall component
-        model_data.inc_wall_count()
-        wall_id = f"Wall{model_data.get_wall_count()}"
-
-        print("ADDING AN ATTACHED WALL multi-foundation (geometry assumptions required)")
-
         wall_segments = model_data.get_wall_segments()
 
         tot_exp_wall_area = functools.reduce(
@@ -241,6 +262,20 @@ def get_attached_walls(h2k_dict, model_data=None, add_test_wall=False):
         exposed_fraction = tot_exp_fnd_perimeter / assumed_total_ext_perimeter
 
         attached_wall_area = tot_exp_wall_area * (1 - exposed_fraction) / exposed_fraction
+
+        if (attached_wall_area <= 0):
+            # Assumption doesn't hold, exit
+            print("ATTACHED WALL AREA FOR MULTI-FOUNDATION <= 0")
+            return {
+                "walls": hpxml_walls,
+            }
+
+
+        # Only here are we committed to creating a new wall component
+        model_data.inc_wall_count()
+        wall_id = f"Wall{model_data.get_wall_count()}"
+
+        print("ADDING AN ATTACHED WALL multi-foundation (geometry assumptions required)")
 
         wall_area_list = [wall["area"] for wall in wall_segments]
 

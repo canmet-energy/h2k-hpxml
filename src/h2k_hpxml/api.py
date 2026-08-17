@@ -10,6 +10,7 @@ import os
 import pathlib
 import re
 import shutil
+import stat
 import subprocess
 import time
 import traceback
@@ -215,6 +216,45 @@ def _detect_xml_encoding(filepath: str) -> str:
     return DEFAULT_ENCODING  # fallback
 
 
+def _handle_rmtree_error(func, path, _exc_info):
+    """Clear read-only flags so shutil.rmtree can remove simulation artifacts."""
+    if not os.access(path, os.W_OK):
+        os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
+def _write_text_atomically(path: str, content: str) -> None:
+    """Write a file atomically, overwriting any existing content."""
+    directory = os.path.dirname(path)
+    os.makedirs(directory, exist_ok=True)
+    tmp_path = f"{path}.{os.getpid()}.tmp"
+    with open(tmp_path, "w", encoding=DEFAULT_ENCODING) as f:
+        f.write(content)
+    os.replace(tmp_path, path)
+
+
+def _clear_simulation_run_dir(hpxml_path: str) -> None:
+    """
+    Best-effort cleanup of prior simulation output before a new run.
+
+    Does not block conversion when cleanup fails (common on Windows when files
+    are briefly locked). OpenStudio-HPXML will recreate run/ output as needed.
+    """
+    run_dir = os.path.join(os.path.dirname(hpxml_path), "run")
+    if not os.path.isdir(run_dir):
+        return
+
+    try:
+        shutil.rmtree(run_dir, onerror=_handle_rmtree_error)
+    except OSError as exc:
+        stale_dir = f"{run_dir}.old.{time.time_ns()}"
+        try:
+            os.rename(run_dir, stale_dir)
+            logger.debug("Renamed locked simulation output from %s to %s", run_dir, stale_dir)
+        except OSError:
+            logger.debug("Could not clear prior simulation output at %s: %s", run_dir, exc)
+
+
 def _convert_h2k_file_to_hpxml(filepath: str, dest_hpxml_path: str) -> str:
     """
     Convert H2K file to HPXML format and save to destination directory (internal).
@@ -249,19 +289,11 @@ def _convert_h2k_file_to_hpxml(filepath: str, dest_hpxml_path: str) -> str:
 
     # Define the output path for the converted HPXML file
     file_stem = pathlib.Path(filepath).stem
-    hpxml_path = os.path.join(dest_hpxml_path, file_stem, f"{file_stem}.xml")
-
-    # If the destination path exists, delete the folder
-    if os.path.exists(hpxml_path):
-        shutil.rmtree(os.path.dirname(hpxml_path))
-    # Ensure the output directory exists
-    os.makedirs(os.path.dirname(hpxml_path), exist_ok=True)
+    output_dir = os.path.join(dest_hpxml_path, file_stem)
+    hpxml_path = os.path.join(output_dir, f"{file_stem}.xml")
 
     logger.info(f"Saving converted file to: {hpxml_path}")
-
-    # Write the converted HPXML content to the output file
-    with open(hpxml_path, "w") as f:
-        f.write(hpxml_string)
+    _write_text_atomically(hpxml_path, hpxml_string)
 
     return hpxml_path
 
@@ -491,6 +523,8 @@ def run_full_workflow(
             hpxml_path = _convert_h2k_file_to_hpxml(filepath, dest_hpxml_path)
 
             if simulate:
+                _clear_simulation_run_dir(hpxml_path)
+
                 # Brief pause before simulation
                 time.sleep(3)
 
@@ -568,7 +602,7 @@ def batch_convert_h2k_files(
     input_files: list[str],
     output_directory: str,
     simulate: bool = True,
-    mode: str = "SOC",
+    mode: str = "STANDARD",
     max_workers: int | None = None,
     progress_callback: Any | None = None,
 ) -> dict[str, Any]:
@@ -579,7 +613,7 @@ def batch_convert_h2k_files(
         input_files: List of H2K file paths to convert
         output_directory: Directory for output files
         simulate: Run EnergyPlus simulation. Default: True
-        mode: Translation mode. Default: 'SOC'
+        mode: Translation mode. Default: 'STANDARD'
         max_workers: Number of parallel workers. Auto-detected if None
         progress_callback: Function called with (completed, total) for progress tracking
 

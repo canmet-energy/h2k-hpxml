@@ -596,6 +596,29 @@ def get_ceilings(h2k_dict, model_data=None):
         window_output = get_skylights(h2k_windows, skylight_attachment, model_data)
         hpxml_skylights = [*hpxml_skylights, *window_output["hpxml_skylights"]]
 
+
+        #Check for common surface ceilings in MURB single-unit MURB files (added as floors in HPXML)
+        if model_data.get_building_detail("building_type") == "single-murb":
+            murb_common_ceiling_area = h2k.get_number_field(h2k_dict, "murb_common_ceiling_area")
+            if murb_common_ceiling_area > 0:
+                #Note that we're not incrementing the floor count here because it doesn't impact the ID system
+                new_floor = {
+                    "SystemIdentifier": {"@id": "CommonSurfaceCeiling1"},
+                    "ExteriorAdjacentTo": "other housing unit",
+                    "InteriorAdjacentTo": "conditioned space",  # always
+                    "FloorOrCeiling": "ceiling",
+                    "FloorType": {"WoodFrame": None},  # for now, always WoodStud
+                    "Area": murb_common_ceiling_area,  # [ft2]
+                    "InteriorFinish": {"Type": "gypsum board"},  # default for non-ceiling floors
+                    "Insulation": {
+                        "SystemIdentifier": {"@id": "CommonSurfaceCeiling1Insulation"},
+                        "AssemblyEffectiveRValue": 100, #Assumed to be an adiabatic floor, but we'll put a high value to be safe
+                    },
+                    "extension": {"H2kLabel": "CommonSurfaceCeiling1"},
+                }
+
+                hpxml_floors = [*hpxml_floors, new_floor]
+
     return {
         "attics": hpxml_attics,
         "roofs": hpxml_roofs,

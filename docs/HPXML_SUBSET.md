@@ -112,6 +112,8 @@ Many enumerations are restricted to only values actually used:
 ```xml
 <xs:enumeration value="single-family detached"/>
 <xs:enumeration value="single-family attached"/>
+<xs:enumeration value="apartment unit"/>
+<xs:enumeration value="manufactured home"/>
 ```
 
 **Siding** (always the same in H2K conversion):
