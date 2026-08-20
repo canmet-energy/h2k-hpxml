@@ -58,7 +58,7 @@ def get_windows(h2k_windows, parent_type, model_data):
                 "Area": window_area,
                 "Azimuth": window_orientation,
                 "UFactor": round(window_uval, 4),
-                "SHGC": round(window_shgc, 2),
+                "SHGC": max(round(window_shgc, 2), 0.01),
                 "InteriorShading": {
                     "SystemIdentifier": {"@id": f"{window_id}InteriorShading"},
                     "SummerShadingCoefficient": "1",

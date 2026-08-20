@@ -70,6 +70,29 @@ def get_floors(h2k_dict, model_data=None):
 
         hpxml_floors = [*hpxml_floors, new_floor]
 
+
+    #Check for common surface floors in MURB single-unit MURB files
+    if model_data.get_building_detail("building_type") == "single-murb":
+        murb_common_floor_area = h2k.get_number_field(h2k_dict, "murb_common_floor_area")
+        if murb_common_floor_area > 0:
+            #Note that we're not incrementing the floor count here because it doesn't impact the ID system
+            new_floor = {
+                "SystemIdentifier": {"@id": "CommonSurfaceFloor1"},
+                "ExteriorAdjacentTo": "other housing unit",
+                "InteriorAdjacentTo": "conditioned space",  # always
+                "FloorOrCeiling": "floor",
+                "FloorType": {"WoodFrame": None},  # for now, always WoodStud
+                "Area": murb_common_floor_area,  # [ft2]
+                "InteriorFinish": {"Type": "none"},  # default for non-ceiling floors
+                "Insulation": {
+                    "SystemIdentifier": {"@id": "CommonSurfaceFloor1Insulation"},
+                    "AssemblyEffectiveRValue": 100, #Assumed to be an adiabatic floor, but we'll put a high value to be safe
+                },
+                "extension": {"H2kLabel": "CommonSurfaceFloor1"},
+            }
+
+            hpxml_floors = [*hpxml_floors, new_floor]
+
     return {
         "floors": hpxml_floors,
     }

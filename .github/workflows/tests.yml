@@ -36,4 +36,4 @@ jobs:
         # Integration tests (tests/integration/) require an OpenStudio + OpenStudio-HPXML
         # install and a working simulation, so they are not run here. The unit suite is
         # hermetic (dependency-path resolution is mocked where needed).
-        run: uv run pytest tests/unit/ -q
+        run: uv run pytest tests/unit/ -q -m "not integration"

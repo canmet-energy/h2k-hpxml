@@ -22,6 +22,7 @@ from colorama import Fore
 from colorama import Style
 
 from h2k_hpxml.api import _build_simulation_flags
+from h2k_hpxml.api import _clear_simulation_run_dir
 from h2k_hpxml.api import _convert_h2k_file_to_hpxml
 from h2k_hpxml.api import _handle_conversion_error
 from h2k_hpxml.api import _run_hpxml_simulation
@@ -75,7 +76,7 @@ def get_openstudio_binary_path() -> str:
 # Constants
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_ENCODING = "utf-8"
-SIMULATION_PAUSE_SECONDS = 3
+SIMULATION_PAUSE_SECONDS = 0
 OUTPUT_FOLDER_NAME = "output"
 
 
@@ -388,6 +389,8 @@ def cli(
             hpxml_path = _convert_h2k_file_to_hpxml(filepath, dest_hpxml_path)
 
             if not do_not_sim:
+                _clear_simulation_run_dir(hpxml_path)
+
                 # Pause briefly before simulation
                 time.sleep(SIMULATION_PAUSE_SECONDS)
 

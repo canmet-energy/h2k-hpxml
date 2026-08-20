@@ -18,6 +18,12 @@ def pytest_addoption(parser):
         help="Force run all tests regardless of platform (useful for CI/CD)",
     )
     parser.addoption(
+        "--run-operating-parity",
+        action="store_true",
+        default=False,
+        help="Enable SOC operating-condition parity tests (requires OpenStudio-HPXML, slow)",
+    )
+    parser.addoption(
         "--platform-info",
         action="store_true",
         default=False,
@@ -49,6 +55,20 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "baseline_generation" in item.keywords:
                 item.add_marker(skip_baseline)
+
+    if config.getoption("--run-operating-parity"):
+        for item in items:
+            if "operating_parity" in item.keywords:
+                item.own_markers = [
+                    mark for mark in item.own_markers if mark.name != "skip"
+                ]
+    else:
+        skip_operating_parity = pytest.mark.skip(
+            reason="Need --run-operating-parity flag to run SOC operating parity tests"
+        )
+        for item in items:
+            if "operating_parity" in item.keywords:
+                item.add_marker(skip_operating_parity)
 
     # Print platform info during collection if verbose
     if config.option.verbose >= 1:

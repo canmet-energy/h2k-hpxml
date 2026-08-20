@@ -23,7 +23,7 @@ def finalize_hpxml_output(hpxml_dict, h2k_dict, model_data, translation_mode):
         hpxml_dict: Parsed HPXML dictionary
         h2k_dict: Parsed H2K dictionary
         model_data: ModelData instance for tracking building information
-        translation_mode: Translation mode ('SOC' or 'ASHRAE140')
+        translation_mode: Translation mode ('STANDARD' or 'ASHRAE140')
 
     Returns:
         str: Final HPXML formatted string

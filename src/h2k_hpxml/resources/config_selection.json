@@ -1,7 +1,7 @@
 {
     "building_type": {
         "address": {
-            "h2k": "HouseFile,House,Specifications,_attributes,buildingType",
+            "h2k": "HouseFile,House,Specifications,@buildingType",
             "hpxml": "N/A"
         },
         "map": {
@@ -88,16 +88,14 @@
             "Triplex (non-MURB)": "single-family attached",
             "Apartment (non-MURB)": "apartment unit",
             "Row house, end unit": "single-family attached",
-            "Mobile Home": "single-family attached",
-            "Row house, middle unit": "single-family attached"
-        },
-        "murb_map": {
-            "Detached Duplex": "",
-            "Detached Triplex": "",
-            "Attached Duplex": "",
-            "Attached Triplex": "",
-            "Apartment": "",
-            "Apartment Row": ""
+            "Mobile Home": "manufactured home",
+            "Row house, middle unit": "single-family attached",
+            "Detached Duplex": "apartment unit",
+            "Detached Triplex": "apartment unit",
+            "Attached Duplex": "apartment unit",
+            "Attached Triplex": "apartment unit",
+            "Apartment": "apartment unit",
+            "Apartment Row": "apartment unit"
         },
         "default": "single-family detached"
     },

@@ -1,6 +1,12 @@
 def get_plug_loads(h2k_dict, model_data):
-    building_type = model_data.get_building_detail("building_type")
-    common_space_area = model_data.get_building_detail("common_space_area", 0)  # [ft2]
+    daily_elec_other_electrical = model_data.get_operating_condition("daily_elec_other_electrical")
+    daily_elec_common_space = model_data.get_operating_condition("daily_elec_common_space")
+
+    # HPXML can only handle one "other" plug load, so we combine them here
+    if daily_elec_common_space > 0:
+        daily_elec_other_electrical = daily_elec_other_electrical + daily_elec_common_space
+
+
     hpxml_plug_loads = {
         "PlugLoad": [
             {
@@ -8,23 +14,13 @@ def get_plug_loads(h2k_dict, model_data):
                 "PlugLoadType": "other",
                 "Load": {
                     "Units": "kWh/year",
-                    "Value": 9.7 * 365 if building_type == "house" else 4.4 * 365,
+                    "Value": daily_elec_other_electrical * 365,
                 },
             },
         ]
     }
 
-    if common_space_area > 0:
-        hpxml_plug_loads["PlugLoad"].append(
-            {
-                "SystemIdentifier": {"@id": "PlugLoad2"},
-                "PlugLoadType": "other",
-                "Load": {
-                    "Units": "kWh/year",
-                    "Value": 0.086 * common_space_area * (1 / 10.7639) * 365,
-                },
-            }
-        )
+    
 
     return hpxml_plug_loads
 

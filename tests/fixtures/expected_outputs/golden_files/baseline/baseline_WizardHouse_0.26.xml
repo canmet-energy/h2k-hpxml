@@ -609,10 +609,10 @@
 					</HVACPlant>
 					<HVACControl>
 						<SystemIdentifier id="HVACControl1"/>
-						<SetpointTempHeatingSeason>69.8</SetpointTempHeatingSeason>
-						<SetbackTempHeatingSeason>64.4</SetbackTempHeatingSeason>
-						<TotalSetbackHoursperWeekHeating>56</TotalSetbackHoursperWeekHeating>
-						<SetpointTempCoolingSeason>77.0</SetpointTempCoolingSeason>
+						<SetpointTempHeatingSeason>68</SetpointTempHeatingSeason>
+						<SetbackTempHeatingSeason>68</SetbackTempHeatingSeason>
+						<TotalSetbackHoursperWeekHeating>0</TotalSetbackHoursperWeekHeating>
+						<SetpointTempCoolingSeason>77</SetpointTempCoolingSeason>
 					</HVACControl>
 					<HVACDistribution>
 						<SystemIdentifier id="HVACAirDistribution1"/>
@@ -694,7 +694,7 @@
 						<FlowRate>2.19</FlowRate>
 					</WaterFixture>
 					<extension>
-						<WaterFixturesUsageMultiplier>0.9653991864774005</WaterFixturesUsageMultiplier>
+						<WaterFixturesUsageMultiplier>0.7923021218290927</WaterFixturesUsageMultiplier>
 					</extension>
 				</WaterHeating>
 			</Systems>
@@ -703,30 +703,30 @@
 					<SystemIdentifier id="ClothesWasher1"/>
 					<Location>conditioned space</Location>
 					<IntegratedModifiedEnergyFactor>0.9</IntegratedModifiedEnergyFactor>
-					<RatedAnnualkWh>799.9866185979007</RatedAnnualkWh>
+					<RatedAnnualkWh>849.7894294226938</RatedAnnualkWh>
 					<LabelElectricRate>0.3</LabelElectricRate>
 					<LabelGasRate>1.09</LabelGasRate>
 					<LabelAnnualGasCost>60</LabelAnnualGasCost>
-					<LabelUsage>3.4981607286516403</LabelUsage>
+					<LabelUsage>2.838077568568479</LabelUsage>
 					<Capacity>3</Capacity>
 				</ClothesWasher>
 				<ClothesDryer>
 					<SystemIdentifier id="ClothesDryer1"/>
 					<Location>conditioned space</Location>
 					<FuelType>electricity</FuelType>
-					<CombinedEnergyFactor>1.4490416844833736</CombinedEnergyFactor>
+					<CombinedEnergyFactor>1.0188669414545373</CombinedEnergyFactor>
 					<Vented>true</Vented>
 					<VentedFlowRate>80.52</VentedFlowRate>
 				</ClothesDryer>
 				<Dishwasher>
 					<SystemIdentifier id="Dishwasher1"/>
 					<Location>conditioned space</Location>
-					<RatedAnnualkWh>302.907477193877</RatedAnnualkWh>
+					<RatedAnnualkWh>324.38484209158804</RatedAnnualkWh>
 					<PlaceSettingCapacity>12</PlaceSettingCapacity>
 					<LabelElectricRate>0.12</LabelElectricRate>
 					<LabelGasRate>1.09</LabelGasRate>
 					<LabelAnnualGasCost>22.23</LabelAnnualGasCost>
-					<LabelUsage>1.6180799644034478</LabelUsage>
+					<LabelUsage>1.1653684259419088</LabelUsage>
 				</Dishwasher>
 				<Refrigerator>
 					<SystemIdentifier id="Refrigerator1"/>
@@ -740,7 +740,7 @@
 					<FuelType>electricity</FuelType>
 					<IsInduction>false</IsInduction>
 					<extension>
-						<UsageMultiplier>1.1985574883326262</UsageMultiplier>
+						<UsageMultiplier>1.1555373760098169</UsageMultiplier>
 					</extension>
 				</CookingRange>
 				<Oven>

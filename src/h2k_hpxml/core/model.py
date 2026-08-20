@@ -67,6 +67,31 @@ class SystemTracker:
         self.flue_diameters.append(diameter)
 
 
+class OperatingConditions:
+    """Tracks operating condition mode and resolved parameter values. (e.g. occupants, annual appliance loads, etc.)"""
+
+    def __init__(self):
+        self.mode = "SOC"
+        self._parameters: dict = {}
+
+    def set_operating_conditions(self, mode: str, parameters: dict):
+        """Set operating condition mode and parameter values."""
+        self.mode = mode
+        self._parameters = dict(parameters)
+
+    def get_operating_conditions(self):
+        """Get operating condition mode."""
+        return self.mode
+
+    def get_parameter(self, key, default=None):
+        """Get a resolved operating condition parameter."""
+        return self._parameters.get(key, default)
+
+    @property
+    def parameters(self):
+        """All resolved operating condition parameters."""
+        return self._parameters
+
 class ModelData:
     """
     Simplified model data container for H2K to HPXML translation.
@@ -86,6 +111,8 @@ class ModelData:
         # Use classes for organized data management
         self._counters = CounterManager()
         self._systems = SystemTracker()
+        self._operating_conditions = OperatingConditions()
+        self._config_manager = None
 
         # Results storage
         self._results = {"General": {}, "SOC": {}, "Reference": {}}
@@ -377,6 +404,41 @@ class ModelData:
 
     def get_system_id(self, key, default=None):
         return self._systems.get_system_id(key, default)
+
+    # Operating conditions
+    @property
+    def operating_conditions(self):
+        """Access to operating conditions tracker."""
+        return self._operating_conditions
+
+    def set_operating_conditions(self, mode, parameters):
+        """Set resolved operating condition mode and parameters."""
+        self._operating_conditions.set_operating_conditions(mode, parameters)
+
+    def get_operating_condition_mode(self):
+        """Get operating condition mode (SOC, ROC, etc.)."""
+        return self._operating_conditions.get_operating_conditions()
+
+    def get_operating_condition(self, key, default=None):
+        """Get a resolved operating condition parameter."""
+        return self._operating_conditions.get_parameter(key, default)
+
+    # Configuration (from conversionconfig.ini via ConfigManager)
+    def set_config_manager(self, config_manager):
+        """Attach ConfigManager for INI-backed translation settings."""
+        self._config_manager = config_manager
+
+    def get_config(self, section, key, fallback=None):
+        """Get a configuration value from the attached ConfigManager."""
+        if self._config_manager is None:
+            return fallback
+        return self._config_manager.get(section, key, fallback)
+
+    def get_config_bool(self, section, key, fallback=False):
+        """Get a boolean configuration value from the attached ConfigManager."""
+        if self._config_manager is None:
+            return fallback
+        return self._config_manager.get_bool(section, key, fallback)
 
     # Warning and error management
     @property

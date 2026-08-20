@@ -3,6 +3,7 @@ from ..core import h2k_parser as h2k
 
 
 def get_hot_water_distribution(h2k_dict, model_data):
+    #Note: HPXML doesn't support multiple DWHR systems, so the "units connected" field cannot be directly represented. Always applies to all units at the moment.
     dwhr_dict = {}
 
     dwhr_system_primary = model_data.get_building_detail("dwhr_system_primary")

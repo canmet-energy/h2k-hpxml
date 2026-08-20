@@ -1,0 +1,99 @@
+{
+  "openstudio_hpxml_version": "v1.12.0",
+  "contracts": [
+    {
+      "id": "fixtures_gpd_operational",
+      "description": "Operational fixture mixed-water gpd (FSEC Eq. 14)",
+      "os_source": "HPXMLtoOpenStudio/resources/hotwater_appliances.rb",
+      "python_module": "h2k_hpxml.utils.hot_water_usage",
+      "tracked_constants": ["-4.84", "18.6", "0.05"]
+    },
+    {
+      "id": "distribution_waste_operational",
+      "description": "Operational distribution waste mixed-water gpd (ANSI 301 Eq. 4.2-11–13)",
+      "os_source": "HPXMLtoOpenStudio/resources/hotwater_appliances.rb",
+      "python_module": "h2k_hpxml.utils.hot_water_usage",
+      "tracked_constants": ["7.16", "0.7", "0.25", "0.0"]
+    },
+    {
+      "id": "mixed_water_temperature",
+      "description": "Mixed water temperature for fixtures (F)",
+      "os_source": "HPXMLtoOpenStudio/resources/hotwater_appliances.rb",
+      "python_module": "h2k_hpxml.utils.hot_water_usage",
+      "tracked_constants": ["105"]
+    },
+    {
+      "id": "clothes_washer_operational_label",
+      "description": "Operational clothes washer label hot-water coefficients",
+      "os_source": "HPXMLtoOpenStudio/resources/hotwater_appliances.rb",
+      "python_module": "h2k_hpxml.components.baseload_appliances",
+      "tracked_constants": ["0.3914", "0.0178", "123.0", "61.0", "2.08", "1.59"]
+    },
+    {
+      "id": "dishwasher_operational_label",
+      "description": "Operational dishwasher label hot-water coefficients",
+      "os_source": "HPXMLtoOpenStudio/resources/hotwater_appliances.rb",
+      "python_module": "h2k_hpxml.components.baseload_appliances",
+      "tracked_constants": ["0.5497", "0.02504", "91.0", "30.0"]
+    },
+    {
+      "id": "mains_inlet_temperature",
+      "description": "EPW mains / water-heater inlet temperature algorithm",
+      "os_source": "HPXMLtoOpenStudio/resources/weather.rb",
+      "python_module": "h2k_hpxml.utils.epw_mains_temperature",
+      "tracked_constants": ["0.4", "0.01", "44", "35", "6", "0.986", "32"]
+    },
+    {
+      "id": "recs_equivalent_bedrooms",
+      "description": "RECS nbeds regressions for operational asset path",
+      "os_source": "HPXMLtoOpenStudio/resources/defaults.rb",
+      "python_module": "h2k_hpxml.components.baseload_appliances",
+      "tracked_constants": ["-2.19", "2.08", "-1.98", "1.89", "-1.26", "1.61", "-1.36", "1.49"]
+    }
+  ],
+  "oracle_tests": [
+    {
+      "id": "fixture_gpd_n3",
+      "contract_id": "fixtures_gpd_operational",
+      "function": "h2k_hpxml.utils.hot_water_usage.calc_fixture_hot_water",
+      "args": [3, 0],
+      "expected": 50.96
+    },
+    {
+      "id": "distribution_waste_n3",
+      "contract_id": "distribution_waste_operational",
+      "function": "h2k_hpxml.utils.hot_water_usage.calc_distribution_waste",
+      "args": [3, 0],
+      "expected": 15.448912044618087
+    },
+    {
+      "id": "nbeds_sfd_n3",
+      "contract_id": "recs_equivalent_bedrooms",
+      "function": "h2k_hpxml.components.baseload_appliances.get_adjusted_num_bedrooms",
+      "args": ["single-family detached", 3],
+      "expected": 4.05
+    },
+    {
+      "id": "hot_to_mixed_ratio_standard",
+      "contract_id": "mixed_water_temperature",
+      "function": "h2k_hpxml.utils.hot_water_usage.calc_hot_to_mixed_ratio",
+      "model_data_details": {
+        "water_heater_inlet_temp_f": 50.0,
+        "hot_water_setpoint_f": 125.0
+      },
+      "expected": 0.7333333333333334
+    },
+    {
+      "id": "mains_temp_sample",
+      "contract_id": "mains_inlet_temperature",
+      "function": "h2k_hpxml.utils.epw_mains_temperature.calc_mains_annual_temp_f",
+      "kwargs": {
+        "annual_avg_drybulb_f": 50.0,
+        "monthly_avg_drybulbs_f": [30.0, 32.0, 40.0, 50.0, 60.0, 70.0, 75.0, 74.0, 65.0, 55.0, 42.0, 33.0],
+        "latitude": 45.0,
+        "n_days": 365
+      },
+      "expected": 56.00231567358542
+    }
+  ]
+}

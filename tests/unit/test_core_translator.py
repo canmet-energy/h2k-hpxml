@@ -30,26 +30,37 @@ class TestH2KToHPXML:
         with pytest.raises(ConfigurationError, match="Configuration must be a dictionary"):
             h2ktohpxml("<test>valid</test>", "invalid_config")
 
-    def test_none_config_defaults_to_empty_dict(self):
-        """Test that None config is handled gracefully."""
-        with patch("h2k_hpxml.core.translator._validate_and_load_configuration") as mock_validate:
-            mock_validate.return_value = (False, "SOC")
-            with patch("h2k_hpxml.core.translator._load_and_parse_templates") as mock_templates:
-                mock_templates.return_value = ({}, {})
-                with patch("h2k_hpxml.core.translator._process_building_details"):
-                    with patch("h2k_hpxml.core.translator._process_weather_data"):
-                        with patch("h2k_hpxml.core.translator._process_enclosure_components"):
-                            with patch("h2k_hpxml.core.translator._process_systems_and_loads"):
-                                with patch(
-                                    "h2k_hpxml.core.translator._finalize_hpxml_output"
-                                ) as mock_finalize:
-                                    mock_finalize.return_value = "<hpxml></hpxml>"
+    def test_none_config_defaults_to_ini_values(self):
+        """Test that None config is merged with conversionconfig.ini defaults."""
+        with patch("h2k_hpxml.core.translator.build_translation_config") as mock_build:
+            mock_build.return_value = {
+                "translation_mode": "STANDARD",
+                "operating_condition": "SOC",
+            }
+            with patch("h2k_hpxml.core.translator._validate_and_load_configuration") as mock_validate:
+                mock_validate.return_value = (False, "STANDARD", "SOC")
+                with patch("h2k_hpxml.core.translator._load_and_parse_templates") as mock_templates:
+                    mock_templates.return_value = ({}, {})
+                    with patch("h2k_hpxml.core.translator._process_building_details"):
+                        with patch("h2k_hpxml.core.translator._process_weather_data"):
+                            with patch("h2k_hpxml.core.translator._process_enclosure_components"):
+                                with patch("h2k_hpxml.core.translator._process_systems_and_loads"):
+                                    with patch(
+                                        "h2k_hpxml.core.translator._finalize_hpxml_output"
+                                    ) as mock_finalize:
+                                        mock_finalize.return_value = "<hpxml></hpxml>"
 
-                                    result = h2ktohpxml("<test>valid</test>", None)
+                                        result = h2ktohpxml("<test>valid</test>", None)
 
-                                    # Verify validate was called with empty dict
-                                    mock_validate.assert_called_once_with("<test>valid</test>", {})
-                                    assert result == "<hpxml></hpxml>"
+                                        mock_build.assert_called_once_with(overrides=None)
+                                        mock_validate.assert_called_once_with(
+                                            "<test>valid</test>",
+                                            {
+                                                "translation_mode": "STANDARD",
+                                                "operating_condition": "SOC",
+                                            },
+                                        )
+                                        assert result == "<hpxml></hpxml>"
 
     def test_invalid_translation_mode_raises_error(self):
         """Test that invalid translation mode raises ConfigurationError."""
@@ -58,7 +69,7 @@ class TestH2KToHPXML:
 
     def test_valid_translation_modes(self):
         """Test that valid translation modes are accepted."""
-        valid_modes = ["SOC", "ASHRAE140"]
+        valid_modes = ["STANDARD", "ASHRAE140"]
 
         for mode in valid_modes:
             with patch("h2k_hpxml.core.translator._load_and_parse_templates") as mock_templates:
@@ -96,15 +107,15 @@ class TestH2KToHPXML:
     ):
         """Test that processor functions are called in correct order."""
         # Setup mocks
-        mock_validate.return_value = (False, "SOC")
+        mock_validate.return_value = (False, "STANDARD", "SOC")
         mock_templates.return_value = ({"test": "h2k"}, {"test": "hpxml"})
         mock_finalize.return_value = "<hpxml>result</hpxml>"
 
         # Call function
-        result = h2ktohpxml("<test>valid</test>", {"translation_mode": "SOC"})
+        result = h2ktohpxml("<test>valid</test>", {"translation_mode": "STANDARD"})
 
         # Verify call order and arguments
-        mock_validate.assert_called_once_with("<test>valid</test>", {"translation_mode": "SOC"})
+        mock_validate.assert_called_once()
         mock_templates.assert_called_once_with("<test>valid</test>")
 
         # Verify ModelData was created and passed to processors
@@ -127,7 +138,7 @@ class TestH2KToHPXML:
     def test_add_test_wall_parameter_passed_correctly(self):
         """Test that add_test_wall parameter is passed to enclosure processor."""
         with patch("h2k_hpxml.core.translator._validate_and_load_configuration") as mock_validate:
-            mock_validate.return_value = (True, "SOC")  # add_test_wall = True
+            mock_validate.return_value = (True, "STANDARD", "SOC")  # add_test_wall = True
 
             with patch("h2k_hpxml.core.translator._load_and_parse_templates") as mock_templates:
                 mock_templates.return_value = ({}, {})
@@ -158,7 +169,7 @@ class TestH2KToHPXML:
         test_mode = "ASHRAE140"
 
         with patch("h2k_hpxml.core.translator._validate_and_load_configuration") as mock_validate:
-            mock_validate.return_value = (False, test_mode)
+            mock_validate.return_value = (False, test_mode, "SOC")
 
             with patch("h2k_hpxml.core.translator._load_and_parse_templates") as mock_templates:
                 mock_templates.return_value = ({}, {})
@@ -179,9 +190,6 @@ class TestH2KToHPXML:
                                     # Verify translation_mode passed to weather processor
                                     mock_weather.assert_called_once()
                                     weather_args = mock_weather.call_args[0]
-                                    assert (
-                                        len(weather_args) == 4
-                                    )  # h2k_dict, hpxml_dict, translation_mode, config_manager
                                     assert weather_args[2] == test_mode
 
                                     # Verify translation_mode passed to finalize

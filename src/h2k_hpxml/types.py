@@ -18,7 +18,7 @@ HPXMLDict = XMLDict
 PathLike = object
 
 # Translation types
-TranslationMode = str  # "SOC", "ASHRAE140", etc.
+TranslationMode = str  # "STANDARD", "ASHRAE140", etc.
 WeatherVintage = str  # "CWEC2020", "EWY2020", etc.
 WeatherLibrary = str  # "historic", etc.
 

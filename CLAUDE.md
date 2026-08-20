@@ -400,7 +400,7 @@ When adding new component translators:
 
 When modifying core translation:
 1. Update relevant processor in `core/processors/`
-2. Consider impact on both SOC and ASHRAE140 translation modes
+2. Consider impact on both STANDARD and ASHRAE140 translation modes
 3. Test with various H2K file types (house vs. MURB)
 4. Update golden files if output format changes
 

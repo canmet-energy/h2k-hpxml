@@ -11,7 +11,7 @@
       "structure_info": {
         "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
         "total_elements": 598,
-        "file_size_bytes": 25798,
+        "file_size_bytes": 25792,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -43,57 +43,7 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 25798,
-          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
-          "namespace": null,
-          "total_elements": 598
-        },
-        "simulation_control": {
-          "timestep": "60"
-        }
-      }
-    },
-    "baseline_WizardHouse_0.13": {
-      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.13.xml",
-      "is_valid": true,
-      "errors": [],
-      "warnings": [],
-      "structure_info": {
-        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
-        "total_elements": 598,
-        "file_size_bytes": 25798,
-        "has_building": true,
-        "has_climate": false,
-        "has_enclosure": true,
-        "has_systems": true
-      },
-      "key_elements": {
-        "building_info": {
-          "site_type": null,
-          "building_type": null,
-          "conditioned_floor_area": "2583.34",
-          "conditioned_building_volume": "21199.4",
-          "number_of_bedrooms": "3",
-          "number_of_bathrooms": "2"
-        },
-        "enclosure": {
-          "walls": 3,
-          "windows": 8,
-          "doors": 1,
-          "floors": 1,
-          "slabs": 1,
-          "roofs": 1
-        },
-        "systems": {
-          "heatingsystems": 1,
-          "coolingsystems": 1,
-          "hvacdistributions": 1,
-          "water_heating_systems": 1,
-          "ventilation_fans": 1
-        },
-        "climate": {},
-        "validation": {
-          "file_size": 25798,
+          "file_size": 25792,
           "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
           "total_elements": 598
@@ -111,7 +61,7 @@
       "structure_info": {
         "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
         "total_elements": 795,
-        "file_size_bytes": 33884,
+        "file_size_bytes": 33878,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -143,7 +93,7 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 33884,
+          "file_size": 33878,
           "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
           "total_elements": 795
@@ -161,7 +111,7 @@
       "structure_info": {
         "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
         "total_elements": 605,
-        "file_size_bytes": 25922,
+        "file_size_bytes": 25916,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -193,7 +143,7 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 25922,
+          "file_size": 25916,
           "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
           "total_elements": 605
@@ -203,15 +153,15 @@
         }
       }
     },
-    "baseline_WizardHouse_0.26": {
-      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.26.xml",
+    "baseline_WizardHouse_0.13": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.13.xml",
       "is_valid": true,
       "errors": [],
       "warnings": [],
       "structure_info": {
         "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
         "total_elements": 598,
-        "file_size_bytes": 25694,
+        "file_size_bytes": 25792,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -243,7 +193,7 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 25694,
+          "file_size": 25792,
           "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
           "total_elements": 598
@@ -261,7 +211,7 @@
       "structure_info": {
         "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
         "total_elements": 598,
-        "file_size_bytes": 25694,
+        "file_size_bytes": 25688,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -293,7 +243,7 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 25694,
+          "file_size": 25688,
           "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
           "total_elements": 598
@@ -311,7 +261,7 @@
       "structure_info": {
         "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
         "total_elements": 795,
-        "file_size_bytes": 33884,
+        "file_size_bytes": 33878,
         "has_building": true,
         "has_climate": false,
         "has_enclosure": true,
@@ -343,7 +293,7 @@
         },
         "climate": {},
         "validation": {
-          "file_size": 33884,
+          "file_size": 33878,
           "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
           "namespace": null,
           "total_elements": 795
@@ -352,8 +302,58 @@
           "timestep": "60"
         }
       }
+    },
+    "baseline_WizardHouse_0.26": {
+      "file_path": "tests/fixtures/expected_outputs/golden_files/baseline/baseline_WizardHouse_0.26.xml",
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "structure_info": {
+        "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+        "total_elements": 598,
+        "file_size_bytes": 25688,
+        "has_building": true,
+        "has_climate": false,
+        "has_enclosure": true,
+        "has_systems": true
+      },
+      "key_elements": {
+        "building_info": {
+          "site_type": null,
+          "building_type": null,
+          "conditioned_floor_area": "2583.34",
+          "conditioned_building_volume": "21199.4",
+          "number_of_bedrooms": "3",
+          "number_of_bathrooms": "2"
+        },
+        "enclosure": {
+          "walls": 3,
+          "windows": 8,
+          "doors": 1,
+          "floors": 1,
+          "slabs": 1,
+          "roofs": 1
+        },
+        "systems": {
+          "heatingsystems": 1,
+          "coolingsystems": 1,
+          "hvacdistributions": 1,
+          "water_heating_systems": 1,
+          "ventilation_fans": 1
+        },
+        "climate": {},
+        "validation": {
+          "file_size": 25688,
+          "root_element": "{http://hpxmlonline.com/2025/12}HPXML",
+          "namespace": null,
+          "total_elements": 598
+        },
+        "simulation_control": {
+          "timestep": "60"
+        }
+      }
     }
   },
-  "generated_date": "2026-06-08T17:17:14.126628",
+  "generated_date": "2026-08-20T19:12:50.941205",
   "generated_by": "test_generate_baseline.py"
 }

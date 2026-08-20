@@ -35,6 +35,7 @@
 
 #### Solar DHW
 - HPXML requires the fraction of hot water heating load provided by solar thermal (if present). This information is only available in the results section of the h2k file. As such, files that include solar thermal systems must include results, otherwise a warning will be flagged. The fraction is calculated as the primary DHW system consumption (always solar) divided by the primary + secondary consumption.
+- Note that the use of solar thermal will cause a reported hot water consumption mismatch between h2k and HPXML, because HPXML only puts (1-SolarFraction) through the non-solar water heater
 
 #### Supplementary Heating Systems
 - The translation looks at the total energy consumption of each supplementary heating system and compares it to the primary heating system to determine fraction of heating loads served
