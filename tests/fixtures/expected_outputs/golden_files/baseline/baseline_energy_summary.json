@@ -1,54 +1,54 @@
 {
-  "generated_date": "2026-06-08T17:17:14.093462",
+  "generated_date": "2026-08-20T19:12:50.909879",
   "results": {
     "WizardHouse_0.325.h2k": {
       "source_file": "WizardHouse_0.325.h2k",
       "baseline_file": "baseline_WizardHouse_0.325.json",
       "hpxml_baseline": "baseline_WizardHouse_0.325.xml",
       "sql_records": 14,
-      "processed_date": "2026-06-08T17:15:35.593848"
-    },
-    "WizardHouse_0.13.h2k": {
-      "source_file": "WizardHouse_0.13.h2k",
-      "baseline_file": "baseline_WizardHouse_0.13.json",
-      "hpxml_baseline": "baseline_WizardHouse_0.13.xml",
-      "sql_records": 14,
-      "processed_date": "2026-06-08T17:15:51.289959"
+      "processed_date": "2026-08-20T19:11:24.062685"
     },
     "ERS-EX-10001.H2K": {
       "source_file": "ERS-EX-10001.H2K",
       "baseline_file": "baseline_ERS-EX-10001.json",
       "hpxml_baseline": "baseline_ERS-EX-10001.xml",
       "sql_records": 14,
-      "processed_date": "2026-06-08T17:16:09.200906"
+      "processed_date": "2026-08-20T19:11:41.769329"
     },
     "WizardHouse.h2k": {
       "source_file": "WizardHouse.h2k",
       "baseline_file": "baseline_WizardHouse.json",
       "hpxml_baseline": "baseline_WizardHouse.xml",
       "sql_records": 14,
-      "processed_date": "2026-06-08T17:16:24.812628"
+      "processed_date": "2026-08-20T19:11:53.847044"
     },
-    "WizardHouse_0.26.h2k": {
-      "source_file": "WizardHouse_0.26.h2k",
-      "baseline_file": "baseline_WizardHouse_0.26.json",
-      "hpxml_baseline": "baseline_WizardHouse_0.26.xml",
+    "WizardHouse_0.13.h2k": {
+      "source_file": "WizardHouse_0.13.h2k",
+      "baseline_file": "baseline_WizardHouse_0.13.json",
+      "hpxml_baseline": "baseline_WizardHouse_0.13.xml",
       "sql_records": 14,
-      "processed_date": "2026-06-08T17:16:40.447493"
+      "processed_date": "2026-08-20T19:12:09.174215"
     },
     "WizardHouse_0.195.h2k": {
       "source_file": "WizardHouse_0.195.h2k",
       "baseline_file": "baseline_WizardHouse_0.195.json",
       "hpxml_baseline": "baseline_WizardHouse_0.195.xml",
       "sql_records": 14,
-      "processed_date": "2026-06-08T17:16:56.233502"
+      "processed_date": "2026-08-20T19:12:21.230073"
     },
     "ERS-EX-10000.H2K": {
       "source_file": "ERS-EX-10000.H2K",
       "baseline_file": "baseline_ERS-EX-10000.json",
       "hpxml_baseline": "baseline_ERS-EX-10000.xml",
       "sql_records": 14,
-      "processed_date": "2026-06-08T17:17:14.093440"
+      "processed_date": "2026-08-20T19:12:38.492095"
+    },
+    "WizardHouse_0.26.h2k": {
+      "source_file": "WizardHouse_0.26.h2k",
+      "baseline_file": "baseline_WizardHouse_0.26.json",
+      "hpxml_baseline": "baseline_WizardHouse_0.26.xml",
+      "sql_records": 14,
+      "processed_date": "2026-08-20T19:12:50.909859"
     }
   },
   "total_files": 7,
