@@ -166,24 +166,31 @@ def _test_energy_validation(
     energy_passed = sum(1 for c in energy_comparisons if c.get("passed", False))
     energy_failed = len(energy_comparisons) - energy_passed
 
-    assert (
-        energy_failed == 0
-    ), f"Energy validation failed for {source_file}: {energy_passed}/{len(energy_comparisons)} comparisons passed"
-
-    # Save individual energy comparison
+    # Save individual energy comparison for both PASS and FAIL outcomes.
+    failed_comparisons = [c for c in energy_comparisons if not c.get("passed", False)]
     energy_comparison_data = {
         "source_file": source_file,
         "baseline_file": baseline_info["baseline_file"],
         "test_date": datetime.now().isoformat(),
         "tolerance_percent": energy_tolerance_percent,
-        "status": "PASS",
+        "status": "PASS" if energy_failed == 0 else "FAIL",
         "total_comparisons": len(energy_comparisons),
         "passed_comparisons": energy_passed,
         "failed_comparisons": energy_failed,
         "comparisons": energy_comparisons,
+        "failed_details": failed_comparisons,
     }
 
     save_comparison_file(base_name, energy_comparison_data)
+
+    assert (
+        energy_failed == 0
+    ), (
+        f"Energy validation failed for {source_file}: "
+        f"{energy_passed}/{len(energy_comparisons)} comparisons passed "
+        f"(details saved to comparison_{base_name}.json)"
+    )
+
     print(f"✅ Energy validation PASSED: {energy_passed}/{len(energy_comparisons)} comparisons")
 
 
@@ -202,11 +209,7 @@ def _test_hpxml_validation(source_file, base_name, temp_output_dir):
     # Compare HPXML files
     hpxml_comparison = compare_hpxml_files(baseline_hpxml_path, current_hpxml_path)
 
-    assert hpxml_comparison.get(
-        "files_match", False
-    ), f"HPXML validation failed for {source_file}: {len(hpxml_comparison.get('differences', []))} differences found"
-
-    # Save individual HPXML comparison
+    # Save individual HPXML comparison for both PASS and FAIL outcomes.
     from tests.utils import get_comparison_hpxml_path
 
     comparison_hpxml_path = get_comparison_hpxml_path(base_name)
@@ -228,6 +231,14 @@ def _test_hpxml_validation(source_file, base_name, temp_output_dir):
             json.dump(hpxml_comparison, f, indent=2)
     except Exception as e:
         print(f"⚠️  Could not save HPXML comparison report: {e}")
+
+    assert hpxml_comparison.get(
+        "files_match", False
+    ), (
+        f"HPXML validation failed for {source_file}: "
+        f"{len(hpxml_comparison.get('differences', []))} differences found "
+        f"(details saved to comparison_{base_name}_hpxml.json)"
+    )
 
     print("✅ HPXML validation PASSED: Files match exactly")
 
