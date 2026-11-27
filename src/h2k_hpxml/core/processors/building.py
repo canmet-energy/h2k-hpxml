@@ -86,9 +86,6 @@ def process_building_details(
                 }
             )
 
-            #Other fields updated when building type is "whole-murb":
-            # Conditioned floor area is updated with two extra fields: common_space_area and non_res_unit_area
-
         if translation_mode == "STANDARD":
             apply_operating_conditions(h2k_dict, model_data, operating_condition)
         else:
